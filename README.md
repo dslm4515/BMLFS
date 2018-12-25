@@ -12,6 +12,7 @@ Layout
   <li> files -- Files that may be optional or required for a package build </li>
   <li> patches -- Patches that fix known issues or to allow package to build/run with Musl as libc </li>
   <li> recipes -- Build instructions for individual packages with short desciptions and build dependancies </li>
+  <li> services -- S6 services to add to service database
   <li> sources -- Packages sources that may be difficult to find or pre-patched </li>
 
 </ul>
