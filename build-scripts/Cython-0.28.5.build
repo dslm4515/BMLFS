@@ -1,0 +1,6 @@
+#! /bin/bash
+
+python2 setup.py build
+read -p "Install?" && sudo -S porg -lD  "python2 setup.py install"
+python3 setup.py build
+read -p "Install?" && sudo -S porg -lD+ "python3 setup.py install"

@@ -1,0 +1,14 @@
+#! /bin/bash
+./configure --prefix=/usr                     \
+            --docdir=/usr/share/doc/pcre-8.42 \
+            --enable-unicode-properties       \
+            --enable-pcre16                   \
+            --enable-pcre32                   \
+            --enable-pcregrep-libz            \
+            --enable-pcregrep-libbz2          \
+            --enable-pcretest-libreadline     \
+            --disable-static --enable-jit &&
+read -p "compile?" && make -j4 &&
+read -p "Install?" && sudo -S porg -lD "make -j1 install" &&
+sudo -S porg -lD+ "mv -v /usr/lib/libpcre.so.* /lib"
+sudo -S porg -lD+ "ln -sfv ../../lib/$(readlink /usr/lib/libpcre.so) /usr/lib/libpcre.so"

@@ -1,0 +1,14 @@
+#! /bin/bash
+
+mkdir BUILD &&
+cd    BUILD &&
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr    \
+      -DCMAKE_BUILD_TYPE=Release     \
+      -DJAS_ENABLE_DOC=NO            \
+      -DJAS_ENABLE_OPENGL=NO \
+      -DCMAKE_SKIP_INSTALL_RPATH=YES \
+      -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/jasper-2.0.14 \
+      ..  &&
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lp JasPer-2.0.14 "make -j1 install"

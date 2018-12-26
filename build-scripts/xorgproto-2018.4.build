@@ -1,0 +1,7 @@
+#! /bin/bash
+
+mkdir build &&
+cd    build &&
+meson --prefix=$XORG_PREFIX .. &&
+read -p "Compile?" && ninja -j2 && 
+read -p "Install?" && sudo -S porg -lp xorgproto-2018.4 "ninja -j1 install"

@@ -1,0 +1,9 @@
+#! /bin/bash
+
+sed -i '/cmptest/d' tests/CMakeLists.txt
+mkdir build &&
+cd    build &&
+cmake -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_VERBOSE_MAKEFILE=ON .. 
+read -p "Compile? " && make -j2  && 
+sudo -S porg -lp Graphite2-1.3.11 "make install -j1"

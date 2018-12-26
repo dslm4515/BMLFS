@@ -1,0 +1,8 @@
+#! /bin/bash
+
+./autogen.sh                            &&
+./configure --prefix=/usr --disable-static 
+read -p "Press Enter to compile" &&
+make -j2 && 
+read -p "Press Enter to install" &&
+sudo -S porg -lD "make install -j1"

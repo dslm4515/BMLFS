@@ -1,0 +1,35 @@
+#! /bin/bash
+
+patch -Np0 -i ../krb5-1.16.1-libressl.patch &&
+cd src &&
+ 
+sed -i -e 's@\^u}@^u cols 300}@' tests/dejagnu/config/default.exp     &&
+sed -i -e '/eq 0/{N;s/12 //}'    plugins/kdb/db2/libdb2/test/run.test &&
+
+./configure --prefix=/usr            \
+            --sysconfdir=/etc        \
+            --localstatedir=/var/lib \
+            --with-system-et         \
+            --with-system-ss         \
+            --with-system-verto=no   \
+            --enable-dns-for-realm &&
+read -p "Compile? " && make -j2 &&
+read -p "install? " &&
+sudo -S porg -lp KerberosV5-1.16.1 "make install -j1" &&
+
+for f in gssapi_krb5 gssrpc k5crypto kadm5clnt kadm5srv \
+         kdb5 kdb_ldap krad krb5 krb5support verto ; do
+
+    sudo -S porg -lp+ KerberosV5-1.16.1 'find /usr/lib -type f -name "lib$f*.so*" -exec chmod -v 755 {} \';    
+done          &&
+
+sudo -S porg -lp+ KerberosV5-1.16.1 "mv -v /usr/lib/libkrb5.so.3*        /lib" &&
+sudo -S porg -lp+ KerberosV5-1.16.1 "mv -v /usr/lib/libk5crypto.so.3*    /lib" &&
+sudo -S porg -lp+ KerberosV5-1.16.1 "mv -v /usr/lib/libkrb5support.so.0* /lib" &&
+
+sudo -S porg -lp+ KerberosV5-1.16.1 "ln -v -sf ../../lib/libkrb5.so.3.3        /usr/lib/libkrb5.so"        &&
+sudo -S porg -lp+ KerberosV5-1.16.1 "ln -v -sf ../../lib/libk5crypto.so.3.1    /usr/lib/libk5crypto.so"    &&
+sudo -S porg -lp+ KerberosV5-1.16.1 "ln -v -sf ../../lib/libkrb5support.so.0.1 /usr/lib/libkrb5support.so" &&
+
+sudo -S porg -lp+ KerberosV5-1.16.1 "mv -v /usr/bin/ksu /bin" &&
+sudo -S chmod -v 755 /bin/ksu 

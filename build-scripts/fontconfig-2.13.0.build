@@ -1,0 +1,10 @@
+#! /bin/bash
+
+rm -f src/fcobjshash.h
+./configure --prefix=/usr        \
+            --sysconfdir=/etc    \
+            --localstatedir=/var \
+            --disable-docs       \
+            --docdir=/usr/share/doc/fontconfig-2.13.0  --build=$BUILD &&
+read -p "Compile? " && make -j4  && 
+read -p "Install? " && sudo -S porg -lD "make install -j1 "

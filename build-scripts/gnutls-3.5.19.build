@@ -1,0 +1,8 @@
+#! /bin/bash
+
+./configure --prefix=/usr \
+            --with-default-trust-store-pkcs11="pkcs11:" \
+            --enable-openssl-compatibility \
+	    --build=x86_64-linux-musl &&
+read -p "Compile?" && make -j4 && 
+read -p "Install?" && sudo -S porg -lD "make install -j1 "

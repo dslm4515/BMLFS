@@ -1,0 +1,5 @@
+#! /bin/bash
+
+./configure --prefix=/usr --disable-static --build=x86_64-linux-musl  &&
+read -p "Compile?" && make -j4 && 
+read -p "Install?" && sudo -S porg -lD "make install -j1 "

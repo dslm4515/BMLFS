@@ -1,0 +1,4 @@
+#! /bin/bash
+./configure --prefix=/usr --disable-oss --enable-vala  &&
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make docdir=/usr/share/doc/libcanberra-0.30 -j1 install"

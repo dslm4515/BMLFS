@@ -1,0 +1,8 @@
+#! /bin/bash
+
+patch -Np1 -i ../glib-2.56.1-skip_warnings-1.patch
+./configure --prefix=/usr      \
+            --with-pcre=system \
+            --with-python=/usr/bin/python3 &&
+read -p "Compile?" && make -j4 &&
+read -p "Install?" && sudo -S porg -lD "make -j1 install"

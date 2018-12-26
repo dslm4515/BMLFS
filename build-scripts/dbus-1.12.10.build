@@ -1,0 +1,24 @@
+#! /bin/bash
+
+sudo -S groupadd -g 18 messagebus 
+sudo -S useradd -c "D-Bus Message Daemon User" -d /var/run/dbus \
+        -u 18 -g messagebus -s /bin/false messagebus
+./configure --prefix=/usr \
+            --sysconfdir=/etc \
+            --localstatedir=/var \
+            --docdir=/usr/share/doc/dbus-1.12.10 \
+            --disable-selinux \
+            --enable-inotify \
+            --with-dbus-user=messagebus \
+            --disable-static \
+            --disable-tests \
+            --enable-epoll \
+            --disable-asserts \
+            --disable-systemd \
+            --with-system-socket=/run/dbus/system_bus_socket \
+            --disable-doxygen-docs \
+            --with-system-pid-file=/run/dbus/pid \
+            --with-console-auth-dir=/run/console \
+            --disable-user-session --build=$BUILD
+read -p "Compile? " && make -j4 && 
+read -p "Install? " && sudo -S porg -lD "make install -j1 "
