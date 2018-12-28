@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# Firefox 61.0.2 for x86_64-linux-musl
+# Required Rustc 
+
 patch -Np0 -i ../firefox-61.0.2-fix-fortify-inline.patch
 patch -Np0 -i ../firefox-61.0.2-fix-musl.patch
 patch -Np0 -i ../firefox-61.0.2-fix-seccomp-bpf.patch 
@@ -10,22 +13,37 @@ patch -Np0 -i ../firefox-61.0.2-fix-xpcom.patch
 patch -Np0 -i ../firefox-61.0.2-mallinfo.patch 
 patch -Np0 -i ../firefox-61.0.2-rust-unitialized-field.patch
 patch -Np0 -i ../firefox-61.0.2-sndio.patch
+
 cp -v ../firefox-61.0.2-stab.h toolkit/crashreporter/google-breakpad/src/stab.h
-echo -n "AIzaSyAdkx9XyYrApn72ZXAb7je2ONLqQdPhHZ4" > google-api-key
-echo -n "cd894504-7a2a-4263-abff-ff73ee89ffca" > mozilla-api-key
+
+# Please add your own Google and Mozilla API keys:
+#echo -n "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > google-api-key
+#echo -n "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" > mozilla-api-key
+
 cp -v ../firefox-61.0.2-mozconfig ./.mozconfig
+
 echo "ac_add_options --disable-jemalloc" >> .mozconfig
 echo "ac_add_options --disable-gold"     >> .mozconfig
 echo "ac_add_options --enable-release"   >> .mozconfig
 echo "ac_add_options --host=x86_64-linux-musl"   >> .mozconfig
 echo "ac_add_options --target=x86_64-linux-musl" >> .mozconfig
-export LDFLAGS=" -Wl,-rpath=/opt/xorg/lib -Wl,-rpath=/usr/lib/firefox"
-export MOZ_MAKE_FLAGS=2
+
+# If commented, add /usr/lib/firefox to /etc/ld-musl-x86_64.path
+# export LDFLAGS=" -Wl,-rpath=/usr/lib/firefox"
+
+# Set the number of jobs... just like -j3 for "make -j3"
+export MOZ_MAKE_FLAGS=3
+
 cat >> .mozconfig << "EOF"
 ac_add_options --with-google-api-keyfile="$PWD/google-api-key"
 ac_add_options --with-mozilla-api-keyfile="$PWD/mozilla-api-key"
 ac_add_options --enable-startup-notification
 EOF
+
 rm -fv old-configure
-#./mach build
-#./install
+
+# Build
+./mach build
+
+# Istall
+porg -lD "./mach install"
