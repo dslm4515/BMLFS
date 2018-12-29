@@ -1,0 +1,6 @@
+#! /bin/bash
+sed -e '/^libdocdir =/ s/$(book_name)/libglademm-2.6.7/' \
+    -i docs/Makefile.in &&
+./configure --prefix=/usr &&
+read -p "Compile? " && make -j4  &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

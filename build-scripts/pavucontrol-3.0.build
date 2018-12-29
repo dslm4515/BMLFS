@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# source : http://freedesktop.org/software/pulseaudio/pavucontrol/pavucontrol-3.0.tar.xz
+
+./bootstrap.sh --prefix=/usr --build=x86_64-linux-musl
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

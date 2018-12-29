@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# Source: http://ftp.gnome.org/pub/gnome/sources/pangomm/2.40/pangomm-2.40.1.tar.xz
+
+sed -e '/^libdocdir =/ s/$(book_name)/pangomm-2.40.1/' \
+    -i docs/Makefile.in
+
+./configure --prefix=/usr &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+
