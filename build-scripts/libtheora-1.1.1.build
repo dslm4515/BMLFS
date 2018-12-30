@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# source : https://downloads.xiph.org/releases/theora/libtheora-1.1.1.tar.xz 
+
+sed -i 's/png_\(sizeof\)/\1/g' examples/png2theora.c &&
+
+./configure --prefix=/usr  \
+	    --disable-static &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+

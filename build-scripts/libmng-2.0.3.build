@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# source : https://downloads.sourceforge.net/libmng/libmng-2.0.3.tar.xz
+
+./configure --prefix=/usr --disable-static --build=x86_64-linux-musl &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

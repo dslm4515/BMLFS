@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# source: https://www.kernel.org/pub/linux/utils/usb/usbutils/usbutils-010.tar.xz
+
+./configure --prefix=/usr --datadir=/usr/share/hwdata --build=x86_64-linux-musl &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install" &&
+
+sudo -S porg -lD+ "install -dm755 /usr/share/hwdata/" &&
+sudo -S wget http://www.linux-usb.org/usb.ids -O /usr/share/hwdata/usb.ids

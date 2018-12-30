@@ -1,0 +1,13 @@
+#! /bin/bash
+
+# source: https://people.freedesktop.org/~hughsient/releases/libgusb-0.3.0.tar.xz
+
+mkdir build &&
+cd    build &&
+
+
+meson --prefix=/usr -Ddocs=false .. &&
+
+read -p "Compile? " && ninja -j4 && 
+read -p "Install? " && sudo -S porg -lp libgusb-0.3.0 "ninja install -j1 "
+

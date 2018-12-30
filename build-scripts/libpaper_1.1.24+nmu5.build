@@ -1,0 +1,18 @@
+#! /bin/bash
+
+# source: http://ftp.debian.org/debian/pool/main/libp/libpaper/libpaper_1.1.24+nmu5.tar.gz
+
+autoreconf -fiv                &&
+
+./configure --prefix=/usr     \
+            --sysconfdir=/etc \
+            --disable-static &&
+
+read -p "Compile? " && make -j4  && 
+read -p "Install? " && sudo -S porg -lD "make -j1 install" &&
+sudo -S mkdir -vp /etc/libpaper.d &&
+
+sudo -S porg -lD+ "cp -v ../libpaper-run-parts /usr/bin/run-parts"
+
+sudo -S chmod -v 755 /usr/bin/run-parts
+

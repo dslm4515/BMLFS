@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# source : https://archive.mozilla.org/pub/opus/opus-1.2.1.tar.gz
+
+./configure --prefix=/usr    --build=x86_64-linux-musl \
+            --disable-static \
+            --docdir=/usr/share/doc/opus-1.2.1 &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+
