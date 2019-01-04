@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# source: http://pyyaml.org/download/libyaml/yaml-0.2.1.tar.gz
+
+
+
+./configure --prefix=/usr --disable-static &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+

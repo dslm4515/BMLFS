@@ -1,0 +1,23 @@
+#! /bin/bash
+
+# source: ftp://sourceware.org/pub/lvm2/releases/LVM2.2.02.177.tgz
+
+patch -Np0 -i ../LVM2.2.02.177-fix-stdio-usage.patch
+patch -Np0 -i ../LVM2.2.02.177-mlockall-default-config.patch 
+patch -Np0 -i ../LVM2.2.02.177-portability.patch 
+export SAVEPATH=$PATH                  &&
+export PATH=$PATH:/sbin:/usr/sbin      &&
+
+./configure --prefix=/usr       \
+            --exec-prefix=      \
+            --enable-applib     \
+            --enable-cmdlib     \
+            --enable-pkgconfig  \
+            --enable-udev_sync  &&
+
+read -p "Compile?" && make -j4 &&
+
+export PATH=$SAVEPATH                  &&
+unset SAVEPATH &&
+
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

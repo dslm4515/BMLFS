@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# source: http://hisham.hm/htop/releases/2.2.0/htop-2.2.0.tar.gz 
+
+./configure --prefix=/usr  --sysconfdir=/etc --enable-proc \
+	    --enable-cgroup --enable-unicode --build=x86_64-linux-musl &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+

@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# source: http://0pointer.de/public/libatasmart-0.19.tar.xz
+
+./configure --prefix=/usr --disable-static  &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

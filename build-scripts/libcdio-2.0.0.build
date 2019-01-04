@@ -1,0 +1,20 @@
+#! /bin/bash
+
+# source: https://ftp.gnu.org/gnu/libcdio/libcdio-2.0.0.tar.gz
+
+patch -Np1 -i ../libcdio-2.0.0-disable-broken-test.patch
+autoreconf -vfi
+
+./configure --prefix=/usr --disable-static &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install" &&
+
+tar -xf ../libcdio-paranoia-10.2+0.94+2.tar.gz &&
+cd libcdio-paranoia-10.2+0.94+2 &&
+
+./configure --prefix=/usr --disable-static &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+~                                                             

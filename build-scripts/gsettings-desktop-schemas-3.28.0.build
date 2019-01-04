@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# source: http://ftp.gnome.org/pub/gnome/sources/gsettings-desktop-schemas/3.28/gsettings-desktop-schemas-3.28.0.tar.xz
+
+sed -i -r 's:"(/system):"/org/gnome\1:g' schemas/*.in &&
+./configure --prefix=/usr &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+

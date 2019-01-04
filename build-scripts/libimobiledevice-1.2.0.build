@@ -1,0 +1,16 @@
+#! /bin/bash
+
+#source: https://github.com/libimobiledevice/libimobiledevice/archive/1.2.0.tar.gz
+
+sed -i 's,SSLv3_,SSLv23_,g' src/idevice.c
+sed -i 's,-L$(libdir),,g' cython/Makefile.am
+
+autoreconf -fiv
+
+PYTHON_CPPFLAGS="-I/usr/include/python2.7" \
+PYTHON_LDFLAGS="-L/usr/lib -lpython2.7" \
+./configure --prefix=/usr &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+

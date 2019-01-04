@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# source: https://downloads.sourceforge.net/lxde/menu-cache-1.1.0.tar.xz
+
+./configure --prefix=/usr \
+            --disable-static &&
+
+read -p "Compile? " && make -j4 &&
+
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

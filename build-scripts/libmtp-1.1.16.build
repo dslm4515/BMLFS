@@ -1,0 +1,14 @@
+#! /bin/bash
+
+# source: https://sourceforge.net/projects/libmtp/files/libmtp/1.1.16/libmtp-1.1.16.tar.gz
+
+#autoreconf -fvi &&
+
+./configure --prefix=/usr \
+	   -disable-static \
+	   --with-udev=/usr/lib/udev &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+
+

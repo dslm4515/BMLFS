@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# source: https://github.com/dosfstools/dosfstools/releases/download/v4.1/dosfstools-4.1.tar.xz
+
+./configure --prefix=/               \
+            --enable-compat-symlinks \
+            --mandir=/usr/share/man  \
+            --docdir=/usr/share/doc/dosfstools-4.1 &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

@@ -1,0 +1,14 @@
+#! /bin/bash
+
+# source: http://download.kde.org/stable/frameworks/5.49/oxygen-icons5-5.49.0.tar.xz
+
+sed -i '/( oxygen/ s/)/scalable )/' CMakeLists.txt
+
+mkdir build &&
+cd    build &&
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr -Wno-dev ..
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lp oxygen-icons5-5.49.0  "make -j1 install"
+

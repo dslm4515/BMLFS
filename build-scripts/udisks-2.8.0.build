@@ -1,0 +1,14 @@
+#! /bin/bash
+
+# source: https://github.com/storaged-project/udisks/releases/download/udisks-2.8.0/udisks-2.8.0.tar.bz2
+
+patch -Np0 -i ../udisks-2.8.0-O_CLOEXEC.patch 
+./configure --prefix=/usr        \
+            --sysconfdir=/etc    \
+            --localstatedir=/var \
+            --disable-static     \
+            --with-udevdir=/usr/lib/udev \
+            --enable-compile-warnings=minimum \
+            --enable-fhs-media &&
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
