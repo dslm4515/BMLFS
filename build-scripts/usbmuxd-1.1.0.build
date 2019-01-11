@@ -8,3 +8,10 @@ autoreconf -fvi &&
 
 read -p "Compile? " && make -j4 &&
 read -p "Install? " && sudo -S porg -lD "make -j1 install"
+
+# Add the user
+sudo -S groupadd -g 23 usbmux
+sudo -S useradd  -c "USB Mux Daemon User" \
+	         -d /run/usbmuxd \
+		 -u 23 -g usbmux \
+		 -s /bin/false usbmux 
