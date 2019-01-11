@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# source: https://bitbucket.org/multicoreware/x265/downloads/x265_2.8.tar.gz
+
+mkdir bld &&
+cd    bld &&
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr ../source &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lp x265-2.8  "make -j1 install" &&
+sudo -S porg -lp+ x265-2.8 "rm -vf /usr/lib/libx265.a "

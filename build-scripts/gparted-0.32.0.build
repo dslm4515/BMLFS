@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# source: https://downloads.sourceforge.net/gparted/gparted-0.32.0.tar.gz
+
+./configure --prefix=/usr    \
+            --disable-doc    \
+            --disable-static --enable-xhost-root &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+

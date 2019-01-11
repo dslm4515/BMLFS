@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# source: http://ftp.gnome.org/pub/GNOME/sources/glade3/3.8/glade3-3.8.6.tar.xz
+
+#autoreconf -vfi 
+
+./configure --prefix=/usr --disable-static --build=x86_64-linux-musl  &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+

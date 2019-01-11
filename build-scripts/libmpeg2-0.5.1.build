@@ -1,0 +1,15 @@
+#! /bin/bash
+
+# source: http://libmpeg2.sourceforge.net/files/libmpeg2-0.5.1.tar.gz
+
+
+
+sed -i 's/static const/static/' libmpeg2/idct_mmx.c &&
+
+./configure --prefix=/usr    \
+            --enable-shared  \
+            --disable-static &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+

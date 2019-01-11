@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# source: http://feh.finalrewind.org/feh-2.27.1.tar.bz2
+
+sed -i "s:doc/feh:&-2.27.1:" config.mk &&
+make PREFIX=/usr -j4 &&
+
+read -p "Install? " && sudo -S porg -lD "make PREFIX=/usr -j1 install"

@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# source: https://gitlab.gnome.org/GNOME/gnome-disk-utility.git
+
+mkdir BUILD && cd BUILD &&
+
+meson --prefix=/usr -D libsystemd=false &&
+
+read -p "Compile? " && ninja -j4 &&
+read -p "Install? " && sudo -S porg -lp gnome-disk-utility  "ninja -j1 install"
