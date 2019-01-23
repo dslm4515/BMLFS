@@ -1,0 +1,32 @@
+#! /bin/bash
+
+# source: http://deb.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_20180409.tar.xz
+
+cc ../certdata2pem.c -o  mozilla/certdata2pem
+
+cp -v ../remove-expired-certs.sh mozilla/
+
+sed -i mozilla/Makefile \
+  -e 's,python certdata2pem.py,./certdata2pem,g'
+sed -i mozilla/Makefile \
+-e "s;\(.*\)\(certdata2pem.*\);\1\2\n\1./remove-expired-certs.sh;"
+
+read -p "Compile? " && make -j3 &&
+
+read -p "Install? " &&
+
+sudo -S porg -lp  ca-certificate-20180409 "mkdir /usr/share/ca-certificates"
+#mkdir usr/bin
+#mkdir usr/sbin
+sudo -S porg -lp+ ca-certificate-20180409 "mkdir /etc/ssl/certs"
+
+sudo -S porg -lp+ ca-certificate-20180409 "make install DESTDIR=/ -j1 "
+
+sudo -S porg -lp+ ca-certificate-20180409 "install -Dm644 /sbin/update-ca-certificates.8 \
+               /usr/share/man/man8/update-ca-certificates.8"
+
+cd /usr/share/ca-certificates
+sudo -S porg -lp+ ca-certificate-20180409 "find . -name '*.crt' | sort | cut -b3- > /etc/ca-certificates.conf"
+sudo -S sed -i 's,openssl rehash,openssl certhash,g' /usr/sbin/update-ca-certificates
+#mv /usr/sbin/* /usr/bin
+sudo -S porg -lp+ ca-certificate-20180409 "ln -s /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs.pem"

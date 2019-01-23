@@ -1,0 +1,18 @@
+#! /bin/bash
+
+# source: https://github.com/ioerror/tlsdate/archive/tlsdate-0.0.13.tar.gz
+
+patch -Np0 -i ../tlsdate-0.0.13-void-aarch64-ppc64.patch
+patch -Np0 -i ../tlsdate-0.0.13-void-libressl-no-sslv3.patch
+patch -Np0 -i ../tlsdate-0.0.13-void-libressl-sslstate.patch
+
+sed -i Makefile.am \
+-e 's|/tlsdate/ca-roots/tlsdate-ca-roots.conf|/ssl/certs/ca-certificates.crt|'
+
+sh ./autogen.sh
+
+ac_cv_func_clock_gettime=yes \
+./configure --prefix=/usr --with-polarssl=no --sysconfdir=/etc &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lp tlsdate-0.0.13 "make -j1 install"

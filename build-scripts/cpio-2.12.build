@@ -1,0 +1,16 @@
+#! /bin/bash
+
+# source: https://ftp.gnu.org/gnu/cpio/cpio-2.12.tar.bz2
+
+patch -Np0 -i ../cpio-2.12-void-CVE-2016-2037-1-byte-out-of-bounds-write.patch
+patch -Np0 -i ../cpio-2.12-void-Fix-out-of-bounds-read.patch
+patch -Np0 -i ../cpio-2.12-void-Fix-sigfault-when-appending-to-archive.patch
+patch -Np0 -i ../cpio-2.12-void-Fix-signed-integer-overflow-big-block-sizes.patch
+
+autoreconf -vfi
+
+./configure --prefix=/usr --sysconfdir=/etc &&
+
+read -p "Compile? " && make -j4 &&
+
+read -p "Install? " && sudo -S porg -lD "Make -j1 install"
