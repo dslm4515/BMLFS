@@ -1,7 +1,11 @@
 https://ftp.mozilla.org/pub/firefox/releases/61.0.2/source/firefox-61.0.2.source.tar.xz
 https://ftp.mozilla.org/pub/firefox/releases/52.3.0esr/source/firefox-52.3.0esr.source.tar.xz
 https://www.freedesktop.org/software/polkit/releases/polkit-0.114.tar.gz
+
 https://static.rust-lang.org/dist/rustc-1.28.0-src.tar.gz
+https://alpha.de.repo.voidlinux.org/distfiles/cargo-0.29.0-x86_64-unknown-linux-musl.tar.gz
+https://alpha.de.repo.voidlinux.org/distfiles/rust-std-1.27.2-x86_64-unknown-linux-musl.tar.xz
+https://alpha.de.repo.voidlinux.org/distfiles/rustc-1.27.2-x86_64-unknown-linux-musl.tar.xz
 
 ftp://ftp.gnome.org/pub/gnome/sources/glibmm/2.56/glibmm-2.56.0.tar.xz
 
