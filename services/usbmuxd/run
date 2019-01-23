@@ -2,4 +2,4 @@
 
 fdmove -c 2 1
 
-acpid -lfd 1
+/usr/sbin/usbmuxd -u -U usbmux 

@@ -1,6 +1,0 @@
-#!/bin/execlineb -P
-
-if { install -m755 -g 18 -o 18 -d /run/dbus }
-if { /usr/bin/dbus-uuidgen --ensure }
- /usr/bin/dbus-daemon --system --nofork --nopidfile 
-

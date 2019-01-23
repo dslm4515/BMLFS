@@ -1,0 +1,10 @@
+#!/bin/execlineb -P
+
+fdmove -c 2 1
+
+foreground { if -n { s6-test -d /run/dbus }
+             install -m0755 -g 18 -o 18 -d /run/dbus
+}
+s6-ipcserver-socketbinder -- /run/dbus/system_bus_socket
+foreground { /usr/bin/dbus-uuidgen --ensure }
+exec dbus-daemon --nofork --nopidfile --system --address=unix:path=/run/dbus/system_bus_socket

@@ -1,0 +1,10 @@
+#!/bin/execlineb -P
+
+fdmove -c 2 1
+
+foreground { if -n { s6-test -d /run/Consolekit }
+             mkdir -p -m0755 /run/Consolekit
+}
+
+if { console-kit-daemon --no-daemon }
+s6-echo -- "[       aux      ] Starting ConsoleKit ..."
