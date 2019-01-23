@@ -3,9 +3,9 @@
 # source: http://linux-pam.org/library/Linux-PAM-1.3.0.tar.bz2
 
 # Use patches from alpine linux
-patch -Np1 -i ../Linux-PAM-1.3.0-fix-compat.patch
-patch -Np1 -i ../Linux-PAM-1.3.0-libpam-fix-build.patch 
-patch -Np1 -i ../Linux-PAM-1.3.0-musl-fix-pam_exec.patch 
+patch -Np1 -i ../Linux-PAM-1.3.0-alpine-fix-compat.patch
+patch -Np1 -i ../Linux-PAM-1.3.0-alpine-libpam-fix-build.patch 
+patch -Np1 -i ../Linux-PAM-1.3.0-alpine-musl-fix-pam_exec.patch 
 
 autoreconf -vif
 sed -e 's/pam_rhosts//g' -i modules/Makefile.am

@@ -7,4 +7,10 @@
             --with-env-editor          \
             --docdir=/usr/share/doc/sudo-1.8.23 \
             --with-passprompt="[sudo] password for %p: "
-read -p "Press Enter to compile" && make -j2
+read -p "Press Enter to compile" && make -j2 &&
+
+read -p "Install? " && su -c "porg -lD 'make -j1 install'" &&
+
+su -c "porg -lD+ 'ln -sfv libsudo_util.so.0.0.0 /usr/lib/sudo/libsudo_util.so.0'" &&
+su -c "cp -v ../sudo-sudo /etc/pam.d/sudo" &&
+su -c "chmod 644 /etc/pam.d/sudo"
