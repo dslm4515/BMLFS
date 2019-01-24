@@ -1,8 +1,8 @@
 #! /bin/bash
 
-#cp -v ../wpa_supplicant-2.6-config wpa_supplicant/.config
-#patch -p1 -i ../wpa_supplicant-2.6-upstream_fixes-1.patch &&
-#patch -p1 -i ../wpa_supplicant-2.6-libressl.patch
+cp -v ../wpa_supplicant-2.6-config wpa_supplicant/.config
+patch -p1 -i ../wpa_supplicant-2.6-upstream_fixes-1.patch &&
+patch -p1 -i ../wpa_supplicant-2.6-libressl.patch
 cd wpa_supplicant                                         &&
 read -p "Compile? " && make BINDIR=/sbin LIBDIR=/lib -j4 &&
 

@@ -1,5 +1,7 @@
 #! /bin/bash
 
+# source: https://pm-utils.freedesktop.org/releases/pm-utils-1.4.1.tar.gz
+
 ./configure --prefix=/usr \
             --sysconfdir=/etc \
 	    --docdir=/usr/share/doc/pm-utils-1.4.1	  &&

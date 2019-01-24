@@ -1,0 +1,34 @@
+#! /bin/bash
+
+
+# source: 
+#
+#
+
+patch -Np1 -i ../llvm-6.0.0.src-void-musl-fix.patch &&
+tar -xf ../cfe-6.0.0.src.tar.xz &&
+cd cfe-6.0.0.src &&
+patch -Np1 -i ../../cfe-6.0.0.src-void-musl-triples.patch &&
+patch -Np1 -i ../../cfe-6.0.0.src-void-fix-stdint.patch &&
+patch -Np1 -i ../../cfe-6.0.0.src-void-fix-unwind.patch &&
+cd .. &&
+mv -v cfe-6.0.0.src tools &&
+tar -xf ../compiler-rt-6.0.0.src.tar.xz -C projects &&
+mv -v tools/cfe-6.0.0.src tools/clang &&
+mv -v projects/compiler-rt-6.0.0.src projects/compiler-rt &&
+sed -i 's/set(COMPILER_RT_HAS_SANITIZER_COMMON TRUE)/set(COMPILER_RT_HAS_SANITIZER_COMMON FALSE)/'  projects/compiler-rt/cmake/config-ix.cmake &&
+
+mkdir -v build && cd       build &&
+CC=gcc CXX=g++                              \
+cmake -DCMAKE_INSTALL_PREFIX=/usr           \
+      -DLLVM_ENABLE_FFI=ON                  \
+      -DCMAKE_BUILD_TYPE=Release            \
+      -DLLVM_BUILD_LLVM_DYLIB=ON            \
+      -DLLVM_LINK_LLVM_DYLIB=ON             \
+      -DLLVM_TARGETS_TO_BUILD="host;AMDGPU;X86" \
+      -DLLVM_INSTALL_UTILS=ON \
+      -DLLVM_ENABLE_RTTI=ON \
+      -DLLVM_BINUTILS_INCDIR=/usr/include \
+      -Wno-dev ..                           &&
+read -p "Compile? " && time { make -j2 ;}  && 
+read -p "Install? " && sudo -S porg -lp llvm-6.0.0 "make install -j1"
