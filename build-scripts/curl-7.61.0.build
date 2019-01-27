@@ -1,0 +1,12 @@
+#! /bin/bash
+
+patch -Np0 -i ../curl-7.61.0-patch-lib_vtls_openssl_c.patch
+./configure --prefix=/usr                           \
+            --disable-static                        \
+            --enable-threaded-resolver              \
+            --with-ca-path=/etc/ssl/certs \
+            --with-libssh2 \
+            --enable-ipv6 \
+            --enable-unix-sockets --with-pic $BUILD &&
+read -p "Compile? " && make -j4  && 
+read -p "Install? " && sudo -S porg -lD "make install -j1 "

@@ -1,0 +1,5 @@
+#!/bin/execlineb -P
+
+s6-setuidgid 19:19
+exec -c
+s6-log s1000000 n12 T /var/log/aux-serv/acpid

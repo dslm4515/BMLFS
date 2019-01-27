@@ -1,0 +1,9 @@
+#! /bin/bash
+
+# source: https://github.com/libass/libass/releases/download/0.14.0/libass-0.14.0.tar.xz
+
+./configure --prefix=/usr --disable-static &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+

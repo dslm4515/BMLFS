@@ -1,0 +1,8 @@
+#! /bin/bash
+
+./configure --prefix=/usr     \
+            --disable-static  \
+            --enable-lib-only \
+            --docdir=/usr/share/doc/nghttp2-1.32.0 $BUILD && 
+read -p "Compile?" && make -j4  && 
+read -p "Install?" && sudo -S porg -lD "make install -j1 "

@@ -1,0 +1,11 @@
+#! /bin/bash 
+cd nspr                                                     &&
+sed -ri 's#^(RELEASE_BINS =).*#\1#' pr/src/misc/Makefile.in &&
+sed -i 's#$(LIBRARY) ##'            config/rules.mk         &&
+
+./configure --prefix=/usr \
+            --with-mozilla \
+            --with-pthreads \
+            $([ $(uname -m) = x86_64 ] && echo --enable-64bit) $BUILD  &&
+read -p "Compile?" && make -j4 && 
+read -p "Install?" && sudo -S porg -lp nspr-4.19 "make install -j1"

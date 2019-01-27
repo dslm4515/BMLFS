@@ -1,0 +1,10 @@
+#! /bin/bash
+
+rm -v config.guess config.sub &&
+ln -sv ../../config.guess-musl config.guess &&
+ln -sv ../../config.sub-musl config.sub &&
+
+./configure --prefix=/usr \
+            --disable-static $BUILD	&&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install -j1" 

@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# source: ftp://anduin.linuxfromscratch.org/BLFS/popt/popt-1.16.tar.gz
+
+cp -v ../config.sub-musl config.sub
+cp -v ../config.guess-musl config.guess
+
+./configure --prefix=/usr --disable-static --build=x86_64-linux-musl &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

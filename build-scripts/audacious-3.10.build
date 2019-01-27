@@ -1,0 +1,13 @@
+#! /bin/bash
+
+# source: https://distfiles.audacious-media-player.org/audacious-3.10.tar.bz2
+
+TPUT=/bin/true \
+LDFLAGS=" -Wl,-rpath=/opt/qt5/lib" \
+./configure --prefix=/usr \
+            --with-buildstamp="BMLFS" \
+            --enable-qt --build=x86_64-linux-musl &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+

@@ -1,0 +1,14 @@
+#! /bin/bash
+
+# source: http://ftp.gnome.org/pub/gnome/sources/glib-networking/2.56/glib-networking-2.56.1.tar.xz
+
+mkdir build &&
+cd    build &&
+
+meson --prefix=/usr            \
+      -Dlibproxy_support=false \
+      -Dca_certificates_path=/etc/ssl/ca-bundle.crt .. &&
+
+read -p "Compile? " && ninja -j4 &&
+read -p "Install? " && sudo -S porg -lp glib-networking-2.56.1 "ninja -j1 install"
+

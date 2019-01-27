@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# source: https://www.gnupg.org/ftp/gcrypt/gpgme/gpgme-1.11.1.tar.bz2
+
+./configure --prefix=/usr \
+            --disable-gpg-test $BUILD &&
+read -p "Compile? " && make && 
+read -p "Install? " && sudo -S porg -lD "make install -j1"

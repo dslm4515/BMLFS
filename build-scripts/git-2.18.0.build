@@ -1,0 +1,6 @@
+#! /bin/bash
+./configure --prefix=/usr \
+            --with-gitconfig=/etc/gitconfig \
+            --with-libpcre2 $BUILD &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install -j1" 

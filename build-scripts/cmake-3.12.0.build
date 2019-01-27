@@ -1,0 +1,12 @@
+#! /bin/bash
+
+sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake &&
+
+./bootstrap --prefix=/usr        \
+            --system-libs        \
+            --mandir=/share/man  \
+            --no-system-jsoncpp  \
+            --no-system-librhash \
+            --docdir=/share/doc/cmake-3.12.0 && 
+read -p "Compile? " && make -j4  && 
+read -p "Install? " && sudo -S porg -lD "make install -j1 " 2>&1 | tee ~/cmake-3.12.log

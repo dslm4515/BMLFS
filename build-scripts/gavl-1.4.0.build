@@ -1,0 +1,17 @@
+#! /bin/bash
+
+# source: https://downloads.sourceforge.net/gmerlin/gavl-1.4.0.tar.gz
+
+patch -Np0 -i ../gavl-1.4.0-musl-sched_h.patch
+cp -v ../config.sub-musl config.sub &&
+cp -v ../config.guess-musl config.guess
+
+
+LIBS=-lm                      \
+./configure --prefix=/usr     \
+            --without-doxygen \
+            --docdir=/usr/share/doc/gavl-1.4.0 --build=x86_64-linux-musl &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+

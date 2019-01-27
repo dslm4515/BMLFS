@@ -1,0 +1,15 @@
+#! /bin/bash
+
+# source: http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-7.7p1.tar.gz
+
+cd contrib &&
+make gnome-ssh-askpass2 -j4 &&
+
+read -p "Install? " &&
+
+sudo -S porg -lp  ssh-askpass-7.7p1 "install -v -d -m755 /usr/libexec/openssh/contrib"  &&
+sudo -S porg -lp+ ssh-askpass-7.7p1 "cp -v    gnome-ssh-askpass2 \
+                    /usr/libexec/openssh/contrib"  &&
+sudo -S porg -lp+ ssh-askpass-7.7p1 "chmod -v 755 /usr/libexec/openssh/contrib/gnome-ssh-askpass2" &&
+sudo -S porg -lp+ ssh-askpass-7.7p1 "ln -sv -f contrib/gnome-ssh-askpass2 \
+                    /usr/libexec/openssh/ssh-askpass"

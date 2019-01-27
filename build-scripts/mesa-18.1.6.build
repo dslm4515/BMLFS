@@ -1,0 +1,31 @@
+#! /bin/bash
+
+patch -Np1 -i ../mesa-18.1.6-add_xdemos-1.patch &&
+patch -Np0 -i ../mesa-18.1.6-void-musl-endian.patch &&
+patch -Np0 -i ../mesa-18.1.6-void-musl.patch &&
+
+read -p "Edit to add '#include<time.h>' to file... " &&
+vi src/mesa/drivers/dri/i965/brw_bufmgr.h &&
+
+export GLL_DRV="i915,nouveau,radeonsi,svga,swrast"
+./configure CFLAGS='-O2' CXXFLAGS='-O2' LDFLAGS=-lLLVM \
+            --prefix=$XORG_PREFIX              \
+            --sysconfdir=/etc                  \
+            --enable-texture-float             \
+            --enable-osmesa                    \
+            --enable-xa                        \
+            --enable-glx-tls                   \
+            --with-platforms="drm,x11,wayland" \
+            --with-gallium-drivers=$GLL_DRV    \
+            --with-dri-drivers=i915,i965,swrast,nouveau,radeon \
+            --enable-llvm \
+            --enable-gbm \
+            --enable-gles1 \
+            --enable-gles2 \
+            --enable-shared-glapi \
+            --enable-dri3 \
+            --enable-vdpau \
+            --disable-nine $BUILD &&
+unset GLL_DRV &&
+read -p "Compile? " && time { make -j2 ; } &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

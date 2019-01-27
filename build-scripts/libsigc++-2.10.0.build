@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# SOURCE: ftp://ftp.gnome.org/pub/gnome/sources/libsigc++/2.10/libsigc++-2.10.0.tar.xz
+
+sed -e '/^libdocdir =/ s/$(book_name)/libsigc++-2.10.0/' -i docs/Makefile.in
+
+./configure --prefix=/usr --build=x86_64-linux-musl &&
+
+read -p "Compile?" && make -j4 &&
+read -p "Install?" && sudo -S porg -lD "make -j1 install"

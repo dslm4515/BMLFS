@@ -1,0 +1,6 @@
+#! /bin/bash
+./configure --prefix=/usr \
+            --with-package-name="GStreamer 1.14.2 BMLFS" \
+            --with-package-origin="http://www.linuxfromscratch.org/blfs/view/svn/" --build=x86_64-linux-musl &&
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

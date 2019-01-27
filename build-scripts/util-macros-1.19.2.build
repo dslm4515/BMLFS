@@ -1,0 +1,4 @@
+#! /bin/bash
+
+./configure $XORG_CONFIG &&
+sudo -S porg -lD "make -j1 install"

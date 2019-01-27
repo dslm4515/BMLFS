@@ -1,0 +1,26 @@
+#! /bin/bash
+
+# source: http://ftp.gnome.org/pub/gnome/sources/gvfs/1.36/gvfs-1.36.2.tar.xz
+
+mkdir build &&
+cd    build &&
+meson --prefix=/usr     \
+      --sysconfdir=/etc \
+      -Dfuse=true      \
+      -Dgphoto2=false   \
+      -Dafc=true       \
+      -Dbluray=false    \
+      -Dnfs=false       \
+      -Dmtp=true        \
+      -Dsmb=false       \
+      -Dtmpfilesdir=no  \
+      -Dlogind=false    \
+      -Ddnssd=true     \
+      -Dgoa=false       \
+      -Dgoogle=false    \
+      -Dsystemduserunitdir=no \
+      -Dnls=false .. &&
+
+read -p "Compile? " && ninja -j4 &&
+read -p "Install? " && sudo -S porg -lp gvfs-1.36.2  "ninja -j1 install"
+

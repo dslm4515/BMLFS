@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# source: http://xmlsoft.org/sources/libxslt-1.1.32.tar.gz
+
+sed -i s/3000/5000/ libxslt/transform.c doc/xsltproc.{1,xml} &&
+
+./configure --prefix=/usr --disable-static                   &&
+
+read -p "Compile? " &&  make -j4  && 
+read -p "Install? " && sudo -S porg -lD "make install -j1"
+

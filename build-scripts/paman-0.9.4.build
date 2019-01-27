@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# source: http://0pointer.de/lennart/projects/paman/paman-0.9.4.tar.gz
+
+./configure --prefix=/usr -build=x86_64-linux-musl --disable-lynx &&
+	
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

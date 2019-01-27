@@ -1,0 +1,10 @@
+#! /bin/bash
+
+autoreconf -fi
+sed -i '/<linux\/if_bridge.h>/i#define _LINUX_IN6_H' lib/route/link/bridge.c
+patch -Np0 -i ../libnl-3.4.0-musl-fix.patch
+./configure --prefix=/usr     \
+            --sysconfdir=/etc \
+            --disable-static $BUILD &&
+read -p "Compile? " && make -j2  && 
+read -p "Install? " && sudo -S porg -lD "make install -j1 "

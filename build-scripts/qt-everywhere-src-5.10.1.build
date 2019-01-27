@@ -1,0 +1,64 @@
+#! /bin/bash
+
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/arm-void-is-not-android.patch    &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/gcc8-chromium-mojo.patch         &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/hack-compiler_version_echo.patch &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/libressl-disable-1.1-APIs.patch  &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/qt-cross-enable_tools.patch      &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/qt-musl-execinfo.patch           &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/qt-musl-iconv-no-bom.patch       &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/qt-musl-mallinfo.patch           &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/qt-musl-off_t.patch              &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/qt-musl-pvalloc.patch            &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/qt-musl-resolve.patch            &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/qt-musl-serialio.patch           &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/qt-musl-set_thread_name_np.patch &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/qt-musl-siginfo_t.patch          &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/qt-musl-stackbottom.patch        &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/qt-musl-stackstart.patch         &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/qt-musl-timeval.patch            &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/qtwebengine-ffmpeg4.patch        &&
+patch -Np0 -i ../qt-everywhere-src-5.10.1-patches/qtwebkit-chartype.patch          &&
+
+cp -v ../qt-everywhere-src-5.10.1-patches/resolv_compat.h \
+qtwebengine/src/3rdparty/chromium/net/dns &&
+
+sed -i qtbase/mkspecs/features/create_cmake.prf -e "/CMAKE_NO_PRIVATE_INCLUDES = true/d" &&
+
+cd qtwebengine/src/3rdparty/chromium &&
+patch -Np0 -i ../../../../../qt-everywhere-src-5.10.1-patches/musl-sandbox.patch &&
+
+cd ../../../../ &&
+for config in $(find qtwebengine/src/3rdparty/chromium/third_party/ffmpeg/chromium/config -name "config\.*" | grep linux); do
+     sed -i ${config} -e "s;HAVE_SYSCTL 1;HAVE_SYSCTL 0;"
+done
+
+export QT5PREFIX=/opt/qt5 &&
+export LD_LIBRARY_PATH=${PWD}/qtbase/lib:${PWD}/qttools/lib:${LD_LIBRARY_PATH} &&
+
+MAKE=/usr/bin/make \
+CC="cc" CXX="c++" CPP="cpp" LD="c++" AR="ar" AS="as" NM="nm" \
+OBJDUMP="objdump" STRIP="strip" RANLIB="ranlib" \
+CFLAGS="-DOPENSSL_NO_PSK -DOPENSSL_NO_NEXTPROTONEG" \
+CXXFLAGS="-DOPENSSL_NO_PSK -DOPENSSL_NO_NEXTPROTONEG -Wno-deprecated-declarations -fno-delete-null-pointer-checks" \
+LDFLAGS=" -pthread -ldl -fPIE -Wl,--no-keep-memory -Wl,-rpath=/usr/lib" \
+./configure -prefix $QT5PREFIX                          \
+            -sysconfdir /etc/xdg                        \
+            -confirm-license                            \
+            -opensource                                 \
+            -dbus-linked                                \
+            -openssl-linked                             \
+            -system-harfbuzz                            \
+            -system-sqlite                              \
+            -nomake examples                            \
+            -no-rpath                                   \
+            -skip qtwebengine &&
+
+read -p "Compile? " && make -j2 && make -j2 &&
+read -p "Install? " && sudo -S -E porg -lp qt-5.10.1 "make -j1 install" &&
+
+sudo -S -E find $QT5PREFIX/ -name \*.prl \
+   -exec sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+for file in moc uic rcc qmake lconvert lrelease lupdate; do
+  sudo -S -E porg -lp+ qt-5.10.1 "ln -sfrvn $QT5BINDIR/$file /usr/bin/$file-qt5"
+done

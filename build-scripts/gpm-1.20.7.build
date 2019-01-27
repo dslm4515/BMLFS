@@ -1,0 +1,16 @@
+#! /bin/bash
+patch -Np0 -i ../gpm-1.20.7-musl-fcntl.patch &&
+patch -Np0 -i ../gpm-1.20.7-musl-gpm_h.patch &&
+patch -Np0 -i ../gpm-1.20.7-musl-linux_major_h.patch &&
+patch -Np0 -i ../gpm-1.20.7-musl-select.patch &&
+patch -Np0 -i ../gpm-1.20.7-musl-sigaction.patch &&
+./autogen.sh                                &&
+./configure --prefix=/usr --sysconfdir=/etc $BUILD &&
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make install -j1"                                          &&
+
+sudo -S porg -lD+ "install-info --dir-file=/usr/share/info/dir           \
+             /usr/share/info/gpm.info"                 &&
+
+sudo -S porg -lD+ "ln -sfv libgpm.so.2.1.0 /usr/lib/libgpm.so"            &&
+sudo -S porg -lD+ "install -v -m644 conf/gpm-root.conf /etc"  

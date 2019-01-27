@@ -1,0 +1,22 @@
+#! /bin/bash
+
+# source: https://downloads.sourceforge.net/mad/libmad-0.15.1b.tar.gz
+
+patch -Np1 -i ../libmad-0.15.1b-fixes-1.patch  &&
+sed -e 's,AM_CONFIG_HEADER,AC_CONFIG_HEADERS,g' -i configure.ac &&
+touch NEWS AUTHORS ChangeLog &&
+autoreconf -vfi 
+
+cp -v ../config.sub-musl config.sub &&
+cp -v ../config.guess-musl config.guess &&
+#patch -Np0 -i ../libmad-0.15.1b-void-amd64-64bit.diff 
+#patch -Np0 -i ../libmad-0.15.1b-void-frame_length.diff 
+#patch -Np0 -i ../libmad-0.15.1b-void-libmad.patch 
+#patch -Np0 -i ../libmad-0.15.1b-void-mips-mode_di.patch 
+#patch -Np0 -i ../libmad-0.15.1b-void-optimize.diff 
+
+./configure --prefix=/usr --disable-static  --build=x86_64-linux-musl &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install" &&
+sudo -S porg -lD+ "cp -v ../libmad-0.15.1b-pc /usr/lib/pkgconfig/mad.pc"

@@ -1,0 +1,7 @@
+#! /bin/bash
+
+# source: https://downloads.sourceforge.net/hdparm/hdparm-9.56.tar.gz
+
+make -j4 &&
+read -p "Install? " &&
+sudo -S porg -lD "make binprefix=/usr install -j1 "

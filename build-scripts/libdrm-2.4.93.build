@@ -1,0 +1,6 @@
+#! /bin/bash
+patch -Np1 -i ../libdrm-2.4.93-dont-build-noveau-tests.patch &&
+./configure --prefix=${XORG_PREFIX} \
+            --enable-udev $BUILD &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install -j1" 

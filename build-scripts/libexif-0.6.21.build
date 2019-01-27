@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# source: https://downloads.sourceforge.net/libexif/libexif-0.6.21.tar.bz2
+
+./configure --prefix=/usr \
+            --with-doc-dir=/usr/share/doc/libexif-0.6.21 \
+            --disable-static &&
+
+read -p "Compile? " && make -j4 &&
+
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

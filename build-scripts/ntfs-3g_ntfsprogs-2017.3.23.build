@@ -1,0 +1,15 @@
+#! /bin/bash
+
+# source: https://tuxera.com/opensource/ntfs-3g_ntfsprogs-2017.3.23.tgz
+
+./configure --prefix=/usr --exec-prefix=/usr --disable-static \
+	    --enable-posix-acls --enable-xattr-mappings \
+	    --sbin=/usr/bin --enable-posix-acls \
+	    --enable-xattr-mappings --sbin=/usr/bin --with-fuse=internal --build=x86_64-linux-musl &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install" &&
+sudo -S porg -lD+ "ln -sv /usr/bin/ntfs-3g /sbin/mount.ntfs" &&
+sudo -S porg -lD+ "ln -sv ntfs-3g.8 /usr/share/man/man8/mount.ntfs.8" &&
+sudo -S chmod -v 4755 /usr/bin/ntfs-3g
+

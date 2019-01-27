@@ -1,0 +1,14 @@
+#! /bin/bash
+
+# source: https://github.com/storaged-project/libblockdev/releases/download/2.19-1/libblockdev-2.19.tar.gz
+
+./configure --prefix=/usr     \
+            --sysconfdir=/etc \
+            --with-python3    \
+            --without-gtk-doc \
+            --without-nvdimm  \
+            --without-dm &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+

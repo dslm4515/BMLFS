@@ -1,0 +1,16 @@
+#! /bin/bash
+
+# source: https://fossies.org/linux/www/neon-0.30.2.tar.gz
+
+sed -e 's/client_set/set/'  \
+    -e 's/gnutls_retr/&2/'  \
+    -e 's/type = t/cert_&/' \
+    -i src/ne_gnutls.c
+
+./configure --prefix=/usr    \
+            --with-ssl       \
+            --enable-shared  \
+            --disable-static --with-expat --with-ca-bundle=/etc/ssl/certs/ca-certificates.crt --build=x86_64-linux-musl &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

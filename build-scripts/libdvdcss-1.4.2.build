@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# source: https://get.videolan.org/libdvdcss/1.4.2/libdvdcss-1.4.2.tar.bz2
+
+./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/libdvdcss-1.4.2 --build=x86_64-linux-musl &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+

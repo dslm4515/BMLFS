@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# source: http://files.itstool.org/itstool/itstool-2.0.4.tar.bz2
+
+patch -Np1 -i ../itstool-2.0.4-segfault-1.patch &&
+
+PYTHON=/usr/bin/python3 ./configure --prefix=/usr &&
+
+read -p "Compile? " && make -j4  && 
+read -p "Install? " && sudo -S porg -lD "make  -j1 install"
+

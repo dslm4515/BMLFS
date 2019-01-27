@@ -1,0 +1,11 @@
+#! /bin/bash
+
+./autogen.sh $XORG_CONFIG  $HOST   \
+	     --enable-kms-only \
+	     --enable-uxa      \
+	     --mandir=/usr/share/man &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install -j1" &&
+sudo -S porg -lD+ "mv -v /usr/share/man/man4/intel-virtual-output.4 \
+      /usr/share/man/man1/intel-virtual-output.1" &&
+sudo -S sed -i '/\.TH/s/4/1/' /usr/share/man/man1/intel-virtual-output.1

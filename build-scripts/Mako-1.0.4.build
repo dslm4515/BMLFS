@@ -1,0 +1,5 @@
+#! /bin/bash
+
+sudo -S porg -lD  "python setup.py  install  --optimize=1" &&
+sed -i "s:mako-render:&3:g" setup.py &&
+sudo -S porg -lD+ "python3 setup.py install  --optimize=1"

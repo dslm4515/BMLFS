@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# Rustc-1.28.0
+
+# unpack 3 prebuilt packages outside rust source tree
+# Requires up to LibreSSL-2.7.5 only
+
+rm -rf src/llvm
+
+patch -Np1 -i ../rustc-1.28.0-alpine-patches/alpine-change-rpath-to-rustlib.patch
+patch -Np1 -i ../rustc-1.28.0-alpine-patches/alpine-move-py-scripts-to-share.patch 
+patch -Np1 -i ../rustc-1.28.0-alpine-patches/alpine-target.patch
+patch -Np1 -i ../rustc-1.28.0-alpine-patches/bootstrap-tool-respect-tool-config.patch 
+patch -Np1 -i ../rustc-1.28.0-alpine-patches/cargo-tests-fix-build-auth-http_auth_offered.patch 
+patch -Np1 -i ../rustc-1.28.0-alpine-patches/cargo-tests-fix-build-target.patch 
+patch -Np1 -i ../rustc-1.28.0-alpine-patches/cargo-tests-ignore-resolving_minimum_version_with_transitive_deps.patch 
+patch -Np1 -i ../rustc-1.28.0-alpine-patches/install-template-shebang.patch 
+patch -Np1 -i ../rustc-1.28.0-alpine-patches/llvm-with-ffi.patch 
+patch -Np1 -i ../rustc-1.28.0-alpine-patches/minimize-rpath.patch
+patch -Np1 -i ../rustc-1.28.0-alpine-patches/musl-fix-linux_musl_base.patch
+patch -Np1 -i ../rustc-1.28.0-alpine-patches/musl-fix-static-linking.patch
+patch -Np1 -i ../rustc-1.28.0-alpine-patches/need-rpath.patch 
+patch -Np1 -i ../rustc-1.28.0-alpine-patches/static-pie.patch 
+patch -Np1 -i ../rustc-1.28.0-link-musl-dynamically.patch
+patch -Np1 -i ../rustc-1.28.0-llvm-with-ffi.patch
+patch -Np1 -i ../rustc-1.28.0-musl.patch
+
+mkdir -pv stage0
+
+cp -flrv ../rustc-*/rustc/* stage0
+cp -flrv ../rust-std-*/rust-std-*/* stage0
+cp -flrv ../cargo stage0/bin
+#cp -flrv ../install/usr/bin/cargo stage0/bin
+
+export LD_LIBRARY_PATH="$PWD/stage0/lib"
+export rustc_ver="$($PWD/stage0/bin/rustc --version | cut -f2 -d ' ')"
+export rustc_key="$(printf "$rustc_ver" | md5sum | cut -c1-8)"
+sed -Ei -e "s/^(rustc):.*/\1: $rustc_ver-1970-01-01/" \
+        -e "s/^(rustc_key):.*/\1: $rustc_key/" \
+        src/stage0.txt
+
+cat > config.toml << "EOF"
+[build]
+cargo = "$PWD/stage0/bin/cargo"
+rustc = "$PWD/stage0/bin/rustc"
+EOF
+
+sed -i /LD_LIBRARY_PATH/d src/bootstrap/bootstrap.py
+export CARGO_HOME="$PWD/.cargo"
+export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+export LD_LIBRARY_PATH="$PWD/stage0/lib"
+export PATH="$PWD/stage0/bin:$PATH"
+export MUSL_ROOT=/usr
+export RUST_BACKTRACE=1
+export RUSTC_CRT_STATIC="false"
+export LIBGIT2_SYS_USE_PKG_CONFIG=1
+export LD_LIBRARY_PATH="$PWD/stage0/lib"
+
+./configure --prefix=/usr \
+            --host=x86_64-unknown-linux-musl \
+            --build=x86_64-unknown-linux-musl \
+            --release-channel=stable \
+            --disable-rpath \
+            --disable-docs \
+            --disable-codegen-tests \
+            --disable-ccache \
+            --llvm-root=/usr \
+            --enable-local-rust \
+            --local-rust-root=$PWD/stage0 \
+            --musl-root=/usr  \
+            --disable-jemalloc \
+            --enable-llvm-link-shared \
+            --enable-extended
+#edit config.toml to set ccache=false
+#edit config.toml to set test-miri = false
+
+./x.py build -v --jobs 2 
+# miri will fail to build, but build should say 'sucessful'
+
+DESTDIR=${PWD}/install ./x.py install
+chown -R root:root install &&
+cp -avr install/* /

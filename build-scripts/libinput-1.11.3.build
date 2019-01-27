@@ -1,0 +1,12 @@
+#! /bin/bash
+
+mkdir build && cd    build &&
+meson --prefix=$XORG_PREFIX \
+      -Dudev-dir=/lib/udev  \
+      -Ddebug-gui=false     \
+      -Dtests=false         \
+      -Ddocumentation=false \
+      -Dlibwacom=false      \
+      ..                    &&
+read -p "Compile? " && ninja -j2 && 
+read -p "Install? " && sudo -S porg -lp libinput-1.11.3  "ninja install -j1"

@@ -1,0 +1,39 @@
+#! /bin/bash
+
+# JS 52.3.0esr
+# JS is Mozilla's JavaScript engine written in C. This package is present for GJS and polkit. 
+#
+# ** JS from Firefox 52.3.0esr source**
+
+# Depends:  
+#  Autoconf-2.13 
+#  ICU-62.1 
+#  NSPR-4.19 
+#  Python-2.7.15
+#  Xorg Libraries
+#  yasm-1.3.0
+#  Zip-3.0 
+
+# Apply patches
+patch -Np1 -i ../mozjs52-copy-headers.patch
+patch -Np1 -i ../mozjs52-disable-mozglue.patch
+patch -Np1 -i ../mozjs52-fix-soname.patch
+patch -Np1 -i ../mozjs52-include-configure-script.patch
+
+# Switch to JS source directory
+cd js/src
+#touch configure
+
+# Configure
+CFLAGS="-fpermissive -fno-delete-null-pointer-checks -fno-tree-vrp -fno-strict-aliasing" \
+CXXFLAGS="-fpermissive -fno-delete-null-pointer-checks -fno-tree-vrp -fno-strict-aliasing" \
+LDFLAGS="-fuse-ld=bfd" \
+SHELL=/bin/bash PYTHON=/usr/bin/python2 ./configure --prefix=/usr \
+                --disable-jemalloc --disable-optimize --enable-ctypes \
+                --enable-gcgenerational --enable-pie --enable-readline \
+                --enable-shared-js --enable-system-ffi --enable-tests \
+                --enable-threadsafe --enable-xterm-updates --with-intl-api \
+                --with-system-icu --with-system-nspr --with-system-zlib
+
+# Build and install
+make && make install

@@ -1,0 +1,6 @@
+#! /bin/bash
+
+cd source &&
+./configure --prefix=/usr $HOST  &&
+read -p "Compile?" && make -j4 &&
+read -p "Install?" && sudo -S porg -lp icu-61.1 "make -j1 install"

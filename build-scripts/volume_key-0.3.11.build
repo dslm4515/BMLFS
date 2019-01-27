@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# source: https://releases.pagure.org/volume_key/volume_key-0.3.11.tar.xz
+
+./configure --prefix=/usr --build=x86_64-linux-musl &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

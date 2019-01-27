@@ -1,0 +1,14 @@
+#! /bin/bash
+
+# source : http://download.kde.org/stable/frameworks/5.49/extra-cmake-modules-5.49.0.tar.xz
+
+sed -i '/"lib64"/s/64//' kde-modules/KDEInstallDirs.cmake &&
+
+mkdir build &&
+cd    build &&
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr .. 
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lp extra-cmake-modules-5.49.0  "make -j1 install"
+

@@ -1,0 +1,8 @@
+#!/bin/execlineb -P
+
+fdmove -c 2 1
+
+s6-setuidgid log
+
+exec -c
+s6-log n3 T s1000000 /var/log/aux-serv/dbus

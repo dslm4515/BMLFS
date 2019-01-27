@@ -1,0 +1,16 @@
+diff -uNr libdrm-2.4.93.orig/tests/meson.build libdrm-2.4.93/tests/meson.build
+--- libdrm-2.4.93.orig/tests/meson.build	2018-07-31 20:45:18.000000000 -0500
++++ libdrm-2.4.93/tests/meson.build	2018-08-17 21:55:35.414401131 -0500
+@@ -44,9 +44,9 @@
+ if with_etnaviv
+   subdir('etnaviv')
+ endif
+-if with_nouveau
+-  subdir('nouveau')
+-endif
++#if with_nouveau
++#  subdir('nouveau')
++#endif
+ 
+ drmsl = executable(
+   'drmsl',

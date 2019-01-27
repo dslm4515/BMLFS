@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# source: http://liba52.sourceforge.net/files/a52dec-0.7.4.tar.gz
+
+./configure --prefix=/usr \
+            --mandir=/usr/share/man \
+            --enable-shared \
+            --disable-static  \
+            CFLAGS="-g -O2 $([ $(uname -m) = x86_64 ] && echo -fPIC)" &&
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install" &&
+sudo -S porg -lD+ "cp liba52/a52_internal.h /usr/include/a52dec "

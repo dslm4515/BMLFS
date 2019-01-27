@@ -1,0 +1,15 @@
+#! /bin/bash
+
+# source: http://ftp.gnome.org/pub/gnome/sources/vte/0.52/vte-0.52.2.tar.xz
+
+#autoreconf -fvi &&
+
+enable_glade_catalogue=yes \
+./configure --prefix=/usr          \
+            --sysconfdir=/etc      \
+            --disable-static       \
+            --enable-introspection --enable-vala  &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+

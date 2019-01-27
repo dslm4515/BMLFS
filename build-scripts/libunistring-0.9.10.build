@@ -1,0 +1,7 @@
+#! /bin/bash
+
+./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/libunistring-0.9.10 $BUILD &&
+read -p "Compile?" && make -j4  && 
+read -p "Install?" && sudo -S porg -lD "make -j1 install"
