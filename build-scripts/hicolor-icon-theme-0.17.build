@@ -1,6 +1,5 @@
 #! /bin/bash
 
-./configure --prefix=/usr \
-            --disable-static $BUILD	&&
+./configure --prefix=/usr  &&
 read -p "Compile? " && make -j2 && 
 read -p "Install? " && sudo -S porg -lD "make install -j1" 

@@ -1,0 +1,6 @@
+#! /bin/bash
+
+#source: https://www.github.com/Tomas-M/xlunch/archive/v4.1.1.tar.gz
+
+make -j2 
+read -p "Install? " && sudo -S porg -lD "make  -j1 install"

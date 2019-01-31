@@ -1,0 +1,4 @@
+#! /bin/bash
+
+make -f unix/Makefile generic_gcc -j2 &&
+sudo -S porg -lp unzip-6.0 "make prefix=/usr MANDIR=/usr/share/man/man1  -f unix/Makefile install"

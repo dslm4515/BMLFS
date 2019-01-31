@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# use git source. Latest release uses wlc
+
+
+mkdir -v BUILD && cd BUILD &&
+
+meson --prefix=/usr         \
+      ..
+
+read -p "Compile? " && ninja -j2 &&
+read -p "Install? " && sudo -S porg -lp sway-1.0-beta.2 "ninja -j1 install"

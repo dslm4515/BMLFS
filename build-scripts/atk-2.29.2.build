@@ -1,0 +1,7 @@
+#! /bin/bash
+
+mkdir build &&
+cd    build &&
+meson --prefix=/usr &&
+read -p "Compile? " && ninja -j2  &&
+read -p "Install? " && sudo -S porg -lp atk-2.29.2 "ninja -j1 install"

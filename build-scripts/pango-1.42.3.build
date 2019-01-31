@@ -1,0 +1,7 @@
+#! /bin/bash
+
+mkdir build && cd build
+meson --prefix=/usr \
+      --sysconfdir=/etc .. &&
+read -p "Compile? " && ninja -j2 &&
+read -p "Install? " && sudo -S porg -lp pango-1.42.3 "ninja -j1 install"

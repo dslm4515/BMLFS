@@ -1,0 +1,17 @@
+#! /bin/bash
+
+# use git source. Latest release is marked as 0.2 but is actually 0.1
+
+
+mkdir -v BUILD && cd BUILD &&
+
+meson --prefix=/usr         \
+      -Dlibcap=enabled      \
+      -Dxwayland=enabled    \
+      -Dx11-backend=enabled \
+      -Drootston=false      \
+      -Dxcb-errors=enabled  \
+      ..
+
+read -p "Compile? " && ninja -j2 &&
+read -p "Install? " && sudo -S porg -lp wlroots-0.2 "ninja -j1 install"

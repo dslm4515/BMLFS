@@ -1,0 +1,8 @@
+#! /bin/bash
+autoreconf -ifv
+CFLAGS="-UGDK_PIXBUF_DISABLE_DEPRECATED" \
+./configure --prefix=/usr  --sysconfdir=/etc \
+            --enable-shm --enable-introspection=yes \
+            --with-xinput=yes --enable-cups  $BUILD &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install -j1" 

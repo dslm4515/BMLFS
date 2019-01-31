@@ -1,0 +1,8 @@
+#! /bin/bash
+
+mkdir BUILD -v && cd BUILD
+
+cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr .. &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lp wlc-0.0.11 "make -j1 install"

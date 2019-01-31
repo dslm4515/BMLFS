@@ -1,0 +1,5 @@
+#! /bin/bash
+
+sudo -S porg -lD  "install -v -d -m755 /usr/share/fonts/dejavu" 
+sudo -S porg -lD+ "install -v    -m644 ttf/*.ttf /usr/share/fonts/dejavu" &&
+sudo -S fc-cache -v /usr/share/fonts/dejavu

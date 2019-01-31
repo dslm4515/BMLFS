@@ -1,42 +1,30 @@
 #! /bin/bash
+sudo -S install  -v -m700 -d /var/lib/sshd &&
+sudo -S chown    -v root:sys /var/lib/sshd &&
 
-# source: http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-7.7p1.tar.gz
+sudo -S groupadd -g 50 sshd        &&
+sudo -S useradd  -c 'sshd PrivSep' \
+         -d /var/lib/sshd  \
+         -g sshd           \
+         -s /bin/false     \
+         -u 50 sshd
 
-#sudo -S install  -v -m700 -d /var/lib/sshd &&
-#sudo -S chown    -v root:sys /var/lib/sshd &&
+autoreconf -fiv &&
+patch -Np0 -i ../openssh-7.7p1-bug2722.patch &&
+patch -Np0 -i ../openssh-7.7p1-config.patch &&
+patch -Np0 -i ../openssh-7.7p1-Werror.patch &&
 
-#sudo -S groupadd -g 50 sshd        &&
-#sudo -S useradd  -c 'sshd PrivSep' \
-#         -d /var/lib/sshd  \
-#         -g sshd           \
-#         -s /bin/false     \
-#         -u 50 sshd
-
-#autoreconf -fiv
-
-#patch -Np0 -i ../openssh-7.7p1-bug2722.patch
-#patch -Np0 -i ../openssh-7.7p1-config.patch
-#patch -Np0 -i ../openssh-7.7p1-Werror.patch
-
-CFLAGS=" -Wno-format-truncation -Wno-stringop-truncation" \
-./configure --prefix=/usr                     \
-            --sysconfdir=/etc/ssh             \
-            --with-md5-passwords              \
+./configure --prefix=/usr \
+            --sysconfdir=/etc/ssh \
+            --with-md5-passwords \
             --with-privsep-path=/var/lib/sshd \
-            --with-pam --build=x86_64-linux-musl \
-            --with-libedit \
-            --without-selinux --without-rpath \
-            --with-ssl-engine --disable-wtmp --disable-utmp &&
-
-read -p "Compile? " && make -j4 &&
-
-
-read -p "Install? " && sudo -S porg -lD "make -j1 install" &&
-sudo -S porg -lD+ "install -v -m755    contrib/ssh-copy-id /usr/bin"     &&
-
-sudo -S porg -lD+ "install -v -m644    contrib/ssh-copy-id.1 \
-                    /usr/share/man/man1"              &&
-sudo -S porg -lD+ "install -v -m755 -d /usr/share/doc/openssh-7.7p1"     &&
-sudo -S porg -lD+ "install -v -m644    INSTALL LICENCE OVERVIEW README* \
-                    /usr/share/doc/openssh-7.7p1"
-
+            --with-pam --with-libedit \
+            --with-Werror \
+            --without-selinux \
+            --without-rpath \
+            --with-ssl-engine \
+            --disable-wtmp \
+            --disable-utmp \
+            --host=i686-linux-musl &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install -j1" 
