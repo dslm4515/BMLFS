@@ -1,0 +1,14 @@
+#! /bin/bash
+
+# source: https://github.com/webmproject/libvpx/archive/v1.7.0/libvpx-1.7.0.tar.gz
+
+sed -i 's/cp -p/cp/' build/make/Makefile &&
+
+mkdir libvpx-build            &&
+cd    libvpx-build            &&
+
+../configure --prefix=/usr    \
+             --enable-shared  \
+             --disable-static &&
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make install -j1 "

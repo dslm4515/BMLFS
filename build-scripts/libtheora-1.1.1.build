@@ -4,7 +4,7 @@
 
 sed -i 's/png_\(sizeof\)/\1/g' examples/png2theora.c &&
 
-./configure --prefix=/usr  \
+./configure --prefix=/usr $BUILD  \
 	    --disable-static &&
 
 read -p "Compile? " && make -j4 &&

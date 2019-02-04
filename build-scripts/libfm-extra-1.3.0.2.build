@@ -2,7 +2,7 @@
 
 # source: https://downloads.sourceforge.net/pcmanfm/libfm-1.3.0.2.tar.xz
 
-./configure --prefix=/usr     \
+./configure --prefix=/usr $BUILD     \
             --sysconfdir=/etc \
             --with-extra-only \
             --with-gtk=no     \

@@ -1,16 +1,14 @@
 #! /bin/bash
 
-# source: http://www.lua.org/ftp/lua-5.3.5.tar.gz
-
+cp -v ../lua-5.3.5.pc lua.pc &&
 patch -Np1 -i ../lua-5.3.5-shared_library-1.patch &&
 sed -i '/#define LUA_ROOT/s:/usr/local/:/usr/:' src/luaconf.h &&
-
-read -p "Compile? " && make MYCFLAGS="-DLUA_COMPAT_5_2 -DLUA_COMPAT_5_1" linux -j4 &&
-
-read -p "Install? " && sudo -S porg -lD 'make INSTALL_TOP=/usr                \
+read -p "Compile? " &&
+make MYCFLAGS="-DLUA_COMPAT_5_2 -DLUA_COMPAT_5_1" linux -j2 &&
+read -p "Installs? " && sudo -S porg -lD \
+'make INSTALL_TOP=/usr                \
      INSTALL_DATA="cp -d"            \
      INSTALL_MAN=/usr/share/man/man1 \
      TO_LIB="liblua.so liblua.so.5.3 liblua.so.5.3.4" \
-     install -j1 ' &&
-
-sudo -S porg -lD+ "install -v -m644 -D ../lua-5.3.5.pc /usr/lib/pkgconfig/lua.pc"
+     install' &&
+sudo -S porg -lD+ "install -v -m644 -D lua.pc /usr/lib/pkgconfig/lua.pc"

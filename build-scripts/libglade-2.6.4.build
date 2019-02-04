@@ -3,12 +3,13 @@
 # source : http://ftp.gnome.org/pub/gnome/sources/libglade/2.6/libglade-2.6.4.tar.bz2
 
 # Update config script
-cp -v ../config.guess-musl config.guess
-cp -v ../config.stub-musl config.stub
+rm -v config.sub config.guess 
+ln -sv ../config.guess-musl config.guess
+ln -sv ../config.sub-musl config.sub
 
 sed -i '/DG_DISABLE_DEPRECATED/d' glade/Makefile.in &&
 
-./configure --prefix=/usr --disable-static --build=x86_64-linux-musl &&
+./configure --prefix=/usr --disable-static $BUILD  &&
 
 read -p "Compile? " && make -j4  && 
 read -p "Install? " && sudo -S porg -lD "make install -j1"

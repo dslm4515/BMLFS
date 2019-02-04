@@ -1,0 +1,6 @@
+#! /bin/bash
+
+# source:  https://github.com/P-H-C/phc-winner-argon2/archive/20171227.tar.gz 
+
+make OPTTARGET=none -j2 &&
+read -p "Install? " && sudo -S porg -lp libargon2-20171227 "make OPTTARGET=none -j1 install"

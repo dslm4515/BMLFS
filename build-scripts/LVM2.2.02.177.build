@@ -13,7 +13,7 @@ export PATH=$PATH:/sbin:/usr/sbin      &&
             --enable-applib     \
             --enable-cmdlib     \
             --enable-pkgconfig  \
-            --enable-udev_sync  &&
+            --enable-udev_sync $BUILD &&
 
 read -p "Compile?" && make -j4 &&
 

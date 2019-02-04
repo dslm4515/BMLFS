@@ -5,7 +5,7 @@
 patch -Np0 -i ../cryptsetup-2.0.4-flush-stdout.patch
 ./configure --prefix=/usr \
             --with-crypto_backend=openssl \
-	    --build=x86_64-linux-musl --enable-cryptsetup-reencrypt --enable-libargon2 &&
+	    $BUILD --enable-cryptsetup-reencrypt --enable-libargon2 &&
 
 read -p "Compile? " && make -j4 &&
 read -p "Install? " && sudo -S porg -lD "make -j1 install"

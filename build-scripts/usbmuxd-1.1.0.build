@@ -4,7 +4,7 @@
 
 autoreconf -fvi &&
 
-./configure --prefix=/usr --without-systemd &&
+./configure --prefix=/usr --without-systemd $BUILD &&
 
 read -p "Compile? " && make -j4 &&
 read -p "Install? " && sudo -S porg -lD "make -j1 install"

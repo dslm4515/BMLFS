@@ -5,7 +5,8 @@ make gnome-ssh-askpass2 -j2 &&
 
 read -p "Install? " &&
 sudo -S porg -lp  ssh-askpass-7.7p1 "install -v -d -m755 /usr/libexec/openssh/contrib"  &&
-sudo -S porg -lp+ ssh-askpass-7.7p1 "install -v -m755    gnome-ssh-askpass2 \
+sudo -S porg -lp+ ssh-askpass-7.7p1 "cp -v  gnome-ssh-askpass2 \
                     /usr/libexec/openssh/contrib"  &&
 sudo -S porg -lp+ ssh-askpass-7.7p1 "ln -sv -f contrib/gnome-ssh-askpass2 \
                     /usr/libexec/openssh/ssh-askpass"
+sudo -S chmod -v 0755  /usr/libexec/openssh/ contrib/gnome-ssh-askpass2

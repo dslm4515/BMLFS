@@ -4,6 +4,8 @@
 
 # unpack 3 prebuilt packages outside rust source tree
 # Requires up to LibreSSL-2.7.5 only
+# create link for cargo:
+# sudo ln -sv libgit2.so.0.27.4 /usr/lib/libgit2.so.26
 
 rm -rf src/llvm
 
@@ -78,5 +80,5 @@ export LD_LIBRARY_PATH="$PWD/stage0/lib"
 # miri will fail to build, but build should say 'sucessful'
 
 DESTDIR=${PWD}/install ./x.py install
-chown -R root:root install &&
-cp -avr install/* /
+###chown -R root:root install &&
+###cp -avr install/* /

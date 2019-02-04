@@ -2,7 +2,7 @@
 
 # source: https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.14.2.tar.xz
 
-./configure --prefix=/usr \
+./configure --prefix=/usr $BUILD \
             --with-package-name="GStreamer Base Plugins 1.14.2 BMLFS" \
             --with-package-origin="http://www.linuxfromscratch.org/blfs/view/svn/" &&
 

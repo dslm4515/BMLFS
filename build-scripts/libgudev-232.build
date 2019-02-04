@@ -1,8 +1,6 @@
 #! /bin/bash
 
-# source: http://ftp.gnome.org/pub/gnome/sources/libgudev/232/libgudev-232.tar.xz
-
-./configure --prefix=/usr --disable-umockdev &&
-
-read -p "Compile? " && make -j4 &&
-read -p "Install? " && sudo -S porg -lD "make -j1 install" 
+./configure --prefix=/usr \
+            --disable-umockdev $BUILD 	&&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install -j1" 

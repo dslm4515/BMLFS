@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# source: https://downloads.sourceforge.net/pcmanfm/libfm-1.3.0.2.tar.xz
+
+./configure --prefix=/usr $BUILD     \
+            --sysconfdir=/etc \
+            --disable-static  &&
+
+read -p "Compile? " && make -j4 &&
+
+read -p "Install? " && sudo -S porg -lp libfm-1.3.0.2 "make -j1 install"

@@ -2,7 +2,7 @@
 
 # source : https://archive.mozilla.org/pub/opus/opus-1.2.1.tar.gz
 
-./configure --prefix=/usr    --build=x86_64-linux-musl \
+./configure --prefix=/usr    $BUILD  \
             --disable-static \
             --docdir=/usr/share/doc/opus-1.2.1 &&
 

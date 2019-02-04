@@ -1,17 +1,11 @@
 #! /bin/bash
 
-# sources: https://www.freedesktop.org/software/colord/releases/colord-1.4.3.tar.xz
-
-sudo -S groupadd -g 71 colord &&
+sudo -S groupadd -g 71 colord 
 sudo -S useradd -c "Color Daemon Owner" -d /var/lib/colord -u 71 \
         -g colord -s /bin/false colord
-
 mv po/fur.po po/ur.po &&
-sed -i 's/fur/ur/' po/LINGUAS
-
-mkdir build &&
-cd    build &&
-
+sed -i 's/fur/ur/' po/LINGUAS &&
+mkdir build && cd    build &&
 meson --prefix=/usr            \
       --sysconfdir=/etc        \
       --localstatedir=/var     \
@@ -23,6 +17,5 @@ meson --prefix=/usr            \
       -Dbash_completion=false  \
       -Ddocs=false             \
       -Dman=false ..           &&
-
-read -p "Compile? " && ninja -j4  && 
-read -p "Install? " && sudo -S porg -lp colord-1.4.3 "ninja -j1 install"
+read -p "Compile? " && ninja -j2  && 
+read -p "Install? " && sudo -S porg -lp Colord-1.4.3 "ninja install -j1"

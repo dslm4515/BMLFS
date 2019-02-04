@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# source: http://ftp.gnome.org/pub/gnome/sources/gtk-engines/2.20/gtk-engines-2.20.2.tar.bz2
+
+./configure --prefix=/usr --enable-lua --with-system-lua &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

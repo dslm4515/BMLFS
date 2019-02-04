@@ -2,7 +2,7 @@
 
 # source: https://downloads.sourceforge.net/lxde/lxmenu-data-0.1.5.tar.xz
 
-./configure --prefix=/usr \
+./configure --prefix=/usr $BUILD \
             --sysconfdir=/etc &&
 
 read -p "Compile? " && make -j4 &&

@@ -4,12 +4,12 @@
 
 ./configure --prefix=/usr    \
             --disable-static \
-            --exec-prefix=/  &&
+            --exec-prefix=/ $BUILD  &&
 
 read -p "Compile? " && make -j4 &&
 
-read -p "Install? " && sudo -S porg -lD "make DESTDIR=$PWD/Dest install" &&
-sudo -S porg -lD+ "install -vm755 Dest/lib/libfuse.so.2.9.7 /lib"                  &&
+read -p "Install? " && make DESTDIR=$PWD/Dest install &&
+sudo -S porg -lD  "install -vm755 Dest/lib/libfuse.so.2.9.7 /lib"                  &&
 sudo -S porg -lD+ "install -vm755 Dest/lib/libulockmgr.so.1.0.1 /lib"              &&
 sudo -S porg -lD+ "ln -sfv ../../lib/libfuse.so.2.9.7 /usr/lib/libfuse.so"         &&
 sudo -S porg -lD+ "ln -sfv ../../lib/libulockmgr.so.1.0.1 /usr/lib/libulockmgr.so" &&

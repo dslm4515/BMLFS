@@ -6,7 +6,7 @@
 
 ./configure --prefix=/usr \
 	   -disable-static \
-	   --with-udev=/usr/lib/udev &&
+	   --with-udev=/usr/lib/udev $BUILD &&
 
 read -p "Compile? " && make -j4 &&
 read -p "Install? " && sudo -S porg -lD "make -j1 install"

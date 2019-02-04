@@ -1,0 +1,6 @@
+#! /bin/bash 
+mkdir build &&
+cd    build &&
+meson --prefix=/usr .. &&
+read -p "Compile? " && ninja -j2 && 
+read -p "Install? " && sudo -S porg -lp JSON-GLib-1.4.2 "ninja -j1 install"

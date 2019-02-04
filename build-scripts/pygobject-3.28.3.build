@@ -4,17 +4,17 @@
 
 mkdir python2 &&
 pushd python2 &&
-../configure --prefix=/usr --with-python=/usr/bin/python &&
+../configure $BUILD --prefix=/usr --with-python=/usr/bin/python &&
 read -p "Compile for Python2? " &&
-make -j4 &&
-popd
+make -j2 &&
+popd &&
 
 mkdir python3 &&
 pushd python3 &&
-../configure --prefix=/usr --with-python=/usr/bin/python3 &&
+../configure $BUILD --prefix=/usr --with-python=/usr/bin/python3 &&
 read -p "Compile for python3? " &&
-make -j4 &&
-popd
+make -j2 &&
+popd &&
 
 read -p "Install for puthon2? " &&
 sudo -S -E porg -lD  "make -C python2 install" &&

@@ -1,19 +1,11 @@
 #! /bin/bash
 
-# source: https://sourceware.org/ftp/docbook-tools/new-trials/SOURCES/sgml-common-0.6.3.tgz
-
 patch -Np1 -i ../sgml-common-0.6.3-manpage-1.patch &&
-
-autoreconf -f -i -v
-
-./configure --prefix=/usr --sysconfdir=/etc &&
-
-read -p "Compile? " && make -j4 &&
-
-read -p "Install? " && sudo -S porg -lD "make docdir=/usr/share/doc install"  &&
-
-sudo -S porg -lD+ "install-catalog --add /etc/sgml/sgml-ent.cat \
-    /usr/share/sgml/sgml-iso-entities-8879.1986/catalog" &&
-sudo -S porg -lD+ "install-catalog --add /etc/sgml/sgml-docbook.cat \
-    /etc/sgml/sgml-ent.cat"
-
+autoreconf -f -i -v &&
+./configure --prefix=/usr --sysconfdir=/etc $BUILD &&
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make docdir=/usr/share/doc install -j1" &&
+sudo -S install-catalog --add /etc/sgml/sgml-ent.cat \
+    /usr/share/sgml/sgml-iso-entities-8879.1986/catalog &&
+sudo -S install-catalog --add /etc/sgml/sgml-docbook.cat \
+    /etc/sgml/sgml-ent.cat

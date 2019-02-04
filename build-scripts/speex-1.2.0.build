@@ -1,0 +1,17 @@
+#! /bin/bash
+
+./configure --prefix=/usr  $BUILD   \
+            --disable-static \
+            --docdir=/usr/share/doc/speex-1.2.0 &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install -j1" &&
+
+cd ..                          &&
+tar -xf speexdsp-1.2rc3.tar.gz &&
+cd speexdsp-1.2rc3             &&
+
+./configure --prefix=/usr $BUILD   \
+            --disable-static \
+            --docdir=/usr/share/doc/speexdsp-1.2rc3 &&
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install -j1"	    

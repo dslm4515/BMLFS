@@ -1,0 +1,5 @@
+#! /bin/bash
+
+make && make library && 
+
+read -p "Install?" && sudo -S porg -lD "make PREFIX=/usr install"

@@ -7,7 +7,7 @@
             --with-python3    \
             --without-gtk-doc \
             --without-nvdimm  \
-            --without-dm &&
+            --without-dm $BUILD &&
 
 read -p "Compile? " && make -j4 &&
 read -p "Install? " && sudo -S porg -lD "make -j1 install"

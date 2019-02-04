@@ -1,0 +1,31 @@
+#! /bin/bash
+sudo -S install  -v -m700 -d /var/lib/sshd &&
+sudo -S chown    -v root:sys /var/lib/sshd &&
+
+sudo -S groupadd -g 50 sshd        &&
+sudo -S useradd  -c 'sshd PrivSep' \
+         -d /var/lib/sshd  \
+         -g sshd           \
+         -s /bin/false     \
+         -u 50 sshd
+
+autoreconf -fiv &&
+patch -Np0 -i ../openssh-7.9p1-void-Werror.patch 
+patch -Np0 -i ../openssh-7.9p1-void-bug2722.patch
+patch -Np0 -i ../openssh-7.9p1-void-config.patch
+patch -Np0 -i ../openssh-7.9p1-void-setproctitle.patch
+
+./configure --prefix=/usr \
+            --sysconfdir=/etc/ssh \
+            --with-md5-passwords \
+            --with-privsep-path=/var/lib/sshd \
+            --with-pam --with-libedit \
+            --with-Werror \
+            --without-selinux \
+            --without-rpath \
+            --with-ssl-engine \
+            --disable-wtmp \
+            --disable-utmp \
+            --with-Werror=no $BUILD  &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install -j1" 

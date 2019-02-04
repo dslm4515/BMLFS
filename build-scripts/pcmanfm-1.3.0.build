@@ -3,7 +3,7 @@
 # source: https://downloads.sourceforge.net/pcmanfm/pcmanfm-1.3.0.tar.xz
 
 autoreconf -vfi
-./configure --prefix=/usr --sysconfdir=/etc &&
+./configure --prefix=/usr --sysconfdir=/etc $BUILD &&
 
 read -p "Compile? " && make -j4 &&
 read -p "Install? " && sudo -S porg -lD "make -j1 install"
