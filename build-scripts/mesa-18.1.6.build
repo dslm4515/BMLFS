@@ -14,7 +14,7 @@ export GLL_DRV="i915,nouveau,radeonsi,svga,swrast"
             --enable-texture-float             \
             --enable-osmesa                    \
             --enable-xa                        \
-            --enable-glx-tls                   \
+            --disable-glx-tls                   \
             --with-platforms="drm,x11,wayland" \
             --with-gallium-drivers=$GLL_DRV    \
             --with-dri-drivers=i915,i965,swrast,nouveau,radeon \
@@ -25,7 +25,8 @@ export GLL_DRV="i915,nouveau,radeonsi,svga,swrast"
             --enable-shared-glapi \
             --enable-dri3 \
             --enable-vdpau \
-            --disable-nine $BUILD &&
+            --disable-nine \
+	    --enable-glx=dri $BUILD &&
 unset GLL_DRV &&
 read -p "Compile? " && time { make -j2 ; } &&
 read -p "Install? " && sudo -S porg -lD "make -j1 install"

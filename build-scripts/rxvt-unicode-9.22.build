@@ -1,0 +1,32 @@
+#! /bin/bash
+
+# source: http://dist.schmorp.de/rxvt-unicode/Attic/rxvt-unicode-9.22.tar.bz2
+
+patch -Np0 -i ../rxvt-unicode-9.22-void-font-width-fix.patch
+patch -Np0 -i ../rxvt-unicode-9.22-void-line-spacing-fix.patch
+patch -Np0 -i ../rxvt-unicode-9.22-void-manual-perl.patch
+
+./configure --prefix=/usr \
+	    --with-terminfo=/usr/share/terminfo \
+	    --enable-256-color \
+	    --enable-font-styles \
+	    --enable-xim \
+	    --enable-keepscrolling \
+	    --enable-selectionscrolling \
+	    --enable-smart-resize \
+	    --enable-transparency \
+	    --disable-utmp \
+	    --disable-wtmp \
+	    --disable-lastlog \
+	    --disable-frills \
+	    --enable-combining \
+	    --with-term=rxvt-unicode-256color \
+	    --enable-pixbuf \
+	    --enable-perl \
+	    --enable-startup-notification \
+	    --enable-unicode3 $BUILD &&
+
+#sed -i 's,tic,/bin/true,g' doc/Makefile &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"

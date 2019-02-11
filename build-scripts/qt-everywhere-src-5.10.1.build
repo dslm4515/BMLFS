@@ -54,7 +54,8 @@ LDFLAGS=" -pthread -ldl -fPIE -Wl,--no-keep-memory -Wl,-rpath=/usr/lib" \
             -no-rpath                                   \
             -skip qtwebengine &&
 
-read -p "Compile? " && make -j2 && make -j2 &&
+read -p "Compile? " && make -j2 && make -j2
+
 read -p "Install? " && sudo -S -E porg -lp qt-5.10.1 "make -j1 install" &&
 
 sudo -S -E find $QT5PREFIX/ -name \*.prl \

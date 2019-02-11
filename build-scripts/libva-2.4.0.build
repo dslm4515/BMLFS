@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# source: https://github.com/intel/libva/releases/download/2.2.0/libva-2.2.0.tar.bz2
+
+mkdir BUILD &&
+cd    BUILD &&
+
+meson --prefix=/usr -Dwith_glx=no -Dwith_wayland=yes -Dwith_egl=yes ..
+
+read -p "Compile? " && ninja -j2 && 
+read -p "Install? " && sudo -S porg -lp libva-2.4.0 "ninja install -j1" 

@@ -1,5 +1,7 @@
 #! /bin/bash
 
+# source: https://archive.mozilla.org/pub/firefox/releases/61.0.2/source/firefox-61.0.2.source.tar.xz
+
 # Firefox 61.0.2 for x86_64-linux-musl
 # Required Rustc 
 
@@ -29,10 +31,10 @@ echo "ac_add_options --host=x86_64-linux-musl"   >> .mozconfig
 echo "ac_add_options --target=x86_64-linux-musl" >> .mozconfig
 
 # If commented, add /usr/lib/firefox to /etc/ld-musl-x86_64.path
-# export LDFLAGS=" -Wl,-rpath=/usr/lib/firefox"
+#export LDFLAGS=" -Wl,-rpath=/usr/lib/firefox"
 
 # Set the number of jobs... just like -j3 for "make -j3"
-export MOZ_MAKE_FLAGS=3
+#export MOZ_MAKE_FLAGS=2
 
 cat >> .mozconfig << "EOF"
 ac_add_options --with-google-api-keyfile="$PWD/google-api-key"

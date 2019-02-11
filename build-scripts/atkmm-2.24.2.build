@@ -5,7 +5,7 @@
 sed -e '/^libdocdir =/ s/$(book_name)/atkmm-2.24.2/' \
     -i doc/Makefile.in
 
-./configure --prefix=/usr &&
+./configure --prefix=/usr $BUILD &&
 
 read -p "Compile? " && make -j4 &&
 read -p "Install? " && sudo -S porg -lD "make -j1 install"

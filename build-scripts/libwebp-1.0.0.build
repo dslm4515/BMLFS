@@ -1,0 +1,13 @@
+#! /bin/bash
+
+# source: http://downloads.webmproject.org/releases/webp/libwebp-1.0.0.tar.gz
+
+./configure --prefix=/usr \
+            --enable-libwebpmux     \
+            --enable-libwebpdemux   \
+            --enable-libwebpdecoder \
+            --enable-libwebpextras  \
+	    --enable-swap-16bit-csp \
+            --disable-static $BUILD   &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install -j1" 

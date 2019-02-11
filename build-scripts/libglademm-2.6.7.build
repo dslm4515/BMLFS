@@ -1,6 +1,14 @@
 #! /bin/bash
+
+# Source: https://ftp.gnome.org/pub/GNOME/sources/libglademm/2.6/libglademm-2.6.7.tar.bz2
+
 sed -e '/^libdocdir =/ s/$(book_name)/libglademm-2.6.7/' \
     -i docs/Makefile.in &&
-./configure --prefix=/usr &&
+
+rm -v scripts/config.guess scripts/config.sub &&
+ln -sv ../../config.guess-musl scripts/config.guess &&
+ln -sv ../../config.sub-musl   scripts/config.sub   &&
+
+./configure --prefix=/usr $BUILD &&
 read -p "Compile? " && make -j4  &&
 read -p "Install? " && sudo -S porg -lD "make -j1 install"

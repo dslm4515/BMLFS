@@ -1,4 +1,7 @@
 #! /bin/bash
-./configure --prefix=/usr --disable-static  &&
+
+# source: http://ftp.gnome.org/pub/gnome/sources/libcroco/0.6/libcroco-0.6.12.tar.xz
+
+./configure --prefix=/usr --disable-static $BUILD  &&
 read -p "Compile? " && make -j2 &&
 read -p "Install? " && sudo -S porg -lD "make -j1 install"

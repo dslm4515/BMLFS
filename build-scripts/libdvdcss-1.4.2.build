@@ -4,8 +4,8 @@
 
 ./configure --prefix=/usr    \
             --disable-static \
-            --docdir=/usr/share/doc/libdvdcss-1.4.2 --build=x86_64-linux-musl &&
+            --docdir=/usr/share/doc/libdvdcss-1.4.2 $BUILD  &&
 
-read -p "Compile? " && make -j4 &&
+read -p "Compile? " && make -j2 &&
 read -p "Install? " && sudo -S porg -lD "make -j1 install"
 

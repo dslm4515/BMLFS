@@ -1,0 +1,16 @@
+#! /bin/bash
+
+# source:
+
+patch -Np0 -i ../lshw-B.02.18-void-fix-array-bounds.patch &&
+patch -Np0 -i ../lshw-B.02.18-void-fix-lshw_sgml.patch
+patch -Np0 -i ../lshw-B.02.18-void-musl-basename.patch
+patch -Np0 -i ../lshw-B.02.18-void-musl-confname_h.patch
+patch -Np0 -i ../lshw-B.02.18-void-musl-path_max.patch
+
+cp -v ../lshw-B.02.18-void-confname.h  src/core/confname.h &&
+
+find . -type f -exec sed -i "{}"  -e "s;__uint;uint;g" \; &&
+
+read -p "Compile? " && make  PREFIX=/usr SBINDIR=/usr/bin all gui -j2 &&
+read -p "Install? " && sudo -S porg -lD "make PREFIX=/usr SBINDIR=/usr/bin DESTDIR=${DESTDIR} install install-gui -j1"

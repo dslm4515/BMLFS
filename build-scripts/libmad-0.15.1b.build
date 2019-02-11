@@ -15,7 +15,7 @@ cp -v ../config.guess-musl config.guess &&
 #patch -Np0 -i ../libmad-0.15.1b-void-mips-mode_di.patch 
 #patch -Np0 -i ../libmad-0.15.1b-void-optimize.diff 
 
-./configure --prefix=/usr --disable-static  --build=x86_64-linux-musl &&
+./configure --prefix=/usr --disable-static  $BUILD  &&
 
 read -p "Compile? " && make -j4 &&
 read -p "Install? " && sudo -S porg -lD "make -j1 install" &&

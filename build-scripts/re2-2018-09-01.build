@@ -1,0 +1,4 @@
+#! /bin/bash
+
+make PREFIX=/usr -j2 && 
+read -p "Install?" && sudo -S porg -lD "make PREFIX=/usr install -j1"

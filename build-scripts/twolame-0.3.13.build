@@ -1,0 +1,13 @@
+#! /bin/bash
+
+# source: http://downloads.sourceforge.net/twolame/twolame-0.3.13.tar.gz
+
+rm -v build-scripts/config.guess build-scripts/config.sub && 
+ln -sv ../../config.guess-musl build-scripts/config.guess &&
+ln -sv ../../config.sub-musl build-scripts/config.sub &&
+
+./configure --prefix=/usr $BUILD &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+

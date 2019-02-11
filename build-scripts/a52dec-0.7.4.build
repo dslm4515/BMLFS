@@ -2,10 +2,14 @@
 
 # source: http://liba52.sourceforge.net/files/a52dec-0.7.4.tar.gz
 
+rm -v autotools/config.sub autotools/config.guess &&
+ln -sv ../../config.sub-musl autotools/config.sub &&
+ln -sv ../../config.guess-musl autotools/config.guess &&
+
 ./configure --prefix=/usr \
             --mandir=/usr/share/man \
             --enable-shared \
-            --disable-static  \
+            --disable-static  $BUILD \
             CFLAGS="-g -O2 $([ $(uname -m) = x86_64 ] && echo -fPIC)" &&
 read -p "Compile? " && make -j4 &&
 read -p "Install? " && sudo -S porg -lD "make -j1 install" &&

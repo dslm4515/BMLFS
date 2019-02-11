@@ -2,7 +2,9 @@
 
 # source: https://downloads.sourceforge.net/lame/lame-3.100.tar.gz
 
-./configure --prefix=/usr --enable-mp3rtp --disable-static --enable-mp3rtp --enable-nasm &&
+./configure --prefix=/usr --enable-mp3rtp \
+	   --disable-static --enable-mp3rtp \
+	   --enable-nasm $BUILD &&
 
 read -p "Compile? " && make -j4 &&
 read -p "Install? " && sudo -S porg -lD "make -j1 pkghtmldir=/usr/share/doc/lame-3.100 install"

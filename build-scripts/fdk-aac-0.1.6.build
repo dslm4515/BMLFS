@@ -2,7 +2,7 @@
 
 # source: https://downloads.sourceforge.net/opencore-amr/fdk-aac-0.1.6.tar.gz
 
-./configure --prefix=/usr --disable-static &&
+./configure --prefix=/usr --disable-static $BUILD &&
 
 read -p "Compile? " && make -j4 &&
 read -p "Install? " && sudo -S porg -lD "make -j1 install"

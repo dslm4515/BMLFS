@@ -1,4 +1,7 @@
 #! /bin/bash
-./configure --prefix=/usr &&
+
+# source: http://ftp.gnome.org/pub/gnome/sources/gnome-themes-standard/3.22/gnome-themes-standard-3.22.3.tar.xz
+
+./configure --prefix=/usr $BUILD &&
 read -p "Compile? " && make -j2 &&
 read -p "Install? " && sudo -S porg -lD "make -j1 install"
