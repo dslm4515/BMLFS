@@ -1,0 +1,14 @@
+#! /bin/bash
+
+# source:  wget https://github.com/liberationfonts/liberation-fonts/files/2579281/liberation-fonts-ttf-2.00.4.tar.gz
+
+sudo -S  mkdir -v /usr/share/fonts/TT
+sudo -S  porg -lD  "install -m644 *.ttf /usr/share/fonts/TTF"
+
+sudo -S  porg -lD+ cp -v  ../30-0-liberation-mono.conf  /etc/fonts/conf.avail/30-liberation-fonts-ttf-mono.conf
+sudo -S  porg -lD+ cp -v  ../30-0-liberation-sans.conf  /etc/fonts/conf.avail/30-liberation-fonts-ttf-sans.conf
+sudo -S  porg -lD+ cp -v  ../30-0-liberation-serif.conf /etc/fonts/conf.avail/30-liberation-fonts-ttf-serif.conf
+
+sudo -S chmod -v 644 /etc/fonts/conf.avail/30-liberation-fonts-ttf-mono.conf
+sudo -S chmod -v 644 /etc/fonts/conf.avail/30-liberation-fonts-ttf-sans.conf
+sudo -S chmod -v 644 /etc/fonts/conf.avail/30-liberation-fonts-ttf-serif.conf

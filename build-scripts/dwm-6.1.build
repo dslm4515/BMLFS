@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# To add a systray:
+#patch -Np1 -i ../dwm-6.1-systray.diff
+
+# copy config.def.h as config.h and exdit config.h
+
+make clean &&
+read -p "Compile? " &&
+make INCS="-I . -I/usr/include/freetype2" LIBS="-lX11 -lXinerama -lXft -lfontconfig" -j2 &&
+
+read -p "Install?" && sudo -S porg --remove dwm && sudo -S porg -lD "make -j1 install"
