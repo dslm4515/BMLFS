@@ -1,0 +1,14 @@
+#! /bin/bash
+
+# source: https://gitlab.freedesktop.org/libfprint/libfprint/uploads/4272fab4f37516db5b20d07bb576a4b1/libfprint-0.8.2.tar.xz
+
+mkdir BUILDIT && cd BUILDIT &&
+
+meson --prefix=/usr \
+      -Dudev_rules=false \
+      -Dx11-examples=false \
+      -Dgtk-examples=false \
+      -Ddoc=false .. &&
+
+     read -p "Compile? " && ninja -j2 &&
+     read -p "Install? " && sudo -S porg -lp libfprint-0.8.2 "ninja -j1 install"

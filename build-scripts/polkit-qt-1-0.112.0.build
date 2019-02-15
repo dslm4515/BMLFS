@@ -1,0 +1,16 @@
+#! /bin/bash
+
+# source: http://download.kde.org/stable/apps/KDE4.x/admin/polkit-qt-1-0.112.0.tar.bz2
+
+mkdir build &&
+cd    build &&
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_BUILD_TYPE=Release  \
+      -Wno-dev .. &&
+
+read -p "Compile? " &&
+make -j2 &&
+
+read -p "Install? " &&
+sudo porg -lp polkit-qt-1-0.112.0 "make -j1 install"

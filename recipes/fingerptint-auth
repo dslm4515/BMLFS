@@ -1,0 +1,23 @@
+## Authorize via fingerprint ##
+
+* use fingerprint for login, sudo, etc
+* use password as fallback
+
+Install libfprint,fprintd
+
+Modify /etc/pam.d/system-auth :
+
+# Begin /etc/pam.d/system-auth
+
+################fingerprint#############
+auth       required     pam_env.so
+auth       sufficient   pam_fprintd.so
+auth       sufficient   pam_unix.so try_first_pass likeauth nullok
+auth       required     pam_deny.so
+##########################################
+
+#auth      required    pam_unix.so
+
+# End /etc/pam.d/system-auth
+
+Users should be in groups input & plugdev to access fingerprint reader

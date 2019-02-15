@@ -1,0 +1,32 @@
+#! /bin/bash
+
+# source: https://github.com/maksbotan/fingerprint-gui/archive/v1.09-qt5.tar.gz
+
+patch -Np0 -i ../fingerprint-gui-1.09-void-fix-udev-paths.patch &&
+patch -Np0 -i ../fingerprint-gui-1.09-void-fix-udev-rules-groups.patch &&
+patch -Np0 -i ../fingerprint-gui-1.09-void-musl.patch
+
+export CXXFLAGS=" -I/opt/qt5/include/Qca-qt5/QtCrypto" &&
+export CXXFLAGS+=" -I/opt/qt5/include" &&
+export CXXFLAGS+=" -I/opt/qt5/include/QtCore" &&
+export CXXFLAGS+=" -I/opt/qt5/include/QtGui" &&
+export CXXFLAGS+=" -I/opt/qt5/include/QtWidgets" &&
+export CXXFLAGS+=" -I/opt/qt5/include/QtXml" &&
+export LDFLAGS=" -Wl,-rpath=/opt/qt5/lib" &&
+#export LDFLAGS="-Wl,--no-as-needed -lqca-qt5" &&
+export CFLAGS="" &&
+
+qmake PREFIX=/usr  LIB=/usr/lib MAKE_CC=cc \
+      QMAKE_CXX=c++ QMAKE_LINK=c++ QMAKE_LINK_C=cc \
+      QMAKE_CFLAGS="${CFLAGS}" \
+      QMAKE_CXXFLAGS="${CXXFLAGS}" \
+      QMAKE_LFLAGS="${LDFLAGS}"&&
+
+read -p "Compile? " &&
+make -j2 &&
+
+read -p "Install? " &&
+sudo porg -lD  "make -j1 install" &&
+sudo porg -lD+ "make -j1 upek-rules" &&
+sudo porg -lD+ "make -j1 upek-cfg" &&
+sudo porg -lD+ "mv -v /usr/lib/security/pam_fingerprint-gui.so /lib/security"
