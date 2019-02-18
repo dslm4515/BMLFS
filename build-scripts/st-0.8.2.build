@@ -2,6 +2,15 @@
 
 # source: https://dl.suckless.org/st/st-0.8.2.tar.gz
 
+# Add Scroll back through terminal output using Shift+{PageUp, PageDown}
+patch -Np1 -i ../st-scrollback-20190122-3be4cf1.diff 
+
+# Allow scrolling using Shift+MouseWheel
+patch -Np1 -i ../st-scrollback-mouse-0.8.diff
+
+# Allow scrollback using mouse wheel only when not in MODE_ALTSCREEN
+patch -Np1 -i ../st-scrollback-mouse-altscreen-20190131-e23acb9.diff
+
 # copy config.def.h as config.h and edit config.h
 
 sed -i '/tic/d' Makefile
