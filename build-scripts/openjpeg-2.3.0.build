@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# source: https://github.com/uclouvain/openjpeg/archive/v2.3.0.tar.gz
+
+mkdir -v build &&
+cd       build &&
+
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .. &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lp openjpeg-2.3.0  "make -j1 install"
+

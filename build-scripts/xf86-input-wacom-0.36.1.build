@@ -1,0 +1,9 @@
+#! /bin/bash
+
+# source: https://github.com/linuxwacom/xf86-input-wacom/releases/download/xf86-input-wacom-0.36.1/xf86-input-wacom-0.36.1.tar.bz2
+
+./configure $XORG_CONFIG --without-systemd-unit-dir --without-udev-rules-dir $BUILD &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install" &&
+sudo -S porg -lD+ "cp -v ../70-wacom.rules /usr/lib/udev/rules.d/"

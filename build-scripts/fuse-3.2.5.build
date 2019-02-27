@@ -1,0 +1,20 @@
+#! /bin/bash
+
+# source: https://github.com/libfuse/libfuse/releases/download/fuse-3.2.5/fuse-3.2.5.tar.xz
+
+sed -i '/^udev/,$ s/^/#/' util/meson.build &&
+
+mkdir build &&
+cd    build &&
+
+meson --prefix=/usr .. &&
+
+read -p "Compile? " && ninja -j2 &&
+
+read -p "Install? " && sudo -S porg -lp fuse-3.2.5 "ninja -j1 install" &&
+
+sudo -S porg -lp+ fuse-3.2.5 "mv -vf   /usr/lib64/libfuse3.so*     /lib"  &&
+sudo -S porg -lp+ fuse-3.2.5 "ln -sfvn ../../lib/libfuse3.so.3.2.5 /usr/lib64/libfuse3.so" &&
+sudo -S porg -lp+ fuse-3.2.5 "mv -vf /usr/bin/fusermount3  /bin"          &&
+sudo -S porg -lp+ fuse-3.2.5 "mv -vf /usr/sbin/mount.fuse3 /sbin"         &&
+sudo -S	chmod u+s /bin/fusermount3  

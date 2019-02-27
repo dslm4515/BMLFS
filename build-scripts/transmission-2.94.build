@@ -1,0 +1,18 @@
+#! /bin/bash
+
+# source: https://raw.githubusercontent.com/transmission/transmission-releases/master/transmission-2.94.tar.xz
+
+./configure --prefix=/usr $BUILD \
+            --enable-nls --enable-cli --enable-daemon --enable-utp \
+            --without-systemd-daemon &&
+
+read -p "Compile? " && make -j2 &&
+pushd qt        &&
+qmake qtr.pro &&
+make -j2 &&
+popd &&
+
+read -p "Install? " && sudo -S porg -lD "make -j1 install" &&
+sudo -S porg -lD+ "make INSTALL_ROOT=/usr -C qt install" &&
+sudo -S porg -lD+ "install -m644 qt/transmission-qt.desktop /usr/share/applications/transmission-qt.desktop" &&
+sudo -S porg -lD+ "install -m644 qt/icons/transmission.png  /usr/share/pixmaps/transmission-qt.png"

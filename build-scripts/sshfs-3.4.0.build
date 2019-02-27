@@ -1,0 +1,15 @@
+#! /bin/bash
+
+# source: https://github.com/libfuse/sshfs/releases/download/sshfs-3.4.0/sshfs-3.4.0.tar.xz
+
+if [ $(uname -m) = "i686" ]; then
+  export CFLAGS+="-D_FILE_OFFSET_BITS=64";
+fi
+
+mkdir build &&
+cd    build &&
+	          
+meson --prefix=/usr .. &&
+
+read -p "Compile? " && ninja -j2 &&
+read -p "Install? " && sudo -S porg -lp sshfs-3.4.0 "ninja -j1 install"
