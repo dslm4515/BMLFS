@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# source: https://dl.suckless.org/tools/slock-1.4.tar.gz
+
+patch -Np1 -i ../slock-1.4-adjustment.patch 
+
+read -p "Compile? " &&
+make -j2 &&
+
+read -p "Install?" &&
+sudo -S porg -lD+ "make PREFIX=/usr install -j1"
+
