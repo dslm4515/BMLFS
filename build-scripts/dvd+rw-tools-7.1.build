@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# source: http://fy.chalmers.se/~appro/linux/DVD+RW/tools/dvd+rw-tools-7.1.tar.gz
+
+sed -i '/stat.h/a #include <sys/sysmacros.h>/' growisofs.c &&
+	sed -i '/stdlib/a #include <limits.h>' transport.hxx &&
+read -p "Compile? " && 
+make all rpl8 btcflash -j2 &&
+
+read -p "Install? " &&
+sudo -S porg -lD "make prefix=/usr install"

@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# source: https://downloads.sourceforge.net/cdrtools/cdrtools-3.02a09.tar.bz2
+
+export GMAKE_NOWARN=true &&
+make -j1 INS_BASE=/usr DEFINSUSR=root DEFINSGRP=root &&
+
+read -p "Install? " && sudo -S -E porg -lD "make INS_BASE=/usr DEFINSUSR=root DEFINSGRP=root install" 

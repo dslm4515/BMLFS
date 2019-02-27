@@ -1,0 +1,9 @@
+#! /bin/bash
+
+# source: https://downloads.xiph.org/releases/ao/libao-1.2.0.tar.gz
+
+./configure --prefix=/usr $BUILD &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
+
