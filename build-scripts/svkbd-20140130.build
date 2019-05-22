@@ -5,4 +5,4 @@
 patch -Np1 -i ../svkbd-20140130-adjst.patch
 
 read -p "Compile? " && make -j2 &&
-read -p "Install? " &7 sudo -S porg -lD "make -j1 install"
+read -p "Install? " && sudo -S porg -lD "make -j1 install"
