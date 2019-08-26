@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# ACPI Client 1.7
+# https://sourceforge.net/projects/acpiclient/files/acpiclient/1.7/acpi-1.7.tar.gz
+
+autoreconf -vfi
+
+./configure --prefix=/usr $BUILDTRUPLE &&
+
+read -p "Compile? " && make  -j2 && 
+read -p "Install? " && sudo -S porg -lp acpiclient-1.7 "make install"

@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# Libepoxy 1.5.3
+
+# Source: https://github.com/anholt/libepoxy/releases/download/1.5.3/libepoxy-1.5.3.tar.xz
+
+mkdir build &&
+cd build &&
+
+meson --prefix=/usr .. &&
+read -p "Compile? " && ninja -j2 && 
+read -p "Install? " && sudo -S porg -lp libepoxy-1.5.3 "ninja install"

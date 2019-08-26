@@ -1,0 +1,16 @@
+#! /bin/bash
+
+# at-spi2-core-2.32.1 
+# source: http://ftp.gnome.org/pub/gnome/sources/at-spi2-core/2.32/at-spi2-core-2.32.1.tar.xz
+
+sed -i 's/subdir:/install_dir:/' atspi/meson.build &&
+
+mkdir build &&
+cd    build &&
+
+meson --prefix=/usr     \
+      --sysconfdir=/etc \
+      -Dsystemd_user_dir=no .. &&
+
+read -p "Compile? " && ninja -j2 && 
+read -p "Install? " && sudo -S porg -lp at-spi2-core-2.32.1  "ninja install"

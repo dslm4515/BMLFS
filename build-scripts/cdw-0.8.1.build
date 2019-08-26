@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# CDW 0.8.1
+# source : https://sourceforge.net/projects/cdw/files/cdw/cdw%200.8.1/cdw-0.8.1.tar.gz
+
+./configure --prefix=/usr $BUILDTRUPLE \
+     --sysconfdir=/etc &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

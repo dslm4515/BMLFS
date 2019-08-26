@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# Wayland 1.17.0
+# Source: https://wayland.freedesktop.org/releases/wayland-1.17.0.tar.xz
+
+./configure --prefix=/usr    \
+            --disable-static \
+     --disable-documentation $BUILDTRUPLE  &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install"

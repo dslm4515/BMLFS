@@ -1,0 +1,97 @@
+#! /bin/bash
+
+# QT 5.13.0
+# source: https://download.qt.io/archive/qt/5.13/5.13.0/single/qt-everywhere-src-5.13.0.tar.xz
+
+# Apply Patches
+export patchfiles="0002-Use-_fpstate-instead-of-_libc_fpstate-on-linux.patch 0003-include-sys-reg.h-to-get-__WORDSIZE-on-musl-libc.patch 0004-musl-dispatch-to-musl.patch 0007-musl-iconv-no-bom.patch 0008-musl-no-mallinfo.patch 0009-musl-off_t.patch 0010-musl-pread-pwrite.patch 0011-musl-replace-pvalloc.patch 0012-musl-resolve.patch 0014-musl-set_thread_name_np.patch  0015-musl-siginfo_t.patch 0016-musl-stackbottom.patch 0017-musl-stackstart.patch 0018-musl-timeval.patch 0022-libressl-compat.patch 0023-enable_tools-cross.patch 0025-musl-chromium-default-stacksize.patch 0026-data_pack-be.patch  0032-musl-cross-no-asm_ptrace_h.patch 0040-yasm-nls.patch 0041-libressl.patch 0042-arm-void-is-not-android.patch 0043-libressl-const-bio.patch 0044-qt-musl-execinfo.patch 0045-qt-musl-thread-stacksize.patch 0046-sandbox-membarrier.patch 0047-gn-cross-sysroot.patch 0048-qtbug-76742.patch 0089-webengine-ppc64.patch 0090-chromium-ppc64le.patch 0091-chromium-ppc64-musl.patch 0092-chromium-ppc64-be.patch 0093-chromium-v8-elfv2.patch 0094-big-endian-skia-portable.patch 0020-musl-sandbox.patch"
+for p in $patchfiles; do
+	echo "[ PATCHING ] Applying $p ..." &&
+	patch -Np0 -i ../patches/qt-5.13.0-patches/$p
+done
+
+for config in $(find qtwebengine/src/3rdparty/chromium/third_party/ffmpeg/chromium/config -name "config\.*" | grep linux); do
+     sed -i ${config} -e "s;HAVE_SYSCTL 1;HAVE_SYSCTL 0;"
+done
+
+# Compatibility functions res_ninit() and res_nclose() for musl libc
+cp  -v ../files/resolv_compat.h qtwebengine/src/3rdparty/chromium/net/dns
+
+# Do not use allocator shim (incompatible with musl libc)
+sed -i qtwebengine/src/3rdparty/chromium/build/config/allocator.gni \
+	-e "s;\(use_allocator_shim\) = .*;\1 = false;"
+
+# Bootstrap GN
+read -p "bootstrapping gn...[ Enter to continue]" &&
+cd qtwebengine/src/3rdparty/gn &&
+PKGCONFIG=/usr/bin/pkgconfig \
+PKG_CONFIG_PATH="/usr/lib/pkgconfig:/usr/share/pkgconfig" \
+python2 build/gen.py --no-last-commit-position --out-path  \
+out/Release --cc cc --cxx g++ --ld g++ --ar ar &&
+ninja -C out/Release gn &&
+cd ../../../../ &&
+
+# Set up build environment
+export CFLAGS="-DOPENSSL_NO_PSK -DOPENSSL_NO_NEXTPROTONEG" &&
+export CXXFLAGS="${CFLAGS} -Wno-deprecated-declarations -Wno-class-memaccess -Wno-packed-not-aligned" &&
+export CXXFLAGS="${CXXFLAGS} -D_POSIX_THREAD_ATTR_STACKSIZE=2097152 " &&
+export LDFLAGS="-pthread -ldl -fPIE -Wl,-z,stack-size=2097152 -Wl,--no-keep-memory" &&
+export QT5PREFIX=/opt/qt5 &&
+export LD_LIBRARY_PATH=${PWD}/qtbase/lib:${PWD}/qttools/lib:${LD_LIBRARY_PATH} &&
+
+sudo -S mkdir -v /opt/qt-5.13.0 &&
+sudo -S ln -sfnv qt-5.13.0 /opt/qt5 &&
+
+MAKE=/usr/bin/make \
+CC="cc" CXX="c++" CPP="cpp" LD="c++" AR="ar" AS="as" NM="nm" \
+OBJDUMP="objdump" STRIP="strip" RANLIB="ranlib" \
+CFLAGS=$CFLAGS \
+CXXFLAGS=$CXXFLAGS \
+LDFLAGS=$LDFLAGS \
+./configure -prefix $QT5PREFIX                          \
+            -sysconfdir /etc/xdg                        \
+            -confirm-license                            \
+            -opensource                                 \
+            -dbus-linked                                \
+            -openssl-linked                             \
+            -system-harfbuzz                            \
+            -system-sqlite                              \
+            -nomake examples                            \
+            -no-rpath                                   \
+            -skip qtwebengin
+
+read -p "Compile? " && make -j2 && make -j2 &&
+
+read -p "Install? " && sudo -S -E porg -lp qt-5.13.0 "make install" &&
+
+export QT5PREFIX=/opt/qt5 &&
+export QT5BINDIR=$QT5PREFIX/bin &&
+
+sudo -S -E find $QT5PREFIX/ -name \*.prl \
+   -exec sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+
+sudo -S install -v -dm755 /usr/share/pixmaps/                  &&
+
+sudo -S porg -lp+ qt-5.13.0 "install -v -Dm644 qttools/src/assistant/assistant/images/assistant-128.png \
+                  /usr/share/pixmaps/assistant-qt5.png" &&
+
+sudo -S porg -lp+ qt-5.13.0 "install -v -Dm644 qttools/src/designer/src/designer/images/designer.png \
+                  /usr/share/pixmaps/designer-qt5.png"  &&
+
+sudo -S porg -lp+ qt-5.13.0 "install -v -Dm644 qttools/src/linguist/linguist/images/icons/linguist-128-32.png \
+                  /usr/share/pixmaps/linguist-qt5.png"  &&
+
+sudo -S porg -lp+ qt-5.13.0 "install -v -Dm644 qttools/src/qdbus/qdbusviewer/images/qdbusviewer-128.png \
+                  /usr/share/pixmaps/qdbusviewer-qt5.png" &&
+
+sudo -S install -dm755 /usr/share/applications &&
+
+for file in moc uic rcc qmake lconvert lrelease lupdate; do
+  sudo -S -E porg -lp+ qt-5.13.0 "ln -sfrvn $QT5BINDIR/$file /usr/bin/$file-qt5"
+done
+
+sudo -S -E porg -lp+ qt-5.13.0 "cp -v ../files/qt5.sh /etc/profile.d/" &&
+sudo -S -E porg -lp+ qt-5.13.0 "cp -v ../files/designer-qt5.desktop    /usr/share/applications/" &&
+sudo -S -E porg -lp+ qt-5.13.0 "cp -v ../files/assistant-qt5.desktop   /usr/share/applications/" &&
+sudo -S -E porg -lp+ qt-5.13.0 "cp -v ../files/linguist-qt5.desktop    /usr/share/applications/" &&
+sudo -S -E porg -lp+ qt-5.13.0 "cp -v ../files/qdbusviewer-qt5.desktop /usr/share/applications/"

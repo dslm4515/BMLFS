@@ -1,0 +1,34 @@
+#! /bin/bash
+
+# Cups-2.2.11 
+# source: https://github.com/apple/cups/releases/download/v2.2.11/cups-2.2.11-source.tar.gz
+
+sudo -S useradd -c "Print Service User" -d /var/spool/cups -g lp -s /bin/false -u 9 lp
+sudo -S groupadd -g 15 lpadmin
+
+patch -Np0 -i ../patches/cups-no-export-ssllibs.patch &&
+patch -Np0 -i ../patches/cups-no-gzip-man.patch &&
+
+sed -i 's:444:644:' Makedefs.in                                     &&
+sed -i '/MAN.EXT/s:.gz::' configure config-scripts/cups-manpages.m4 &&
+
+aclocal  -I config-scripts &&
+autoconf -I config-scripts &&
+
+CC=gcc \
+./configure --libdir=/usr/lib            \
+            --disable-systemd            \
+            --with-rcdir=/tmp/cupsinit   \
+            --with-system-groups=lpadmin \
+            --with-docdir=/usr/share/cups/doc-2.2.11 \
+            --enable-acl --enable-dbus --enable-raw-printing \
+            --enable-threads --enable-libpaper --enable-pam --enable-ssl \
+            --disable-systemd --disable-launchd --without-rcdir \
+            --without-java --without-perl --without-php --without-python &&
+sed -e '/.\/genstrings.*/d' -i ppdc/Makefile &&
+sed -e "s,./mantohtml,cross-tools/mantohtml,g" -i man/Makefile &&
+read -p "Compile?" && make -j2 && 
+read -p "Install?" && sudo -S porg -lD "make -j1 install" &&
+sudo -S porg -lD+ "rm -rf /tmp/cupsinit" &&
+sudo -S porg -lD+ "ln -svnf ../cups/doc-2.2.8 /usr/share/doc/cups-2.2.8" 
+# echo "ServerName /var/run/cups/cups.sock" > /etc/cups/client.conf

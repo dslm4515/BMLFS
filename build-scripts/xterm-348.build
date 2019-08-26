@@ -1,0 +1,27 @@
+#! /bin/bash
+
+# Xterm 348
+# Source: http://invisible-mirror.net/archives/xterm/xterm-348.tgz
+
+patch -Np0 -i ../../patches/xterm-348-void-musl.patch &&
+sed -i '/v0/{n;s/new:/new:kb=^?:/}' termcap &&
+printf '\tkbs=\\177,\n' >> terminfo &&
+
+TERMINFO=/usr/share/terminfo \
+./configure $XORG_CONFIG $BUILDTRUPLE $HOSTTRUPLE \
+            --enable-wide-chars --enable-88-color \
+     --enable-broken-osc --enable-256-color \
+     --enable-luit       --enable-paste64  \
+     --enable-ansi-color --enable-mini-luit \
+     --enable-readline-mouse --enable-broken-st \
+     --enable-narrowproto    --libdir=/etc \
+     --enable-load-vt-fonts  --with-app-defaults=/usr/share/X11/app-defaults \
+     --enable-i18n           --disable-full-tgetent \
+     --disable-imake         --enable-doublechars \
+     --enable-freetype       --enable-tcap-query \
+     --enable-logging        --enable-dabbrev \
+     --with-pkg-config=yes --enable-exec-xterm --with-utempter &&
+
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install" &&
+sudo -S porg -lD+ "make install-ti"

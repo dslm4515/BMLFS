@@ -1,0 +1,16 @@
+#! /bin/bash
+
+# VTE 0.56.3
+# source: http://ftp.gnome.org/pub/gnome/sources/vte/0.56/vte-0.56.3.tar.xz
+
+patch -Np0 -i ../patches/vte-0.56.3-void-fix-W_EXITCODE.patch &&
+
+enable_glade_catalogue=yes \
+./configure --prefix=/usr          \
+            --sysconfdir=/etc      \
+            --disable-static       \
+            --enable-introspection \
+            --enable-vala  $BUILDTRUPLE &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

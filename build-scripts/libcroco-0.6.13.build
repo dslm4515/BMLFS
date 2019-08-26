@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# libcroco-0.6.13 
+# Source: http://ftp.gnome.org/pub/gnome/sources/libcroco/0.6/libcroco-0.6.13.tar.xz
+
+./configure --prefix=/usr --disable-static $BUILDTRUPLE  &&
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

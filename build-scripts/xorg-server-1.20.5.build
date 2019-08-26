@@ -1,0 +1,17 @@
+#! /bin/bash
+
+# Xorg Server 1.20.5
+# Source: https://www.x.org/pub/individual/xserver/xorg-server-1.20.5.tar.bz2
+
+./configure $XORG_CONFIG            \
+            --enable-glamor          \
+            --enable-install-setuid  \
+            --enable-suid-wrapper    \
+            --disable-systemd-logind \
+            --with-xkb-output=/var/lib/xkb \
+            --enable-dmx \
+            --enable-kdrive \
+            --enable-xwayland $HOSTTRUPLE   &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install" &&
+sudo -S mkdir -pv /etc/X11/xorg.conf.d

@@ -1,0 +1,9 @@
+#! /bin/bash
+
+# Librsvg 2.40.18
+# Source:  http://ftp.gnome.org/pub/gnome/sources/librsvg/2.40/librsvg-2.40.18.tar.xz
+
+./configure --prefix=/usr --enable-vala \
+	    --disable-static $BUILDTRUPLE &&
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

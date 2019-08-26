@@ -1,0 +1,15 @@
+#! /bin/bash
+
+# DWM 6.2
+# Source: https://dl.suckless.org/dwm/dwm-6.2.tar.gz
+
+# To add a systray:
+# patch -Np1 -i ../patches/dwm-systray-20190208-cb3f58a.diff
+
+# copy config.def.h as config.h and edit config.h
+
+make clean &&
+read -p "Compile? " &&
+make INCS="-I . -I/usr/include/freetype2" LIBS="-lX11 -lXinerama -lXft -lfontconfig" -j2 &&
+
+read -p "Install?" && sudo -S porg --remove dwm && sudo -S porg -lD "make install"

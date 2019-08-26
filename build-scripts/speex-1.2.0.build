@@ -1,0 +1,21 @@
+#! /bin/bash
+
+# Speex-1.2.0
+# Source: https://downloads.xiph.org/releases/speex/speex-1.2.0.tar.gz
+# Source: https://downloads.xiph.org/releases/speex/speexdsp-1.2rc3.tar.gz
+
+./configure --prefix=/usr  $BUILDTRUPLE   \
+            --disable-static \
+            --docdir=/usr/share/doc/speex-1.2.0 &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install" &&
+
+cd ..                          &&
+tar -xf speexdsp-1.2rc3.tar.gz &&
+cd speexdsp-1.2rc3             &&
+
+./configure --prefix=/usr $BUILDTRUPLE   \
+            --disable-static \
+            --docdir=/usr/share/doc/speexdsp-1.2rc3 &&
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install" 

@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# xbitmaps 1.1.2
+# Source: https://www.x.org/pub/individual/data/xbitmaps-1.1.2.tar.bz2
+
+./configure ${XORG_CONFIG} ${BUILDTRUPLE}  &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install"

@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# WavPak 1.5.0
+# source: http://www.wavpack.com/wavpack-5.1.0.tar.bz2
+
+./configure --prefix=/usr \
+            --sysconfdir=/etc $BUILDTRUPLE &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

@@ -1,0 +1,19 @@
+#! /bin/bash
+
+# Sudo 1.8.27
+# Source: http://www.sudo.ws/dist/sudo-1.8.27.tar.gz
+
+./configure --prefix=/usr              \
+            --libexecdir=/usr/lib      \
+            --with-secure-path         \
+            --with-all-insults         \
+            --with-env-editor          \
+            --docdir=/usr/share/doc/sudo-1.8.27 \
+            --with-passprompt="[sudo] password for %p: " $BUILD &&
+read -p "Press Enter to compile" && make -j2 &&
+
+read -p "Install? " && su -c "porg -lD 'make -j1 install'" &&
+
+su -c "porg -lD+ 'ln -sfv libsudo_util.so.0.0.0 /usr/lib/sudo/libsudo_util.so.0'" &&
+su -c "cp -v ../files/sudo-sudo /etc/pam.d/sudo" &&
+su -c "chmod 644 /etc/pam.d/sudo"

@@ -1,0 +1,28 @@
+#! /bin/bash
+
+# Xorg Intel Driver 2.99.917.847
+# Source from git: https://gitlab.freedesktop.org/xorg/driver/xf86-video-intel
+# Git commit: 25c9a2fcc83ae7252a178b42262da383e59df744 
+
+# Download
+git clone https://gitlab.freedesktop.org/xorg/driver/xf86-video-intel &&
+cd xf86-video-intel &&
+git reset --hard 25c9a2fcc83ae7252a178b42262da383e59df744 &&
+
+# Patch with patches from Void-Linux
+patch -Np0 -i ../../patches/0001-SNA-fix-PRIME-output-support-since-xserver-1.20.patch &&
+patch -Np0 -i ../../patches/O_CLOEXEC.patch &&
+patch -Np0 -i ../../patches/gcc-8.2.0-force_inline.patch &&
+
+NOCONFIGURE=1 ./autogen.sh &&
+./configure $XORG_CONFIG  $HOSTTRUPLE   \
+      --enable-kms-only \
+      --enable-uxa      \
+      --mandir=/usr/share/man \
+      --with-default-dri=3 &&
+
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lp xf86-video-intel-2.99.917.847 "make install" &&
+sudo -S porg -lp+ xf86-video-intel-2.99.917.847 "mv -v /usr/share/man/man4/intel-virtual-output.4 \
+      /usr/share/man/man1/intel-virtual-output.1" &&
+sudo -S sed -i '/\.TH/s/4/1/' /usr/share/man/man1/intel-virtual-output.1

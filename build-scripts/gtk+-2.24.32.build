@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# GTK+-2.24.32 
+# source: http://ftp.gnome.org/pub/gnome/sources/gtk+/2.24/gtk+-2.24.32.tar.xz
+
+autoreconf -ifv
+CFLAGS="-UGDK_PIXBUF_DISABLE_DEPRECATED" \
+./configure --prefix=/usr  --sysconfdir=/etc \
+            --enable-shm --enable-introspection=yes \
+            --with-xinput=yes --enable-cups  $BUILDTRUPLE &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install"

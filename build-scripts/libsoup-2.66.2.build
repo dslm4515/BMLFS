@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# Libsoup 2.66.2
+# source: http://ftp.gnome.org/pub/gnome/sources/libsoup/2.66/libsoup-2.66.2.tar.xz
+
+mkdir build &&
+cd    build &&
+
+meson --prefix=/usr -Dvapi=true -Dgssapi=false .. &&
+read -p "Compile? " && ninja -j2 &&
+read -p "Install? " && sudo -S porg -lp libsoup-2.66.2 "ninja install"

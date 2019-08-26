@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# Xinit 1.4.1
+# Source: https://www.x.org/pub/individual/app/xinit-1.4.1.tar.bz2
+
+sed -e '/$serverargs $vtarg/ s/serverargs/: #&/' \
+     -i startx.cpp &&
+
+./configure $XORG_CONFIG $BUILDTRUPLE \
+            --with-xinitdir=/etc/X11/app-defaults &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install"

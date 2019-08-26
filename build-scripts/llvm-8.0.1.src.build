@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# LLVM 8.0.1
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-8.0.1/llvm-8.0.1.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-8.0.1/cfe-8.0.1.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-8.0.1/compiler-rt-8.0.1.src.tar.xz
+
+patch -Np1 -i ../patches/llvm8/llvm-001-musl.patch &&
+patch -Np1 -i ../patches/llvm8/llvm-002-musl-ppc64-elfv2.patch &&
+patch -Np1 -i ../patches/llvm8/llvm-003-secureplt.patch &&
+patch -Np1 -i ../patches/llvm8/llvm-004-override-opt.patch &&
+
+tar -xf ../cfe-8.0.1.src.tar.xz && cd cfe-8.0.1.src &&
+patch -Np1 -i ../../patches/llvm8/cfe-001-fix-stdint.patch &&
+patch -Np1 -i ../../patches/llvm8/cfe-003-fix-unwind-chain-inclusion.patch &&
+patch -Np1 -i ../../patches/llvm8/cfe-004-add-musl-triples.patch &&
+patch -Np1 -i ../../patches/llvm8/cfe-005-ppc64-dynamic-linker-path.patch &&
+patch -Np1 -i ../../patches/llvm8/cfe-006-ppc64-musl-elfv2.patch &&
+patch -Np1 -i ../../patches/llvm8/cfe-007-ppc-musl-long-double-64.patch &&
+cd .. && mv -v cfe-8.0.1.src tools &&
+
+tar -xf ../compiler-rt-8.0.1.src.tar.xz -C projects &&
+mv -v tools/cfe-8.0.1.src tools/clang &&
+mv projects/compiler-rt-8.0.1.src projects/compiler-rt &&
+
+# Disable sanitizers for musl-based systems
+sed -i 's/set(COMPILER_RT_HAS_SANITIZER_COMMON TRUE)/set(COMPILER_RT_HAS_SANITIZER_COMMON FALSE)/' projects/compiler-rt/cmake/config-ix.cmake &&
+
+mkdir -v build &&
+cd       build &&
+
+CC=gcc CXX=g++                                  \
+cmake -DCMAKE_INSTALL_PREFIX=/usr               \
+      -DLLVM_ENABLE_FFI=ON                      \
+      -DCMAKE_BUILD_TYPE=Release                \
+      -DLLVM_BUILD_LLVM_DYLIB=ON                \
+      -DLLVM_LINK_LLVM_DYLIB=ON                 \
+      -DLLVM_ENABLE_RTTI=ON                     \
+      -DLLVM_TARGETS_TO_BUILD="host;AMDGPU;BPF" \
+      -DLLVM_BUILD_TESTS=ON                     \
+      -DLLVM_TARGET_ARCH="X86"                  \
+      -DLLVM_INSTALL_UTILS=ON                   \
+      -DLLVM_BINUTILS_INCDIR="/usr/include"     \
+      -DLLVM_DEFAULT_TARGET_TRIPLE="i686-linux-musl" \
+      -Wno-dev -G Ninja ..                      &&
+
+read -p "Compile?" && time { ninja -j2 ; } &&
+read -p "Install?" && sudo -S porg -lp llvm-8.0.1 "ninja install"

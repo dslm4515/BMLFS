@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# gst-plugins-base-1.16.0 
+# source: https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.16.0.tar.xz
+
+./configure --prefix=/usr $BUILDTRUPLE \
+            --with-package-name="GStreamer Base Plugins 1.16.0 BMLFS" \
+            --with-package-origin="http://www.linuxfromscratch.org/blfs/view/svn/" &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

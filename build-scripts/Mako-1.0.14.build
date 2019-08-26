@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# Mako 1.0.14
+# Source: https://files.pythonhosted.org/packages/source/M/Mako/Mako-1.0.14.tar.gz
+
+sudo -S -E porg -lD  "python setup.py  install  --optimize=1" &&
+sed -i "s:mako-render:&3:g" setup.py &&
+sudo -S -E porg -lD+ "python3 setup.py install  --optimize=1"

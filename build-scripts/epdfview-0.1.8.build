@@ -1,0 +1,16 @@
+#! /bin/bash
+
+# ePDFView 0.1.8
+# source: http://anduin.linuxfromscratch.org/BLFS/epdfview/epdfview-0.1.8.tar.bz2
+
+patch -Np0 -i ../patches/0001-When-using-Poppler-0.17.0-I-needed-to-swap-the-blue-.patch 
+patch -Np0 -i ../patches/glib2_headers.patch 
+patch -Np1 -i ../patches/epdfview-0.1.8-fixes-2.patch 
+
+cp -v ../files/config.guess-musl config.guess &&
+cp -v ../files/config.sub-musl config.sub &&
+
+./configure --prefix=/usr $BUILDTRUPLE &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

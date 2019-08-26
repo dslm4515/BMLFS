@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# Glade 3.30.4
+# source: http://ftp.gnome.org/pub/GNOME/sources/glade/3.20/glade-3.20.4.tar.xz
+
+enable_gladeui=yes \
+./configure --prefix=/usr --disable-static $BUILDTRUPLE  &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

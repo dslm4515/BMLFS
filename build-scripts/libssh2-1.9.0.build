@@ -1,0 +1,13 @@
+#! /bin/bash
+
+# LibSSH2 1.9.0
+# Source: https://www.libssh2.org/download/libssh2-1.9.0.tar.gz
+
+rm -rfv config.sub config.guess
+ln -sv ../files/config.sub-musl ./config.sub
+ln -sv ../files/config.guess-musl ./config.guess
+
+./configure --prefix=/usr  $BUILDTRUPLE \
+     --disable-static &&
+read -p "Compile?" && make -j2 && 
+read -p "Install?" && sudo -S porg -lD "make install"

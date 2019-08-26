@@ -1,0 +1,9 @@
+#! /bin/bash
+
+# JSON-C 0.13.1
+# source: https://s3.amazonaws.com/json-c_releases/releases/json-c-0.13.1.tar.gz
+
+./configure --prefix=/usr --disable-static $BUILDTRUPLE  &&
+
+read -p "Compile? " && make -j4 &&
+read -p "Install? " && sudo -S porg -lD "make install"

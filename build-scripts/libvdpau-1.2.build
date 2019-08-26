@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# libvdpau 1.2
+# Source: https://gitlab.freedesktop.org/vdpau/libvdpau/uploads/14b620084c027d546fa0b3f083b800c6/libvdpau-1.2.tar.bz2
+
+
+./configure $XORG_CONFIG \
+            --docdir=/usr/share/doc/libvdpau-1.2 $BUILDTRUPLE &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install"

@@ -1,0 +1,46 @@
+#! /bin/bash
+
+# Seamonkey-2.49.4
+# source: https://archive.mozilla.org/pub/seamonkey/releases/2.49.4/source/seamonkey-2.49.4.source.tar.xz
+
+# Apply patches
+patch -Np1 -i ../patches/seamonkey-2.49.4-patches/avoid-getcontext-musl.patch
+patch -Np1 -i ../patches/seamonkey-2.49.4-patches/firefox-gcc-6.0.patch
+patch -Np1 -i ../patches/seamonkey-2.49.4-patches/fix-aouth.patch
+patch -Np1 -i ../patches/seamonkey-2.49.4-patches/fix-hunspell.patch
+patch -Np0 -i ../patches/seamonkey-2.49.4-patches/fix-i686-musl.patch
+patch -Np1 -i ../patches/seamonkey-2.49.4-patches/fix-libevent.patch
+patch -Np1 -i ../patches/seamonkey-2.49.4-patches/fix-libgen.patch
+patch -Np1 -i ../patches/seamonkey-2.49.4-patches/fix-linux-syscall.patch
+patch -Np1 -i ../patches/seamonkey-2.49.4-patches/fix-mallinfo.patch
+patch -Np1 -i ../patches/seamonkey-2.49.4-patches/fix-platform-linux.patch
+patch -Np1 -i ../patches/seamonkey-2.49.4-patches/fix-siginfo_t.patch
+patch -Np1 -i ../patches/seamonkey-2.49.4-patches/fix-stabs.patch
+patch -Np1 -i ../patches/seamonkey-2.49.4-patches/fix-sysctl.patch
+patch -Np1 -i ../patches/seamonkey-2.49.4-patches/fix-system-headers.patch
+patch -Np1 -i ../patches/seamonkey-2.49.4-patches/discard-x86-precision-musl.patch
+
+# Set environment
+# if using GCC:
+export LDFLAGS=" -Wl,-rpath,/usr/lib/seamonkey-2.49.4 -Wl,-rpath,/usr/lib " 
+export CFLAGS=" -fno-delete-null-pointer-checks -fno-lifetime-dse -fno-schedule-insns2 "
+export CXXFLAGS="-fno-delete-null-pointer-checks -fno-lifetime-dse -fno-schedule-insns2"
+# if using llvm(clang):
+#export LDFLAGS=" -Wl,-rpath,/usr/lib/seamonkey-2.49.4 -Wl,-rpath,/usr/lib -Wl,-rpath=/usr/lib/seamonkey-2.49.4 -Wl,-rpath=/usr/lib" 
+#export CFLAGS=" -fno-delete-null-pointer-checks"
+#export CXXFLAGS="-fno-delete-null-pointer-checks"
+
+# GCC-9 generates some false positives with -Werror=format, 
+# which prevent building SeaMonkey. Remove this flag with 
+# the following command: 
+grep -rl -- '-Werror=format' | xargs sed -i 's/error=format/no-&/'
+
+# Configure
+cp -v ../files/mozconfig.seamonkey ./.mozconfig
+
+# Build
+CC=cc CXX=g++ make -f client.mk build && read -p "install" &&
+
+# Isntall
+sudo -S -E porg -lD "make -f client.mk  INSTALL_SDK= install"
+unset LDFLAGS CFLAGS CXXFLAGS

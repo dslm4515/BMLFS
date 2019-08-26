@@ -1,0 +1,21 @@
+#! /bin/bash
+
+# PaleMoon 28.6.0.1
+# source:
+
+patch -Np0 -i ../patches/PM28.6.0.1_Release-i686-fix.patch &&
+
+# Copy configuration
+cp -v ../files/mozconfig.palemoon ./.mozconfig &&
+
+# GCC-9 generates some false positives with -Werror=format, 
+# which prevent building SeaMonkey. Remove this flag with 
+# the following command: 
+grep -rl -- '-Werror=format' | xargs sed -i 's/error=format/no-&/'
+
+# Build
+export LDFLAGS=" -Wl,-rpath, /usr/lib/palemoon-28.6.0.1 -Wl,-rpath,/usr/lib " 
+./mach build &&
+
+# Install
+read -p "Install?" && sudo -S -E porg -lp  palemoon-28.6.0.1 "./mach install"

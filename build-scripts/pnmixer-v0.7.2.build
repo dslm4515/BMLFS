@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# PNmixer 0.7.2
+# source: https://github.com/nicklan/pnmixer/releases/download/v0.7.2/pnmixer-v0.7.2.tar.gz
+
+mkdir build &&
+cd    build &&
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr .. &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lp pnmixer-0.7.2 "make install"

@@ -1,0 +1,16 @@
+#! /bin/bash
+
+# libmpeg2 0.5.1
+# source: http://libmpeg2.sourceforge.net/files/libmpeg2-0.5.1.tar.gz
+
+cp -v ../files/config.sub-musl .auto/config.sub &&
+cp -v ../files/config.guess-musl .auto/config.guess &&
+
+sed -i 's/static const/static/' libmpeg2/idct_mmx.c &&
+
+./configure --prefix=/usr    \
+            --enable-shared  \
+            --disable-static $BUILDTRUPLE &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

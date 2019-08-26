@@ -1,0 +1,14 @@
+#! /bin/bash
+
+# x264-20190815-2245
+# source: https://download.videolan.org/x264/snapshots/x264-snapshot-20190815-2245-stable.tar.bz2
+
+cp -v ../files/config.guess-musl config.guess &&
+cp -v ../files/config.sub-musl config.stub &&
+
+./configure --prefix=/usr \
+            --enable-shared \
+            --disable-cli $BUILDTRUPLE &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

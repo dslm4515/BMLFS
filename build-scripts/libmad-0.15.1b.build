@@ -1,0 +1,18 @@
+#! /bin/bash
+
+# LibMad 0.15.1b
+# Source: https://downloads.sourceforge.net/mad/libmad-0.15.1b.tar.gz
+
+patch -Np1 -i ../patches/libmad-0.15.1b-fixes-1.patch  &&
+sed -e 's,AM_CONFIG_HEADER,AC_CONFIG_HEADERS,g' -i configure.ac &&
+touch NEWS AUTHORS ChangeLog &&
+autoreconf -vfi 
+
+cp -v ../files/config.sub-musl config.sub &&
+cp -v ../files/config.guess-musl config.guess &&
+
+./configure --prefix=/usr --disable-static  $BUILDTRUPLE  &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install" &&
+sudo -S porg -lD+ "cp -v ../files/libmad-0.15.1b-pc /usr/lib/pkgconfig/mad.pc"

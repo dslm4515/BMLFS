@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# Nettle 3.5.1
+# Source: https://ftp.gnu.org/gnu/nettle/nettle-3.5.1.tar.gz
+
+
+./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 && 
+read -p "Install?" && sudo -S porg -lD "make install" &&
+sudo -S chmod -v 755 /usr/lib/lib{hogweed,nettle}.so

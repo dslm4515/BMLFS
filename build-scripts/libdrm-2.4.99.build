@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# LibDRM 2.4.99
+# Source: https://dri.freedesktop.org/libdrm/libdrm-2.4.99.tar.bz2
+
+patch -Np1 -i ../../patches/dont-build-noveau-tests.patch 
+
+./configure --prefix=${XORG_PREFIX} \
+            --enable-udev $BUILDTRUPLE &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install -j1"

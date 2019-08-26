@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# ALSA Utils 1.1.9
+# source: ftp://ftp.alsa-project.org/pub/utils/alsa-utils-1.1.9.tar.bz2
+
+./configure --disable-alsaconf \
+            --disable-xmlto \
+            --with-curses=ncursesw $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+read -p "Install?" && sudo -S porg -lD+ "make install"
+

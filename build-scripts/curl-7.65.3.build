@@ -1,0 +1,16 @@
+#! /bin/bash
+
+# cURL 1.65.3
+# Source: https://curl.haxx.se/download/curl-7.65.3.tar.xz
+
+CFLAGS="-D_FORTIFY_SOURCE=2 -I/usr/include/" \
+CPPFLAGS="-D_FORTIFY_SOURCE=2" \
+./configure --prefix=/usr                           \
+            --disable-static                        \
+            --enable-threaded-resolver              \
+            --with-ca-path=/etc/ssl/certs \
+            --with-libssh2 \
+            --enable-ipv6 \
+            --enable-unix-sockets --with-pic $BUILDTRUPLE &&
+read -p "Compile? " && make -j2  && 
+read -p "Install? " && sudo -S porg -lD "make install"

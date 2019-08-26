@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# Libdvdread 6.0.1
+# source: https://get.videolan.org/libdvdread/6.0.1/libdvdread-6.0.1.tar.bz2
+
+
+./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/libdvdread-6.0.1 $BUILDTRUPLE &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

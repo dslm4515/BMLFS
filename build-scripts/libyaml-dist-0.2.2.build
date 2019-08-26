@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# libyaml-0.2.2
+# source: https://github.com/yaml/libyaml/archive/0.2.2/libyaml-dist-0.2.2.tar.gz
+
+./bootstrap &&
+./configure --prefix=/usr --disable-static  $BUILDTRUPLE &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

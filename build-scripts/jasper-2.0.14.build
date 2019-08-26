@@ -1,0 +1,16 @@
+#! /bin/bash
+
+# JasPer-2.0.14
+# Source: http://www.ece.uvic.ca/~frodo/jasper/software/jasper-2.0.14.tar.gz
+
+mkdir BUILD &&
+cd    BUILD &&
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr    \
+      -DCMAKE_BUILD_TYPE=Release     \
+      -DCMAKE_SKIP_INSTALL_RPATH=YES \
+      -DJAS_ENABLE_DOC=NO            \
+      -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/jasper-2.0.14 \
+      ..  &&
+read -p "Compile? " && make -j2 &&
+read -p "Install?" && sudo -S porg -lp JasPer-2.0.14 "make install"

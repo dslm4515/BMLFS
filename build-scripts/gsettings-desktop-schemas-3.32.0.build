@@ -1,0 +1,13 @@
+#! /bin/bash
+
+# Gsettings Desktop Schemas 3.32.0
+# source : http://ftp.gnome.org/pub/gnome/sources/gsettings-desktop-schemas/3.32/gsettings-desktop-schemas-3.32.0.tar.xz
+
+sed -i -r 's:"(/system):"/org/gnome\1:g' schemas/*.in &&
+
+mkdir build &&
+cd    build &&
+
+meson --prefix=/usr .. &&
+read -p "Compile?" && ninja -j2 &&
+read -p "Install?" && sudo -S porg -lp gsettings-desktop-schemas-3.32.0 "ninja install"

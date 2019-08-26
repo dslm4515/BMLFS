@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# volume_key-0.3.12 
+# source: https://github.com/felixonmars/volume_key/archive/volume_key-0.3.12.tar.gz
+
+autoreconf -fiv  &&
+./configure --prefix=/usr $BUILDTRUPLE --disable-nls  &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lp volume_key-0.3.12 "make install"

@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# HTop 2.2.0
+# Source: http://hisham.hm/htop/releases/2.2.0/htop-2.2.0.tar.gz
+
+./configure --prefix=/usr  --sysconfdir=/etc --enable-proc \
+	    --enable-cgroup --enable-unicode $BUILDTRUPLE  &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

@@ -1,0 +1,13 @@
+#! /bin/bash
+
+# Breeze Icons 5.60.0
+# source: http://download.kde.org/stable/frameworks/5.60/breeze-icons-5.60.0.tar.xz
+
+mkdir build &&
+cd    build &&
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr \
+      -DBUILD_TESTING=OFF         \
+      -Wno-dev .. &&
+
+sudo -S porg -lp breeze-icons-5.60.0 "make install"

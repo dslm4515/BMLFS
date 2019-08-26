@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# usbutils-012 
+# source: https://www.kernel.org/pub/linux/utils/usb/usbutils/usbutils-012.tar.xz
+
+
+./autogen.sh --prefix=/usr  --datadir=/usr/share/hwdata &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install" &&
+sudo -S install -dm755 /usr/share/hwdata/ &&
+sudo -S wget http://www.linux-usb.org/usb.ids -O /usr/share/hwdata/usb.ids 

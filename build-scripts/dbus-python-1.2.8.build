@@ -1,0 +1,24 @@
+#! /bin/bash
+
+# D-BUS Python 1.2.8
+# source: https://dbus.freedesktop.org/releases/dbus-python/dbus-python-1.2.8.tar.gz
+
+mkdir python2 &&
+pushd python2 &&
+PYTHON=/usr/bin/python     \
+../configure $BUILDTRUPLE --prefix=/usr --docdir=/usr/share/doc/dbus-python-1.2.8 &&
+make -j2 &&
+popd &&
+
+read -p "Build for python3?" &&
+
+mkdir python3 &&
+pushd python3 &&
+PYTHON=/usr/bin/python3    \
+../configure $BUILDTRUPLE --prefix=/usr --docdir=/usr/share/doc/dbus-python-1.2.8 &&
+make -j2 &&
+popd &&
+
+read -p "Install? " && 
+sudo -S -E porg -lD  "make -C python2 install" &&
+sudo -S -E porg -lD+ "make -C python3 install"

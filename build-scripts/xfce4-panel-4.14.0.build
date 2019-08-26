@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# xfce4 panel 4.14.0
+# source: http://archive.xfce.org/src/xfce/xfce4-panel/4.14/xfce4-panel-4.14.0.tar.bz2
+
+./configure --prefix=/usr \
+	    --sysconfdir=/etc \
+	    --enable-gtk3  $BUILDTRUPLE &&
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"
+

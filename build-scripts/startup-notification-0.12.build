@@ -1,0 +1,13 @@
+#! /bin/bash
+
+# startup-notification-0.12 
+# Source: https://www.freedesktop.org/software/startup-notification/releases/startup-notification-0.12.tar.gz
+
+rm -v config.sub  config.guess &&
+ln -sv ../files/config.guess-musl config.guess &&
+ln -sv ../files/config.sub-musl config.sub &&
+
+./configure --prefix=/usr \
+     --disable-static $BUILDTRUPLE  &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install"

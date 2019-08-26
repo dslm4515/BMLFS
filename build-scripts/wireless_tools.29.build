@@ -1,0 +1,9 @@
+#! /bin/bash
+
+# Wireless Tools 29
+# source: https://hewlettpackard.github.io/wireless-tools/wireless_tools.29.tar.gz
+
+patch -Np1 -i ../patches/wireless_tools-29-fix_iwlist_scanning-1.patch &&
+
+make -j2 &&
+sudo -S porg -lD "make PREFIX=/usr INSTALL_MAN=/usr/share/man install"

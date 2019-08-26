@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# at-spi2-atk-2.32.0 
+# source: http://ftp.gnome.org/pub/gnome/sources/at-spi2-atk/2.32/at-spi2-atk-2.32.0.tar.xz
+
+mkdir build &&
+cd build &&
+
+meson --prefix=/usr .. &&
+read -p "Compile?" && ninja -j2 &&
+read -p "Install?" && sudo -S porg -lp at-spi2-atk-2.32.0 "ninja install"

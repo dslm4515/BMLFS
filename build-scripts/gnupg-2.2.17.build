@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# GNUPG 2.2.17
+# Source: https://www.gnupg.org/ftp/gcrypt/gnupg/gnupg-2.2.17.tar.bz2
+
+./configure --prefix=/usr  \
+            --enable-symcryptrun     \
+            --docdir=/usr/share/doc/gnupg-2.2.17  $BUILDTRUPLE &&
+read -p "Compile? " && make -j2 && 
+read -p "Install? " && sudo -S porg -lD "make install"

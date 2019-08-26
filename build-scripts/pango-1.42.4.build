@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# Pango 1.42.4
+# Source: http://ftp.gnome.org/pub/gnome/sources/pango/1.42/pango-1.42.4.tar.xz
+
+mkdir build && cd build
+meson --prefix=/usr \
+      --sysconfdir=/etc .. &&
+read -p "Compile? " && ninja -j2 &&
+read -p "Install? " && sudo -S porg -lp pango-1.42.4 "ninja install" 

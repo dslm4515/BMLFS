@@ -1,0 +1,13 @@
+#! /bin/bash
+
+# Fontconfig 2.13.1
+# Source: https://www.freedesktop.org/software/fontconfig/release/fontconfig-2.13.1.tar.bz2
+
+rm -f src/fcobjshash.h
+./configure --prefix=/usr        \
+            --sysconfdir=/etc    \
+            --localstatedir=/var \
+            --disable-docs       \
+            --docdir=/usr/share/doc/fontconfig-2.13.0  $BUILDTRUPLE &&
+read -p "Compile? " && make -j4  && 
+read -p "Install? " && sudo -S porg -lD "make install"

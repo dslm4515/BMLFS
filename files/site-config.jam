@@ -1,0 +1,3 @@
+# System wide configuration file for Boost.Build.
+
+using gcc ;

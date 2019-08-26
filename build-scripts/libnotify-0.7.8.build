@@ -1,0 +1,13 @@
+#! /bin/bash
+
+# Libnotify 0.7.8
+# source: http://ftp.gnome.org/pub/gnome/sources/libnotify/0.7/libnotify-0.7.8.tar.xz
+
+
+mkdir build &&
+cd build &&
+
+meson --prefix=/usr -Dgtk_doc=false .. &&
+
+read -p "Compile? " && ninja -j2 && 
+read -p "Install? " && sudo -S porg -lp libnotify-0.7.8 "ninja install"

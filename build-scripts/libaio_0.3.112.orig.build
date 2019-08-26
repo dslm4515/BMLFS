@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# libaio 0.3.112
+# source: http://ftp.de.debian.org/debian/pool/main/liba/libaio/libaio_0.3.112.orig.tar.xz
+
+sed -i '/install.*libaio.a/s/^/#/' src/Makefile &&
+read -p "Compile?" && make -j2 &&
+read -p "Install?" && sudo -S porg -lD "make install"

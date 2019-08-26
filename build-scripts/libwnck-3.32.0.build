@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# libwnck 3.32.0
+# source: http://ftp.gnome.org/pub/gnome/sources/libwnck/3.32/libwnck-3.32.0.tar.xz
+
+mkdir build &&
+cd    build &&
+
+meson --prefix=/usr -Dbuildtype=release .. &&
+
+read -p "Compile? " && ninja -j2 &&
+read -p "Install? " && sudo -S porg -lp libwnck-3.32.0 "ninja install"

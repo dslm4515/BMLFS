@@ -1,0 +1,50 @@
+#! /bin/bash
+
+# Elogind 241.3
+# Source: https://github.com/elogind/elogind/archive/v241.3/elogind-241.3.tar.gz
+
+mkdir build &&
+cd    build &&
+
+meson --prefix=/usr                        \
+      --sysconfdir=/etc                    \
+      --localstatedir=/var                 \
+      -Dcgroup-controller=elogind          \
+      -Ddbuspolicydir=/etc/dbus-1/system.d \
+      ..  &&
+
+read -p "Compile?" && ninja -j2  &&
+read -p "Install?" && sudo -S porg -lp elogind-241.3 "ninja install" &&
+sudo -S porg -lp+ elogind-241.3 "ln -sfv  libelogind.pc /usr/lib/pkgconfig/libsystemd.pc" &&
+sudo -S porg -lp+ elogind-241.3 "ln -sfvn elogind /usr/include/systemd" &&
+sudo -S porg -lp+ elogind-241.3 "mkdir -pv /usr/libexec/elogind" &&
+sudo -S porg -lp+ elogind-241.3 "cp -v ../../files/elogind.wrapper /usr/libexec/elogind/" &&
+sudo -S chmod -v 755 /usr/libexec/elogind/elogind.wrapper"
+
+echo "Adjust pam configuration."
+#cat >> /etc/pam.d/system-session << "EOF" &&
+## Begin elogind addition
+    
+#session  required    pam_loginuid.so
+#session  optional    pam_elogind.so
+
+## End elogind addition
+#EOF
+#cat > /etc/pam.d/elogind-user << "EOF"
+# Begin /etc/pam.d/elogind-user
+
+#account  required    pam_access.so
+#account  include     system-account
+
+#session  required    pam_env.so
+#session  required    pam_limits.so
+#session  required    pam_unix.so
+#session  required    pam_loginuid.so
+#session  optional    pam_keyinit.so force revoke
+#session  optional    pam_elogind.so
+
+#auth     required    pam_deny.so
+#password required    pam_deny.so
+
+## End /etc/pam.d/elogind-user
+#EOF

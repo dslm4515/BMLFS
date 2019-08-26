@@ -1,0 +1,9 @@
+#! /bin/bash
+
+# DejaVu Fonts
+# Source: https://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.tar.bz2
+
+sudo -S porg -lD  "install -v -d -m755 /usr/share/fonts/dejavu" 
+sudo -S porg -lD+ "install -v    -m644 ttf/*.ttf /usr/share/fonts/dejavu" &&
+sudo -S fc-cache -v /usr/share/fonts/dejavu
+

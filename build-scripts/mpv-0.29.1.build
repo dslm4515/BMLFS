@@ -1,0 +1,16 @@
+#! /bin/bash
+
+# MPV 0.29.1
+# source: https://github.com/mpv-player/mpv/archive/v0.29.1.tar.gz
+
+python2 bootstrap.py 
+
+./waf configure --prefix=/usr      \
+                --libdir=/usr/lib  \
+                --confdir=/etc/mpv \
+                --enable-dvdread   \
+                --enable-dvdnav    \
+                --enable-libarchive  &&
+
+read -p "Compile? " && ./waf -j 2 build &&
+read -p "Install? " && sudo -S porg -lD " ./waf install"

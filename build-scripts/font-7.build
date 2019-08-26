@@ -1,0 +1,14 @@
+#! /bin/bash
+
+for package in $(grep -v '^#' ../font-7.md5 | awk '{print $2}')
+do
+  packagedir=${package%.tar.bz2}
+  tar -xf $package
+  pushd $packagedir
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-static 
+    make -j2
+    sudo -S porg -lp $packagedir "make install"
+  popd
+  sudo -S rm -rf $packagedir
+done
+sudo -S install -v -d -m755 /usr/share/fonts

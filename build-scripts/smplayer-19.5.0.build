@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# SMPlayer 19.5.0
+# source: https://sourceforge.net/projects/smplayer/files/SMPlayer/19.5.0/smplayer-19.5.0.tar.bz2
+
+sed -i 's:#\(DEFINES += NO_DEBUG_ON_CONSOLE\):\1:' src/smplayer.pro
+sed -i 's|PREFIX=/usr/local|PREFIX=/usr|' Makefile
+sed -i 's|DOC_PATH=$(PREFIX)/share/doc/packages/smplayer|DOC_PATH=$(PREFIX)/share/doc/smplayer|' Makefile
+
+make CC=clang CXX=clang++ LINK=clang++ LD=clang++ -j2 &&
+read -p "Install?" &&
+sudo -S porg -lD "make PREFIX=/usr install"

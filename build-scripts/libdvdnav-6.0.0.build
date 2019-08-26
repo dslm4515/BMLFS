@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# Libdvdnav 6.0.0
+# source: https://get.videolan.org/libdvdnav/6.0.0/libdvdnav-6.0.0.tar.bz2
+
+./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/libdvdnav-6.0.0 $BUILDTRUPLE  &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

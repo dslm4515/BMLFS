@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# Gnome Icon Theme Symbolic 3.12.0
+# source: http://ftp.gnome.org/pub/gnome/sources/gnome-icon-theme-symbolic/3.12/gnome-icon-theme-symbolic-3.12.0.tar.xz
+
+./configure --prefix=/usr &&
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

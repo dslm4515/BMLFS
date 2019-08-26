@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# Jansson 2.12
+# Source: http://www.digip.org/jansson/releases/jansson-2.12.tar.gz
+
+./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+read -p "Install?" && sudo -S porg -lD "make install"

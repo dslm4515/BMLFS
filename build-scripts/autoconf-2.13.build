@@ -1,0 +1,11 @@
+#! /bin/bash
+
+# Autoconf-2.13
+# Source: https://ftp.gnu.org/gnu/autoconf/autoconf-2.13.tar.gz
+
+patch -Np1 -i ../patches/autoconf-2.13-consolidated_fixes-1.patch &&
+mv -v autoconf.texi autoconf213.texi                      &&
+rm -v autoconf.info                                       &&
+./configure --prefix=/usr  --program-suffix=2.13 $BUILDTRUPLE           &&
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make  install"

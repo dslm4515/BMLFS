@@ -1,0 +1,25 @@
+#! /bin/bash
+
+# SeaMonkey 2.49.4
+# Source: https://archive.mozilla.org/pub/seamonkey/releases/2.49.4/source/seamonkey-2.49.4.source.tar.xz
+
+# apply patches:
+
+
+
+# Set environment
+export LDFLAGS=" -Wl,-rpath,/usr/lib/seamonkey-2.49.4 -Wl,-rpath,/opt/xorg/lib -Wl,-rpath=/usr/lib/seamonkey-2.49.4 -Wl,-rpath=/opt/xorg/lib" 
+
+export CFLAGS=" -fno-delete-null-pointer-checks -fno-lifetime-dse -fno-schedule-insns2 -fno-delete-null-pointer-checks -fno-lifetime-dse -fno-schedule-insns2 -fno-delete-null-pointer-checks -fno-lifetime-dse -fno-schedule-insns2"
+
+export CXXFLAGS="-fno-delete-null-pointer-checks -fno-lifetime-dse -fno-schedule-insns2"
+
+# configure
+cp -v ../files/mozconfig ./mozconfig
+grep -rl -- '-Werror=format' | xargs sed -i 's/error=format/no-&/'
+
+# Build
+make -f client.mk build
+
+# Isntall
+make -f client.mk  INSTALL_SDK= install

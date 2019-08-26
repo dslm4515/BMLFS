@@ -1,0 +1,8 @@
+#! /bin/bash
+
+# Garcon 0.6.4
+# Source: http://archive.xfce.org/src/xfce/garcon/0.6/garcon-0.6.4.tar.bz2
+
+./configure --prefix=/usr --sysconfdir=/etc $BUILDTRUPLE &&
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"

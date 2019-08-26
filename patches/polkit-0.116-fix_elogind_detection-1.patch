@@ -1,0 +1,19 @@
+Submitted by:            DJ Lucas (dj_AT_linuxfromscratch_DOT_org)
+Date:                    2018-12-18
+Initial Package Version: 0.115
+Upstream Status:         Submitted
+Origin:                  https://gitlab.freedesktop.org/polkit/polkit/issues/29
+Description:             Allows detection and use of elogind
+
+diff -Naurp polkit-0.115-orig/configure.ac polkit-0.115/configure.ac
+--- polkit-0.115-orig/configure.ac	2018-04-03 15:57:57.000000000 -0500
++++ polkit-0.115/configure.ac	2018-12-12 01:12:18.375337033 -0600
+@@ -221,7 +221,7 @@ AS_IF([test "x$cross_compiling" != "xyes
+ 
+ AC_SUBST(LIBSYSTEMD_CFLAGS)
+ AC_SUBST(LIBSYSTEMD_LIBS)
+-AM_CONDITIONAL(HAVE_LIBSYSTEMD, [test "$have_libsystemd" = "yes"], [Using libsystemd])
++AM_CONDITIONAL(HAVE_LIBSYSTEMD, [test "$have_libsystemd" = "yes" || test "$have_libelogind" = "yes"], [Using libsystemd])
+ 
+ dnl ---------------------------------------------------------------------------
+ dnl - systemd unit / service files
