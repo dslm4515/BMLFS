@@ -15,7 +15,7 @@ export GLL_DRV="i915,nouveau,radeonsi,svga,swrast" &&
 export DRI_DRIVERS="i965,nouveau" &&
 mkdir build &&
 cd    build &&
-
+CFLAGS="$CFLAGS -D_XOPEN_SOURCE=700" \
 meson --prefix=$XORG_PREFIX          \
       -Dbuildtype=release            \
       -Ddri-drivers=$DRI_DRIVERS     \
@@ -28,8 +28,8 @@ meson --prefix=$XORG_PREFIX          \
       -Ddri3=true \
       -Dglx-use-tls=false \
       -Dplatforms="x11,wayland,drm" \
-      -Dllvm=true -Dtools=all \
-      ..                             &&
+      -Dllvm=true  \
+      -Dasm=false ..                             &&
 
 unset GLL_DRV DRI_DRIVERS &&
 
