@@ -58,7 +58,7 @@ LDFLAGS=$LDFLAGS \
             -system-sqlite                              \
             -nomake examples                            \
             -no-rpath                                   \
-            -skip qtwebengin
+            -skip qtwebengine
 
 read -p "Compile? " && make -j2 && make -j2 &&
 
