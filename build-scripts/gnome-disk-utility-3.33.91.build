@@ -2,6 +2,7 @@
 
 # Gnome Disk Utility 3.33.91
 # source: https://gitlab.gnome.org/GNOME/gnome-disk-utility.git
+# source: http://ftp.gnome.org/pub/gnome/sources/gnome-disk-utility/3.33/gnome-disk-utility-3.33.91.tar.xz
 
 
 mkdir BUILD && cd BUILD &&
