@@ -13,4 +13,4 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr      \
       -DUSE_BUILTIN_TZDATA=yes \
       .. &&
 read -p "Compile?" && make -j2 &&
-read -p "Install?" && sudo -S porg -lplibical-3.0.5 "make install"
+read -p "Install?" && sudo -S porg -lp libical-3.0.5 "make install"
