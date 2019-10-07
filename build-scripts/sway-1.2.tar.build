@@ -1,0 +1,10 @@
+# Sway 1.2
+# Source: https://github.com/swaywm/sway/releases/download/1.2/sway-1.2.tar.gz
+
+mkdir -v BUILD && cd BUILD
+
+meson --prefix=/usr -Dbuildtype=release  ..
+
+ninja -j2
+
+sudo -S porg -lp sway-1.2 "ninja install"
