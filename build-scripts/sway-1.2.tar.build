@@ -8,3 +8,10 @@ meson --prefix=/usr -Dbuildtype=release  ..
 ninja -j2
 
 sudo -S porg -lp sway-1.2 "ninja install"
+# Cant get elogind to work with sway
+sudo -S chmod u+s /usr/bin/sway
+
+# To start sway
+# Set the XDG_RUNTIME_DIR
+# Then run with dbus:
+# dbus-launch --sh-syntax --exit-with-session sway
