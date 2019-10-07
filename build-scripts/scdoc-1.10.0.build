@@ -1,0 +1,5 @@
+# SCdoc 1.10.0
+# Source: https://git.sr.ht/~sircmpwn/scdoc/archive/1.10.0.tar.gz
+
+make PREFIX=/usr
+sudo -S porg -lD "make PREFIX=/usr"
