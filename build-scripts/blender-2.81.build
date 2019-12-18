@@ -1,0 +1,39 @@
+#! /bin/bash
+
+#source: https://download.blender.org/source/blender-2.81.tar.xz
+
+# Apply Patches
+
+mkdir -v BUILD && cd BUILD &&
+
+#cmake -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=lib -DWITH_INSTALL_PORTABLE=OFF -DWITH_GAMEENGINE=ON -DWITH_PLAYER=ON -DWITH_CODEC_FFMPEG=ON -DWITH_CODEC_SNDFILE=ON -DWITH_OPENMP=ON -DWITH_FFTW3=ON -DWITH_CYCLES=ON -DWITH_IMAGE_OPENEXR=ON -DWITH_IMAGE_OPENJPEG=ON -DWITH_OPENCOLORIO=ON
+# -DWITH_SDL=ON  -DPYTHON_VERSION=3.7 -DPYTHON_LIBPATH=/usr/lib -DPYTHON_INCLUDE_DIR=/usr/include/python3.7m
+#-DPYTHON_LIBRARY='python3.7m' -DWITH_PYTHON_INSTALL=OFF  -DWITH_SYSTEM_GLEW=ON  -DWITH_TBB=OFF -GNinja ..
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr     \
+      -DCMAKE_BUILD_TYPE=Release      \
+      -DCMAKE_INSTALL_LIBDIR=lib      \
+      -DWITH_INSTALL_PORTABLE=OFF     \
+      -DWITH_GAMEENGINE=ON            \
+      -DWITH_PLAYER=ON                \
+      -DWITH_CODEC_FFMPEG=ON          \
+      -DWITH_CODEC_SNDFILE=ON         \
+      -DWITH_OPENMP=ON                \
+      -DWITH_FFTW3=ON                 \
+      -DWITH_CYCLES=ON                \
+      -DWITH_IMAGE_OPENEXR=ON         \
+      -DWITH_IMAGE_OPENJPEG=ON        \
+      -DWITH_OPENCOLORIO=ON           \
+      -DWITH_SDL=ON                   \
+      -DPYTHON_VERSION=3.7            \
+      -DPYTHON_LIBPATH=/usr/lib       \
+      -DPYTHON_INCLUDE_DIR=/usr/include/python3.7m  \
+      -DPYTHON_LIBRARY='python3.7m'   \
+      -DWITH_PYTHON_INSTALL=OFF       \
+      -DWITH_SYSTEM_GLEW=ON           \
+      -DWITH_TBB=OFF                  \
+      -GNinja .. &&
+
+read -p "Compile? " && ninja -j2 &&
+
+read -p "Install? " && sudo -S porg -lp blender-2.81 "make install 
