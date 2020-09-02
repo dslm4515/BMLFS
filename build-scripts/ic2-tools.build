@@ -1,0 +1,5 @@
+# Package: i2c-tools
+# Source: http://deb.debian.org/debian/pool/main/i/i2c-tools/i2c-tools_4.1.orig.tar.xz
+
+make PREFIX=/usr
+make PREFIX=/usr sbindir=/usr/bin install
