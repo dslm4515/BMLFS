@@ -1,0 +1,51 @@
+#! /bin/bash
+
+# libUV 1.39.0
+# Source: https://dist.libuv.org/dist/v1.39.0/libuv-v1.39.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+
+export LDFLAGS=" -pthread"
+NOCONFIGURE=1 ./autogen.sh                            &&
+./configure --prefix=/usr --disable-static $BUILDTRUPLE 
+
+read -p "Press Enter to compile" &&
+make -j2 && 
+unset LDFLAGS
+
+read -p "Press Enter to install" &&
+# if not using a package manager:
+# make install
+
+# if using pkgtools from Slackware, then:
+make DESTDIR=$BUILD install
+
+read -p "Press Enter to create pakage description."
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+     |-----handy-ruler------------------------------------------------------|
+libuv: libuv 
+libuv:
+libuv: The libuv package is a multi-platform support library with a focus 
+libuv: on asynchronous I/O.
+libuv:
+libuv: Homepage: https://dist.libuv.org
+libuv:
+libuv:
+libuv:
+libuv:
+libuv:
+EOF
+sudo mv /tmp/slack-desc install/ &&
+
+read -p "Enter to build and install package" &&
+sudo makepkg -l y -c n $PKGS/libuv-1.39.0-$(uname -m)-mlfs.txz &&
+sudo installpkg  $PKGS/libuv-1.39.0-$(uname -m)-mlfs.txz && cd -
