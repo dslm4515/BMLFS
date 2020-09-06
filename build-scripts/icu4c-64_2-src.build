@@ -1,9 +1,0 @@
-#! /bin/bash
-
-# ICU 64.2
-# Source: http://download.icu-project.org/files/icu4c/64.2/icu4c-64_2-src.tgz
-
-cd source &&
-./configure --prefix=/usr $BUILDTRUPLE  &&
-read -p "Compile?" && make -j2 &&
-read -p "Install?" && sudo -S porg -lp icu-64.2 "make install"
