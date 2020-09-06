@@ -1,0 +1,78 @@
+#! /bin/bash
+
+# CA Certificates 2020-06-01
+# Source: http://deb.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_20200601.tar.xz
+#
+# ** Unpacks to a directory named 'work' **
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages 
+
+cc ../files/certdata2pem.c -o  mozilla/certdata2pem
+
+cp -v ../files/remove-expired-certs.sh mozilla/
+chmod -v +x mozilla/remove-expired-certs.sh
+
+sed -i mozilla/Makefile \
+  -e 's,python certdata2pem.py,./certdata2pem,g'
+sed -i mozilla/Makefile \
+  -e "s;\(.*\)\(certdata2pem.*\);\1\2\n\1./remove-expired-certs.sh;"
+
+read -p "Compile? " && make -j2 &&
+
+read -p "Install? " &&
+
+# If not using pkgtools from Slackware and not using a package manager, skip to next section
+sudo -S mkdir -pv $BUILD/usr/share/ca-certificates &&
+sudo -S mkdir -pv $BUILD/etc/ssl/certs &&
+sudo -S mkdir -pv $BUILD/usr/{sbin,bin}
+
+sudo -S make install DESTDIR=$BUILD  &&
+
+sudo -S install -Dm644 sbin/update-ca-certificates.8 \
+               $BUILD/usr/share/man/man8/update-ca-certificates.8 &&
+sudo -S mv $BUILD/usr/share/ca-certificates/mozilla/* $BUILD/usr/share/ca-certificates/ &&
+
+cd $BUILD/usr/share/ca-certificates &&
+su -c "find . -name '*.crt' | sort | cut -b3- > $BUILD/etc/ca-certificates.conf" &&
+sudo -S sed -i 's,openssl rehash,openssl certhash,g' $BUILD/usr/sbin/update-ca-certificates &&
+sudo -S mv ${BUILD}/usr/sbin/* ${BUILD}/usr/bin
+sudo -S rm -vfr  ${BUILD}/usr/sbin
+sudo -S ln -s /etc/ssl/certs/ca-certificates.crt $BUILD/etc/ssl/certs.pem
+cd $BUILD && sudo mkdir install
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+               |-----handy-ruler-----------------------------------------------------|
+ca-certificates: ca-certificates (PEM Files of CA Certificates)
+ca-certificates:
+ca-certificates: This package includes PEM files of CA certificates to allow SSL-based
+ca-certificates: applications to check for the authenticity of SSL connections.
+ca-certificates:
+ca-certificates: Homepage: http://packages.qa.debian.org/c/ca-certificates.html
+ca-certificates:
+ca-certificates:
+ca-certificates:
+ca-certificates:
+ca-certificates:
+EOF
+sudo mv -v /tmp/slack-desc $BUILD/install/
+sudo -S makepkg -l y -c n $PKGS/ca-certificates-2020.06.01-$(uname -m)-mlfs.txz
+sudo -S installpkg $PKGS/ca-certificates-2020.06.01-$(uname -m)-mlfs.txz
+sudo -S /usr/bin/update-ca-certificates
+
+#if not using any package manager:
+# sudo -S make DESTDIR=/ install
+# sudo -S install -Dm644 sbin/update-ca-certificates.8 \
+#               /usr/share/man/man8/update-ca-certificates.8
+# sudo -S mv /usr/share/ca-certificates/mozilla/* /usr/share/ca-certificates/
+# cd /usr/share/ca-certificates
+# su -c "find . -name '*.crt' | sort | cut -b3- > /etc/ca-certificates.conf"
+#sudo -S sed -i 's,openssl rehash,openssl certhash,g' /usr/sbin/update-ca-certificates &&
+#sudo -S mv /usr/sbin/ca* /usr/bin
+#sudo -S ln -s /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs.pem
