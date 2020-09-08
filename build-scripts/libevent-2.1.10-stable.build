@@ -1,8 +1,0 @@
-#! /bin/bash
-
-# Libevent 2.1.10
-# Source: https://github.com/libevent/libevent/releases/download/release-2.1.10-stable/libevent-2.1.10-stable.tar.gz
-
-./configure --prefix=/usr --disable-static $BUILDTRUPLE  &&
-read -p "Compile?" && make -j2  && 
-read -p "Install?" && sudo -S porg -lD "make install"
