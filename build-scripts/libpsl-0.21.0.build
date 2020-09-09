@@ -1,9 +1,0 @@
-#! /bin/bash
-
-# libpsl 0.21.0
-# source: https://github.com/rockdaboot/libpsl/releases/download/libpsl-0.21.0/libpsl-0.21.0.tar.gz
-
-sed -i 's/env python/&3/' src/psl-make-dafsa &&
-./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
-read -p "Compile? " && make -j2 &&
-read -p "Install? " && sudo -S porg -lD "make install"
