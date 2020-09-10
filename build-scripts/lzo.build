@@ -1,0 +1,40 @@
+#! /bin/bash
+
+# LZO 2.10
+# Source: http://www.oberhumer.com/opensource/lzo/download/lzo-2.10.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+
+./configure --prefix=/usr                    \
+            --enable-shared                  \
+            --disable-static                 \
+            --docdir=/usr/share/doc/lzo-2.10 $BUILDTRUPLE
+read -p "Compile?" && make -j2 &&
+
+read -p "Press Enter to install" &&
+# if not using a package manager:
+# make install
+
+# if using pkgtools from Slackware, then:
+make DESTDIR=$BUILD install
+
+read -p "Press Enter to create package description."
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+lzo: LZO Compression Library
+lzo:
+lzo: LZO is a portable lossless data compression library written in ANSI C. 
+lzo: It offers pretty fast compression and very fast decompression. 
+lzo:
+lzo: Homepage: http://www.oberhumer.com/opensource/lzo/ 
+lzo: 
+lzo:
+lzo: 
+lzo:
+EOF
+sudo mv /tmp/slack-desc install/ &&
+
+read -p "Enter to build package" &&
+sudo makepkg -l y -c n $PKGS/lzo-2.10-$(uname -m)-mlfs.txz &&
+sudo rm -rf $BUILD/*
