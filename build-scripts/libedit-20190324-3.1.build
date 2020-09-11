@@ -1,8 +1,0 @@
-#! /bin/bash
-
-# Libedit 3.1
-# Source: http://thrysoee.dk/editline/libedit-20190324-3.1.tar.gz
-
-./configure --prefix=/usr $BUILDTRUPLE &&
-read -p "Compile?" && make -j2 &&
-read -p "Install?" && sudo -S porg -lD "make install"
