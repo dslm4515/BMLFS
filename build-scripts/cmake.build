@@ -1,0 +1,55 @@
+#! /bin/bash
+
+# CMake 3.18.2
+# Source: https://cmake.org/files/v3.18/cmake-3.18.2.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built package
+
+sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake
+
+./bootstrap --prefix=/usr        \
+            --system-libs        \
+            --mandir=/share/man  \
+            --no-system-jsoncpp  \
+            --no-system-librhash \
+            --docdir=/share/doc/cmake-3.18.2 &&
+
+read -p "Compile? " && make -j4  &&
+
+read -p "Press Enter to install" &&
+# if not using a package manager:
+# make install
+
+# if using pkgtools from Slackware, then:
+make DESTDIR=$BUILD install
+
+read -p "Press Enter to create package description."
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in. You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+     |-----handy-ruler------------------------------------------------------|
+cmake: CMake (cross-platform, open-source make system)
+cmake:
+cmake: CMake is used to control the software process using simple platform
+cmake: and compiler independent configuration files. CMake generates
+cmake: native makefiles and workspaces that can be used in the
+cmake: compiler environment of your choice.
+cmake:
+cmake: CMake's home on the web is:  http://www.cmake.org
+cmake:
+cmake:
+cmake:
+EOF
+sudo mv /tmp/slack-desc install/ &&
+
+read -p "Enter to build package" &&
+sudo makepkg -l y -c n $PKGS/cmake-3.18.2-$(uname -m)-mlfs.txz &&                                                                                                                                                              
+sudo rm -rf $BUILD/*
+
