@@ -52,7 +52,7 @@ useradd  -c 'dhcpcd PrivSep' \
          -u 52 dhcpcd &&
 chown    -v dhcpcd:dhcpcd /var/lib/dhcpcd
 EOF
-sudo -S mv /tmp/doinst.sh  inatall/
+sudo -S mv /tmp/doinst.sh  install/
 sudo -S mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build and install package" &&
