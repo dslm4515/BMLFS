@@ -1,0 +1,116 @@
+#! /bin/bash
+
+# LLVM 10.0.1
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-10.0.1/llvm-10.0.1.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-10.0.1/clang-10.0.1.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-10.0.1/compiler-rt-10.0.1.src.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+
+patch -Np1 -i ../patches/llvm-void/llvm-001-musl.patch
+patch -Np1 -i ../patches/llvm-void/llvm-002-musl-ppc64-elfv2.patch
+patch -Np1 -i ../patches/llvm-void/llvm-003-secureplt.patch
+patch -Np1 -i ../patches/llvm-void/llvm-004-override-opt.patch
+patch -Np1 -i ../patches/llvm-void/llvm-005-ppc-bigpic.patch
+patch -Np1 -i ../patches/llvm-void/llvm-006-aarch64-mf_exec.patch
+patch -Np1 -i ../patches/llvm-void/llvm-007-ppc-d85007.patch
+
+tar -xf ../compiler-rt-10.0.1.src.tar.xz  -C projects &&
+mv -v projects/compiler-rt-10.0.1.src  projects/compiler-rt  && cd projects/compiler-rt
+patch -Np1 -i ../../../patches/llvm-void/compiler-rt-armv5.patch
+cd -
+
+tar -xf ../clang-10.0.1.src.tar.xz -C tools &&
+mv -v tools/clang-10.0.1.src tools/clang && cd tools/clang
+patch -Np1 -i ../../../patches/llvm-void/clang-001-fix-unwind-chain-inclusion.patch
+patch -Np1 -i ../../../patches/llvm-void/clang-002-add-musl-triples.patch
+patch -Np1 -i ../../../patches/llvm-void/clang-003-ppc64-dynamic-linker-path.patch
+patch -Np1 -i ../../../patches/llvm-void/clang-004-ppc64-musl-elfv2.patch
+cd -
+
+# Disable sanitizers for musl-based systems
+sed -i 's/set(COMPILER_RT_HAS_SANITIZER_COMMON TRUE)/set(COMPILER_RT_HAS_SANITIZER_COMMON FALSE)/' projects/compiler-rt/cmake/config-ix.cmake &&
+
+# Vastly reduce size of debugging symbols:
+export CFLAGS=" -g -g1"
+export CXXFLAGS=" -g -g1"
+
+case $(uname -m) in
+	i686*)    export BARCH="X86"
+		  export B_TARGETs="AMDGPU"
+		;;
+	x86_64*)  export BARCH="X86"
+		  export B_TARGETs="AMDGPU"
+		;;
+	armv5*)   export BARCH="Armv5te"
+		  export B_TARGETs="ARM"
+		;;
+	armv6*)   export BARCH="Armv6"
+		  export B_TARGETs="ARM"
+		;;
+	armv7*)   export BARCH="Armv7"
+		  export B_TARGETs="ARM"
+		;;
+	aarch64*) export BARCH="AArch64"
+		  export B_TARGETs="ARM;AArch64"
+		;;
+esac
+
+
+mkdir -v build &&
+cd       build &&
+
+CC=gcc CXX=g++                                  \
+cmake -DCMAKE_INSTALL_PREFIX=/usr               \
+      -DLLVM_ENABLE_FFI=ON                      \
+      -DCMAKE_BUILD_TYPE=Release                \
+      -DLLVM_BUILD_LLVM_DYLIB=ON                \
+      -DLLVM_LINK_LLVM_DYLIB=ON                 \
+      -DLLVM_ENABLE_RTTI=ON                     \
+      -DLLVM_BUILD_TESTS=ON                     \
+      -DLLVM_INSTALL_UTILS=ON                   \
+      -DLLVM_BINUTILS_INCDIR="/usr/include"     \
+      -DLLVM_TARGET_ARCH=${BARCH}               \
+      -DLLVM_TARGETS_TO_BUILD="host;BPF;${B_TARGETS}"    \
+      -Wno-dev -G Ninja ..
+
+read -p "Compile?" && time { ninja -j2 ; } &&
+
+read -p "Press Enter to install" &&
+# if not using a package manager:
+# ninja install
+# OR
+# cmake -DCMAKE_INSTALL_PREFIX=/usr -P cmake_install.cmake
+
+# if using pkgtools from Slackware, then:
+sudo -S cmake -DCMAKE_INSTALL_PREFIX=${BUILD}/usr -P cmake_install.cmake
+
+read -p "Press Enter to create pakage description."
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+llvm: llvm (LLVM compiler toolkit)
+llvm:
+llvm: Low Level Virtual Machine is a toolkit for the construction of highly
+llvm: optimized compilers, optimizers, and runtime environments.
+llvm:
+llvm: This package also includes the clang frontend for the C family of
+llvm: languages:  C, C++, Objective-C, and Objective-C++
+llvm:
+llvm:
+llvm: Homepage: http://llvm.org/
+llvm:
+EOF
+sudo mv /tmp/slack-desc install/ &&
+
+read -p "Enter to build and install package" &&
+sudo makepkg -l y -c n $PKGS/llvm-10.0.1-$(uname -m)-mlfs.txz &&
+sudo rm -rf $BUILD/*
