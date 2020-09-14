@@ -1,0 +1,74 @@
+#! /bin/bash
+
+# D-Bus 1.12.20
+# Source: https://dbus.freedesktop.org/releases/dbus/dbus-1.12.20.tar.gz
+
+./configure --prefix=/usr \
+            --sysconfdir=/etc \
+            --localstatedir=/var \
+            --docdir=/usr/share/doc/dbus-1.12.20 \
+            --disable-selinux \
+            --enable-inotify \
+            --with-dbus-user=messagebus \
+            --disable-static \
+            --disable-tests \
+            --enable-epoll \
+            --disable-asserts \
+            --disable-systemd \
+            --with-system-socket=/run/dbus/system_bus_socket \
+            --disable-doxygen-docs \
+            --with-system-pid-file=/run/dbus/pid \
+            --with-console-auth-dir=/run/console \
+            --disable-user-session $BUILDTRUPLE &&
+
+read -p "Compile? " && make -j2 &&
+
+read -p "Press Enter to install" &&
+# if not using a package manager:
+# make install
+
+# if using pkgtools from Slackware, then:
+sudo -S make DESTDIR=${BUILD} install
+
+read -p "Press Enter to create pakage description."
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+    |-----handy-ruler------------------------------------------------------|
+dbus: dbus (D-Bus message bus system)
+dbus:
+dbus: D-Bus supplies both a system daemon (for events such as "new hardware
+dbus: device added" or "printer queue changed") and a per user login
+dbus: session daemon (for general IPC needs among user applications).
+dbus: Also, the message bus is built on top of a general one-to-one message
+dbus: passing framework, which can be used by any two apps to communicate
+dbus: directly (without going through the message bus daemon). 
+dbus:
+dbus:
+dbus:
+EOF
+
+sudo -S mv /tmp/slack-desc install/ &&
+sudo -S mkdir -v lib
+sudo -S mv -v usr/lib/libdbus-1.so.* lib &&
+sudo -S rm -v usr/lib/libdbus-1.so
+sudo -S ln -sfv ../../lib/libdbus-1.so.3.19.13 usr/lib/libdbus-1.so
+sudo -S ln -sv /var/lib/dbus/machine-id etc
+
+read -p "Enter to build and install package" &&
+sudo -S makepkg -l y -c n $PKGS/dbus-1.12.20-$(uname -m)-mlfs.txz &&
+
+cp -v install/doinst.sh /tmp/
+cat >> /tmp/doinst.sh << "EOF"
+echo "Fixing permissions for launcher..."
+chown -v root:messagebus /usr/libexec/dbus-daemon-launch-helper &&
+chmod -v      4750       /usr/libexec/dbus-daemon-launch-helper
+EOF
+sudo -S makepkg -l y -c n $PKGS/ell-0.33-$(uname -m)-mlfs.txz &&
+sudo rm -rf $BUILD/*
+
