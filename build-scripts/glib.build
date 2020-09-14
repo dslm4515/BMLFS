@@ -54,6 +54,13 @@ glib:
 EOF
 sudo mv /tmp/slack-desc install/ &&
 
+case $(uname -m) in
+	x86_64*)  mv -v usr/lib64 usr/lib
+		  ;;
+	aarch64*) mv -v usr/lib64 usr/lib
+		;;
+esac
+
 read -p "Enter to build and install package" &&
 sudo makepkg -l y -c n $PKGS/glib-2.66.0-$(uname -m)-mlfs.txz &&
 sudo rm -rf $BUILD/*                                               
