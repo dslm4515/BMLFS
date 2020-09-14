@@ -38,22 +38,28 @@ export CXXFLAGS=" -g -g1"
 
 case $(uname -m) in
 	i686*)    export BARCH="X86"
-		  export B_TARGETs="AMDGPU"
+		  export B_TARGETS="AMDGPU"
+		  export B_TRUPLE="i686-unknown-linux-musl"
 		;;
 	x86_64*)  export BARCH="X86"
-		  export B_TARGETs="AMDGPU"
+		  export B_TARGETS="AMDGPU"
+		  export B_TRUPLE="x86_64-unknown-linux-musl"
 		;;
 	armv5*)   export BARCH="Armv5te"
-		  export B_TARGETs="ARM"
+		  export B_TARGETS="ARM"
+		  export B_TRUPLE="armv5l-unknown-linux-musleabi"
 		;;
 	armv6*)   export BARCH="Armv6"
-		  export B_TARGETs="ARM"
+		  export B_TARGETS="ARM"
+		  export B_TRUPLE="armv6l-unknown-linux-musleabi"
 		;;
 	armv7*)   export BARCH="Armv7"
-		  export B_TARGETs="ARM"
+		  export B_TARGETS="ARM"
+		  export B_TRUPLE="armv7l-unknown-linux-musleabihf"
 		;;
 	aarch64*) export BARCH="AArch64"
-		  export B_TARGETs="ARM;AArch64"
+		  export B_TARGETS="ARM;AArch64"
+		  export B_TRUPLE="aarch64-unknown-linux-musleabihf"
 		;;
 esac
 
@@ -73,7 +79,12 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr               \
       -DLLVM_BINUTILS_INCDIR="/usr/include"     \
       -DLLVM_TARGET_ARCH=${BARCH}               \
       -DLLVM_TARGETS_TO_BUILD="host;BPF;${B_TARGETS}"    \
+      -DLLVM_HOST_TRIPLE="${B_TRUPLE}"                   \
+      -DLLVM_DEFAULT_TARGET_TRIPLE="${B_TRUPLE}"         \
+      -DCOMPILER_RT_DEFAULT_TARGET_TRIPLE="${B_TRUPLE}"     \  
       -Wno-dev -G Ninja ..
+
+unset CFLAGS CXXFLAGS BARCH B_TARGETS
 
 read -p "Compile?" && time { ninja -j2 ; } &&
 
