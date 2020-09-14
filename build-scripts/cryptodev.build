@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# Cryptodev 1.11
+# Source: https://github.com/cryptodev-linux/cryptodev-linux/archive/cryptodev-linux-1.11.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+
+# ** NOTE **
+# kernel modules need to be built first as this packages needs kernel source
+
+make
+sudo -S mkdir ${BUILD}/lib/modules/$(uname -r)/extra
+sudo -S mkdir ${BUILD}/usr/include/crypto
+
+sudo -S cp -v cryptodev.ko ${BUILD}/lib/modules/$(uname -r)/extra/
+sudo -S cp -v crypto/cryptodev.h ${BUILD}/usr/include/crypto/
+
+read -p "Press Enter to create package description."
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+         |-----handy-ruler------------------------------------------------------|
+cryptodev: Cryptodev Kernel Module and Header
+cryptodev:
+cryptodev: Cryptodev-linux is a device that allows access to Linux kernel
+cryptodev: cryptographic drivers; thus allowing of userspace applications to
+cryptodev: take advantage of hardware accelerators. Cryptodev-linux is
+cryptodev: implemented as a standalone module that requires no dependencies
+cryptodev: other than a stock linux kernel. Its API is compatible with
+cryptodev: OpenBSD's cryptodev userspace API (/dev/crypto).
+cryptodev:
+cryptodev: Homepage: http://cryptodev-linux.org/
+cryptodev: 
+EOF
+sudo mv /tmp/slack-desc install/ &&
+
+read -p "Enter to build package" &&
+sudo makepkg -l y -c n $PKGS//cryptodev-1.11-$(uname -m)-mlfs.txz &&
+sudo rm -rf $BUILD/*
+
