@@ -46,6 +46,6 @@ libuv:
 EOF
 sudo mv /tmp/slack-desc install/ &&
 
-read -p "Enter to build and install package" &&
+read -p "Enter to build package" &&
 sudo makepkg -l y -c n $PKGS/libuv-1.39.0-$(uname -m)-mlfs.txz &&
-sudo installpkg  $PKGS/libuv-1.39.0-$(uname -m)-mlfs.txz && cd -
+sudo rm -rf $BUILD/*
