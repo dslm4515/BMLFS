@@ -1,0 +1,61 @@
+#! /bin/bash
+
+# tlsdate 0.0.13
+# Source: https://github.com/ioerror/tlsdate/archive/tlsdate-0.0.13.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+
+# use system certs
+sed -i Makefile.am \
+	-e 's|/tlsdate/ca-roots/tlsdate-ca-roots.conf|/ssl/certs/ca-certificates.crt|'
+sh ./autogen.sh
+
+patch -Np0 -i ../patches/tlsdate-void/libressl-no-sslv3.patch
+patch -Np0 -i ../patches/tlsdate-void/libressl-sslstate.patch
+patch -Np0 -i ../patches/tlsdate-void/sandbox.patch
+
+export CFLAGS=" -fcommon"
+ac_cv_func_clock_gettime=yes \
+./configure --prefix=/usr --disable-static --sysconfdir=/etc --with-polarssl=no $BUILDTRUPLE 
+
+read -p "Press Enter to compile" &&
+make -j2 && 
+unset CFLAGS
+
+read -p "Press Enter to install" &&
+# if not using a package manager:
+# make install
+
+# if using pkgtools from Slackware, then:
+sudo -S make DESTDIR=$BUILD install
+sudo -S rm ${BUILD}/etc/tlsdate/ca-roots/tlsdate-ca-roots.conf
+
+read -p "Press Enter to create pakage description."
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+tlsdate: tlsdate (secure parasitic rdate replacement)
+tlsdate:
+tlsdate: tlsdate sets the local clock by securely connecting with TLS to
+tlsdate: remote servers and extracting the remote time out of the secure
+tlsdate: handshake. Unlike ntpdate, tlsdate uses TCP, for instance connecting
+tlsdate: to a remote HTTPS or TLS enabled service, and provides some
+tlsdate: protection against adversaries that try to feed you malicious time
+tlsdate: information.
+tlsdate:
+tlsdate: Homepage: https://github.com/ioerror/tlsdate
+tlsdate:
+EOF
+sudo mv /tmp/slack-desc install/ &&
+
+read -p "Enter to build package" &&
+sudo -S makepkg -l y -c n $PKGS/tlsdate-0.0.13-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf $BUILD/*
