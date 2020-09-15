@@ -64,11 +64,13 @@ linux-pam:
 EOF
 su -c "mv /tmp/slack-desc install/" &&
 
-for file in pam pam_misc pamc
+for file in pam_misc pamc
 do
   su -c "mv -v usr/lib/lib${file}.so.* lib/" &&
   su -c "ln -sfv ../../lib/lib${file}.so.0.82.1 usr/lib/lib${file}.so"
 done
+
+su -c "ln -sfv ../../lib/libpam.so.0.85.1 usr/lib/libpam.so"
 
 read -p "Enter to build package" &&                                                                                                                                                                                               
 su -c  "makepkg -l y -c n $PKGS/linux-pam-1.4.0-$(uname -m)-mlfs.txz" &&
