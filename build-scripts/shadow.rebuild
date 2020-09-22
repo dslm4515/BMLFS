@@ -5,7 +5,10 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
-
+#
+# DEPS
+# Required:  Linux-PAM (for PAM support) and/or CrackLib (cracklib support)
+# Optional:  None 
 
 sed -i 's/groups$(EXEEXT) //' src/Makefile.in &&
 
