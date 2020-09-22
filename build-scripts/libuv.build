@@ -5,6 +5,10 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:  None
+# Optional:  None 
 
 export LDFLAGS=" -pthread"
 NOCONFIGURE=1 ./autogen.sh                            &&
