@@ -5,13 +5,17 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:  None 
+# Optional:  Linux-PAM, MIT Kerberos V5, OpenLDAP, MTA (that provides a sendmail command), AFS, FWTK, and Opie 
 
 ./configure --prefix=/usr              \
             --libexecdir=/usr/lib      \
             --with-secure-path         \
             --with-all-insults         \
             --with-env-editor          \
-            --docdir=/usr/share/doc/sudo-1.8.27 \
+            --docdir=/usr/share/doc/sudo-1.9.2 \
             --with-passprompt="[sudo] password for %p: " $BUILDTRUPLE &&
 
 read -p "Press Enter to compile" && make -j2 &&
@@ -46,7 +50,7 @@ sudo:
 sudo:
 sudo:
 EOF
-su - "mv /tmp/slack-desc install/" &&
+su -c "mv /tmp/slack-desc install/" &&
 
 su -c "mkdir -pv etc/pam.d"
 
@@ -68,9 +72,9 @@ session   include     system-session
 # End /etc/pam.d/sudo
 EOF
 
-su -c "cp -v /tmp/sudo etc/pam.d/"
+su -c "mv -v /tmp/sudo etc/pam.d/"
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/sudo-1.9.2-$(uname -m)-mlfs.txz &&
-sudo rm -rf $BUILD/*
+su -c "makepkg -l y -c n $PKGS/sudo-1.9.2-$(uname -m)-mlfs.txz" &&
+su -c "rm -rf $BUILD/*"
 
