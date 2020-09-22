@@ -57,14 +57,14 @@ for FUNCTION in FAIL_DELAY               \
                 CHFN_AUTH ENCRYPT_METHOD \
                 ENVIRON_FILE
 do
-    su -c "sed -i "s/^${FUNCTION}/# &/" etc/login.defs"
+    su -c 'sed -i "s/^${FUNCTION}/# &/" etc/login.defs'
 done
 
 for PROGRAM in chfn chgpasswd chpasswd chsh groupadd groupdel \
                groupmems groupmod newusers useradd userdel usermod
 do
     su -c "install -v -m644 etc/pam.d/chage etc/pam.d/${PROGRAM}"
-    su -c "sed -i "s/chage/$PROGRAM/" etc/pam.d/${PROGRAM}"
+    su -c 'sed -i "s/chage/$PROGRAM/" etc/pam.d/${PROGRAM}'
 done
 
 cat > /tmp/slack-desc << "EOF"
