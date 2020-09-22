@@ -5,6 +5,11 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required: None
+# Optional:  Berkeley DB-5.3.28, libnsl-1.2.0, libtirpc-1.2.6, libaudit, and Prelude 
+# Optional for docs:  docbook-xml-4.5, docbook-xsl-1.79.2, fop-2.5, libxslt-1.1.34 and either Lynx-2.8.9rel.1 or W3m 
 
 # disable insecure modules
 sed -e 's/pam_rhosts//g' -i modules/Makefile.am
