@@ -7,11 +7,13 @@
 # $PKGS  = Directory to store built packages
 
 # ** NOTE **
-# kernel modules need to be built first as this packages needs kernel source
+# Kernel modules need to be built first as this packages needs kernel source.
+# Source will look for this symbolic link:
+#  /lib/modules/$(uname -r)/build --> ${unpacked_kernel_source}
 
-make
-sudo -S mkdir ${BUILD}/lib/modules/$(uname -r)/extra
-sudo -S mkdir ${BUILD}/usr/include/crypto
+make -j2 &&
+sudo -S mkdir -pv ${BUILD}/lib/modules/$(uname -r)/extra &&
+sudo -S mkdir -pv ${BUILD}/usr/include/crypto &&
 
 sudo -S cp -v cryptodev.ko ${BUILD}/lib/modules/$(uname -r)/extra/
 sudo -S cp -v crypto/cryptodev.h ${BUILD}/usr/include/crypto/
@@ -42,6 +44,6 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS//cryptodev-1.11-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS/cryptodev-1.11-$(uname -m)-mlfs.txz &&
 sudo rm -rf $BUILD/*
 
