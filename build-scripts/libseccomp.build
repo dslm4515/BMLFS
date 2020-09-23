@@ -5,11 +5,15 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:      Which(needed for tests), Valgrind, Cython, LCOV 
 
-sed -i '/<linux\/prctl.h>/d' src/system.h
-#NOCONFIGURE=1 ./autogen.sh
+sed -i '/<linux\/prctl.h>/d' src/system.h &&
 
-./configure --prefix=/usr --disable-static $BUILDTRUPLE 
+./configure --prefix=/usr --disable-static $BUILDTRUPLE && 
 
 read -p "Press Enter to compile" &&
 make -j2 && 
@@ -19,9 +23,10 @@ read -p "Press Enter to install" &&
 # make install
 
 # if using pkgtools from Slackware, then:
-make DESTDIR=$BUILD install
+sudo -S make DESTDIR=$BUILD install &&
 
-read -p "Press Enter to create pakage description."
+read -p "Press Enter to create pakage description." &&
+
 cd $BUILD && sudo mkdir -v install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -46,6 +51,6 @@ libseccomp:
 EOF
 sudo mv /tmp/slack-desc install/ &&
 
-read -p "Enter to build and install package" &&
+read -p "Enter to build package" &&
 sudo makepkg -l y -c n $PKGS/libseccomp-2.5.0-$(uname -m)-mlfs.txz &&
 sudo rm -rf $BUILD/*

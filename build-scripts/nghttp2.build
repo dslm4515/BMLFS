@@ -5,6 +5,11 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
 
 ./configure --prefix=/usr     \
             --disable-static  \
@@ -18,9 +23,9 @@ read -p "Install?" &&
 # If not using any package manager
 #sudo -S make install
 
-sudo -S make DESTDIR=${BUILD} install
-sudo -S mkdir -pv ${BUILD}/install
-cd $BUILD
+sudo -S make DESTDIR=${BUILD} install &&
+sudo -S mkdir -pv ${BUILD}/install &&
+cd $BUILD &&
 
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -44,6 +49,6 @@ nghttp2:
 nghttp2:
 EOF
 
-sudo -S mv -v /tmp/slack-desc install/
-sudo -S makepkg -l y -c n $PKGS/nghttp2-1.41.0-$(uname -m)-mlfs.txz
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/nghttp2-1.41.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*

@@ -5,6 +5,11 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
 
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 && 
@@ -15,7 +20,8 @@ read -p "Install?" &&
 #sudo -S make install &&
 #sudo -S chmod -v 755 /usr/lib/lib{hogweed,nettle}.so
 
-sudo -S make DESTDIR=$BUILD install
+sudo -S make DESTDIR=$BUILD install &&
+
 sudo -S  chmod -v 755 ${BUILD}/usr/lib/lib{hogweed,nettle}.so
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install
 cat > /tmp/slack-desc << "EOF"
@@ -41,7 +47,7 @@ nettle:
 nettle:
 EOF
 
-sudo -S mv -v /tmp/slack-desc install/
-sudo -S makepkg -l y -c n $PKGS/nettle-3.6-$(uname -m)-mlfs.txz
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/nettle-3.6-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
 

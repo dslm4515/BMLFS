@@ -5,8 +5,16 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  ca-certificates
+# Optional:     Brotli, c-ares, GnuTLS, libidn2, libpsl, 
+# Optional:     libssh2, MIT Kerberos V5, nghttp2, 
+# Optional:     OpenLDAP, Samba, impacket, libmetalink, 
+# Optinal:      librtmp, ngtcp2, quiche, and SPNEGO 
 
-autoreconf -vfi
+autoreconf -vfi &&
 
 export CFLAGS="-D_FORTIFY_SOURCE=2 -I/usr/include/"
 export CPPFLAGS="-D_FORTIFY_SOURCE=2"
@@ -29,7 +37,7 @@ read -p "Press Enter to install" &&
 # make install
 
 # if using pkgtools from Slackware, then:
-make DESTDIR=$BUILD install
+sudo -S make DESTDIR=$BUILD install &&
 
 read -p "Press Enter to create package description."
 cd $BUILD && sudo mkdir -v install &&

@@ -5,6 +5,11 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  Which
+# Optional:     ICU, Open MPI
 
 # Setup build environment
 export CXXFLAGS="-std=c++14"
@@ -20,16 +25,16 @@ case $(uname -m) in
 esac
 
 # Apply patches
-patch -Np0 -i ../patches/boost-void/musl-memset.patch
+patch -Np0 -i ../patches/boost-void/musl-memset.patch &&
 
 # If not using pkgtools or any package manager, set $BUILD=""
 # Bootstap source
-./bootstrap.sh --prefix=${BUILD}/usr --with-python=/usr/bin/python3 --with-python-root=/usr
+./bootstrap.sh --prefix=${BUILD}/usr --with-python=/usr/bin/python3 --with-python-root=/usr &&
 
 # Rebuild bjam for target
-cd tools/build/src/engine
-./build.sh gcc
-cd ../../../..
+cd tools/build/src/engine &&
+./build.sh gcc &&
+cd ../../../.. &&
 
 cat > user-config.jam << "EOF"
 using gcc : : g++ : <cxxflags>"-std=c++14" <linkflags>"" ;
@@ -40,11 +45,11 @@ EOF
 # Build
 ./b2 -j4 --user-config=./user-config.jam --debug-building            \
 	--toolset=gcc abi=${BABI} architecture=${BARCH} python=3.8   \
-	threading=multi runtime-link=shared link=shared,static
+	threading=multi runtime-link=shared link=shared,static &&
 
 # Install bjam & b2
-sudo -S mkdir -pv ${BUILD}/bin
-sudo -S cp -v tools/build/src/engine/{bjam,b2} ${BUILD}/bin
+sudo -S mkdir -pv ${BUILD}/bin &&
+sudo -S cp -v tools/build/src/engine/{bjam,b2} ${BUILD}/bin &&
 
 # Install headers & libraries
 sudo -S ./b2 --prefix=${BUILD}/usr abi=${BABI} architecture=${BARCH} \
@@ -53,11 +58,11 @@ sudo -S ./b2 --prefix=${BUILD}/usr abi=${BABI} architecture=${BARCH} \
              link=shared,static install
 
 # Install Boost.Build
-sudo -S mkdir -pv ${BUILD}/usr/share/boost-build
-cd ./tools/build && cp -av . ${BUILD}/usr/share/boost-build/
-sudo -S find ${BUILD}/usr/share/boost-build -type f -name \*.orig -exec rm -f {} \;
-sudo -S rm -rvf ${BUILD}/usr/share/boost-build/src/engine/bootstrap
-sudo -S rm -rvf ${BUILD}/usr/share/boost-build/src/engine/{b2,bjam}
+sudo -S mkdir -pv ${BUILD}/usr/share/boost-build &&
+cd ./tools/build && sudo -S cp -av . ${BUILD}/usr/share/boost-build/ &&
+sudo -S find ${BUILD}/usr/share/boost-build -type f -name \*.orig -exec rm -f {} \; &&
+sudo -S rm -rvf ${BUILD}/usr/share/boost-build/src/engine/bootstrap &&
+sudo -S rm -rvf ${BUILD}/usr/share/boost-build/src/engine/{b2,bjam} &&
 cat > /tmp/site-config.jam << "EOF"
 # System wide configuration file for Boost.Build.
 
@@ -70,7 +75,7 @@ sudo -S mv -v /tmp/site-config.jam ${BUILD}/etc/
 unset CXXFLAGS BARCH BABI
 
 # Skip the rest if not using pkgtools or any other similar package manager
-cd $BUILD && mkdir install
+cd $BUILD && sudo -S mkdir -v install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
 # The "handy ruler" below makes it easier to edit a package description.  Line
@@ -92,6 +97,6 @@ boost: Homepage:  http://www.boost.org/
 boost:
 boost:
 EOF
-sudo -S mv -v /tmp/slack-desc install/
-sudo -S makepkg -l y -c n $PKGS/boost-1.74.0-$(uname-m)-mlfs.txz
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/boost-1.74.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf $BUILD/*

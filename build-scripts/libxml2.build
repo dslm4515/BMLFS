@@ -5,6 +5,11 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     Python2, ICU, Valgrind
 
 patch -Np0 -i ../patches/libxml2-void/CVE-2019-20388.patch &&
 
@@ -23,9 +28,9 @@ read -p "Compile?" && make -j2 &&
 # If not using any package manager:
 #read -p "Install?" && sudo -S make install
 
-sudo -S make DESTDIR=${BUILD} install
-sudo -S mkdir -pv ${BUILD}/install
-cd $BUILD
+sudo -S make DESTDIR=${BUILD} install &&
+sudo -S mkdir -pv ${BUILD}/install &&
+cd $BUILD &&
 
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -49,7 +54,7 @@ libxml2:
 libxml2:
 EOF
 
-sudo -S mv -v /tmp/slack-desc install/
-sudo -S makepkg -l y -c n $PKGS/libxml2-2.9.10-$(uname -m)-mlfs.txz
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libxml2-2.9.10-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
 

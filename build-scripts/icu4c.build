@@ -5,6 +5,11 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     LLVM, Doxygen(for documentation)
 
 cd source &&
 ./configure --prefix=/usr $BUILDTRUPLE  &&
@@ -14,7 +19,7 @@ read -p "Install?" &&
 
 # If using pkgtools:
 sudo -S make DESTDIR=$BUILD install &&
-cd $BUILD && sudo -S mkdir install
+cd $BUILD && sudo -S mkdir install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
 # The "handy ruler" below makes it easier to edit a package description.  Line
@@ -37,8 +42,7 @@ icu:
 icu:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/icu-67.1-$(uname -m)-mlfs.txz
-sudo -S installpkg $PKGS/icu-67.1-$(uname -m)-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/icu-67.1-$(uname -m)-mlfs.txz &&
 cd - && sudo -S rm -rf $BUILD/*
 
 # If not using nay package manager:

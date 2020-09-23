@@ -5,6 +5,11 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built package
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     libedit, valgrind
 
 
 ./configure --prefix=/usr  \
@@ -24,11 +29,11 @@ read -p "Press Enter to install" &&
 # make install
 
 # if using pkgtools from Slackware, then:
-make DESTDIR=$BUILD install
+sudo -S make DESTDIR=$BUILD install &&
 
-read -p "Press Enter to create package description."
+read -p "Press Enter to create package description." &&
 cd $BUILD && sudo mkdir -v install &&
-cat > /tmp/alack-desc << "EOF"
+cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
 # The "handy ruler" below makes it easier to edit a package description.  Line
 # up the first '|' above the ':' following the base package name, and the '|' on

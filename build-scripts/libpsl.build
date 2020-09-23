@@ -5,6 +5,11 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libidn2
+# Recommended:  NONE
+# Optional:     GTK-Doc(for documentation) and Valgrind(for tests) 
 
 sed -i 's/env python/&3/' src/psl-make-dafsa &&
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
@@ -16,9 +21,9 @@ read -p "Press Enter to install" &&
 # make install
 
 # if using pkgtools from Slackware, then:
-make DESTDIR=$BUILD install
+sudo -S make DESTDIR=$BUILD install &&
 
-read -p "Press Enter to create package description."
+read -p "Press Enter to create package description." &&
 cd $BUILD && sudo mkdir -v install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -41,9 +46,9 @@ libpsl:
 libpsl: Homepage: https://github.com/rockdaboot/libpsl
 libpsl:
 EOF
-sudo mv /tmp/slack-desc install/ &&
+sudo -S mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/libpsl-0.21.1-$(uname -m)-mlfs.txz &&
-sudo rm -rf $BUILD/*
+sudo -S makepkg -l y -c n $PKGS/libpsl-0.21.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf $BUILD/*
 

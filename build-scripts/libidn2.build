@@ -5,6 +5,11 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libunistring
+# Recommended:  NONE
+# Optional:     git and GTK-Doc
 
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE  &&
 
@@ -15,7 +20,7 @@ read -p "Press Enter to install" &&
 # make install
 
 # if using pkgtools from Slackware, then:
-make DESTDIR=$BUILD install
+sudo -S make DESTDIR=$BUILD install &&
 
 read -p "Press Enter to create package description."                                                                                                                                                                              
 cd $BUILD && sudo mkdir -v install &&

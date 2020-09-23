@@ -5,7 +5,12 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
-
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     texlive
+(or install-tl-unx) (to rebuild the documentation) 
 
 ./configure --prefix=/usr    \
             --disable-static \
@@ -17,8 +22,8 @@ read -p "Install?" &&
 # If not using any package manager:
 #sudo -S make install
 
-sudo -S make DESTDIR=$BUILD install
-sudo -S mkdir -v  $BUILD/install && cd $BUILD
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -v  $BUILD/install && cd $BUILD &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
 # The "handy ruler" below makes it easier to edit a package description.  Line
@@ -40,7 +45,7 @@ libunistring:
 libunistring:
 libunistring:
 EOF
-
-sudo -S makepkg -l y -c n $PKGS/libunistring-0.9.10-$(uname -m)-mlfs.txz
+sudo -S mv /tmp/slack-desc install/" &&
+sudo -S makepkg -l y -c n $PKGS/libunistring-0.9.10-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
 

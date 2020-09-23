@@ -5,8 +5,14 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+#
+# DEPS
+# Required:     None
+# Recommended:  libtasn1, ca-certificates (runtime)
+# Optional:     GTK-Doc, libxslt, NSS (runtime) 
 
-NOCONFIGURE=1 autoreconf -fiv
+NOCONFIGURE=1 autoreconf -fiv &&
 
 ./configure --prefix=/usr --sysconfdir=/etc \
             --with-trust-paths=/etc/pki/anchors $BUILDTRUPLE &&
@@ -18,10 +24,12 @@ read -p "Press Enter to install" &&
 # make install
 
 # if using pkgtools from Slackware, then:
-make DESTDIR=$BUILD install
+sudo -S make DESTDIR=$BUILD install &&
 
-read -p "Press Enter to create package description."
-cd $BUILD && sudo mkdir -v install &&
+read -p "Press Enter to create package description." &&
+
+cd $BUILD && sudo -S mkdir -v install &&
+
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
 # The "handy ruler" below makes it easier to edit a package description.  Line
@@ -43,9 +51,10 @@ p11-kit:
 p11-kit: Homepage: http://p11-glue.freedesktop.org/p11-kit.html
 p11-kit:
 EOF
-sudo mv /tmp/slack-desc install/ &&
+
+sudo -S mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&                                                                                                                                                                                               
-sudo makepkg -l y -c n $PKGS/p11-kit-0.23.21-$(uname -m)-mlfs.txz &&
-sudo rm -rf $BUILD/*
+sudo -S makepkg -l y -c n $PKGS/p11-kit-0.23.21-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf $BUILD/*
 

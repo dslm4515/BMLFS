@@ -5,7 +5,11 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
-
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     Doxygen
 
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE  &&
 read -p "Compile?" && make -j2  && 
@@ -15,8 +19,8 @@ read -p "Install?" &&
 # If not using any package manager:
 #sudo -S make install
 
-sudo -S make DESTDIR=${BUILD} install
-sudo -S mkdir -pv ${BUILD}/install && cd $BUILD
+sudo -S make DESTDIR=${BUILD} install &&
+sudo -S mkdir -pv ${BUILD}/install && cd $BUILD &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
 # The "handy ruler" below makes it easier to edit a package description.  Line
@@ -39,7 +43,7 @@ libevent: Homepage:  http://libevent.org
 libevent:
 EOF
 
-sudo -S mv -v /tmp/slack-desc install/
+sudo -S mv -v /tmp/slack-desc install/ &&
 
-sudo -S makepkg -l y -c n $PKGS/libevent-2.1.12-$(uname-m)-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/libevent-2.1.12-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*

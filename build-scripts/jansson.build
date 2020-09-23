@@ -5,6 +5,11 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
 
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
@@ -14,8 +19,8 @@ read -p "Install?" &&
 # If not using pkgtools or any other package manager:
 #sudo -S "make install"
 
-sudo -S make DESTDIR=${BUILD} install
-sudo -S mkdir -pv  ${BUILD}/install
+sudo -S make DESTDIR=${BUILD} install &&
+sudo -S mkdir -pv  ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
 # The "handy ruler" below makes it easier to edit a package description.  Line
@@ -38,8 +43,8 @@ jansson:
 jansson:
 EOF
 
-sudo -S mv /tmp/slack-desc ${BUILD}/install/
+sudo -S mv /tmp/slack-desc ${BUILD}/install/ &&
 
-cd $BUILD
-sudo -S makepkg -l y -c n $PKGS/jansson-2.13.1-$(uname -m)-mlfs.txz
+cd $BUILD &&
+sudo -S makepkg -l y -c n $PKGS/jansson-2.13.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*

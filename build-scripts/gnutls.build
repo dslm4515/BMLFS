@@ -5,8 +5,18 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Nettle
+# Recommended:  ca-certificates,  libunistring, libtasn1, p11-kit
+# Optional:     Doxygen-1.8.20, GTK-Doc-1.32, Guile-3.0.4, libidn-1.36 or libidn2-2.3.0, 
+# Optional:     libseccomp-2.5.0, Net-tools-CVS_20101030 (used during the test suite), 
+# Optional:     texlive-20200406 or install-tl-unx, Unbound-1.11.0 (to build the DANE library), 
+# Optional:     Valgrind-3.16.1 (used during the test suite), autogen, cmocka and 
+# Optional:     datefudge (used during the test suite if the DANE library is built), 
+# Optional:     and Trousers (Trusted Platform Module support) 
 
-autoreconf -vfi
+autoreconf -vfi &&
 
 ./configure --prefix=/usr \
             --with-default-trust-store-pkcs11="pkcs11:" \
@@ -20,9 +30,9 @@ read -p "Press Enter to install" &&
 # make install
 
 # if using pkgtools from Slackware, then:
-make DESTDIR=$BUILD install
+sudo -S make DESTDIR=$BUILD install &&
 
-read -p "Press Enter to create package description."
+read -p "Press Enter to create package description." &&
 cd $BUILD && sudo mkdir -v install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:

@@ -2,9 +2,16 @@
 
 # OpenSSH 8.0p1
 # source: http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.0p1.tar.gz
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     GDB(for tests), Linux-PAM, X Window System, MIT Kerberos V5, 
+# Optional:     libedit, LibreSSL Portable, OpenSC, and libsectok 
+
 
 sudo -S install  -v -m700 -d /var/lib/sshd 
-sudo -S chown    -v root:sys /var/lib/sshd&
+sudo -S chown    -v root:sys /var/lib/sshd
 
 sudo -S groupadd -g 50 sshd        
 sudo -S useradd  -c 'sshd PrivSep' \
@@ -22,8 +29,8 @@ esac
 
 export CFLAGS="${CFLAGS} -Wno-format-truncation -Wno-stringop-truncation"
 
-patch -Np0 -i ../patches/openssh-void/config.patch 
-patch -Np0 -i ../patches/openssh-void/libressl.patch
+patch -Np0 -i ../patches/openssh-void/config.patch   &&  
+patch -Np0 -i ../patches/openssh-void/libressl.patch &&
 
 autoreconf -fiv &&
 
@@ -49,15 +56,15 @@ read -p "Press Enter to install" &&
 # make install
 
 # if using pkgtools from Slackware, then:
-sudo -S make DESTDIR=$BUILD install
+sudo -S make DESTDIR=$BUILD install &&
 
-sudo -S mkdir -pv  ${BUILD}/usr/bin
-sudo -S install -v -m755    contrib/ssh-copy-id ${BUILD}/usr/bin 
+sudo -S mkdir -pv  ${BUILD}/usr/bin &&
+sudo -S install -v -m755    contrib/ssh-copy-id ${BUILD}/usr/bin && 
 
 sudo -S sed -i ${BUILD}/etc/ssh/sshd_config \
 	-e 's|^#\(UsePAM\) no|\1 yes|g' \
 	-e 's|^#\(ChallengeResponseAuthentication\) yes|\1 no|g' \
-	-e 's|^#\(PrintMotd\) yes|\1 no|g'
+	-e 's|^#\(PrintMotd\) yes|\1 no|g' &&
 
 read -p "Press Enter to create pakage description."
 cd $BUILD && sudo mkdir -v install &&
@@ -99,10 +106,10 @@ EOF
 sudo -S cp -v /tmp/doinst.sh install/
 
 # skip if not using PAM
-mkdir -v etc/pam.d
-sed 's@d/login@d/sshd@g' /etc/pam.d/login > etc/pam.d/sshd &&
-chmod 644 /etc/pam.d/sshd &&
-echo "UsePAM yes" >> etc/ssh/sshd_config
+sudo -S mkdir -v etc/pam.d
+sudo -S sed 's@d/login@d/sshd@g' /etc/pam.d/login > etc/pam.d/sshd &&
+sudo -S chmod 644 etc/pam.d/sshd &&
+sudo -S echo "UsePAM yes" >> etc/ssh/sshd_config
 
 read -p "Enter to build package" &&
 sudo makepkg -l y -c n $PKGS/openssh-8.3p1-$(uname -m)-mlfs.txz 
