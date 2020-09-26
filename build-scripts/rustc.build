@@ -1,0 +1,272 @@
+#! /bin/bash
+
+# Rustc
+# Source: https://static.rust-lang.org/dist/rustc-1.46.0-src.tar.gz
+# v1.46.0 = failed, both Alpine & Void methods
+# v1.45.1 = Succeeds with alpine method, requires max libressl-3.0.0
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cURL, CMake, libssh2, libgit2
+# Recommended:  LLVM
+# Optional:     GDB
+# *** NOTE ***
+# This build needs precompiled Cargo and Rust to bootstrap build
+# Precompiled binaries and libraries are from Alpine, which has
+# LLVM built with all targets like X86, ARM, etc.
+#
+# Bootstrap versions:
+# Cargo-1.44.0 + rust-1.44.0
+# Requires  OpenSSL 1.0.1 through 1.1.1, or LibreSSL 2.5 through 3.0.x
+# Targets supported by this version:
+# aarch64-alpine-linux-musl
+# aarch64-unknown-linux-musl
+# armv6-alpine-linux-musleabihf
+# armv7-alpine-linux-musleabihf
+# armv7-unknown-linux-musleabihf
+# armv7-unknown-linux-musleabi
+# i586-alpine-linux-musl
+# i686-unknown-linux-musl
+# x86_64-alpine-linux-musl
+# x86_64-unknown-linux-musl
+# **for more use rustc --print target-list**
+
+# Create bootstrap directory
+# # Download precompiled binaries for bootstrap:
+mkdir -pv stage0/{tmp,bin}
+cd stage0/tmp
+
+case $(uname -m) in
+	aarch64) export ARCH="aarch64"
+		;;
+	x86_64)  export ARCH="x86_64"
+		;;
+	i686*)   export ARCH="x86"
+		;;
+	armv7*)  export ARCH="armv7"
+		;;
+	armv6*)  export ARCH="armhf"
+		;;
+esac
+
+wget \
+     http://dl-cdn.alpinelinux.org/alpine/latest-stable/community/$ARCH/cargo-1.44.0-r0.apk \
+      http://dl-cdn.alpinelinux.org/alpine/latest-stable/community/$ARCH/rust-stdlib-1.44.0-r0.apk \
+      http://dl-cdn.alpinelinux.org/alpine/latest-stable/community/$ARCH/rust-1.44.0-r0.apk
+unset ARCH
+
+## unpack to extract cargo:
+tar xf cargo-1.44.0-r0.apk &&
+mv -v usr/bin/cargo ../bin/ &&
+rm -rvf usr .PKGINFO .SIGN.RSA.alpine-* &&
+
+# # Unpack rust std library
+tar xf rust-stdlib-1.44.0-r0.apk &&
+mv -v  usr/lib ../
+rm -rvf usr .PKGINFO .SIGN.RSA.alpine-* &&
+
+# # Unpack rust
+tar xf rust-1.44.0-r0.apk   &&
+mv -v usr/bin/rustc ../bin/ &&
+mv -v usr/share ..          &&
+cp -r usr/lib/* ../lib/     &&
+rm -rvf usr .PKGINFO .SIGN.RSA.alpine-* &&
+cd ../.. &&
+
+# # Add links for Cargo 1.44.0 from Alpine
+sudo ln -sv libssl.so.48 /usr/lib/libssl.so.1.1
+sudo ln -sv libcrypto.so.46.0.1 /usr/lib/libcrypto.so.1.1
+
+# # Add bootstrap to PATH
+export PATH="$PWD/stage0/bin:$PATH"
+
+# # Configure environment to use bootsrap directory
+export rustc_ver="$($PWD/stage0/bin/rustc --version | cut -f2 -d ' ')"
+export rustc_key="$(printf "$rustc_ver" | md5sum | cut -c1-8)"
+export LD_LIBRARY_PATH="$PWD/stage0/lib"
+
+# Remove bundled dependencies.
+#rm -Rf src/llvm-project
+
+# Apply patches from Alpine Linux
+#patch -Np1 -i ../patches/rust-alpine/0006-Prefer-libgcc_eh-over-libunwind-for-musl.patch
+patch -Np1 -i ../patches/rust-alpine/alpine-move-py-scripts-to-share.patch
+patch -Np1 -i ../patches/rust-alpine/alpine-target.patch
+patch -Np1 -i ../patches/rust-alpine/install-template-shebang.patch
+patch -Np1 -i ../patches/rust-alpine/link-musl-dynamically.patch
+patch -Np1 -i ../patches/rust-alpine/musl-dont-use-crt-static.patch
+patch -Np1 -i ../patches/rust-alpine/musl-fix-linux_musl_base.patch
+patch -Np1 -i ../patches/rust-alpine/need-rpath.patch
+patch -Np1 -i ../patches/rust-alpine/need-ssp_nonshared.patch
+
+# Apply Patches from void-linux
+#for p in 0001-Fix-LLVM-build.patch \
+#	0002-Allow-rustdoc-to-work-when-cross-compiling-on-musl.patch \
+#	0003-Require-static-native-libraries-when-linking-static-.patch \
+#	0004-Remove-nostdlib-and-musl_root-from-musl-targets.patch \
+#	0005-Prefer-libgcc_eh-over-libunwind-on-musl.patch \
+#	0006-test-use-extern-for-plugins-Don-t-assume-multilib.patch \
+#	0007-test-sysroot-crates-are-unstable-Fix-test-when-rpath.patch \
+#	0008-Ignore-broken-and-non-applicable-tests.patch \
+#	0009-Link-stage2-tools-dynamically-to-libstd.patch \
+#	0010-Move-debugger-scripts-to-usr-share-rust.patch \
+#	0011-Dynamically-link-libc-on-musl-by-default.patch \
+#	0012-Fix-dynamic-linkage-of-musl-libc-for-the-libc-crate.patch \
+#	0014-Void-fix-linkage-against-host-target-LLVM-in-cross-s.patch \
+#	0015-Use-ELFv2-ABI-on-all-powerpc64-targets.patch \
+#	fix-lzma2-sys-big-endian.patch \
+#	need-ssp_nonshared.patch; do
+#patch -Np1 -i ../patches/rustc-void/$p
+#done
+
+sed -Ei -e "s/^(rustc):.*/\1: $rustc_ver/" \
+	-e "s/^(rustc_key):.*/\1: $rustc_key/" \
+		src/stage0.txt
+sed -i /LD_LIBRARY_PATH/d src/bootstrap/bootstrap.py
+for v in libc typenum backtrace-sys lzma-sys; do
+	sed -i 's/\("files":{\)[^}]*/\1/' vendor/$v/.cargo-checksum.json
+done
+
+
+case $(uname -m) in
+	x86*) export CFLAGS="$CFLAGS -fno-stack-protector"
+		;;
+esac
+
+case $(uname -m) in
+	x86_64)   export TRUPLE="x86_64-unknown-linux-musl"
+		  export ECONFIG="--musl-root-x86_64=/usr"
+		  ;;
+	 i686*)   export TRUPLE="i686-unknown-linux-musl"
+		  export ECONFIG="--musl-root-i686=/usr"
+		  ;;
+	 armv6*)  export TRUPLE="armv6-alpine-linux-musl"
+		  export ECONFIG="--musl-root-armv6=/usr"
+		  ;;
+	 armv7*)  export TRUPLE="armv7-unknown-linux-musleabihf"
+		  export ECONFIG="--musl-root-armv7=/usr"
+		  ;;
+        aarch64)  export TRUPLE="aarch64-alpine-linux-musl"
+		  export ECONFIG="--musl-root-aarch64=/usr"
+		;;
+esac
+
+# Configure source
+export PKG_CONFIG_ALLOW_CROSS=1
+export RUST_BACKTRACE=1
+export RUSTFLAGS=""
+export CARGO_HOME="${PWD}/.cargo"
+
+#Alpine Method
+./configure \
+		--build="${TRUPLE}" \
+		--host="${TRUPLE}" \
+		--target="${TRUPLE}" \
+		--prefix="/usr" \
+		--release-channel="stable" \
+		--enable-local-rust \
+		--local-rust-root="$PWD/stage0" \
+		--llvm-root="/usr/lib" \
+		--disable-docs \
+		--enable-extended \
+		--tools="analysis,cargo,src" \
+		--enable-llvm-link-shared \
+		--enable-option-checking \
+		--enable-locked-deps \
+		--enable-vendor \
+		--python="python3" \
+		--set="target.${TRUPLE}.llvm-config=/usr/bin/llvm-config" \
+		--set="target.${TRUPLE}.musl-root=/usr" \
+		--set="target.${TRUPLE}.crt-static=false" ${ECONFIG}
+
+# Void linux
+#cat > config.toml << "EOF"
+#[build]
+#build = "${TRUPLE}"
+#host = [ "${TRUPLE}" ]
+#target = [ "${TRUPLE}" ]
+#cargo = "${PWD}/stage0/bin/cargo"
+#rustc = "${PWD}/stage0/bin/rustc"
+#submodules = false
+#python = "python3"
+#locked-deps = true
+#vendor = true
+#full-bootstrap = false
+#local-rebuild = false
+#extended = false
+#docs = false
+#tools = []
+#[install]
+#prefix = "/usr"
+#[rust]
+#codegen-units = 1
+#codegen-units-std = 1
+#debug-assertions = false
+#debuginfo-level = 0
+#debuginfo-level-rustc = 0
+#debuginfo-level-tests = 0
+#backtrace = true
+#incremental = false
+#parallel-compiler = false
+#channel = "stable"
+#rpath = false
+#verbose-tests = true
+#dist-src = false
+#jemalloc = false
+#llvm-libunwind = false
+#codegen-tests = false
+#[dist]
+#src-tarball = false
+#[target.${TRUPLE}]
+#llvm-config = "/usr/bin/llvm-config"
+#crt-static = false
+#EOF
+
+sed 's/#deny-warnings = .*/deny-warnings = false/' -i config.toml
+sed 's|deny(warnings,|deny(|' -i src/bootstrap/lib.rs
+
+# Build
+read -p "Compile?" &&
+python3  ./x.py build --jobs 4 &&
+
+read -p "Install?" &&
+
+# If not using any package manager:
+#DESTDIR=${PWD}/install python3 ./x.py install
+#chown -R root:root install
+#cp -a install/* /
+
+sudo -E -S DESTDIR="${BUILD}" python3 ./x.py install -v &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.
+# Line up the first '|' above the ':' following the base package name, and
+# the '|' on the right side marks the last column you can put a character in.
+# You must make exactly 11 lines for the formatting to be correct. It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+	    rust: rust (a safe, concurrent, practical language)
+    rust:
+    rust: Rust is a curly-brace, block-structured expression language.
+    rust: Its design is oriented toward concerns of "programming in the large",
+    rust: that is, of creating and maintaining boundaries - both abstract and
+    rust: operational - that preserve large-system integrity, availability,
+    rust: and concurrency.
+    rust:
+    rust: Homepage: https://rust-lang.org
+    rust:
+    rust:
+EOF
+
+sudo -S mv -v /tmp/slack-desc install/ &&
+cd usr/lib/rustlib/ &&
+rm -v components install.log manifest-* rust-installer-version uninstall.sh
+cd -
+
+sudo -S makepkg -l y -c n $PKGS/rustc-1.45.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
