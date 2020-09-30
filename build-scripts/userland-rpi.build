@@ -5,6 +5,11 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cmake
+# Recommended:  NONE
+# Optional:     NONE
 
 case $(uname -m) in
 	aarch64) export EXTRA_CONFIG=" -DARM64=on"
@@ -29,9 +34,9 @@ read -p "Press Enter to install" &&
 # make install
 
 # if using pkgtools from Slackware, then:
-make DESTDIR=$BUILD install
+sudo -S make DESTDIR=$BUILD install &&
 
-read -p "Press Enter to create pakage description."
+read -p "Press Enter to create pakage description." &&
 cd $BUILD && sudo mkdir -v install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -56,7 +61,7 @@ userland-rpi:
 EOF
 
 cat > /tmp/doinst.sh << "EOF"
-echo "/opt/vc/lib" >> /etc/ld-musl-$(uname-m).path
+echo "/opt/vc/lib" >> /etc/ld-musl-$(uname -m).path
 EOF
 sudo -S mv /tmp/slack-desc install/ &&
 sudo -S mv /tmp/doinst.sh  install/ &&
