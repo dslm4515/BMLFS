@@ -5,6 +5,11 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:      LLVM(with Clang), ntp, chronyd, and ypbind 
 
 ./configure --libexecdir=/lib/dhcpcd \
             --dbdir=/var/lib/dhcpcd  \
@@ -19,7 +24,7 @@ read -p "Press Enter to install" &&
 # if using pkgtools from Slackware, then:
 sudo -S make DESTDIR=${BUILD} install
 
-read -p "Press Enter to create pakage description."
+read -p "Press Enter to create pakage description." &&
 cd $BUILD && sudo mkdir -v install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -52,7 +57,7 @@ useradd  -c 'dhcpcd PrivSep' \
          -u 52 dhcpcd &&
 chown    -v dhcpcd:dhcpcd /var/lib/dhcpcd
 EOF
-sudo -S mv /tmp/doinst.sh  install/
+sudo -S mv /tmp/doinst.sh  install/ &&
 sudo -S mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build and install package" &&
