@@ -7,6 +7,14 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     CMake
+# Recommended:  NONE
+# Optional:     Doxygen, git, Graphviz, libxml2, Python2, rsync(for tests), 
+# Optional:     texlive-20200406 (or install-tl-unx), Valgrind, PyYAML, 
+# Optional:     Zip, OCaml, psutil, recommonmark, Sphinx, and Z3 
+
 
 patch -Np1 -i ../patches/llvm-void/llvm-001-musl.patch
 patch -Np1 -i ../patches/llvm-void/llvm-002-musl-ppc64-elfv2.patch
