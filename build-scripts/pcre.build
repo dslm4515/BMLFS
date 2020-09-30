@@ -5,6 +5,12 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     valgrind
+
 
 ./configure --prefix=/usr                     \
             --docdir=/usr/share/doc/pcre-8.44 \
@@ -23,10 +29,10 @@ read -p "Press Enter to install" &&
 # make install
 
 # if using pkgtools from Slackware, then:
-sudo -S make DESTDIR=${BUILD} install
+sudo -S make DESTDIR=${BUILD} install &&
 
-read -p "Press Enter to create pakage description."
-cd $BUILD && sudo mkdir -v install &&
+read -p "Press Enter to create pakage description."  &&
+cd $BUILD && sudo -S mkdir -v install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
 # The "handy ruler" below makes it easier to edit a package description.  Line
@@ -51,10 +57,10 @@ EOF
 
 sudo -S mv /tmp/slack-desc install/ &&
 
-sudo -S mkdir -v lib
-sudo -S mv -v usr/lib/libpcre.so.* lib
-sudo -S rm -v usr/lib/libpcre.so
-sudo -S ln -sv ../../lib/libpcre.so.1.2.12 usr/lib/libpcre.so
+sudo -S mkdir -v lib &&
+sudo -S mv -v usr/lib/libpcre.so.* lib &&
+sudo -S rm -v usr/lib/libpcre.so &&
+sudo -S ln -sv ../../lib/libpcre.so.1.2.12 usr/lib/libpcre.so &&
 
 read -p "Enter to build and install package" &&
 sudo makepkg -l y -c n $PKGS/pcre-8.44-$(uname -m)-mlfs.txz &&
