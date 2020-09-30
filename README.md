@@ -8,7 +8,7 @@ These build recipes allow to build packages for a MLFS, a Musl [based] Linux fro
 Layout
 
 <ul>
-  <li> build-scripts -- Scripts to automatically build and install packages with porg. </li>
+  <li> build-scripts -- Scripts to automatically build and install packages with pkgtools. </li>
   <li> files -- Files that may be optional or required for a package build </li>
   <li> patches -- Patches that fix known issues or to allow package to build/run with Musl as libc </li>
   <li> sources -- Packages sources that may be difficult to find or pre-patched </li>
@@ -17,7 +17,7 @@ Layout
 
 How to Use the Build Scripts
 
-Build scripts assume porg is installed as package manager and assumes the following directory tree:
+Build scripts assume Slackware's pkgtools is installed as package manager and assumes the following directory tree:
 ```
  + -- [sources]
        |
@@ -31,3 +31,10 @@ Build scripts assume porg is installed as package manager and assumes the follow
 	`tar xf foo-4.3.tar.xz && cd foo-4.3` </li>
 	<li>Run build script: `sh ../scripts/foo-4.3.build` </li>
 </ol>
+
+Changelog since 2.00
+
+<ul>
+<li>Changed package manager to Slackware's pkgtools instead of porg</li>
+<li>Added package dependancy list for each build</li>
+</ul>
