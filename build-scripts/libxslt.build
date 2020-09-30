@@ -5,9 +5,15 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libxml2
+# Recommended:  docbook-xml and docbook-xsl
+# Optional:     libgcrypt and Python2 libxml2-2.9.10 module 
+
 
 sed -i s/3000/5000/ libxslt/transform.c doc/xsltproc.{1,xml} &&
-./configure --prefix=/usr --disable-static
+./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
 
 read -p "Compile? "  && make -j2  && 
 
@@ -16,9 +22,9 @@ read -p "Press Enter to install" &&
 # make install
 
 # if using pkgtools from Slackware, then:
-make DESTDIR=$BUILD install
+sudo -S make DESTDIR=$BUILD install &&
 
-read -p "Press Enter to create pakage description."
+read -p "Press Enter to create pakage description."  &&
 cd $BUILD && sudo mkdir -v install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
