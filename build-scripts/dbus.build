@@ -2,6 +2,12 @@
 
 # D-Bus 1.12.20
 # Source: https://dbus.freedesktop.org/releases/dbus/dbus-1.12.20.tar.gz
+#
+# DEPS
+# Required:     NONE
+# Recommended:  Xorg Libraries and elogind (build first without)
+# Optional:     PyGobject,valgrind, Doxygen, mito, DuckType, Yelp Tools
+
 
 ./configure --prefix=/usr \
             --sysconfdir=/etc \
@@ -28,9 +34,9 @@ read -p "Press Enter to install" &&
 # make install
 
 # if using pkgtools from Slackware, then:
-sudo -S make DESTDIR=${BUILD} install
+sudo -S make DESTDIR=${BUILD} install &&
 
-read -p "Press Enter to create pakage description."
+read -p "Press Enter to create pakage description." &&
 cd $BUILD && sudo mkdir -v install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -54,11 +60,11 @@ dbus:
 EOF
 
 sudo -S mv /tmp/slack-desc install/ &&
-sudo -S mkdir -v lib
+sudo -S mkdir -v lib &&
 sudo -S mv -v usr/lib/libdbus-1.so.* lib &&
-sudo -S rm -v usr/lib/libdbus-1.so
-sudo -S ln -sfv ../../lib/libdbus-1.so.3.19.13 usr/lib/libdbus-1.so
-sudo -S ln -sv /var/lib/dbus/machine-id etc
+sudo -S rm -v usr/lib/libdbus-1.so &&
+sudo -S ln -sfv ../../lib/libdbus-1.so.3.19.13 usr/lib/libdbus-1.so &&
+sudo -S ln -sv /var/lib/dbus/machine-id etc &&
 
 read -p "Enter to build and install package" &&
 sudo -S makepkg -l y -c n $PKGS/dbus-1.12.20-$(uname -m)-mlfs.txz &&
@@ -69,6 +75,6 @@ echo "Fixing permissions for launcher..."
 chown -v root:messagebus /usr/libexec/dbus-daemon-launch-helper &&
 chmod -v      4750       /usr/libexec/dbus-daemon-launch-helper
 EOF
-sudo -S makepkg -l y -c n $PKGS/ell-0.33-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/dbus-1.12.20-$(uname -m)-mlfs.txz &&
 sudo rm -rf $BUILD/*
 
