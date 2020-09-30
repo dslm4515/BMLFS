@@ -5,6 +5,10 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
 
 # use system certs
 sed -i Makefile.am \
