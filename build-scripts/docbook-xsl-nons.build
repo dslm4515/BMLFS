@@ -6,6 +6,12 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  libxml2
+# Optional:     apache-ant, libxslt, Ruby, Zip, Saxon6, Xerces2 Java
+
 
 # Runt as root
 

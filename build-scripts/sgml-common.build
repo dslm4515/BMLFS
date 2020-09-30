@@ -6,8 +6,13 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
 
-patch -Np1 -i ../patches/gml-common-lfs/gml-common-0.6.3-manpage-1.patch &&
+patch -Np1 -i ../patches/sgml-common-lfs/sgml-common-0.6.3-manpage-1.patch &&
 
 autoreconf -f -i -v &&
 
@@ -26,7 +31,7 @@ read -p "Press Enter to install" &&
 # if using pkgtools from Slackware, then:
 sudo -S make DESTDIR=${BUILD} docdir=/usr/share/doc install &&
 
-read -p "Press Enter to create pakage description."
+read -p "Press Enter to create pakage description." &&
 cd $BUILD && sudo mkdir -v install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -57,13 +62,10 @@ install-catalog --add /etc/sgml/sgml-docbook.cat \
     /etc/sgml/sgml-ent.cat
 EOF
 
-sudo -S mv /tmp/doinst.sh  install/ &
+sudo -S mv /tmp/doinst.sh  install/ &&
 sudo -S mv /tmp/slack-desc install/ &&
 
-sudo -S mkdir -pv usr/share  &&
-sudo -S mv -v usr/man usr/share
-
 read -p "Enter to build and install package" &&
-sudo makepkg -l y -c n $PKGS/unzip-6.0-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS/sgml-common-0.6.3-$(uname -m)-mlfs.txz &&
 sudo rm -rf $BUILD/*
 

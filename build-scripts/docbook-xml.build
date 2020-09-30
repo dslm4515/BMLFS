@@ -6,6 +6,11 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libxml2, sgml-common, and UnZip 
+# Recommended:  NONE
+# Optional:     NONE
 
 
 # Create a folder before unzipping
