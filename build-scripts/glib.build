@@ -5,6 +5,12 @@
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  libxslt and PCRE
+# Optional:     dbus, bindfs, GDB, docbook-xml, docbook-xsl,
+# Optional:     GTK-Doc, glib-networking, gobject-introspection
 
 patch -Np1 -i ../patches/glib-lfs/glib-2.64.5-skip_warnings-1.patch
 patch -Np0 -i ../patches/glib-void/allow-older-gtk-doc.patch 
@@ -27,7 +33,7 @@ read -p "Press Enter to install" &&
 # ninja install
 
 # if using pkgtools from Slackware, then:
-DESTDIR=$BUILD ninja install
+sudo -S DESTDIR=$BUILD ninja install &&
 
 read -p "Press Enter to create pakage description."
 cd $BUILD && sudo mkdir -v install &&
