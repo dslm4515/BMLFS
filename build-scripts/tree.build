@@ -1,0 +1,49 @@
+#! /bin/bash
+
+# Tree
+# Source: http://mama.indstate.edu/users/ice/tree/src/tree-1.8.0.tgz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+make -j2 &&
+
+# If not using any package manager:
+#sudo -S make MANDIR=/usr/share/man/man1 install &&
+#sudo -S chmod -v 644 /usr/share/man/man1/tree.1
+
+sudo -S make DESTDIR=${BUILD} MANDIR=/usr/share/man/man1 install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+tree: tree (a program to display a directory tree)
+tree:
+tree: Tree is a recursive directory listing program that produces a depth
+tree: indented listing of files, which is colorized ala dircolors if the
+tree: LS_COLORS environment variable is set and output is to tty. With no
+tree: arguments, tree lists the files in the current directory.
+tree:
+tree: The tree utility was written by Steve Baker.
+tree:
+tree:
+tree:
+EOF
+
+sudo chmod -v 644 usr/share/man/man1/tree.1 &&
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/tree-1.8.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
+
