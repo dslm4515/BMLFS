@@ -88,7 +88,7 @@ shadow:
 shadow: Homepage: https://github.com/shadow-maint/shadow
 shadow:
 EOF
-sudo mv /tmp/slack-desc install/ &&
+su -c "mv /tmp/slack-desc install/" &&
 
 read -p "Enter to build package" &&
 su -c "makepkg -l y -c n $PKGS/shadow-4.8.1_pam-$(uname -m)-mlfs.txz" &&
