@@ -81,7 +81,7 @@ su -c "mv -v usr/lib/libpam.so.0.85.1 lib/"
 su -c "rm -v usr/lib/libpam.so usr/lib/libpam.so.0"
 su -c "ln -sfv ../../lib/libpam.so.0.85.1 usr/lib/libpam.so"
 su -c "ln -sfv ../../lib/libpam.so.0.85.1 usr/lib/libpam.so.0"
-
+su -c "ln -sfv libpam.so.0.85.1 lib/libpam.so.0"
 read -p "Enter to build package" &&                                                                                                                                                                                               
 su -c  "makepkg -l y -c n $PKGS/linux-pam-1.4.0-$(uname -m)-mlfs.txz" &&
 
