@@ -45,7 +45,7 @@ libunistring:
 libunistring:
 libunistring:
 EOF
-sudo -S mv /tmp/slack-desc install/" &&
+sudo -S mv /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libunistring-0.9.10-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
 
