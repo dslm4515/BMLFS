@@ -60,7 +60,7 @@ read -p "Press Enter to install" &&
 #      -f unix/Makefile install
 
 # if using pkgtools from Slackware, then:
-sudo -S make -j4  -f unix/Makefile prefix=${BUILD}/usr \
+sudo -S make -f unix/Makefile prefix=${BUILD}/usr \
         INSTALL_PROGRAM="install" MANDIR=${BUILD}/usr/share/man/man1 install
 
 read -p "Press Enter to create pakage description."  &&
