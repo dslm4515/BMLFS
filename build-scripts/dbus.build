@@ -75,6 +75,7 @@ echo "Fixing permissions for launcher..."
 chown -v root:messagebus /usr/libexec/dbus-daemon-launch-helper &&
 chmod -v      4750       /usr/libexec/dbus-daemon-launch-helper
 EOF
+sudo mv -v /tmp/doinst.sh install/doinst.sh &&
 sudo -S makepkg -l y -c n $PKGS/dbus-1.12.20-$(uname -m)-mlfs.txz &&
 sudo rm -rf $BUILD/*
 
