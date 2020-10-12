@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # Rustc
-# Source: https://static.rust-lang.org/dist/rustc-1.46.0-src.tar.gz
-# v1.46.0 = failed, both Alpine & Void methods
+# Source: https://static.rust-lang.org/dist/rustc-1.45.1-src.tar.gz
+# v1.46.0 = failed, both Alpine & Void methods due to precompiled rustc & cargo
 # v1.45.1 = Succeeds with alpine method, requires max libressl-3.0.0
 #
 # $BUILD = Directory to temporarily install
@@ -12,6 +12,11 @@
 # Required:     cURL, CMake, libssh2, libgit2
 # Recommended:  LLVM
 # Optional:     GDB
+#
+# Tested architectures:
+# [ PASS ] aarch64-alpine-linux-musl
+# [ FAIL ] i686-unknown-linux-musl
+#
 # *** NOTE ***
 # This build needs precompiled Cargo and Rust to bootstrap build
 # Precompiled binaries and libraries are from Alpine, which has
@@ -70,14 +75,14 @@ rm -rvf usr .PKGINFO .SIGN.RSA.alpine-* &&
 # # Unpack rust
 tar xf rust-1.44.0-r0.apk   &&
 mv -v usr/bin/rustc ../bin/ &&
-mv -v usr/share ..          &&
+mv -v usr/share ../         &&
 cp -r usr/lib/* ../lib/     &&
 rm -rvf usr .PKGINFO .SIGN.RSA.alpine-* &&
 cd ../.. &&
 
-# # Add links for Cargo 1.44.0 from Alpine
-sudo ln -sv libssl.so.48 /usr/lib/libssl.so.1.1
-sudo ln -sv libcrypto.so.46.0.1 /usr/lib/libcrypto.so.1.1
+# # Add compatability links for Cargo 1.44.0 from Alpine with libreSSL 3.0.0
+sudo ln -sv libssl.so.47.0.6    /usr/lib/libssl.so.1.1
+sudo ln -sv libcrypto.so.45.0.5 /usr/lib/libcrypto.so.1.1
 
 # # Add bootstrap to PATH
 export PATH="$PWD/stage0/bin:$PATH"
@@ -234,7 +239,7 @@ python3  ./x.py build --jobs 4 &&
 read -p "Install?" &&
 
 # If not using any package manager:
-#DESTDIR=${PWD}/install python3 ./x.py install
+#sudo -E -S DESTDIR=${PWD}/install python3 ./x.py install
 #chown -R root:root install
 #cp -a install/* /
 
@@ -249,18 +254,18 @@ cat > /tmp/slack-desc << "EOF"
 # You must make exactly 11 lines for the formatting to be correct. It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-    |-----handy-ruler------------------------------------------------------|
-	    rust: rust (a safe, concurrent, practical language)
-    rust:
-    rust: Rust is a curly-brace, block-structured expression language.
-    rust: Its design is oriented toward concerns of "programming in the large",
-    rust: that is, of creating and maintaining boundaries - both abstract and
-    rust: operational - that preserve large-system integrity, availability,
-    rust: and concurrency.
-    rust:
-    rust: Homepage: https://rust-lang.org
-    rust:
-    rust:
+     |-----handy-ruler------------------------------------------------------|
+rustc: rust (a safe, concurrent, practical language)
+rustc:
+rustc: Rust is a curly-brace, block-structured expression language.
+rustc: Its design is oriented toward concerns of "programming in the large",
+rustc: that is, of creating and maintaining boundaries - both abstract and
+rustc: operational - that preserve large-system integrity, availability,
+rustc: and concurrency.
+rustc:
+rustc: Homepage: https://rust-lang.org
+rustc:
+rustc:
 EOF
 
 sudo -S mv -v /tmp/slack-desc install/ &&
@@ -268,5 +273,5 @@ cd usr/lib/rustlib/ &&
 rm -v components install.log manifest-* rust-installer-version uninstall.sh
 cd -
 
-sudo -S makepkg -l y -c n $PKGS/rustc-1.45.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/rustc-1.45.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
