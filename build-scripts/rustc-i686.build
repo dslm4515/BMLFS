@@ -74,7 +74,7 @@ sudo ln -sv libssl.so.47.0.6    /usr/lib/libssl.so.1.1
 sudo ln -sv libcrypto.so.45.0.5 /usr/lib/libcrypto.so.1.1
 
 # # Bootsrapping  will look for musl-gcc, just link it
-sudo ln -sv gcc o/usr/bin/musl-gcc
+sudo ln -sv gcc /usr/bin/musl-gcc
 
 # # Add bootstrap to PATH
 export PATH="$PWD/stage0/bin:$PATH"
@@ -163,5 +163,11 @@ rm -v components install.log manifest-* rust-installer-version uninstall.sh
 cd - &&
 
 sudo -S makepkg -l y -c n $PKGS/rustc-1.45.1-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S rm -rf ${BUILD}/* &&
+
+# Remove compatiblility links for build and reset environemt
+sudo rm -v /usr/lib/libssl.so.1.1  /usr/lib/libcrypto.so.1.1 /usr/bin/musl-gcc &&
+unset RUST_BACKTRACE CFLAGS LD_LIBRARY_PATH ARCH _sharedir &&
+unset ldpath RUSTFLAGS _build _rlibdir PKG_CONFIG_ALLOW_CROSS &&
+export PATH=$OLD_PATH
 
