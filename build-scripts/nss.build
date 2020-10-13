@@ -7,7 +7,7 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     NONE
+# Required:     NSPR, SQlite
 # Recommended:  NONE
 # Optional:     NONE
 
@@ -92,7 +92,8 @@ for f in certutil cmsutil crlutil modutil pk12util shlibsign \
 done
 
 install -m644 ../dist/public/nss/*.h ${BUILD}/usr/include/nss &&
-
+unset NSS_ENABLE_ECC _target BUILD_OPT NSS_USE_SYSTEM_SQLITE NSS_ENABLE_WERROR &&
+unset FREEBL_NO_DEPEND &&
 cd $BUILD &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
