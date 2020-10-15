@@ -1,0 +1,67 @@
+#! /bin/bash
+
+# Elogind
+# Source: https://github.com/elogind/elogind/archive/v243.7/elogind-243.7.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     DBus
+# Recommended:  docbook-xml, docbook-xsl, libxslt, Linux-PAM, Polkit(Runtime)
+# Optional:     NONE
+
+mkdir build &&
+cd    build &&
+
+meson --prefix=/usr                         \
+      --sysconfdir=/etc                     \
+      --localstatedir=/var                  \
+      -Dcgroup-controller=elogind           \
+      -Ddbuspolicydir=/etc/dbus-1/system.d  \
+      -Drootlibexecdir=/usr/libexec/elogind \
+      -Dreboot-path=/sbin/reboot            \
+      -Ddefault-kill-user-processes=false   \
+      -Dutmp=false                          \
+      ..  &&
+read -p "Compile?" && ninja -j2 &&
+sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S ln -sv  libelogind.pc ${BUILD}/usr/lib/pkgconfig/libsystemd.pc        &&
+sudo -S ln -sv  libelogind.pc ${BUILD}/usr/lib/pkgconfig/libsystemd-logind.pc &&
+sudo -S ln -svr ${BUILD}/usr/include/elogind ${BUILD}/usr/include/systemd     &&
+sudo -S cp -v ../src/systemd/sd-id128.h   ${BUILD}/usr/include/  &&
+sudo -S cp -v ../src/systemd/_sd-common.h ${BUILD}/usr/include/  &&
+sudo -S cp -v ../../files/elogind-void/elogind.wrapper ${BUILD}/usr/libexec/elogind &&
+sudo -S chmod -v 755 ${BUILD}/usr/libexec/elogind/elogind.wrapper &&
+sudo -S cp -v ../../files/elogind-lfs/elogind-user ${BUILD}/etc/pam.d/ &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+elogind: elogind
+elogind:
+elogind: elogind is the systemd project's "logind", extracted out to be a
+elogind: standalone daemon. It integrates with Linux-PAM to know the set of
+elogind: users that are logged in to a system and whether they are logged in
+elogind: graphically, on the console, or remotely. Elogind exposes this
+elogind: information via the standard org.freedesktop.login1 D-Bus interface,
+elogind: as well as through the file system using systemd's standard
+elogind: /run/systemd layout.
+elogind:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/elogind-243.7-$(uname -m)-mlfs.txz &&
+cp -v install/doinst.sh /tmp/ &&
+cd - &&
+cat ../../files/elogind-lfs/system-session >> /tmp/doinst.sh &&
+cd - &&
+sudo -S mv -v /tmp/doinst.sh install/doinst.sh &&
+sudo -S makepkg -l y -c n $PKGS/elogind-243.7-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

@@ -1,0 +1,8 @@
+cp -v /etc/pam.d/system-session /etc/pam.d/system-session.bak
+
+echo "# Begin elogind addition"             >> /etc/pam.d/system-session
+    
+echo "session  required    pam_loginuid.so" >> /etc/pam.d/system-session
+echo "session  optional    pam_elogind.so"  >> /etc/pam.d/system-session
+
+echo "# End elogind addition"               >> /etc/pam.d/system-session
