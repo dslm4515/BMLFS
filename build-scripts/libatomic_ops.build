@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# libatomics_ops
+# Source: https://github.com/ivmai/libatomic_ops/releases/download/v7.6.10/libatomic_ops-7.6.10.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr    \
+            --enable-shared  \
+            --disable-static \
+            --docdir=/usr/share/doc/libatomic_ops-7.6.10 $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+             |-----handy-ruler------------------------------------------------------|
+libatomic_ops: libatomic_ops (Atomic memory update operations)
+libatomic_ops:
+libatomic_ops: Provides implementations for atomic memory update operations
+libatomic_ops: on a number of architectures. This allows direct use of these
+libatomic_ops: in reasonably portable code. Unlike earlier similar packages,
+libatomic_ops: this one explicitly considers memory barrier semantics, and
+libatomic_ops: allows the construction of code that involves minimum overhead
+libatomic_ops: across a variety of architectures.
+libatomic_ops:
+libatomic_ops: Homepage: http://www.hpl.hp.com/research/linux/atomic_ops/
+libatomic_ops:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libatomic_ops-7.6.10-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
