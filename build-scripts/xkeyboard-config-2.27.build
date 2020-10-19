@@ -1,9 +1,0 @@
-#! /bin/bash
-
-# xkeyboardconfig 2.27
-# Source: https://www.x.org/pub/individual/data/xkeyboard-config/xkeyboard-config-2.27.tar.bz2
-
-./configure ${XORG_CONFIG} $BUILDTRUPLE \
-     --with-xkb-rules-symlink=xorg  &&
-read -p "Compile? " && make -j2 && 
-read -p "Install? " && sudo -S porg -lD "make install"

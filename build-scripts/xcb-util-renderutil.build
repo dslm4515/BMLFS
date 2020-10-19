@@ -1,0 +1,42 @@
+#! /bin/bash
+
+# XCB Util Renderutil
+# Source: https://xcb.freedesktop.org/dist/xcb-util-renderutil-0.3.9.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     xcb-util
+# Recommended:  NONE
+# Optional:     Doxygen
+
+./configure $XORG_CONFIG  $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                   |-----handy-ruler------------------------------------------------------|
+xcb-util-renderutil: xcb-util-renderutil (XCB renderutil library)
+xcb-util-renderutil:
+xcb-util-renderutil: xcb-util-renderutil provides the XCB renderutil library, which
+xcb-util-renderutil: includes some convenience functions for the Render extension.
+xcb-util-renderutil:
+xcb-util-renderutil:
+xcb-util-renderutil:
+xcb-util-renderutil:
+xcb-util-renderutil:
+xcb-util-renderutil:
+xcb-util-renderutil:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/xcb-util-renderutil-0.3.9-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

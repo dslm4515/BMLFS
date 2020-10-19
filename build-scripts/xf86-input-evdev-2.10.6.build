@@ -1,8 +1,0 @@
-#! /bin/bash
-
-# Xorg Evdev Driver 2.10.6 
-# Source: https://www.x.org/pub/individual/driver/xf86-input-evdev-2.10.6.tar.bz2
-
-./configure $XORG_CONFIG $BUILDTRUPLE  &&
-read -p "Compile? " && make -j2 && 
-read -p "Install? " && sudo -S porg -lD "make install"

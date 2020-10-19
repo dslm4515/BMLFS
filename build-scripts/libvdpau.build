@@ -1,0 +1,46 @@
+#! /bin/bash
+
+# libvdpau
+# Source: https://gitlab.freedesktop.org/vdpau/libvdpau/-/archive/1.4/libvdpau-1.4.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Xorg-libraries
+# Recommended:  NONE
+# Optional:     Doxygen, Graphviz, and texlive or install-tl-unx
+
+mkdir build &&
+cd    build &&
+
+meson --prefix=$XORG_PREFIX .. &&
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+libvdpau: libvdpau (wrapper library for the Video Decode and Presentation API)
+libvdpau:
+libvdpau: VDPAU is the Video Decode and Presentation API for UNIX.
+libvdpau: It provides an interface to video decode acceleration and presentation
+libvdpau: hardware present in modern GPUs.
+libvdpau: This package also contains header files for developing applications
+libvdpau: that use VDPAU - the Nvidia binary driver contains the libraries but
+libvdpau: not the header files.
+libvdpau:
+libvdpau: libvdpau home: http://cgit.freedesktop.org/~aplattner/libvdpau
+libvdpau:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libvdpau-1.4-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

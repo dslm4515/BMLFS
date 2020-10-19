@@ -1,9 +1,0 @@
-#! /bin/bash
-
-# MarkupSafe 1.1.1
-# Source: https://files.pythonhosted.org/packages/source/M/MarkupSafe/MarkupSafe-1.1.1.tar.gz
-
-python  setup.py build &&
-sudo -S -E porg -lD  "python setup.py  install  --optimize=1" &&
-python3 setup.py build &&
-sudo -S -E porg -lD+ "python3 setup.py install  --optimize=1"

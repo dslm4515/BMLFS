@@ -1,0 +1,87 @@
+#! /bin/bash
+
+# Xorg-Server
+# Source: https://www.x.org/pub/individual/xserver/xorg-server-1.20.9.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Pixman, Xorg-Fonts, xkeyboard-config, libtirpc
+# Recommended:  elogind, libepoxy, polkit, wayland, wayland-protocols
+# Optional:     acpid, Doxygen,fop, nettle, libgcrypt, xcb-util-keysyms, 
+# Optional:     xcb-util-image, xcb-util-renderutil, xcb-util-wm,
+# Optional:     xmlto, libunwind, xorg-sgml-doctools 
+
+sed -i -e 's/termio.h/termios.h/' hw/xfree86/os-support/xf86_OSlib.h
+export CFLAGS="$CFLAGS -D_GNU_SOURCE -D__gid_t=gid_t -D__uid_t=uid_t"
+export LDFLAGS="$LDFLAGS -Wl,-z,lazy"
+
+patch -Np1 -i ../patches/xorg-server-alpine/0001-compiler.h-ensure-IOPortBase-is-declared-extern-on-m.patch
+patch -Np1 -i ../patches/xorg-server-alpine/e50c85f4ebf559a3bac4817b41074c43d4691779.patch
+patch -Np1 -i ../patches/xorg-server-alpine/link-libshadow.patch
+patch -Np1 -i ../patches/xorg-server-alpine/xwayland-glx.patch
+
+mkdir build && cd build
+
+meson  --prefix=$XORG_PREFIX \
+	-Dxorg=true \
+	-Dxephyr=true \
+	-Dxwayland=true \
+	-Dglamor=true \
+	-Dxwayland_eglstream=false \
+	-Dxnest=true \
+	-Ddmx=false \
+	-Dxvfb=true \
+	-Dxwin=false \
+	-Dglx=true \
+	-Dxdmcp=true \
+	-Dxdm-auth-1=true \
+	-Dxcsecurity=true \
+	-Dsecure-rpc=false \
+	-Dipv6=true \
+	-Dxkb_dir=/usr/share/X11/xkb \
+	-Dxkb_output_dir=/var/lib/xkb \
+	-Dlisten_tcp=false \
+	-Dlisten_unix=true \
+	-Dlisten_local=true \
+	-Dsuid_wrapper=true \
+	-Dpciaccess=true \
+	-Dudev=true \
+	-Dhal=false \
+	-Dsystemd_logind=false \
+	-Ddpms=true \
+	-Ddri1=true \
+	-Ddri2=true \
+	-Ddri3=true \
+	..
+
+read -p "Compile?" && ninja  -j2 &&
+unset CFLAGS LDFLAGS
+sudo -S  DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+xorg-server: xorg-server (The Xorg server, the core of the X Window System)
+xorg-server:
+xorg-server: Xorg is a full featured X server that was originally designed for UNIX
+xorg-server: and UNIX-like operating systems running on Intel x86 hardware.  It now
+xorg-server: runs on a wider range of hardware and OS platforms.  This work was
+xorg-server: derived by the X.Org Foundation from the XFree86 Project's XFree86
+xorg-server: 4.4rc2  release.  The XFree86 release was originally derived from X386
+xorg-server: 1.2 by Thomas Roell which was contributed to X11R5 by Snitily Graphics
+xorg-server: Consulting Service.
+xorg-server:
+xorg-server: The home page for the X project is:  http://www.x.org
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/xorg-server-1.20.9-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
