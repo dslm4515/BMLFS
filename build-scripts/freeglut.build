@@ -1,0 +1,51 @@
+#! /bin/bash
+
+# FreeGLUT
+# Source: https://downloads.sourceforge.net/freeglut/freeglut-3.2.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     CMake, Mesa
+# Recommended:  GLU
+# Optional:     NONE
+
+patch -Np1 -i ../patches/freeglut-lfs/gcc10_fix-1.patch
+
+mkdir build &&
+cd    build &&
+cmake -DCMAKE_INSTALL_PREFIX=/usr       \
+      -DCMAKE_BUILD_TYPE=Release        \
+      -DFREEGLUT_BUILD_DEMOS=OFF        \
+      -DFREEGLUT_BUILD_STATIC_LIBS=OFF  \
+      -Wno-dev .. &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+freeglut: freeglut (alternative GLUT library)
+freeglut:
+freeglut: freeglut is a completely OpenSourced alternative to the OpenGL 
+freeglut: Utility Toolkit (GLUT) library. GLUT (and hence freeglut) allows 
+freeglut: the user to create and manage windows containing OpenGL contexts 
+freeglut: on a wide range of platforms and also read the mouse, keyboard, and 
+freeglut: joystick functions.
+freeglut:
+freeglut: Homepage: http://freeglut.sourceforge.net/
+freeglut:
+freeglut:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/freeglut-3.2.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
