@@ -1,9 +1,0 @@
-#! /bin/bash
-
-# FLAC 1.3.3
-# source: https://downloads.xiph.org/releases/flac/flac-1.3.3.tar.xz
-
-./configure --prefix=/usr $BUILDTRUPLE \
-            --disable-thorough-tests &&
-read -p "Compile? " && make -j2 && 
-read -p "Install? " && sudo -S porg -lD "make install" 
