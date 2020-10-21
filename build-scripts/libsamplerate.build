@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# libsamplerate
+# Source: http://www.mega-nerd.com/SRC/libsamplerate-0.1.9.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     libsndfile, fftw
+
+cp -v ../files/config.sub-musl   Cfg/config.sub    &&
+cp -v ../files/config.guess-musl Cfg/config.guess  &&
+./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+             |-----handy-ruler------------------------------------------------------|
+libsamplerate: libsamplerate (Sample Rate Converter for audio)
+libsamplerate:
+libsamplerate: Secret Rabbit Code (aka libsamplerate) is a Sample Rate 
+libsamplerate: Converter for audio. One example of where such a thing 
+libsamplerate: would be useful is converting audio from the CD sample rate  
+libsamplerate: of 44.1kHz to the 48kHz sample rate used by DAT players. 
+libsamplerate: SRC is capable of arbitrary and time varying conversions. 
+libsamplerate: SRC provides a small set of converters to allow quality to
+libsamplerate: be traded off against computation cost.
+libsamplerate:
+libsamplerate:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libsamplerate-0.1.9-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
