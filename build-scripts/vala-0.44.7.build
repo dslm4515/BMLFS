@@ -1,8 +1,0 @@
-#! /bin/bash
-
-# Vala 0.44.7
-# source: http://ftp.gnome.org/pub/gnome/sources/vala/0.44/vala-0.44.7.tar.xz
-
-./configure --prefix=/usr $BUILDTRUPLE -disable-valadoc &&
-read -p "Compile? " && make -j2 && 
-read -p "Install? " && sudo -S porg -lD "make install"
