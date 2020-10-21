@@ -83,5 +83,6 @@ xorg-server:
 xorg-server: The home page for the X project is:  http://www.x.org
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S ln -sv Xorg usr/bin/X          &&
 sudo -S makepkg -l y -c n $PKGS/xorg-server-1.20.9-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
