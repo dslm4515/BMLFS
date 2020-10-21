@@ -1,0 +1,49 @@
+#! /bin/bash
+
+# libxkbcommon
+# Source: https://xkbcommon.org/download/libxkbcommon-1.0.1.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     xkeyboard-config
+# Recommended:  libxcb, Wayland
+# Optional:     Doxygen
+
+mkdir build &&
+cd    build &&
+meson --prefix=/usr -Denable-docs=false \
+      -Denable-wayland=true \
+      -Denable-x11=true     \
+      -Ddefault_library=both .. &&
+
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+            |-----handy-ruler------------------------------------------------------|
+libxkbcommon: libxkbcommon (library to handle keyboard descriptions)
+libxkbcommon:
+libxkbcommon: libxkbcommon is a keymap compiler and support library which processes
+libxkbcommon: a reduced subset of keymaps as defined by the XKB specification.
+libxkbcommon: Primarily, a keymap is created from a set of
+libxkbcommon: Rules/Model/Layout/Variant/Options names, processed through an
+libxkbcommon: XKB ruleset, and compiled into a struct xkb_keymap, which is
+libxkbcommon: the base type for all xkbcommon operations.
+libxkbcommon:
+libxkbcommon: libxkbcommon does not distribute a dataset itself, other than for
+libxkbcommon: testing purposes.
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libxkbcommon-1.0.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
