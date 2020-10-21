@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# xmlto
+# Source: https://releases.pagure.org/xmlto/xmlto-0.0.28.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     DocBook-xml, docbook-xsl, libxslt
+# Recommended:  NONE
+# Optional:     fop, dblatex, PassiveTeX, Links, Lynx, W3m, ELinks 
+
+LINKS="/usr/bin/links" \
+./configure --prefix=/usr --mandir=/usr/share/man $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+xmlto: xmlto (a front-end to an XSL toolchain)
+xmlto:
+xmlto: This is a package for converting XML files to various formats
+xmlto: using XSL stylesheets.
+xmlto: For DVI, PDF and PostScript output, PassiveTeX is required.
+xmlto:
+xmlto:
+xmlto:
+xmlto:
+xmlto: xmlto home: http://cyberelk.net/tim/software/xmlto/
+xmlto:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/xmlto-0.0.28-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

@@ -1,9 +1,0 @@
-#! /bin/bash
-
-# xmlto 0.0.28
-# source: https://releases.pagure.org/xmlto/xmlto-0.0.28.tar.bz2
-
-LINKS="/usr/bin/links" \
-./configure --prefix=/usr $BUILDTRUPLE &&
-read -p "Compile? " && make -j2 && 
-read -p "Install? " && sudo -S porg -lD "make install"
