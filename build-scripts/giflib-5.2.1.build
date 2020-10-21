@@ -1,8 +1,0 @@
-#! /bin/bash
-
-# giflib 5.2.1
-# Source: https://sourceforge.net/projects/giflib/files/giflib-5.2.1.tar.gz
-
-read -p "Compile? " && make -j2 && 
-read -p "Install? " && sudo -S porg -lD "make PREFIX=/usr install" &&
-        sudo -S porg -lD+ "rm -vf /usr/lib/libgif.a"	
