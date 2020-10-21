@@ -1,9 +1,0 @@
-#! /bin/bash
-
-# hicolor-icon-theme-0.17 
-# source: https://icon-theme.freedesktop.org/releases/hicolor-icon-theme-0.17.tar.xz
-
-
-./configure --prefix=/usr  &&
-read -p "Compile? " && make -j2 && 
-read -p "Install? " && sudo -S porg -lD "make install"
