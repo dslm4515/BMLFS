@@ -41,6 +41,7 @@ read -p "Compile?" && make -j2 && cd .. &&
 for f in double long-double single; do
 	cd build-${f}
 	sudo -S make DESTDIR=$BUILD install
+	cd ..
 done &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
