@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# SBC 
+# Source: https://www.kernel.org/pub/linux/bluetooth/sbc-1.4.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libsndfile
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/sbc-alpine/fix-armv6-assembly.patch &&
+./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+   |-----handy-ruler------------------------------------------------------|
+sbc: sbc (Sub Band Codec for bluetooth audio output)
+sbc:
+sbc: SBC (Sub Band Codec) is a low-complexity audio codec used in the
+sbc: Advanced Audio Distribution Profile (A2DP) bluetooth standard, but can
+sbc: also be used standalone. It uses 4 or 8 subbands, an adaptive bit
+sbc: allocation algorithm, and adaptive block PCM quantizers.
+sbc:
+sbc: Homepage: http://www.kernel.org/pub/linux/bluetooth
+sbc:
+sbc:
+sbc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/sbc-1.4-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
