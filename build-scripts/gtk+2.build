@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# GTK+ 2
+# Source: ftp://ftp.gnome.org/pub/gnome/sources/gtk+/2.24/gtk+-2.24.32.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     ATK, gdk-pixbuf, Pango
+# Recommended:  hi-color-theme
+# Optional:     CUPS, DocBook-Utils, gnome-themes-extra,  gobject-introspection, GTK-Doc
+
+patch -Np1 -i ../patches/gtk+2-alpine/gtk2-fixdso.patch
+patch -Np1 -i ../patches/gtk+2-alpine/xid-collision-debug.patch
+
+sed -e 's#l \(gtk-.*\).sgml#& -o \1#' \
+    -i docs/{faq,tutorial}/Makefile.in      &&
+
+libtoolize --force && aclocal -I m4 && autoconf && automake --add-missing &&
+
+./configure --prefix=/usr --sysconfdir=/etc $BUILDTRUPLE &&
+sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+gtk+2: GTK+ version 2 (multi-platform GUI toolkit)
+gtk+2:
+gtk+2: This is GTK+, a multi-platform toolkit for creating graphical user
+gtk+2: interfaces.  Offering a complete set of widgets, GTK+ is suitable for
+gtk+2: projects ranging from small one-off projects to complete application
+gtk+2: suites.
+gtk+2:
+gtk+2:
+gtk+2:
+gtk+2:
+gtk+2:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gtk+2-2.24.32-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

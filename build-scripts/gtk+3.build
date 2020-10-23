@@ -1,0 +1,63 @@
+#! /bin/bash
+
+# GTK+ 3
+# Source: ftp://ftp.gnome.org/pub/gnome/sources/gtk+/3.24/gtk+-3.24.23.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     at-spi2-atk, FriBidi, gdk-pixbuf, libepoxy, and Pango
+# Recommended:  adwaita-icon-theme,  hicolor-icon-theme, ISO Codes, libxkbcommon, 
+# Recommended:  sassc, wayland, wayland-protocols, gobject-introspection
+# Optional:     Colord, CUPS, DocBook Utils, GTK-Doc, JSON-Glib, PyAtSpi, rest, PAPI
+
+patch -Np1 -i ../patches/gtk+3-alpine/10-Revert-gdkseatdefault-Grab-touch-events-where-applic.patch
+
+#./configure --prefix=/usr              \
+#            --sysconfdir=/etc          \
+#            --enable-broadway-backend  \
+#            --enable-x11-backend       \
+#            --enable-wayland-backend $BUILDTRUPLE &&
+            
+#config.status: error: Something went wrong bootstrapping makefile fragments
+#for automatic dependency tracking.  Try re-running configure with the
+#'--disable-dependency-tracking' option to at least be able to build
+#the package (albeit without support for automatic dependency tracking).
+#See `config.log' for more details
+
+mkdir BUILD && cd BUILD &&
+meson --prefix=/usr   \
+      -Dman=true      \
+      -Dgtk_doc=false \
+      -Dbroadway_backend=true ..
+
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+gtk+3: GTK+ version 3 (multi-platform GUI toolkit)
+gtk+3:
+gtk+3: This is GTK+, a multi-platform toolkit for creating graphical user
+gtk+3: interfaces.  Offering a complete set of widgets, GTK+ is suitable for
+gtk+3: projects ranging from small one-off projects to complete application
+gtk+3: suites.
+gtk+3:
+gtk+3:
+gtk+3:
+gtk+3:
+gtk+3:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gtk+3-3.24.23-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
