@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# Zip
+# Source: ftp://ftp.info-zip.org/pub/infozip/src/zip30.tgz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/zip-alpine/10-zip-3.0-build.patch
+patch -Np1 -i ../patches/zip-alpine/20-zip-3.0-exec-stack.patch
+patch -Np1 -i ../patches/zip-alpine/30-zip-3.0-pic.patch
+patch -Np1 -i ../patches/zip-alpine/40-fix-zipnote.patch
+
+read -p "Compile?" && make -f unix/Makefile prefix=/usr generic -j2 &&
+
+sudo -S make -f unix/Makefile prefix=${BUILD}/usr MANDIR=${BUILD}/usr/share/man/man1 install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+   |-----handy-ruler------------------------------------------------------|
+zip: Zip (Info-ZIP's zip utilities)
+zip:
+zip: zip is a compression and file packaging utility for Unix, VMS, MSDOS,
+zip: OS/2, Windows NT, Minix, Atari and Macintosh, Amiga and Acorn RISC OS.
+zip: It is analogous to a combination of the UNIX commands tar(1) and
+zip: compress(1) and is compatible with PKZIP (Phil Katz's ZIP).  A
+zip: companion program (unzip(1L)), unpacks zip archives.
+zip:
+zip:
+zip:
+zip:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/zip-3.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
