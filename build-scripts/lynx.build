@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# Lynx
+# Source: https://invisible-mirror.net/archives/lynx/tarballs/lynx2.8.9rel.1.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     GnuTLS, Zip, Unzip, MTA, Sharutils
+
+./configure --prefix=/usr          \
+            --sysconfdir=/etc/lynx \
+            --datadir=/usr/share/doc/lynx-2.8.9rel.1 \
+            --with-zlib            \
+            --with-bzlib           \
+            --with-ssl             \
+            --with-screen=ncursesw \
+            --enable-locale-charset \
+            --enable-ipv6 $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install-full                                  &&
+sudo -S chgrp -v -R root ${BUILD}/usr/share/doc/lynx-2.8.9rel.1/lynx_doc  &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+lynx: Lynx (text mode browser)
+lynx:
+lynx: Lynx is a distributed hypertext browser with full World Wide Web
+lynx: capabilities.  Lynx can be used to access information on the World 
+lynx: Wide Web, or to build information systems intended primarily for local
+lynx: access.  For example, Lynx has been used to build several Campus Wide
+lynx: Information Systems (CWIS).  
+lynx:
+lynx: Lynx's authors include Lou Montulli, Garrett Blythe, Craig Lavender,
+lynx: Michael Grobe, and Charles Rezac.
+lynx:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/lynx-2.8.9_rel1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
