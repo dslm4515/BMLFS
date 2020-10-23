@@ -1,9 +1,0 @@
-#! /bin/bash
-
-# libusb-1.0.22 
-# Source: https://github.com//libusb/libusb/releases/download/v1.0.22/libusb-1.0.22.tar.bz2
-
-sed -i "s/^PROJECT_LOGO/#&/" doc/doxygen.cfg.in &&
-./configure --prefix=/usr $BUILDTRUPLE --disable-static  &&
-read -p "Compile? " && make -j1 && 
-read -p "Install? " && sudo -S porg -lD "make install"
