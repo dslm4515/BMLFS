@@ -1,0 +1,67 @@
+#! /bin/bash
+
+# Colord
+# Source: https://www.freedesktop.org/software/colord/releases/colord-1.4.4.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     dbus, GLib, Little CMS, Polkit, and SQLite 
+# Recommended:  gobject-introspection, libgudev, libgusb, and Vala
+# Optional:     gnome-desktop, colord-gtk, libxslt, SANE,  ArgyllCMS, and Bash Completion
+
+sudo -S groupadd -g 71 colord &&
+sudo -S useradd -c "Color Daemon Owner" -d /var/lib/colord -u 71 \
+        -g colord -s /bin/false colord &&
+patch -Np1 -i ../patches/colord-alpine/disable-udev-hwdb-tests.patch &&
+mv po/fur.po po/ur.po &&
+sed -i 's/fur/ur/' po/LINGUAS &&
+mkdir build && cd    build &&
+meson --prefix=/usr            \
+      --sysconfdir=/etc        \
+      --localstatedir=/var     \
+      -Ddaemon_user=colord     \
+      -Dvapi=true              \
+      -Dsystemd=false          \
+      -Dlibcolordcompat=true   \
+      -Dargyllcms_sensor=false \
+      -Dbash_completion=false  \
+      -Ddocs=false             \
+      -Dman=false ..           &&
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+colord: ColorD
+colord:
+colord: Colord is a system service that makes it easy to manage, install, 
+colord: and generate color profiles. It is used mainly by GNOME Color 
+colord: Manager for system integration and use when no users are logged in. 
+colord:
+colord: Homepage: http://www.freedesktop.org/software/colord
+colord:
+colord:
+colord:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/colord-1.4.4-$(uname -m)-mlfs.txz &&
+cp -v install/doinst.sh /tmp/ &&
+cat >> /tmp/doinst.sh << "EOF"
+groupadd -g 71 colord &&
+useradd -c "Color Daemon Owner" -d /var/lib/colord -u 71 \
+        -g colord -s /bin/false colord
+EOF
+sudo -S mv -v /tmp/doinst.sh install/ &&
+sudo -S makepkg -l y -c n $PKGS/colord-1.4.4-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
