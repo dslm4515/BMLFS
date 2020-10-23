@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# usbutils
+# Source: https://www.kernel.org/pub/linux/utils/usb/usbutils/usbutils-012.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libusb, wget
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/usbutils-alpine/hwdata.patch  &&
+./autogen.sh --prefix=/usr --datadir=/usr/share/hwdata $BUILDTRUPLE  &&
+read -p "Compile?" && make -j2 &&
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S install -dm755 ${BUILD}/usr/share/hwdata/ &&
+sudo -S wget http://www.linux-usb.org/usb.ids -O ${BUILD}/usr/share/hwdata/usb.ids &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+usbutils: usbutils (USB utilities)
+usbutils:
+usbutils: lsusb displays detailed information about all USB buses and devices
+usbutils: in the system.
+usbutils:
+usbutils: usbmodules lists the kernel modules for a plugged in USB device.
+usbutils:
+usbutils: See the manual pages for more details.
+usbutils:
+usbutils:
+usbutils:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/usbutils-012-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
