@@ -1,9 +1,0 @@
-#! /bin/bash
-
-# FDK AAC 2.0.0
-# source: https://downloads.sourceforge.net/opencore-amr/fdk-aac-2.0.0.tar.gz
-
-./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
-
-read -p "Compile? " && make -j4 &&
-read -p "Install? " && sudo -S porg -lD "make install"
