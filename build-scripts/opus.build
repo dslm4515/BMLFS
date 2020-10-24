@@ -1,0 +1,46 @@
+#! /bin/bash
+
+# OPUS
+# Source: https://archive.mozilla.org/pub/opus/opus-1.3.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     Doxygen and texlive (or install-tl-unx) 
+
+./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/opus-1.3.1 \
+            --enable-custom-modes $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+opus: opus (Audio Codec)
+opus:
+opus: Opus is a totally open, royalty-free, highly versatile audio codec.
+opus: It is standardized by the Internet Engineering Task Force (IETF)
+opus: as RFC 6716 which incorporated technology from Skype's SILK codec
+opus: and Xiph.Org's CELT codec.
+opus:
+opus: Project site: http://opus-codec.org/
+opus:
+opus:
+opus:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/opus-1.3.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
