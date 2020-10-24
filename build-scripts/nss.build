@@ -13,6 +13,8 @@
 
 patch -Np1 -i ../patches/nss-3.57-standalone-1.patch &&
 
+export NSS_VER=3.57
+export NSPR_VER=4.29
 export NS_USE_GCC=1
 export LIBRUNPATH=
 export BUILD_OPT=1
@@ -63,8 +65,8 @@ sed ../../files/nss-void/nss.pc.in \
 	-e "s,%prefix%,/usr,g" \
 	-e "s,%exec_prefix%,/usr/bin,g" \
 	-e "s,%includedir%,/usr/include/nss,g" \
-	-e "s,%NSPR_VERSION%,${_nsprver},g" \
-	-e "s,%NSS_VERSION%,${version},g" > \
+	-e "s,%NSPR_VERSION%,${NSS_VER},g" \
+	-e "s,%NSS_VERSION%,${NSPR_VER},g" > \
 	${BUILD}/usr/lib/pkgconfig/nss.pc &&
 ln -sf nss.pc ${BUILD}/usr/lib/pkgconfig/mozilla-nss.pc &&
 chmod 644 ${BUILD}/usr/lib/pkgconfig/*.pc &&
@@ -93,7 +95,7 @@ done
 
 install -m644 ../dist/public/nss/*.h ${BUILD}/usr/include/nss &&
 unset NSS_ENABLE_ECC _target BUILD_OPT NSS_USE_SYSTEM_SQLITE NSS_ENABLE_WERROR &&
-unset FREEBL_NO_DEPEND &&
+unset FREEBL_NO_DEPEND NSS_VER NSPR_VER &&
 cd $BUILD &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
