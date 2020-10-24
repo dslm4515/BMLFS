@@ -1,0 +1,58 @@
+#! /bin/bash
+
+# libvpx
+# Source: https://github.com/webmproject/libvpx/archive/v1.9.0/libvpx-1.9.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     yasm | NASM, Whcih
+# Recommended:  NONE
+# Optional:     cURL, Doxygen, PHP
+
+patch -Np1 -i ../patches/libvpx-alpine/fix-arm-float-abi.patch &&
+sed -i 's/cp -p/cp/' build/make/Makefile &&
+
+mkdir libvpx-build            &&
+cd    libvpx-build            &&
+
+../configure --prefix=/usr    \
+             --enable-shared  \
+             --disable-static \
+             --enable-pic     \
+             --enable-libs    \
+             --enable-runtime-cpu-detect \
+             --enable-vp8 \
+             --enable-vp9  \
+             --disable-install-srcs \
+             --enable-postproc  &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+libvpx: libvpx (VP8 video codec)
+libvpx:
+libvpx: VP8 is an open video codec, originally developed by On2 and released
+libvpx: as open source by Google Inc. It is the successor of the VP3 codec,
+libvpx: on which the Theora codec was based.
+libvpx:
+libvpx: Homepage: http://www.webmproject.org/
+libvpx:
+libvpx:
+libvpx:
+libvpx:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libvpx-1.9.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
