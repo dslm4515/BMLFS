@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# yasm
+# Source: http://www.tortall.net/projects/yasm/releases/yasm-1.3.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     Python2, Cython
+
+patch -Np1 -i ../patches/yasm-alpine/74184586228af6c362f970c84fce58da3fcbdec8.patch
+cp -v ../files/config.sub-musl config/config.sub      &&
+cp -v ../files/config.guess-musl config/config.guess  &&
+sed -i 's#) ytasm.*#)#' Makefile.in &&
+./configure --prefix=/usr $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+yasm: yasm (complete rewrite of the NASM assembler)
+yasm:
+yasm: Yasm is a complete rewrite of the NASM assembler under the "new" BSD
+yasm: License (some portions are under other licenses, see COPYING for
+yasm: details).  Yasm currently supports the x86 and AMD64 instruction sets,
+yasm: accepts NASM and GAS assembler syntaxes, outputs binary, ELF32, ELF64,
+yasm: 32 and 64-bit Mach-O, RDOFF2, COFF, Win32, and Win64 object formats,
+yasm: and generates source debugging information in STABS, DWARF 2, and
+yasm: CodeView 8 formats.
+yasm:
+yasm: yasm home: http://www.tortall.net/projects/yasm/
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/yasm-1.3.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
