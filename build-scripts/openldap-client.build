@@ -1,0 +1,59 @@
+#! /bin/bash
+
+# OpenLDAP (client install)
+# Source: ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/openldap-2.4.54.tgz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  Cyrus SASL
+# Optional:     GnuTLS, Pth, unixODBC, MariaDB or PostgreSQL or MySQL, OpenSLP, and Berkeley DB
+
+patch -Np1 -i ../patches/openldap-alpine/cacheflush.patch
+patch -Np1 -i ../patches/openldap-alpine/fix-manpages.patch
+patch -Np1 -i ../patches/openldap-alpine/openldap-2.4-ppolicy.patch
+patch -Np1 -i ../patches/openldap-alpine/openldap-2.4.11-libldap_r.patch
+patch -Np1 -i ../patches/openldap-alpine/openldap-mqtt-overlay.patch
+
+autoconf -v &&
+
+./configure --prefix=/usr     \
+            --sysconfdir=/etc \
+            --disable-static  \
+            --enable-dynamic  \
+            --disable-debug   \
+            --disable-slapd   \
+            --with-cyrus-sasl \
+            --enable-crypt $BUILDTRUPLE &&
+make -j2 depend &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+               |-----handy-ruler------------------------------------------------------|
+openldap-client: openldap-client (OpenLDAP client programs)
+openldap-client:
+openldap-client: OpenLDAP is an open source implementation of the Lightweight
+openldap-client: Directory Access Protocol.  LDAP is a alternative to the X.500
+openldap-client: Directory Access Protocol (DAP). It uses the TCP/IP stack versus
+openldap-client: the overly complex OSI stack.
+openldap-client:
+openldap-client: LDAP is often used to provide authentication (such as for email).
+openldap-client:
+openldap-client: The OpenLDAP homepage is http://www.openldap.org/
+openldap-client:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/openldap-client-2.4.54-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
