@@ -1,0 +1,50 @@
+#! /bin/bash
+
+# libev
+# Source: http://dist.schmorp.de/libev/Attic/libev-4.33.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/libev-alpine/libev-4.11-Add-pkgconfig-support.patch &&
+libtoolize --force && aclocal -I m4 && autoheader &&
+autoconf && automake --add-missing &&
+
+./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S rm -v ${BUILD}/usr/include/event.h &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+libev: libev (a high-performance event loop/model)
+libev:
+libev: Libev is modelled (very loosely) after libevent and the Event perl
+libev: module, but is faster, scales better and is more correct, and also
+libev: more featureful. And also smaller. Yay.
+libev:
+libev: Website: <http://software.schmorp.de/pkg/libev.html>
+libev:
+libev:
+libev:
+libev:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libev-4.33-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
