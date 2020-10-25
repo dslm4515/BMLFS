@@ -1,0 +1,51 @@
+#! /bin/bash
+
+# gstreamer
+# Source: https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.18.0.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     GLib
+# Recommended:  gobject-introspection
+# Optional:     GTK+3, Gsl, Valgrind, bash-completion, hotdoc, libdw, and libunwind
+
+sed -i "s/leaks.c'/&, not tracer_hooks or not gst_debug/" -i tests/check/meson.build &&
+mkdir build &&
+cd    build &&
+
+meson  --prefix=/usr       \
+       -Dbuildtype=release \
+       -Dgst_debug=false   \
+       -Dpackage-origin=https://github.com/dslm4515/BMLFS \
+       -Dpackage-name="GStreamer 1.18.0 BMLFS" && 
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+gstreamer: gstreamer (streaming multimedia framework)
+gstreamer: 
+gstreamer: GStreamer is a library that allows the construction of graphs of a
+gstreamer: media-handling components, ranging from simple Ogg/Vorbis playback 
+gstreamer: to complex audio (mixing) and video (non-linear editing) processing.
+gstreamer: Applications can take advantage of advances in codec and filter 
+gstreamer: technology transparently. Developers can add new codecs and filters
+gstreamer: by writing a simple plugin with a clean, generic interface.
+gstreamer: 
+gstreamer: GStreamer is released under the LGPL.
+gstreamer: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gstreamer-1.18.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
