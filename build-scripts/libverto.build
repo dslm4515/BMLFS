@@ -42,5 +42,20 @@ libverto:
 libverto: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
+# Fix pkgconfig file since $exec_prefix is defined after use:
+cat > /tmp/libverto.pc << "EOF"
+prefix=/usr
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: libverto
+Description: Event loop abstraction interface
+Version: 0.3.1
+Libs: -L${libdir} -lverto
+Cflags: -I${includedir}
+Libs.private: -ldl
+EOF
+sudo -S mv /tmp/libverto.pc usr/lib/pkgconfig/libverto.pc &&
 sudo -S makepkg -l y -c n $PKGS/libverto-0.3.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
