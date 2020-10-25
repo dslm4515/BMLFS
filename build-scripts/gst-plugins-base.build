@@ -1,0 +1,51 @@
+#! /bin/bash
+
+# GStreamer Base Plug-ins 
+# Source: https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.18.0.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     gstreamer
+# Recommended:  alsa-lib, CDParanoia-III (for building the CDDA plugin), gobject-introspection,
+# Recommended:  ISO Codes, libgudev, libogg, libtheora, libvorbis, wayland-protocols, and Xorg Libraries 
+# Optional:     NONE
+
+mkdir build &&
+cd    build &&
+
+meson  --prefix=/usr       \
+       -Dbuildtype=release \
+       -Dpackage-origin=https://github.com/dslm4515/BMLFS \
+       -Dpackage-name="GStreamer 1.18.0 BMLFS"    \
+       --wrap-mode=nodownload &&
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                |-----handy-ruler------------------------------------------------------|
+gst-plugins-base: gst-plugins-base (a set of GStreamer plugins)
+gst-plugins-base: 
+gst-plugins-base: GStreamer Base Plug-ins is a well-groomed and well-maintained 
+gst-plugins-base: collection of GStreamer plug-ins and elements, spanning the 
+gst-plugins-base: range of possible types of elements one would want to write 
+gst-plugins-base: for GStreamer. It also contains helper libraries and base 
+gst-plugins-base: classes useful for writing elements. A wide range of video 
+gst-plugins-base: and audio decoders, encoders, and filters are included.
+gst-plugins-base: 
+gst-plugins-base: gst-plugins-base is a an essential exemplary set of plugins
+gst-plugins-base: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gst-plugins-base-1.18.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
