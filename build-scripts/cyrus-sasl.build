@@ -1,0 +1,79 @@
+#! /bin/bash
+
+# Cyrus SASL 
+# Source: https://github.com/cyrusimap/cyrus-sasl/releases/download/cyrus-sasl-2.1.27/cyrus-sasl-2.1.27.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  Berkeley DB
+# Optional:     Linux-PAM, MIT Kerberos V5, MariaDB or MySQL, OpenJDK, OpenLDAP, PostgreSQL, 
+# Optional:     SQLite, krb4, Dmalloc, Pod::POM::View::Restructured, and Sphinx 
+
+patch -Np1 -i ../patches/cyrus-sasl-alpine/CVE-2019-19906.patch
+patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-as_needed.patch
+patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-autotools_fixes.patch
+patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-avoid_pic_overwrite.patch
+patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-doc_build_fix.patch
+patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-gss_c_nt_hostbased_service.patch
+autoreconf -fvi &&
+
+./configure \
+		--prefix=/usr \
+		--sysconfdir=/etc \
+		--localstatedir=/var \
+		--mandir=/usr/share/man \
+		--enable-static \
+		--enable-shared \
+		--disable-java \
+		--with-plugindir=/usr/lib/sasl2 \
+		--with-configdir=/etc/sasl2 \
+		--with-dbpath=/etc/sasl2/sasldb2 \
+		--disable-krb4 \
+		--enable-gssapi \
+		--with-rc4 \
+		--with-dblib=gdbm \
+		--with-saslauthd=/run/saslauthd \
+		--without-pwcheck \
+		--with-devrandom=/dev/urandom \
+		--with-sqlite \
+		--enable-anon \
+		--enable-cram \
+		--enable-digest \
+		--enable-ntlm \
+		--enable-plain \
+		--enable-login \
+		--enable-auth-sasldb \
+		--enable-alwaystrue \
+		--disable-otp $BUILDTRUPLE &&
+read -p "Compile?" && make -j1 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+          |-----handy-ruler------------------------------------------------------|
+cyrus-sasl: cyrus-sasl (Simple Authentication and Security Layer)
+cyrus-sasl:
+cyrus-sasl: This is the Cyrus SASL library.  Cyrus SASL is used by mail programs 
+cyrus-sasl: on the client or server side to provide authentication and
+cyrus-sasl: authorization services.  See RFC 2222 for more information.
+cyrus-sasl:
+cyrus-sasl:
+cyrus-sasl:
+cyrus-sasl:
+cyrus-sasl:
+cyrus-sasl:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/cyrus-sasl-2.1.27-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
