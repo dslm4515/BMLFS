@@ -66,7 +66,7 @@ LDFLAGS=$LDFLAGS \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make INSTALL_ROOT=$BUILD install &&
-unset CFLAGS CXXFLAGS LDFLAGS &&
+unset CFLAGS CXXFLAGS LDFLAGS LD_LIBRARY_PATH &&
 sudo -S -E find ${BUILD}/opt/qt5/ -name \*.prl \
    -exec sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \; &&
 sudo -S install -v -dm755 ${BUILD}/usr/share/pixmaps/ &&
