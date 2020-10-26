@@ -1,0 +1,46 @@
+#! /bin/bash
+
+# Geany
+# Source: https://download.geany.org/geany-1.37.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     vte, GTK+3
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure \
+		--prefix=/usr \
+		--enable-vte \
+		--enable-gtk3 $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+geany: Geany (small and lightweight Integrated Development Environment)
+geany:
+geany: Geany is a text editor using the GTK2 toolkit with basic features of
+geany: an integrated development environment. It was developed to provide a
+geany: small and fast IDE, which has only a few dependencies from other
+geany: packages. It supports many filetypes and has some nice features.
+geany:
+geany: Homepage: http://geany.uvena.de/
+geany:
+geany:
+geany:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/geany-1.37-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

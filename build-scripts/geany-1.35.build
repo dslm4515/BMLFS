@@ -1,9 +1,0 @@
-#! /bin/bash
-
-# Geany 1.35
-# source: https://download.geany.org/geany-1.35.tar.bz2
-
-./configure --prefix=/usr --sysconfdir=/etc $BUILDTRUPLE &&
-
-read -p "Compile?" && make -j2 &&
-read -p "Install?" && sudo -S porg -lD "make install"
