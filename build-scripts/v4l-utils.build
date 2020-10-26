@@ -1,0 +1,51 @@
+#! /bin/bash
+
+# v4l-utils
+# Source: https://www.linuxtv.org/downloads/v4l-utils/v4l-utils-1.20.0.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     LLVM
+# Recommended:  alsa-lib, GLU, libjpeg-turbo, and Qt
+# Optional:     Doxygen, SDL2
+
+patch -Np1 -i ../patches/v4l-utils-alpine/getsubopt.patch
+patch -Np1 -i ../patches/v4l-utils-alpine/types.patch
+export CFLAGS="$CFLAGS -D__off_t=off_t" &&
+export LIBS="-largp -lintl" &&
+./configure --prefix=/usr     \
+            --sysconfdir=/etc \
+            --disable-static  \
+            --enable-libdvbv5 $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+unset CFLAGS LIBS &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+v4l-utils: v4l-utils (libraries and utilities for video4linux)
+v4l-utils:
+v4l-utils: libv4l is a collection of libraries which adds a thin abstraction
+v4l-utils: layer on top of video4linux2 devices.  The purpose of this (thin)
+v4l-utils: layer is to make it easy for application writers to support a wide
+v4l-utils: variety of devices without having to write separate code for
+v4l-utils: different devices in the same class.  Linux V4L2 and DVB API
+v4l-utils: utilities are also included.
+v4l-utils:
+v4l-utils: Homepage:  http://linuxtv.org
+v4l-utils:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/v4l-utils-1.20.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
