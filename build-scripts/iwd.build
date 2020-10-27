@@ -11,6 +11,28 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# Make sure kernel has these symbols enabled:
+#        CONFIG_CRYPTO_USER_API_HASH 
+#        CONFIG_CRYPTO_USER_API_SKCIPHER
+#        CONFIG_KEY_DH_OPERATIONS
+#        CONFIG_CRYPTO_ECB
+#        CONFIG_CRYPTO_MD5
+#        CONFIG_CRYPTO_CBC
+#        CONFIG_CRYPTO_SHA256
+#        CONFIG_CRYPTO_AES
+#        CONFIG_CRYPTO_DES
+#        CONFIG_CRYPTO_CMAC
+#        CONFIG_CRYPTO_HMAC
+#        CONFIG_CRYPTO_SHA512
+#        CONFIG_CRYPTO_SHA1
+# Additional symbols:
+#        CONFIG_CRYPTO_SHA1_SSSE3
+#        CONFIG_CRYPTO_AES_NI_INTEL
+#        CONFIG_CRYPTO_SHA512_SSSE3
+#        CONFIG_CRYPTO_AES_X86_64
+#        CONFIG_CRYPTO_DES3_EDE_X86_64
+#        CONFIG_CRYPTO_SHA256_SSSE3
+
 patch -Np0 -i ../patches/iwd-void/fix-name-request.patch
 patch -Np0 -i ../patches/iwd-void/musl-rawmemchr.patch
 
@@ -18,10 +40,12 @@ autoreconf -fiv
 
 ./configure --prefix=/usr \
             --disable-systemd-service \
-	    --enable-pie \
-	    --enable-external-ell \
-	    --enable-dbus-policy \
-	    --enable-wired $BUILDTRUPLE
+	        --enable-pie \
+	        --enable-external-ell \
+	        --enable-dbus-policy \
+	        --enable-wired \
+	        --localstatedir=/var \
+	        --sysconfdir=/etc $BUILDTRUPLE
 
 read -p "Compile? " && make -j2 && 
 
