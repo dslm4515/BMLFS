@@ -19,7 +19,7 @@ sed -e 's#l \(gtk-.*\).sgml#& -o \1#' \
 
 libtoolize --force && aclocal -I m4 && autoconf && automake --add-missing &&
 
-./configure --prefix=/usr --sysconfdir=/etc $BUILDTRUPLE &&
+./configure --prefix=/usr --sysconfdir=/etc --with-xinput=yes $BUILDTRUPLE &&
 sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool &&
 read -p "Compile?" && make -j2 &&
 
