@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# Six
+# Source: https://files.pythonhosted.org/packages/source/s/six/six-1.15.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Python2
+# Recommended:  Python3
+# Optional:     NONE
+
+python2 setup.py build &&
+python3 setup.py build &&
+
+
+sudo -S python2 setup.py install --optimize=1 --prefix=/usr --root=${BUILD} &&
+sudo -S python3 setup.py install --optimize=1 --prefix=/usr --root=${BUILD} &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+   |-----handy-ruler------------------------------------------------------|
+six: six (Python 2 and 3 compatibility utilities)
+six:
+six: Six is a Python 2 and 3 compatibility library. It provides utility
+six: functions for smoothing over the differences between the Python
+six: versions with the goal of writing Python code that is compatible on
+six: both Python versions. See the documentation for more information on
+six: what is provided.
+six:
+six: Homepage: http://pypi.python.org/pypi/six/
+six:
+six:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/six-1.15.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
