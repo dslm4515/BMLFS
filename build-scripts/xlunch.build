@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# xlunch
+# Source: https://github.com/Tomas-M/xlunch/archive/v4.5.4.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     imlib2, xlib
+# Recommended:  NONE
+# Optional:     NONE
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+xlunch: xlunch
+xlunch:
+xlunch: A graphical app launcher for Xorg/X11. It requires only pure Xlib 
+xlunch: and Imlib2. It allows you to run programs, commands, or simply 
+xlunch: select something out of a list using your mouse, keyboard, or both.
+xlunch: UTF8 is fully supported meaning you can have text of all kinds. 
+xlunch: The prompt allows you to run arbitrary commands, and it works to 
+xlunch: filter your entries as well. xlunch is also highly configurable, 
+xlunch: both in functionality and style
+xlunch: Homepage: https://github.com/Tomas-M/xlunch
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/xlunch-4.5.4-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

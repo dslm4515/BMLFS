@@ -1,7 +1,0 @@
-#! /bin/bash
-
-# xlunch 4.5.3
-# Source: https://github.com/Tomas-M/xlunch/archive/v4.5.3.tar.gz
-
-make -j2  &&
-read -p "Install? " && sudo -S porg -lD "make  install"
