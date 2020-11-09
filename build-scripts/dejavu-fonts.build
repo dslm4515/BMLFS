@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# dejavu-fonts
+# Source: https://sourceforge.net/projects/dejavu/files/dejavu/2.37/dejavu-fonts-ttf-2.37.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+sudo -S mkdir -pv ${BUILD}/usr/share/fonts/ttf-dejavu \
+                  ${BUILD}/etc/fonts/conf.avail       \
+                  ${BUILD}/etc/fonts/conf.d           &&
+sudo -S install   -m644 ttf/*.ttf                     \
+                  ${BUILD}/usr/share/fonts/ttf-dejavu &&
+sudo -S install   -m644 fontconfig/*.conf             \
+                  ${BUILD}/etc/fonts/conf.avail       &&
+sudo -S install   -m644 ../files/dejavu-fonts-alpine/*.conf  \
+                  ${BUILD}/etc/fonts/conf.avail       &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                |-----handy-ruler------------------------------------------------------|
+dejavu-fonts-ttf: dejavu-fonts-ttf (DejaVu fonts)
+dejavu-fonts-ttf:
+dejavu-fonts-ttf: The DejaVu fonts are a font family based on the Bitstream Vera Fonts
+dejavu-fonts-ttf: (http://gnome.org/fonts/).  Its purpose is to provide a wider range
+dejavu-fonts-ttf: of characters (see http://dejavu.sf.net for more information) while
+dejavu-fonts-ttf: maintaining the original look and feel.
+dejavu-fonts-ttf:
+dejavu-fonts-ttf: DejaVu fonts are based on Bitstream Vera fonts version 1.10.
+dejavu-fonts-ttf:
+dejavu-fonts-ttf:
+dejavu-fonts-ttf:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/dejavu-fonts-ttf-2.37-noarch-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
