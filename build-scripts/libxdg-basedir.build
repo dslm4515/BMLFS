@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# libxdg-basedir
+# Source: https://github.com/davmac314/libxdg-basedir/releases/download/v1.2.2/libxdg-basedir-1.2.2.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+./autogen.sh &&
+./configure $BUILDTRUPLE \
+            --prefix=/usr \
+            --sysconfdir=/etc \
+            --disable-static   &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+              |-----handy-ruler------------------------------------------------------|
+libxdg-basedir: libxdg-basedir (XDG Base Directory implementation)
+libxdg-basedir:
+libxdg-basedir: The XDG Base Directory Specification defines where should user files
+libxdg-basedir: be looked for by defining one or more base directories relative in
+libxdg-basedir: with they should be located.
+libxdg-basedir:
+libxdg-basedir: This library implements functions to list the directories according
+libxdg-basedir: to the specification and provides a few higher-level functions.
+libxdg-basedir:
+libxdg-basedir: homepage: http://www.ohloh.net/p/libxdg-basedir
+libxdg-basedir:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libxdg-basedir-1.2.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
