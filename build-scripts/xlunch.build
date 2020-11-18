@@ -7,9 +7,12 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     imlib2, xlib
+# Required:     imlib2, X Org System
 # Recommended:  NONE
 # Optional:     NONE
+
+patch -Np0 -i ../patches/xlunch-void/musl.patch    &&
+patch -Np0 -i ../patches/xlunch-void/ldflags.patch &&
 
 read -p "Compile?" && make -j2 &&
 
