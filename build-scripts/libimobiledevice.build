@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# libimobiledevice
+# Source: https://github.com/libimobiledevice/libimobiledevice/releases/download/1.3.0/libimobiledevice-1.3.0.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libusbmuxd, libplist, Cython, libusb
+# Recommended:  NONE
+# Optional:     NONE
+
+# LibreSSL does not provide this function
+sed -e '/SSL_CTX_set_security_level/d' -i src/idevice.c &&
+sed -e 's,-L$(libdir),,g' -i cython/Makefile.am         &&
+autoreconf -vfi &&
+
+./configure --prefix=/usr --disable-static $BUILDTRUPLE PYTHON=/usr/bin/python3 &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                |-----handy-ruler------------------------------------------------------|
+libimobiledevice: libimobiledevice (library for connecting to Apple's iPhone or iPod)
+libimobiledevice:
+libimobiledevice: libimobiledevice is a library for connecting to Apple's iPhone 
+libimobiledevice: or iPod touch devices 
+libimobiledevice:
+libimobiledevice:
+libimobiledevice:
+libimobiledevice:
+libimobiledevice:
+libimobiledevice:
+libimobiledevice:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libimobiledevice-1.3.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
