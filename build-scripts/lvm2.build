@@ -1,0 +1,54 @@
+#! /bin/bash
+
+# LVM2
+# Source: ftp://sourceware.org/pub/lvm2/LVM2.2.03.10.tgz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libaio
+# Recommended:  NONE
+# Optional:     mdadm,  reiserfsprogs, valgrind, xfsprogs, thin-provisioning-tools
+
+patch -Np1 -i ../patches/LVM2-alpine/fix-stdio-usage.patch             &&
+patch -Np1 -i ../patches/LVM2-alpine/library_dir-default-config.patch  &&
+patch -Np1 -i ../patches/LVM2-alpine/mlockall-default-config.patch     &&
+patch -Np1 -i ../patches/LVM2-adelie/mallinfo.patch                    &&
+
+SAVEPATH=$PATH                  &&
+PATH=$PATH:/sbin:/usr/sbin      &&
+./configure --prefix=/usr       \
+            --exec-prefix=      \
+            --enable-cmdlib     \
+            --enable-pkgconfig  \
+            --enable-udev_sync $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+lvm2: lvm2 (Logical Volume Manager version 2)
+lvm2:
+lvm2: Heinz Mauelshagen's LVM (Logical Volume Manager) for Linux.
+lvm2: LVM adds an additional layer between the physical peripherals and the
+lvm2: low-level I/O interface to get a logical view of disks.  This allows
+lvm2: the concatenation of several disks (so-called physical volumes or PVs)
+lvm2: to form a storage pool (so-called Volume Group or VG) with allocation
+lvm2: units called physical extents (called PE).  With LVM, you can extend,
+lvm2: resize, or relocate storage dynamically.
+lvm2:
+lvm2:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/lvm2-2.03.10-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
