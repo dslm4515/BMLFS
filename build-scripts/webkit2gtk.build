@@ -1,0 +1,78 @@
+#! /bin/bash
+
+# WebKit2 GTK+
+# Source: https://webkitgtk.org/releases/webkitgtk-2.30.2.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Cairo, CMake, gst-plugins-base, gst-plugins-bad, GTK+3
+# Required:     ICU, libgudev, libsecret, libsoup, libwebp, Mesa, OpenJPEG
+# Required:     Ruby, SQLite, Which
+# Recommended:  enchant, GeoClue, goobject-introspection, hicolor-icon-theme, libnotify
+# Optional:     bubblewrap, GTK-Doc, harfuzz, Wayland, WOFF2, ccache, Hyphen, MathML,
+# Optional:     WPEBackend-fdo, and xdg-dbus-proxy, libseccomp, xdg-dbus-proxy
+
+patch -Np1 -i ../patches/webkit2gtk-alpine/fix-fast-memory-disabled.patch
+patch -Np1 -i ../patches/webkit2gtk-alpine/fix-openjpeg.patch
+patch -Np1 -i ../patches/webkit2gtk-alpine/lower-stack-usage.patch
+patch -Np1 -i ../patches/webkit2gtk-alpine/musl-fixes.patch
+patch -Np1 -i ../patches/webkit2gtk-alpine/use-versioned-libwpe.patch
+
+case $(uname -m) in
+   i686) export CXXFLAGS="$CXXFLAGS -U_FORTIFY_SOURCE -g1";;
+   arm*) export ECONFIG="-DENABLE_JIT=OFF"
+         export CXXFLAGS="$CXXFLAGS -g1" ;;
+esac &&
+
+mkdir build && cd build &&
+cmake -GNinja \
+      -DPORT=GTK \
+      -DCMAKE_BUILD_TYPE=MinSizeRel \
+      -DCMAKE_SKIP_RPATH=ON \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DLIB_INSTALL_DIR=/usr/lib \
+      -DENABLE_GTKDOC=OFF \
+      -DENABLE_GEOLOCATION=ON \
+      -DENABLE_SAMPLING_PROFILER=OFF \
+      -DENABLE_MINIBROWSER=ON \
+      -DUSE_WPE_RENDERER=ON \
+      -DUSE_WOFF2=ON \
+      -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+      -DUSE_LD_GOLD=OFF \
+      -DUSE_SYSTEMD=OFF \
+      -DUSE_LIBHYPHEN=OFF \
+      -DENABLE_GLES2=ON $ECONFIG ..
+
+
+read -p "Compile?" && ninja JavaScriptCore-4-gir && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja install &&
+unset CXXFLAGS ECONFIG CXXFLAGS
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+          |-----handy-ruler------------------------------------------------------|
+webkit2gtk: webkit2gtk (Web content rendering)
+webkit2gtk:
+webkit2gtk: WebKitGTK+ is a full-featured port of the WebKit rendering engine,
+webkit2gtk: suitable for projects requiring any kind of web integration, from
+webkit2gtk: hybrid HTML/CSS applications to full-fledged web browsers.
+webkit2gtk: It offers WebKit's full functionality and is useful in a wide range
+webkit2gtk: of systems from desktop computers to embedded systems like phones,
+webkit2gtk: tablets, and televisions.
+webkit2gtk:
+webkit2gtk: https://www.webkitgtk.org/
+webkit2gtk:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/webkit2gtk-2.30.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
