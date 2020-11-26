@@ -1,0 +1,56 @@
+#! /bin/bash
+
+# libva-vdpau-driver
+# Source: https://freedesktop.org/software/vaapi/releases/libva-vdpau-driver/libva-vdpau-driver-0.7.4.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libva, mesa, libvdpau
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/libva-vdpau-driver-alpine/musl-fixes.patch
+patch -Np1 -i ../patches/libva-vdpau-driver-alpine/libva-vdpau-driver-0.7.4-VAEncH264VUIBufferType.patch
+patch -Np1 -i ../patches/libva-vdpau-driver-alpine/libva-vdpau-driver-0.7.4-glext-missing-definition.patch
+patch -Np1 -i ../patches/libva-vdpau-driver-alpine/libva-vdpau-driver-0.7.4-libvdpau-0.8.patch
+cp -v ../files/config.sub-musl config.sub
+cp -v ../files/config.guess-musl config.guess
+sed -e '/v4l2_buffer/d' \
+    -e '/v4l2_format/d' \
+    -i src/vdpau_video.c \
+    -i src/vdpau_video.h
+
+./configure --prefix=/usr \
+            --sysconfdir=/etc \
+            --localstatedir=/var $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                  |-----handy-ruler------------------------------------------------------|
+libva-vdpau-driver: libva-vdpau-driver (VDPAU backend for VA API)
+libva-vdpau-driver:
+libva-vdpau-driver: libva-vdpau-driver consists in a VDPAU-based backend for VA API.
+libva-vdpau-driver:
+libva-vdpau-driver:
+libva-vdpau-driver:
+libva-vdpau-driver:
+libva-vdpau-driver:
+libva-vdpau-driver:
+libva-vdpau-driver: Home: http://www.freedesktop.org/wiki/Software/vaapi/
+libva-vdpau-driver:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/package-version-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
