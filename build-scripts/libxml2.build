@@ -11,11 +11,20 @@
 # Recommended:  NONE
 # Optional:     Python2, ICU, Valgrind
 
-patch -Np0 -i ../patches/libxml2-void/CVE-2019-20388.patch &&
-
 autoreconf -fvi &&
 
-sed '/PROGRAMS =/s,$(noinst_PROGRAMS),,' -i Makefile.in &&
+patch -Np1 -i ../patches/libxml2-adelie/CVE-2019-20388.patch
+patch -Np1 -i ../patches/libxml2-adelie/CVE-2020-7595.patch
+patch -Np1 -i ../patches/libxml2-adelie/python-segfault-fix.patch
+
+# Prevent errors from Python 3.9
+sed -i '/if Py/{s/Py/(Py/;s/)/))/}' python/{types.c,libxml.c}
+sed -i '/_PyVerify_fd/,+1d' python/types.c
+
+# If using ICU
+# sed -i 's/ TRUE/ true/' encoding.c
+
+rm python/setup.py
 
 ./configure --prefix=/usr    \
             --disable-static \
