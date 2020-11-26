@@ -1,0 +1,56 @@
+#! /bin/bash
+
+# dvd+rw-tools
+# Source: http://fy.chalmers.se/~appro/linux/DVD+RW/tools/dvd+rw-tools-7.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cdrtools
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np0 -i ../patches/dvd+rw-tools-void/dvddl.patch  &&
+patch -Np0 -i ../patches/dvd+rw-tools-void/wctomb.patch &&
+patch -Np0 -i ../patches/dvd+rw-tools-void/wexit.patch  &&
+patch -Np0 -i ../patches/dvd+rw-tools-void/glibc.patch  &&
+sed -i '/stat.h/a #include <sys/sysmacros.h>' growisofs.c &&
+sed -i '/stdlib/a #include <limits.h>' transport.hxx &&
+
+read -p "Compile?" && make -j2 all rpl8 btcflash &&
+
+sudo -S  mkdir -pv ${BUILD}/usr/bin                                &&
+for b in dvd+rw-booktype dvd+rw-format dvd+rw-format \
+         dvd-ram-control growisofs; do
+         sudo -S cp -v $b ${BUILD}/usr/bin/
+done &&
+sudo -S  chmod -v 755 ${BUILD}/usr/bin/*  &&
+sudo -S  mkdir -pv ${BUILD}/usr/man/man1  &&
+sudo -S  cp -v growisofs.1 ${BUILD}/usr/man/man1/growisofs.1 &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+            |-----handy-ruler------------------------------------------------------|
+dvd+rw-tools: dvd+rw-tools (DVD+-RW tools)
+dvd+rw-tools:
+dvd+rw-tools: A collection of tools to master DVD+RW/+R/-R/-RW media.  For further
+dvd+rw-tools: information see http://fy.chalmers.se/~appro/linux/DVD+RW/.
+dvd+rw-tools:
+dvd+rw-tools: The DVD+RW tools were written by Andy Polyakov.
+dvd+rw-tools:
+dvd+rw-tools:
+dvd+rw-tools:
+dvd+rw-tools:
+dvd+rw-tools:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/dvd+rw-tools-7.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
