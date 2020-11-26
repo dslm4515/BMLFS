@@ -1,0 +1,59 @@
+#! /bin/bash
+
+# libmad
+# Source: ftp://ftp.mars.org/pub/mpeg/libmad-0.15.1b.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np0 -i ../patches/libmad-void/CVE-2017-8372.patch &&
+patch -Np0 -i ../patches/libmad-void/CVE-2017-8374.patch &&
+patch -Np0 -i ../patches/libmad-void/amd64-64bit.diff    &&
+#patch -Np0 -i ../patches/libmad-void/libmad.patch        &&
+patch -Np0 -i ../patches/libmad-void/optimize.diff       &&
+patch -Np0 -i ../patches/libmad-void/mips-mode_di.patch  &&
+
+sed "s@AM_CONFIG_HEADER@AC_CONFIG_HEADERS@g" -i configure.ac &&
+touch NEWS AUTHORS ChangeLog                                 &&
+autoreconf -fvi                                               &&
+
+cp -v ../files/config.sub-musl config.sub      &&
+cp -v ../files/config.guess-musl config.guess  &&
+
+./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S install -v -D -m644 ../files/libmad-lfs/mad.pc \
+                            ${BUILD}/usr/lib/pkgconfig/mad.pc &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+libmad: libmad (high-quality MPEG audio library)
+libmad:
+libmad: MAD (libmad) is a high-quality MPEG audio decoder.  It currently
+libmad: supports MPEG-1 and the MPEG-2 extension to Lower Sampling
+libmad: Frequencies, as well as the so-called MPEG 2.5 format.  All three
+libmad: audio layers (Layer I, Layer II, and Layer III a.k.a. MP3) are
+libmad: fully implemented.  Because MAD provides full 24-bit PCM output,
+libmad: applications using MAD are able to produce high quality audio.
+libmad: MAD is distributed under the terms of the GPL.
+libmad:
+libmad: MAD (libmad) was written by Robert Leslie.
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libmad-0.15.1b-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

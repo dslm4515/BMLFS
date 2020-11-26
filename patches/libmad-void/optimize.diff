@@ -1,13 +1,5 @@
-Submitted By:            Igor Živković <contact at igor hyphen zivkovic dot from dot hr>
-Date:                    2013-07-04
-Initial Package Version: 0.15.1b
-Upstream Status:         Reported
-Origin:                  Arch Linux packages repository
-Description:             Fixes compilation on x86-64 and optimization issues.
-
-diff -Naur libmad-0.15.1b.orig/configure.ac libmad-0.15.1b/configure.ac
---- libmad-0.15.1b.orig/configure.ac	2004-01-23 10:41:32.000000000 +0100
-+++ libmad-0.15.1b/configure.ac	2013-07-04 15:55:09.323764417 +0200
+--- configure.ac	2008-03-07 20:31:23.000000000 +0000
++++ configure.ac	2008-03-07 20:34:26.000000000 +0000
 @@ -124,71 +124,7 @@
  
  if test "$GCC" = yes
@@ -81,11 +73,3 @@ diff -Naur libmad-0.15.1b.orig/configure.ac libmad-0.15.1b/configure.ac
  fi
  
  case "$host" in
-@@ -297,6 +233,7 @@
- then
-     case "$host" in
- 	i?86-*)     FPM="INTEL"  ;;
-+	x86_64*)    FPM="64BIT"  ;;
- 	arm*-*)     FPM="ARM"    ;;
- 	mips*-*)    FPM="MIPS"   ;;
- 	sparc*-*)   FPM="SPARC"  ;;
