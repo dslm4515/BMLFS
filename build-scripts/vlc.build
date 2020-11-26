@@ -1,0 +1,60 @@
+#! /bin/bash
+
+# 
+# Source: https://download.videolan.org/vlc/3.0.11.1/vlc-3.0.11.1.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     lua
+# Recommended:  gst-plugins-ugly
+# Optional:     NONE
+
+patch -Np0 -i ../patches/vlc-void/fix-waitpid-usage.patch
+patch -Np0 -i ../patches/vlc-void/fribidi_allow_deprecated.patch
+patch -Np0 -i ../patches/vlc-void/qt_5_15.patch
+
+NOCONFIGURE=1 ./bootstrap &&
+sed -i -e 's;tar cvvzf;tar cvzf;' share/Makefile.am share/Makefile.in &&
+sed 's|pl_shader_alloc(tc->pl_ctx, NULL, 0, 0);|pl_shader_alloc(tc->pl_ctx, NULL, 0);|' -i modules/video_output/opengl/vout_helper.c && 
+sed -i '/vlc_demux.h/a #define LUA_COMPAT_APIINTCASTS' modules/lua/vlc.h 
+# Fix configure script to find lua-5.4
+patch -Np1 -i ../patches/vlc-mlfs/configure-lua.patch
+
+CFLAGS=" -fcommon -D_GNU_SOURCE" CXXFLAGS="-fcommon" \
+BUILDCC="gcc -std=c99" \
+./configure --prefix=/usr    \
+            --disable-vpx \
+            --enable-x264 \
+            --enable-merge-ffmpeg \
+            --without-mpg123 $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD  docdir=/usr/share/doc/vlc-3.0.11.1 install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+   |-----handy-ruler------------------------------------------------------|
+vlc: vlc (VLC media player)
+vlc:
+vlc: VLC media player is a free and open source media player and multi-
+vlc: media framework written by the VideoLAN project. VLC is a portable
+vlc: multimedia player, encoder, and streamer supporting many audio and
+vlc: video codecs and file formats as well as DVDs, VCDs, and various
+vlc: streaming protocols. It is able to stream over networks and to
+vlc: transcode multimedia files and save them into various formats.
+vlc:
+vlc: homepage: http://www.videolan.org/vlc/
+vlc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/vlc-3.0.11.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
