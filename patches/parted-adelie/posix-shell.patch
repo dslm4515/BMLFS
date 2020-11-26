@@ -1,0 +1,69 @@
+--- parted-3.2/tests/t0205-gpt-list-clobbers-pmbr.sh.old	2014-06-15 18:17:43.000000000 +0000
++++ parted-3.2/tests/t0205-gpt-list-clobbers-pmbr.sh	2019-10-04 23:36:26.560000000 +0000
+@@ -37,7 +37,7 @@
+ # Write non-NUL bytes all over the MBR, so we're likely to see any change.
+ # However, be careful to leave the type of the first partition, 0xEE,
+ # as well as the final two magic bytes.
+-printf '%0450d\xee%059d\x55\xaa' 0 0 | dd of=$dev count=1 conv=notrunc || fail=1
++printf '%0450d\356%059d\125\252' 0 0 | dd of=$dev count=1 conv=notrunc || fail=1
+ 
+ dd if=$dev of=before count=1 || fail=1
+ 
+--- parted-3.2/tests/t0206-gpt-print-with-corrupt-primary-clobbers-pmbr.sh.old	2014-06-15 18:17:43.000000000 +0000
++++ parted-3.2/tests/t0206-gpt-print-with-corrupt-primary-clobbers-pmbr.sh	2019-10-04 23:37:08.760000000 +0000
+@@ -33,7 +33,7 @@
+ # Write non-NUL bytes all over the MBR, so we're likely to see any change.
+ # However, be careful to leave the type of the first partition, 0xEE,
+ # as well as the final two magic bytes.
+-printf '%0450d\xee%059d\x55\xaa' 0 0 | dd of=$dev count=1 conv=notrunc || fail=1
++printf '%0450d\356%059d\125\252' 0 0 | dd of=$dev count=1 conv=notrunc || fail=1
+ 
+ dd if=$dev of=before count=1 || fail=1
+ 
+--- parted-3.2/tests/t-local.sh.old	2014-06-15 18:17:43.000000000 +0000
++++ parted-3.2/tests/t-local.sh	2019-10-04 23:48:32.670000000 +0000
+@@ -135,7 +135,7 @@
+ peek_()
+ {
+   case $# in 2) ;; *) echo "usage: peek_ FILE 0_BASED_OFFSET" >&2; exit 1;; esac
+-  case $2 in *[^0-9]*) echo "peek_: invalid offset: $2" >&2; exit 1 ;; esac
++  case $2 in *[!0-9]*) echo "peek_: invalid offset: $2" >&2; exit 1 ;; esac
+   dd if="$1" bs=1 skip="$2" count=1
+ }
+ 
+@@ -143,7 +143,7 @@
+ {
+   case $# in 3) ;; *) echo "usage: poke_ FILE 0_BASED_OFFSET BYTE" >&2; exit 1;;
+     esac
+-  case $2 in *[^0-9]*) echo "poke_: invalid offset: $2" >&2; exit 1 ;; esac
++  case $2 in *[!0-9]*) echo "poke_: invalid offset: $2" >&2; exit 1 ;; esac
+   case $3 in ?) ;; *) echo "poke_: invalid byte: '$3'" >&2; exit 1 ;; esac
+   printf %s "$3" | dd of="$1" bs=1 seek="$2" count=1 conv=notrunc
+ }
+@@ -152,7 +152,7 @@
+ gpt1_pte_name_offset_()
+ {
+   local ss=$1
+-  case $ss in *[^0-9]*) echo "$0: invalid sector size: $ss">&2; return 1;; esac
++  case $ss in *[!0-9]*) echo "$0: invalid sector size: $ss">&2; return 1;; esac
+   expr $ss \* 2 + 56
+   return 0
+ }
+@@ -164,7 +164,7 @@
+   case $# in 2) ;; *) echo "$0: expected 2 args, got $#" >&2; return 1;; esac
+   local dev=$1
+   local ss=$2
+-  case $ss in *[^0-9]*) echo "$0: invalid sector size: $ss">&2; return 1;; esac
++  case $ss in *[!0-9]*) echo "$0: invalid sector size: $ss">&2; return 1;; esac
+ 
+   # get the first byte of the name
+   local orig_pte_name_byte
+@@ -185,7 +185,7 @@
+   case $# in 3) ;; *) echo "$0: expected 2 args, got $#" >&2; return 1;; esac
+   local dev=$1
+   local ss=$2
+-  case $ss in *[^0-9]*) echo "$0: invalid sector size: $ss">&2; return 1;; esac
++  case $ss in *[!0-9]*) echo "$0: invalid sector size: $ss">&2; return 1;; esac
+   local orig_byte=$3
+   poke_ $dev $(gpt1_pte_name_offset_ $ss) "$orig_byte" || return 1
+ }
