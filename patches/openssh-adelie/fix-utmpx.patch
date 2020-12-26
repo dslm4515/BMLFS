@@ -1,0 +1,15 @@
+--- openssh-7.7p1/loginrec.c.old 2018-04-02 00:38:28.000000000 -0500
++++ openssh-7.7p1/loginrec.c 2018-06-15 22:09:00.091482769 -0500
+@@ -1659,7 +1659,11 @@
+     const char *ttyn)
+ {
+  int fd;
++#if defined(USE_UTMPX)
++ struct utmpx ut;
++#else
+  struct utmp ut;
++#endif
+  struct sockaddr_storage from;
+  socklen_t fromlen = sizeof(from);
+  struct sockaddr_in *a4;
+

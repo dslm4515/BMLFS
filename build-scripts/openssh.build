@@ -31,9 +31,11 @@ export CFLAGS="${CFLAGS} -Wno-format-truncation -Wno-stringop-truncation"
 
 patch -Np0 -i ../patches/openssh-void/config.patch   &&  
 patch -Np0 -i ../patches/openssh-void/libressl.patch &&
+patch -Np1 -i ../patches/openssh-adelie/fix-utmpx.patch &&
 
 autoreconf -fiv &&
 
+LIBS="-lutmps -lskarnet" \
 ac_cv_header_sys_cdefs_h=false \
 ./configure --prefix=/usr \
             --sysconfdir=/etc/ssh \
@@ -44,8 +46,7 @@ ac_cv_header_sys_cdefs_h=false \
             --without-selinux \
             --without-rpath \
             --with-ssl-engine \
-            --disable-wtmp \
-            --disable-utmp \
+            --enable-wtmp \
             --with-Werror=no $BUILDTRUPLE  &&
 read -p "Compile? " && make -j2 &&
 
