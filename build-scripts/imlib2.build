@@ -11,6 +11,7 @@
 # Recommended:  NONE
 # Optional:     libpng, libjpeg-turbo, LibTIFF, giflib, and libid3tag 
 
+patch -Np0 -i ../patches/imlib2-void/be.patch
 
 ./configure $BUILDTRUPLE  \
             --prefix=/usr \

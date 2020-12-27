@@ -1,0 +1,62 @@
+#! /bin/bash
+
+# GStreamer Bad Plug-ins
+# Source: https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-1.18.1.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     gst-plugins-base
+# Recommended:  libdvdread, libdvdnav, and SoundTouch 
+# Optional:     Bluez, Clutter, cURL, FAAC, FAAD2, fdk-aac, GnuTLS, GTK+2 or GTK+3,
+# Optional:     LCMS, libass, libexif, libgcrypt, libgudev, libmpeg2, librsvg,
+# Optional:     libsndfile, libssh2, libusb, libvdpau, libwebp, libxkbcommon, 
+# Optional:     neon, nettle, openJPEG, opus, Qt5, SBC, SDL, Wayland, x265, Xorg Libraries
+# Optional:     aom, bs2b, Chromaprint, daala, dssim, Flite, FluidSynth, Game Music Emu, 
+# Optional:     GSM, hotdoc, LADSPA, libavtp, libdc1394-2, libdca, libde265, libkate, 
+# Optional:     libmfx, libmimic, libmms, libmodplug, libnice, libofa, libopenmpt, libopenni, 
+# Optional:     libsrtp, lilv, LRDF, microdns, MJPEG Tools, OpenAL, OpenEXR, OpenH264, Orc, 
+# Optional:     rtmpdump, spandsp, srt, svthevcenc, VO AAC, VO AMRWB, Vulkan, WildMidi, 
+# Optional:     WPE-WebKit, WPEBackend-fdo, ZBAR, ZVBI, and zxing
+
+mkdir build &&
+cd    build &&
+
+meson  --prefix=/usr       \
+       -Dbuildtype=release \
+       -Dpackage-origin=https://github.com/dslm4515/BMLFS \
+       -Dpackage-name="GStreamer 1.18.1 BMLFS" \
+       -Dlibde265=enabled \
+       -Dopenh264=enabled \
+       -Dx265=enabled &&
+       
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+               |-----handy-ruler------------------------------------------------------|
+gst-plugins-bad: gst-plugins-bad (bad set of GStreamer plugins)
+gst-plugins-bad:
+gst-plugins-bad: GStreamer Bad Plug-ins is a set of plug-ins that aren't up to par
+gst-plugins-bad: compared to the rest. They might be close to being good quality,
+gst-plugins-bad: but they're missing something - be it a good code review, some
+gst-plugins-bad: documentation, a set of tests, a real live maintainer, or some
+gst-plugins-bad: actual wide use.
+gst-plugins-bad:
+gst-plugins-bad:
+gst-plugins-bad:
+gst-plugins-bad:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gst-plugins-bad-1.18.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
