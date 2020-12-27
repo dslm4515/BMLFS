@@ -1,0 +1,49 @@
+#! /bin/bash
+
+# neon
+# Source: https://notroj.github.io/neon/neon-0.31.2.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     GnuTLS, libxml2, MIT kerberos V5, libproxy, PaKChoiS
+
+./configure --prefix=/usr    \
+            --with-ssl=openssl       \
+            --enable-shared  \
+            --disable-static \
+            --with-expat \
+            --with-ca-bundle=/etc/ssl/certs/ca-certificates.crt $BUILDTRUPLE &&
+            
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+neon: neon (HTTP and WebDAV client library)
+neon:
+neon: neon is an HTTP and WebDAV client library, with a C language API.
+neon: Bindings for other languages may also be available, see the web site
+neon: for more details:  http://www.webdav.org/neon/
+neon:
+neon: The neon library is used by projects such as subversion.
+neon:
+neon:
+neon:
+neon:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/neon-0.31.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

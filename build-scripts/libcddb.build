@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# libcddb
+# Source: https://downloads.sourceforge.net/libcddb/libcddb-1.3.2.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+cp -v ../files/config.sub-musl config.sub     &&
+cp -v ../files/config.guess-musl config.guess &&
+
+./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+libcddb: libcddb (An online CD database library)
+libcddb:
+libcddb: Libcddb is a library that implements the different protocols (CDDBP,
+libcddb: HTTP, SMTP) to access data on a CDDB server (http://freedb.org).
+libcddb:
+libcddb: Visit the project at: http://libcddb.sourceforge.net/
+libcddb:
+libcddb:
+libcddb:
+libcddb:
+libcddb:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libcddb-1.3.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

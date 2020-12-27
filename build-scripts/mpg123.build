@@ -1,0 +1,49 @@
+#! /bin/bash
+
+# mpg123
+# Source: https://downloads.sourceforge.net/mpg123/mpg123-1.26.3.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  alsa-lib
+# Optional:     PulseAudio, SDL, JACK, OpenAL, PortAudio
+
+./configure --prefix=/usr \
+            --disable-lfs-alias \
+            --enable-ipv6=yes \
+            --enable-network=yes \
+            --with-optimization=0 \
+            --with-default-audio=alsa $BUILDTRUPLE &&
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+mpg123: mpg123 (a command-line mp3 player)
+mpg123:
+mpg123: mpg123 is a real time MPEG 1.0/2.0/2.5 audio player/decoder for 
+mpg123: layers 1, 2, and 3 (MPEG 1.0 layer 3 aka MP3 most commonly tested). 
+mpg123:
+mpg123: It is free software licensed under LGPL 2.1.
+mpg123:
+mpg123: Homepage:  http://mpg123.org/
+mpg123:
+mpg123:
+mpg123:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/mpg123-1.26.3-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
