@@ -1,19 +1,22 @@
 #! /bin/bash
 
-# PyCairo
-# Source: https://github.com/pygobject/pycairo/releases/download/v1.20.0/pycairo-1.20.0.tar.gz
+# Atkmm
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/atkmm/2.28/atkmm-2.28.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Cairo, python3
+# Required:     ATK, GLibmm
 # Recommended:  NONE
 # Optional:     NONE
 
-read -p "Compile?" && python3 setup.py build &&
+sed -e '/^libdocdir =/ s/$(book_name)/atkmm-2.28.0/' \
+    -i doc/Makefile.in &&
+./configure --prefix=/usr $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
 
-sudo -S  python3 setup.py install --prefix=/usr --root=${BUILD} &&
+sudo -S make DESTDIR=$BUILD install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -24,19 +27,19 @@ cat > /tmp/slack-desc << "EOF"
 # make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-       |-----handy-ruler------------------------------------------------------|
-pycairo: pycairo (a set of Python 3 bindings for the cairo graphics library)
-pycairo:
-pycairo: Pycairo is set of Python 3 bindings for the cairo graphics library.
-pycairo: 
-pycairo: Pycairo's web site: https://pycairo.readthedocs.io/en/latest/
-pycairo:
-pycairo:
-pycairo:
-pycairo:
-pycairo:
-pycairo:
+     |-----handy-ruler------------------------------------------------------|
+atkmm: atkmm (C++ bindings for ATK)
+atkmm:
+atkmm: atkmm is the C++ binding for the ATK library.
+atkmm: This module is part of the GNOME C++ bindings effort.
+atkmm:
+atkmm:
+atkmm:
+atkmm:
+atkmm:
+atkmm: atkmm home: http://www.gtkmm.org/
+atkmm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pycairo-1.20.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/atkmm-2.28.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*

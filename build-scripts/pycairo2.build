@@ -1,19 +1,21 @@
 #! /bin/bash
 
-# PyCairo
-# Source: https://github.com/pygobject/pycairo/releases/download/v1.20.0/pycairo-1.20.0.tar.gz
+# pyCairo 2
+# Source: https://github.com/pygobject/pycairo/releases/download/v1.18.2/pycairo-1.18.2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Cairo, python3
+# Required:     Cairo, Python2
 # Recommended:  NONE
-# Optional:     NONE
+# Optional:     Hypothesis
 
-read -p "Compile?" && python3 setup.py build &&
+read -p "Compile?" && python2 setup.py build &&
 
-sudo -S  python3 setup.py install --prefix=/usr --root=${BUILD} &&
+sudo -S python2 setup.py install --optimize=1   --prefix=/usr --root=${BUILD} &&
+#sudo -S python2 setup.py install_pycairo_header --prefix=/usr--root=${BUILD} &&
+#sudo -S python2 setup.py install_pkgconfig      --prefix=/usr --root=${BUILD} &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -25,9 +27,9 @@ cat > /tmp/slack-desc << "EOF"
 # customary to leave one space after the ':' except on otherwise blank lines.
 
        |-----handy-ruler------------------------------------------------------|
-pycairo: pycairo (a set of Python 3 bindings for the cairo graphics library)
+pycairo: pycairo (a set of Python 2 bindings for the cairo graphics library)
 pycairo:
-pycairo: Pycairo is set of Python 3 bindings for the cairo graphics library.
+pycairo: Pycairo is set of Python 2 bindings for the cairo graphics library.
 pycairo: 
 pycairo: Pycairo's web site: https://pycairo.readthedocs.io/en/latest/
 pycairo:
@@ -38,5 +40,5 @@ pycairo:
 pycairo:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pycairo-1.20.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/pycairo-1.18.2-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*

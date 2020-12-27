@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# glade 
+# Source: https://download.gnome.org/sources/glade/3.38/glade-3.38.1.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     GTK+3, libxml2, itstool, gobject-introspection, 
+# Recommended:  NONE
+# Optional:     webkit2gtk, pygobject3
+
+# For python 3.9:
+sed -i meson.build -e "/python_dep/s/3.8/3.9/g"
+
+mkdir BUILD && cd BUILD &&
+meson --prefix=/usr -Dgladeui=true .. &&
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+glade: glade (GTK+ User Interface Builder)
+glade:
+glade: Glade is a RAD tool to enable quick & easy development of user
+glade: interfaces for the Gtk+ toolkit and the GNOME desktop environment.
+glade: The user interfaces designed in Glade are stored in XML format,
+glade: enabling easy integration with external tools.
+glade:
+glade: This version of Glade (Glade-3) is a complete rewrite of the original
+glade: Glade codebase.
+glade:
+glade:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/glade-3.38.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

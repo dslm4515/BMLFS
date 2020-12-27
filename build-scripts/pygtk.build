@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# pyGTK2
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/pygtk/2.24/pygtk-2.24.0.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     pyGobject 2, Python2, ATK, Pango, PyCairo(1.18.2), GTK+2, 
+# Recommended:  NONE
+# Optional:     NumPy
+cp -v ../files/config.sub-musl config.sub      &&
+cp -v ../files/config.guess-musl config.guess  &&
+sed -i '1394,1402 d' pango.defs                &&
+./configure --prefix=/usr $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+pygtk: pygtk (GTK+ for Python 2)
+pygtk:
+pygtk: PyGTK provides a convenient wrapper for the GTK+ library for use in
+pygtk: Python programs, taking care of many of the boring details such as
+pygtk: managing memory and type casting.
+pygtk: When combined with PyORBit and gnome-python, it can be used to write
+pygtk: full featured Gnome applications.
+pygtk:
+pygtk:
+pygtk: pygtk home: http://www.pygtk.org/
+pygtk:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/pygtk-2.24.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

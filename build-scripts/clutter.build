@@ -1,0 +1,51 @@
+#! /bin/bash
+
+# Clutter
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/clutter/1.26/clutter-1.26.4.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     ATK, Cogl, Json-glib
+# Recommended:  gobject-introspection, GTK+3, libgudev, libinput, libxkbcommon, Wayland
+# Optional:     GTK-Doc, Tslib
+
+./configure --prefix=/usr               \
+            --sysconfdir=/etc           \
+            --enable-egl-backend        \
+            --enable-gdk-backend \
+            --with-x \
+            --enable-x11-backend \
+            --enable-evdev-input        \
+            --enable-wayland-backend    \
+            --enable-wayland-compositor $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+clutter: clutter (an open source software library)
+clutter: 
+clutter: Clutter is an open source software library for creating fast,
+clutter: visually rich, portable and animated graphical user interfaces.
+clutter:
+clutter:
+clutter:
+clutter:
+clutter:
+clutter:
+clutter:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/clutter-1.26.4-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
