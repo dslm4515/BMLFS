@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# volume_key
+# Source: https://github.com/felixonmars/volume_key/archive/volume_key-0.3.12.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cryptsetup, GLib, GPGME, NSS, SWIG
+# Recommended:  NONE
+# Optional:     Python2
+
+autoreconf -fiv              &&
+./configure --prefix=/usr --sysconfdir=/etc $BUILDTRUPLE &&
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+          |-----handy-ruler------------------------------------------------------|
+volume_key: volume_key (library and cli tools for manipulating storage keys)
+volume_key:
+volume_key: The volume_key project provides a libvolume_key, a library for
+volume_key: manipulating storage volume encryption keys and storing them
+volume_key: separately from volumes, and an associated command-line tool
+volume_key: named volume_key.
+volume_key:
+volume_key: Homepage: https://pagure.io/volume_key/
+volume_key:
+volume_key:
+volume_key:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/volume_key-0.3.12-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
