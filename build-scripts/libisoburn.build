@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# libisoburn
+# Source: http://files.libburnia-project.org/releases/libisoburn-1.5.2.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libburn, libisofs
+# Recommended:  NONE
+# Optional:     Doxygen, Tk, libedit
+
+./configure --prefix=/usr              \
+            --disable-static           \
+            --enable-pkg-check-modules $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+libisoburn: libisoburn (Frontend for libburn and libisofs)
+libisoburn:
+libisoburn: libisoburn is a frontend for libraries libburn and libisofs which
+libisoburn: enables creation and expansion of ISO-9660 filesystems on all
+libisoburn: CD/DVD/BD media supported by libburn. This includes media like DVD+RW,
+libisoburn: which do not support multi-session management on media level and even
+libisoburn: plain disk files or block devices. The price for that is thorough
+libisoburn: specialization on data files in ISO-9660 filesystem images.
+libisoburn:
+libisoburn: Homepage: https://dev.lovelyhq.com/libburnia/web/wikis/Libisoburn
+libisoburn:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libisoburn-1.5.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# cdrdao
+# Source: https://downloads.sourceforge.net/cdrdao/cdrdao-1.2.4.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE 
+# Recommended:  GTKmm, libao, libvorbis, libmad, LAME
+# Optional:     NONE
+
+./configure --prefix=/usr --mandir=/usr/share/man $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+cdrdao: cdrdao (CD burning utility)
+cdrdao:
+cdrdao: cdrdao burns proper disc-at-once (DAO) audio discs.  In DAO mode the
+cdrdao: disc is written in one shot, so you don't have to have irritating 2
+cdrdao: second gaps interrupting a live recording.
+cdrdao:
+cdrdao:
+cdrdao:
+cdrdao:
+cdrdao:
+cdrdao:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/cdrdao-1.2.4-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
