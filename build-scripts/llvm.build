@@ -1,9 +1,10 @@
 #! /bin/bash
 
-# LLVM 10.0.1
-# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-10.0.1/llvm-10.0.1.src.tar.xz
-# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-10.0.1/clang-10.0.1.src.tar.xz
-# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-10.0.1/compiler-rt-10.0.1.src.tar.xz
+# LLVM 11.0.0
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-11.0.0/llvm-11.0.0.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-11.0.0/clang-11.0.0.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-11.0.0/compiler-rt-11.0.0.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-11.0.0/lld-11.0.0.src.tar.xz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -16,26 +17,28 @@
 # Optional:     Zip, OCaml, psutil, recommonmark, Sphinx, and Z3 
 
 
-patch -Np1 -i ../patches/llvm-void/llvm-001-musl.patch
-patch -Np1 -i ../patches/llvm-void/llvm-002-musl-ppc64-elfv2.patch
-patch -Np1 -i ../patches/llvm-void/llvm-003-secureplt.patch
-patch -Np1 -i ../patches/llvm-void/llvm-004-override-opt.patch
-patch -Np1 -i ../patches/llvm-void/llvm-005-ppc-bigpic.patch
-patch -Np1 -i ../patches/llvm-void/llvm-006-aarch64-mf_exec.patch
-patch -Np1 -i ../patches/llvm-void/llvm-007-ppc-d85007.patch
+patch -Np1 -i ../patches/llvm11-void/llvm-001-musl.patch
+patch -Np1 -i ../patches/llvm11-void/llvm-002-ppcle.patch
+patch -Np1 -i ../patches/llvm11-void/llvm-002-musl-ppc64-elfv2.patch
+patch -Np1 -i ../patches/llvm11-void/llvm-003-ppc-secureplt.patch
+patch -Np1 -i ../patches/llvm11-void/llvm-004-override-opt.patch
+patch -Np1 -i ../patches/llvm11-void/llvm-005-ppc-bigpic.patch
+patch -Np1 -i ../patches/llvm11-void/llvm-006-aarch64-mf_exec.patch
 
-tar -xf ../compiler-rt-10.0.1.src.tar.xz  -C projects &&
-mv -v projects/compiler-rt-10.0.1.src  projects/compiler-rt  && cd projects/compiler-rt
-patch -Np1 -i ../../../patches/llvm-void/compiler-rt-armv5.patch
+tar -xf ../compiler-rt-11.0.0.src.tar.xz  -C projects &&
+mv -v projects/compiler-rt-11.0.0.src  projects/compiler-rt
+
+tar -xf ../clang-11.0.0.src.tar.xz -C tools &&
+mv -v tools/clang-11.0.0.src tools/clang && cd tools/clang
+patch -Np1 -i ../../../patches/llvm11-void/clang-001-fix-unwind-chain-inclusion.patch
+patch -Np1 -i ../../../patches/llvm11-void/clang-001-ppcle.patch
+patch -Np1 -i ../../../patches/llvm11-void/clang-002-add-musl-triples.patch
+patch -Np1 -i ../../../patches/llvm11-void/clang-003-ppc64-dynamic-linker-path.patch
+patch -Np1 -i ../../../patches/llvm11-void/clang-004-ppc64-musl-elfv2.patch
 cd -
 
-tar -xf ../clang-10.0.1.src.tar.xz -C tools &&
-mv -v tools/clang-10.0.1.src tools/clang && cd tools/clang
-patch -Np1 -i ../../../patches/llvm-void/clang-001-fix-unwind-chain-inclusion.patch
-patch -Np1 -i ../../../patches/llvm-void/clang-002-add-musl-triples.patch
-patch -Np1 -i ../../../patches/llvm-void/clang-003-ppc64-dynamic-linker-path.patch
-patch -Np1 -i ../../../patches/llvm-void/clang-004-ppc64-musl-elfv2.patch
-cd -
+tar -xf ../lld-11.0.0.src.tar.xz -C tools &&
+mv -v tools/lld-11.0.0.src tools/lld
 
 # Disable sanitizers for musl-based systems
 sed -i 's/set(COMPILER_RT_HAS_SANITIZER_COMMON TRUE)/set(COMPILER_RT_HAS_SANITIZER_COMMON FALSE)/' projects/compiler-rt/cmake/config-ix.cmake &&
@@ -131,5 +134,5 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build and install package" &&
-sudo makepkg -l y -c n $PKGS/llvm-10.0.1-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS/llvm-11.0.0-$(uname -m)-mlfs.txz &&
 sudo rm -rf $BUILD/*
