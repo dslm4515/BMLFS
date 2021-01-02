@@ -1,0 +1,241 @@
+--- Linux-PAM-1.3.1/libpam/pam_modutil_getlogin.c.old	2017-02-10 04:10:15.000000000 -0600
++++ Linux-PAM-1.3.1/libpam/pam_modutil_getlogin.c	2018-06-15 19:45:00.100036938 -0500
+@@ -10,7 +10,7 @@
+ 
+ #include <stdlib.h>
+ #include <unistd.h>
+-#include <utmp.h>
++#include <utmpx.h>
+ 
+ #define _PAMMODUTIL_GETLOGIN "_pammodutil_getlogin"
+ 
+@@ -22,7 +22,7 @@
+     const void *void_curr_tty;
+     const char *curr_tty;
+     char *curr_user;
+-    struct utmp *ut, line;
++    struct utmpx *ut, line;
+ 
+     status = pam_get_data(pamh, _PAMMODUTIL_GETLOGIN, &logname);
+     if (status == PAM_SUCCESS) {
+@@ -48,10 +48,10 @@
+     }
+     logname = NULL;
+ 
+-    setutent();
++    setutxent();
+     strncpy(line.ut_line, curr_tty, sizeof(line.ut_line));
+ 
+-    if ((ut = getutline(&line)) == NULL) {
++    if ((ut = getutxline(&line)) == NULL) {
+ 	goto clean_up_and_go_home;
+     }
+ 
+@@ -74,7 +74,7 @@
+ 
+ clean_up_and_go_home:
+ 
+-    endutent();
++    endutxent();
+ 
+     return logname;
+ }
+--- Linux-PAM-1.3.1/modules/pam_issue/pam_issue.c.old	2017-02-10 04:10:15.000000000 -0600
++++ Linux-PAM-1.3.1/modules/pam_issue/pam_issue.c	2018-06-15 19:53:16.459545509 -0500
+@@ -25,7 +25,13 @@
+ #include <string.h>
+ #include <unistd.h>
+ #include <sys/utsname.h>
+-#include <utmp.h>
++#if defined(HAVE_UTMPX_H)
++#    include <utmpx.h>
++#elif defined(HAVE_UTMP_H)
++#    include <utmp.h>
++#else
++#    error You must have either utmpx.h or utmp.h.
++#endif
+ #include <time.h>
+ #include <syslog.h>
+ 
+@@ -246,6 +252,15 @@
+ 	      case 'U':
+ 		{
+ 		    unsigned int users = 0;
++#if defined(HAVE_UTMPX_H)
++		    struct utmpx *utx;
++		    setutxent();
++		    while ((utx = getutxent())) {
++			if (utx->ut_type == USER_PROCESS)
++			    ++users;
++		    }
++		    endutxent();
++#elif defined(HAVE_UTMP_H)
+ 		    struct utmp *ut;
+ 		    setutent();
+ 		    while ((ut = getutent())) {
+@@ -253,6 +268,7 @@
+ 			    ++users;
+ 		    }
+ 		    endutent();
++#endif
+ 		    if (c == 'U')
+ 			snprintf (buf, sizeof buf, "%u %s", users,
+ 			          (users == 1) ? "user" : "users");
+--- Linux-PAM-1.3.1/modules/pam_lastlog/pam_lastlog.c.old	2018-06-15 19:48:06.379852509 -0500
++++ Linux-PAM-1.3.1/modules/pam_lastlog/pam_lastlog.c	2018-06-15 19:57:18.849305527 -0500
+@@ -14,7 +14,10 @@
+ #include <fcntl.h>
+ #include <time.h>
+ #include <errno.h>
++#ifdef HAVE_UTMPX_H
++# include <utmpx.h>
++#endif
+ #ifdef HAVE_UTMP_H
+ # include <utmp.h>
+ #else
+ # include <lastlog.h>
+@@ -448,8 +451,13 @@
+ {
+     int retval;
+     int fd;
++#ifdef HAVE_UTMPX_H
++    struct utmpx ut;
++    struct utmpx utuser;
++#else
+     struct utmp ut;
+     struct utmp utuser;
++#endif
+     int failed = 0;
+     char the_time[256];
+     char *date = NULL;
+--- Linux-PAM-1.3.1/modules/pam_limits/pam_limits.c.old	2017-02-10 04:10:15.000000000 -0600
++++ Linux-PAM-1.3.1/modules/pam_limits/pam_limits.c	2018-06-15 20:25:21.737639355 -0500
+@@ -33,7 +33,11 @@
+ #include <sys/resource.h>
+ #include <limits.h>
+ #include <glob.h>
+-#include <utmp.h>
++#ifdef HAVE_UTMPX_H
++# include <utmpx.h>
++#else
++# include <utmp.h>
++#endif
+ #ifndef UT_USER  /* some systems have ut_name instead of ut_user */
+ #define UT_USER ut_user
+ #endif
+@@ -227,7 +231,11 @@
+ check_logins (pam_handle_t *pamh, const char *name, int limit, int ctrl,
+               struct pam_limit_s *pl)
+ {
++#ifdef HAVE_UTMPX_H
++    struct utmpx *ut;
++#else
+     struct utmp *ut;
++#endif
+     int count;
+ 
+     if (ctrl & PAM_DEBUG_ARG) {
+@@ -242,12 +250,16 @@
+         return LOGIN_ERR;
+     }
+ 
++#ifdef HAVE_UTMPX_H
++    setutxent();
++#else
+     setutent();
++#endif
+ 
+     /* Because there is no definition about when an application
+        actually adds a utmp entry, some applications bizarrely do the
+-       utmp call before the have PAM authenticate them to the system:
+-       you're logged it, sort of...? Anyway, you can use the
++       utmp call before they have PAM authenticate them to the system:
++       you're logged in, sort of...? Anyway, you can use the
+        "utmp_early" module argument in your PAM config file to make
+        allowances for this sort of problem. (There should be a PAM
+        standard for this, since if a module wants to actually map a
+@@ -260,7 +272,11 @@
+ 	count = 1;
+     }
+ 
++#ifdef HAVE_UTMPX_H
++    while((ut = getutxent())) {
++#else
+     while((ut = getutent())) {
++#endif
+ #ifdef USER_PROCESS
+         if (ut->ut_type != USER_PROCESS) {
+             continue;
+@@ -296,7 +312,11 @@
+ 	    break;
+ 	}
+     }
++#ifdef HAVE_UTMPX_H
++    endutxent();
++#else
+     endutent();
++#endif
+     if (count > limit) {
+ 	if (name) {
+ 	    pam_syslog(pamh, LOG_NOTICE,
+--- Linux-PAM-1.3.1/modules/pam_timestamp/pam_timestamp.c.old	2017-02-10 04:10:15.000000000 -0600
++++ Linux-PAM-1.3.1/modules/pam_timestamp/pam_timestamp.c	2018-06-15 20:34:52.997073770 -0500
+@@ -56,7 +56,11 @@
+ #include <time.h>
+ #include <sys/time.h>
+ #include <unistd.h>
+-#include <utmp.h>
++#ifdef HAVE_UTMPX_H
++# include <utmpx.h>
++#else
++# include <utmp.h>
++#endif
+ #include <syslog.h>
+ #include <paths.h>
+ #include "hmacsha1.h"
+@@ -197,12 +201,22 @@
+ static int
+ check_login_time(const char *ruser, time_t timestamp)
+ {
++#ifdef HAVE_UTMPX_H
++	struct utmpx utbuf, *ut;
++#else
+ 	struct utmp utbuf, *ut;
++#endif
+ 	time_t oldest_login = 0;
+ 
++#ifdef HAVE_UTMPX_H
++	setutxent();
++#else
+ 	setutent();
++#endif
+ 	while(
+-#ifdef HAVE_GETUTENT_R
++#ifdef HAVE_UTMPX_H
++	      (ut = getutxent()) != NULL
++#elif defined(HAVE_GETUTENT_R)
+ 	      !getutent_r(&utbuf, &ut)
+ #else
+ 	      (ut = getutent()) != NULL
+@@ -218,7 +232,11 @@
+ 			oldest_login = ut->ut_tv.tv_sec;
+ 		}
+ 	}
++#ifdef HAVE_UTMPX_H
++	endutxent();
++#else
+ 	endutent();
++#endif
+ 	if(oldest_login == 0 || timestamp < oldest_login) {
+ 		return PAM_AUTH_ERR;
+ 	}
+--- Linux-PAM-1.3.1/modules/pam_unix/support.c.old	2017-02-10 04:10:15.000000000 -0600
++++ Linux-PAM-1.3.1/modules/pam_unix/support.c	2018-06-15 20:38:23.306865549 -0500
+@@ -13,7 +13,6 @@
+ #include <pwd.h>
+ #include <shadow.h>
+ #include <limits.h>
+-#include <utmp.h>
+ #include <errno.h>
+ #include <signal.h>
+ #include <ctype.h>

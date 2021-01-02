@@ -21,6 +21,9 @@ patch -Np1 -i ../patches/Linux-PAM-alpine/0001-avoid-opendir-since-it-may-be-cal
 patch -Np1 -i ../patches/Linux-PAM-alpine/0adbaeb273da1d45213134aa271e95987103281c.patch
 patch -Np1 -i ../patches/Linux-PAM-alpine/c9593778a6133bf29eb2f47c24cc6d2f5d729fc8.patch
 
+# Enable utmps support
+patch -Np1 -i ../patches/Linux-PAM-adelie/use-utmpx.patch
+
 ac_cv_search_crypt=no \
 ./configure --prefix=/usr                    \
             --sysconfdir=/etc                \
