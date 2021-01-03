@@ -1,9 +1,0 @@
-#! /bin/bash
-
-# libargon2 20190702
-# source: https://github.com/P-H-C/phc-winner-argon2/archive/20190702.tar.gz
-# Archive will unpack as phc-winner-argon2-20190702
-
-make OPTTARGET=none -j2 &&
-read -p "Install? " && 
-sudo -S porg -lp libargon2-20190702 "make OPTTARGET=none  install"
