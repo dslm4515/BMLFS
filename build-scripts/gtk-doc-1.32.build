@@ -1,8 +1,0 @@
-#! /bin/bash
-
-# GTK Doc 1.32
-# source: http://ftp.gnome.org/pub/gnome/sources/gtk-doc/1.32/gtk-doc-1.32.tar.xz
-
-./configure --prefix=/usr $BUILDTRUPLE  &&
-read -p "Compile? " && make -j2 && 
-read -p "Install? " && sudo -S porg -lD "make install"
