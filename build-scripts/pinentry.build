@@ -1,0 +1,51 @@
+#! /bin/bash
+
+# PIN-Entry 
+# Source: ftp://ftp.gnupg.org/gcrypt/pinentry/pinentry-1.1.0.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Libassuan, libgpg-error
+# Recommended:  NONE
+# Optional:     Rmacs, FLTK, Gcr, GTK+2, libsecret, Qt5
+
+./configure --prefix=/usr --enable-pinentry-tty \
+            --enable-pinentry-qt=yes \
+            --enable-pinentry-gtk2=yes \
+            --enable-pinentry-gnome3=yes \
+            --enable-pinentry-curses \
+            --enable-fallback-curses \
+            --enable-libsecret \
+            --enable-pinentry-fltk=yes $BUILDTRUPLE &&
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+pinentry: pinentry (PIN Entry dialogs)
+pinentry:
+pinentry: This is a collection of simple PIN or passphrase entry dialogs which
+pinentry: utilize the Assuan protocol as described by the aegypten project.
+pinentry:
+pinentry: See http://www.gnupg.org/aegypten/ for details.
+pinentry:
+pinentry:
+pinentry:
+pinentry:
+pinentry:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/pinentry-1.1.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
