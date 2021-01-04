@@ -15,7 +15,7 @@
 cp -v ../files/config.sub-musl ./config.sub
 cp -v ../files/config.guess-musl ./config.guess
 
-./configure --prefix=/usr --build=$BUILDTRUPLE \
+./configure --prefix=/usr $BUILDTRUPLE \
             --disable-static &&
 read -p "Compile?" && make -j2 && 
 
