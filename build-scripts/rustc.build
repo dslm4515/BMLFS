@@ -104,9 +104,9 @@ patch -Np1 -i ../patches/rust-alpine/alpine-move-py-scripts-to-share.patch
 patch -Np1 -i ../patches/rust-alpine/install-template-shebang.patch
 patch -Np1 -i ../patches/rust-alpine/link-musl-dynamically.patch
 #patch -Np1 -i ../patches/rust-alpine/musl-dont-use-crt-static.patch
-patch -Np1 -i ../patches/rust-alpine/musl-fix-linux_musl_base.patch
-patch -Np1 -i ../patches/rust-alpine/need-rpath.patch
-patch -Np1 -i ../patches/rust-alpine/need-ssp_nonshared.patch
+#patch -Np1 -i ../patches/rust-alpine/musl-fix-linux_musl_base.patch
+#patch -Np1 -i ../patches/rust-alpine/need-rpath.patch
+#patch -Np1 -i ../patches/rust-alpine/need-ssp_nonshared.patch
 
 # Apply Patches from void-linux
 #for p in 0001-Fix-LLVM-build.patch \
