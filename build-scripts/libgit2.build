@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Libgit2 1.0.1
-# Source: https://github.com/libgit2/libgit2/archive/v1.0.1.tar.gz
+# Source: https://github.com/libgit2/libgit2/releases/download/v1.1.0/libgit2-1.1.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -49,6 +49,6 @@ libgit2:
 EOF
 
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libgit2-1.0.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libgit2-1.1.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
 
