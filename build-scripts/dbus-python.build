@@ -23,7 +23,6 @@ PYTHON=/usr/bin/python3    \
 ../configure --prefix=/usr --docdir=/usr/share/doc/dbus-python-1.2.16 &&
 make -j2 &&
 popd &&
-read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD -C python2 install &&
 sudo -S make DESTDIR=$BUILD -C python3 install &&
