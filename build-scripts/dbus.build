@@ -25,7 +25,7 @@
             --disable-doxygen-docs \
             --with-system-pid-file=/run/dbus/pid \
             --with-console-auth-dir=/run/console \
-            --disable-user-session $BUILDTRUPLE &&
+            --disable-user-session $BUILDTRUPLE --enable-x11-autolaunch --with-x &&
 
 read -p "Compile? " && make -j2 &&
 
