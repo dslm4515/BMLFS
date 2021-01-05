@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Rustc
-# Source: https://static.rust-lang.org/dist/rustc-1.45.1-src.tar.gz
+# Source: https://static.rust-lang.org/dist/rustc-1.49.0-src.tar.gz
 # v1.46.0 = failed, both Alpine & Void methods due to precompiled rustc & cargo
 # v1.45.1 = Succeeds with alpine method, requires max libressl-3.0.0
 #
@@ -14,7 +14,8 @@
 # Optional:     GDB
 #
 # Tested architectures:
-# [ PASS ] aarch64-alpine-linux-musl
+# [ PASS ] aarch64-alpine-linux-musl (1.45.1)
+# [ PASS ] x86_64-linux-musl (1.49.0)
 # [ FAIL ] i686-unknown-linux-musl
 #
 # *** NOTE ***
@@ -23,8 +24,8 @@
 # LLVM built with all targets like X86, ARM, etc.
 #
 # Bootstrap versions:
-# Cargo-1.44.0 + rust-1.44.0
-# Requires  OpenSSL 1.0.1 through 1.1.1, or LibreSSL 2.5 through 3.0.x
+# Cargo-1.47.0(Alpine) + rust-1.48.0(Void)
+# Requires  OpenSSL 1.0.1 through 1.1.1, or LibreSSL 2.5 through 3.1.x, LLVM-11, libgit2-1.1.0
 # Targets supported by this version:
 # aarch64-alpine-linux-musl
 # aarch64-unknown-linux-musl
@@ -57,51 +58,52 @@ case $(uname -m) in
 esac
 
 wget \
-     http://dl-cdn.alpinelinux.org/alpine/latest-stable/community/$ARCH/cargo-1.44.0-r0.apk \
-      http://dl-cdn.alpinelinux.org/alpine/latest-stable/community/$ARCH/rust-stdlib-1.44.0-r0.apk \
-      http://dl-cdn.alpinelinux.org/alpine/latest-stable/community/$ARCH/rust-1.44.0-r0.apk
+      http://dl-cdn.alpinelinux.org/alpine/edge/community/$ARCH/cargo-1.47.0-r1.apk \
+      https://mirrors.servercentral.com/voidlinux/current/musl/rust-1.48.0_1.$ARCH-musl.xbps \
+      https://mirrors.servercentral.com/voidlinux/current/musl/rust-std-1.48.0_1.$ARCH-musl.xbps
 unset ARCH
 
 ## unpack to extract cargo:
-tar xf cargo-1.44.0-r0.apk &&
+
+tar xf cargo-1.47.0-r1.apk &&
 mv -v usr/bin/cargo ../bin/ &&
 rm -rvf usr .PKGINFO .SIGN.RSA.alpine-* &&
 
 # # Unpack rust std library
-tar xf rust-stdlib-1.44.0-r0.apk &&
+tar xf rust-std-1.48.0_1.$ARCH-musl.xbps &&
 mv -v  usr/lib ../
-rm -rvf usr .PKGINFO .SIGN.RSA.alpine-* &&
+rm -rvf usr *.plist  &&
 
 # # Unpack rust
-tar xf rust-1.44.0-r0.apk   &&
+tar xf rust-1.48.0_1.$ARCH-musl.xbps   &&
 mv -v usr/bin/rustc ../bin/ &&
-mv -v usr/share ../         &&
 cp -r usr/lib/* ../lib/     &&
-rm -rvf usr .PKGINFO .SIGN.RSA.alpine-* &&
+rm -rvf usr *plist &&
 cd ../.. &&
 
-# # Add compatability links for Cargo 1.44.0 from Alpine with libreSSL 3.0.0
+# # Add compatability links for Cargo 1.47.0 from Alpine with libreSSL 3.0.0
 sudo ln -sv libssl.so.47.0.6    /usr/lib/libssl.so.1.1
 sudo ln -sv libcrypto.so.45.0.5 /usr/lib/libcrypto.so.1.1
 
-# # Add bootstrap to PATH
+
+# # Add bootstrap to PATH and LD_LIBRARY_PATH
 export PATH="$PWD/stage0/bin:$PATH"
+export LD_LIBRARY_PATH="$PWD/stage0/lib"
 
 # # Configure environment to use bootsrap directory
 export rustc_ver="$($PWD/stage0/bin/rustc --version | cut -f2 -d ' ')"
 export rustc_key="$(printf "$rustc_ver" | md5sum | cut -c1-8)"
-export LD_LIBRARY_PATH="$PWD/stage0/lib"
 
-# Remove bundled dependencies.
+# Remove bundled dependencies... no need
 #rm -Rf src/llvm-project
 
 # Apply patches from Alpine Linux
 #patch -Np1 -i ../patches/rust-alpine/0006-Prefer-libgcc_eh-over-libunwind-for-musl.patch
 patch -Np1 -i ../patches/rust-alpine/alpine-move-py-scripts-to-share.patch
-patch -Np1 -i ../patches/rust-alpine/alpine-target.patch
+#patch -Np1 -i ../patches/rust-alpine/alpine-target.patch
 patch -Np1 -i ../patches/rust-alpine/install-template-shebang.patch
 patch -Np1 -i ../patches/rust-alpine/link-musl-dynamically.patch
-patch -Np1 -i ../patches/rust-alpine/musl-dont-use-crt-static.patch
+#patch -Np1 -i ../patches/rust-alpine/musl-dont-use-crt-static.patch
 patch -Np1 -i ../patches/rust-alpine/musl-fix-linux_musl_base.patch
 patch -Np1 -i ../patches/rust-alpine/need-rpath.patch
 patch -Np1 -i ../patches/rust-alpine/need-ssp_nonshared.patch
@@ -110,7 +112,7 @@ patch -Np1 -i ../patches/rust-alpine/need-ssp_nonshared.patch
 #for p in 0001-Fix-LLVM-build.patch \
 #	0002-Allow-rustdoc-to-work-when-cross-compiling-on-musl.patch \
 #	0003-Require-static-native-libraries-when-linking-static-.patch \
-#	0004-Remove-nostdlib-and-musl_root-from-musl-targets.patch \
+#	000qy4-Remove-nostdlib-and-musl_root-from-musl-targets.patch \
 #	0005-Prefer-libgcc_eh-over-libunwind-on-musl.patch \
 #	0006-test-use-extern-for-plugins-Don-t-assume-multilib.patch \
 #	0007-test-sysroot-crates-are-unstable-Fix-test-when-rpath.patch \
@@ -243,7 +245,11 @@ read -p "Install?" &&
 #chown -R root:root install
 #cp -a install/* /
 
-sudo -E -S DESTDIR="${BUILD}" python3 ./x.py install -v &&
+# Make install target fails...install in build directory then copy over to ${BUILD}
+#sudo -E -S DESTDIR="${BUILD}" python3 ./x.py install -v &&
+DESTDIR=${PWD}/install python3 ./x.py install
+sudo -S chown -R root:root install
+sudo -S cp -ar install/* ${BUILD}/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install
 cat > /tmp/slack-desc << "EOF"
@@ -270,8 +276,8 @@ EOF
 
 sudo -S mv -v /tmp/slack-desc install/ &&
 cd usr/lib/rustlib/ &&
-rm -v components install.log manifest-* rust-installer-version uninstall.sh
+sudo -S rm -v components install.log manifest-* rust-installer-version uninstall.sh
 cd -
 
-sudo -S makepkg -l y -c n $PKGS/rustc-1.45.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/rustc-1.49.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
