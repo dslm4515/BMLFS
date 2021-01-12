@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Rustc for i686
-# Source: https://static.rust-lang.org/dist/rustc-1.45.1-src.tar.gz
+# Source: https://static.rust-lang.org/dist/rustc-1.48.0-src.tar.gz
 # Method: Alpine Linux
 #
 # $BUILD = Directory to temporarily install
@@ -17,8 +17,10 @@
 # LLVM built with all targets like X86, ARM, etc.
 #
 # Bootstrap versions:
-# Cargo-1.44.0 + rust-1.44.0
-# Requires  OpenSSL 1.0.1 through 1.1.1, or LibreSSL 2.5 through 3.0.x
+# Cargo-1.47.0 + rust-1.47.0
+# Requires  OpenSSL 1.0.1 through 1.1.1, or LibreSSL 2.5 through 3.0.x, 
+#           LLVM 10.x (If system has LLVM-11, then build LLVM-10 and
+#           install in /opt/llvm10. Add /opt/llvm10/lib to /etc/ld-musl-i386.path)
 # Targets supported by this version:
 # aarch64-alpine-linux-musl
 # aarch64-unknown-linux-musl
@@ -32,44 +34,42 @@
 # x86_64-unknown-linux-musl
 # **for more use rustc --print target-list**
 
-patch -Np1 -i ../patches/rust-alpine-1.45.1/0006-Prefer-libgcc_eh-over-libunwind-for-musl.patch
-patch -Np1 -i ../patches/rust-alpine-1.45.1/alpine-move-py-scripts-to-share.patch
-patch -Np1 -i ../patches/rust-alpine-1.45.1/alpine-target.patch
-patch -Np1 -i ../patches/rust-alpine-1.45.1/install-template-shebang.patch
-patch -Np1 -i ../patches/rust-alpine-1.45.1/link-musl-dynamically.patch
-patch -Np1 -i ../patches/rust-alpine-1.45.1/musl-dont-use-crt-static.patch
-patch -Np1 -i ../patches/rust-alpine-1.45.1/musl-fix-linux_musl_base.patch
-patch -Np1 -i ../patches/rust-alpine-1.45.1/need-rpath.patch
-patch -Np1 -i ../patches/rust-alpine-1.45.1/need-ssp_nonshared.patch
+for p in  0006-Prefer-libgcc_eh-over-libunwind-for-musl alpine-move-py-scripts-to-share \
+          alpine-target install-template-shebang link-musl-dynamically \
+          musl-add-s390x-target musl-dont-use-crt-static musl-fix-linux_musl_base \
+          need-rpath need-ssp_nonshared
+do
+patch -Np1 -i ../patches/rustc-alpine-1.47.0/$p.patch
+done
 
 # Create bootstrap directory
 mkdir -pv stage0/{tmp,bin}
 cd stage0/tmp
 export ARCH="x86"
 wget \
-	http://dl-cdn.alpinelinux.org/alpine/latest-stable/community/$ARCH/cargo-1.44.0-r0.apk \
-	http://dl-cdn.alpinelinux.org/alpine/latest-stable/community/$ARCH/rust-stdlib-1.44.0-r0.apk \
-	 http://dl-cdn.alpinelinux.org/alpine/latest-stable/community/$ARCH/rust-1.44.0-r0.apk
+	http://dl-cdn.alpinelinux.org/alpine/latest-stable/community/$ARCH/cargo-1.47.0-r1.apk \
+	http://dl-cdn.alpinelinux.org/alpine/edge/community/$ARCH/rust-stdlib-1.47.0-r1.apk \
+	http://dl-cdn.alpinelinux.org/alpine/edge/community/$ARCH/rust-1.47.0-r1.apk
 unset ARCH
 ## unpack to extract cargo:
-tar xf cargo-1.44.0-r0.apk &&
+tar xf cargo-1.47.0-r1.apk &&
 	mv -v usr/bin/cargo ../bin/ &&
 	rm -rvf usr .PKGINFO .SIGN.RSA.alpine-* &&
 
 # # Unpack rust std library
-tar xf rust-stdlib-1.44.0-r0.apk &&
+tar xf rust-stdlib-1.47.0-r1.apk &&
 	mv -v  usr/lib ../
         rm -rvf usr .PKGINFO .SIGN.RSA.alpine-* &&
 
 # # Unpack rust
-tar xf rust-1.44.0-r0.apk   &&
+tar xf rust-1.47.0-r1.apk   &&
 	mv -v usr/bin/rustc ../bin/ &&
 	mv -v usr/share ../         &&
 	cp -r usr/lib/* ../lib/     &&
 	rm -rvf usr .PKGINFO .SIGN.RSA.alpine-* &&
 cd ../..
 
-# # Add compatability links for Cargo 1.44.0 from Alpine with libreSSL 3.0.0
+# # Add compatability links for Cargo 1.47.0 from Alpine with libreSSL 3.0.0
 sudo ln -sv libssl.so.47.0.6    /usr/lib/libssl.so.1.1
 sudo ln -sv libcrypto.so.45.0.5 /usr/lib/libcrypto.so.1.1
 
@@ -79,11 +79,12 @@ sudo ln -sv gcc /usr/bin/musl-gcc
 # # Add bootstrap to PATH
 export PATH="$PWD/stage0/bin:$PATH"
 
+# # Set paths 
 export _build="i586-alpine-linux-musl"
 export _target="i686-unknown-linux-musl"
 export _rlibdir="lib/rustlib/$_build/lib"
 export _sharedir="share/rust"
-export ldpath="/src-bmlfs/rustc-1.45.1-src/stage0/$_rlibdir"
+export ldpath="$PWD/stage0/$_rlibdir"
 export LD_LIBRARY_PATH="$PWD/stage0/lib:$ldpath"
 export RUST_BACKTRACE=1
 
@@ -105,7 +106,7 @@ export PKG_CONFIG_ALLOW_CROSS=1
 	--prefix="/usr" \
 	--release-channel="stable" \
 	--enable-local-rust \
-	--local-rust-root="/src-bmlfs/rustc-1.45.1-src/stage0" \
+	--local-rust-root="/src-bmlfs/rustc-1.48.0-src/stage0" \
 	--llvm-root="/usr/lib" \
 	--disable-docs \
 	--enable-extended \
@@ -117,13 +118,19 @@ export PKG_CONFIG_ALLOW_CROSS=1
 	--python="python3" \
 	--set="rust.musl-root=/usr" \
 	--set="target.$_target.llvm-config=/usr/bin/llvm-config" \
+        --set="target.$_target.musl-root=/usr" \
+        --set="target.$_target.crt-static=false" \
         --set="target.$_build.musl-root=/usr" \
-	--set="target.$_build.crt-static=false"
+	--set="target.$_build.crt-static=false" \
+        --set="target.$_build.cc=gcc" \
+        --set="target.$_build.cxx=c++" \
+        --set="target.$_build.ar=ar" \
+        --set="target.$_build.linker=gcc"
 
-ed 's/#deny-warnings = .*/deny-warnings = false/' -i config.toml
+sed 's/#deny-warnings = .*/deny-warnings = false/' -i config.toml
 sed 's|deny(warnings,|deny(|' -i src/bootstrap/lib.rs
 
-# ** Check config.toml for **
+# ** Check config.toml that this is set correctly: **
 # llvm-config=/usr/bin/llvm-config
 
 read -p "Build?" &&
@@ -162,7 +169,7 @@ cd usr/lib/rustlib/ &&
 rm -v components install.log manifest-* rust-installer-version uninstall.sh
 cd - &&
 
-sudo -S makepkg -l y -c n $PKGS/rustc-1.45.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/rustc-1.48.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/* &&
 
 # Remove compatiblility links for build and reset environemt

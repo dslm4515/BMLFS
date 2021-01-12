@@ -1,0 +1,164 @@
+#! /bin/bash
+#
+## Rustc for i686
+## Source: https://static.rust-lang.org/dist/rustc-1.48.0-src.tar.gz
+## Method: Void Linux
+##
+## $BUILD = Directory to temporarily install
+## $PKGS  = Directory to store built packages
+##
+## DEPS
+## Required:     cURL, CMake, libssh2, libgit2
+## Recommended:  LLVM
+## Optional:     GDB
+## *** NOTE ***
+## This build needs precompiled Cargo and Rust to bootstrap build.
+## Precompiled binaries and libraries are from Alpine, which has
+## LLVM built with all targets like X86, ARM, etc.
+##
+
+## Bootstrap packages are from a completed rustc build found in:
+## ${rustc-version-src}/build/dist
+##
+## Bootstrap packages use LLVM 10. Compile LLVM 10 and install in /opt/llvm10
+## and add /opt/llvm10/lib to /etc/ld-musl-i386.path
+
+# Targets supported by this version of bootstrap version:
+i686-unknown-linux-musl
+i686-unknown-linux-gnu
+x86_64-alpine-linux-musl
+x86_64-unknown-linux-musl
+x86_64-unknown-linux-gnux32
+aarch64-alpine-linux-musl
+aarch64-unknown-linux-musl
+aarch64-unknown-linux-gnu
+armv7-alpine-linux-musleabihf
+armv7-unknown-linux-gnueabi
+armv7-unknown-linux-gnueabihf
+armv7-unknown-linux-musleabi
+armv7-unknown-linux-musleabihf
+# **for more use rustc --print target-list**
+
+## Create a build directory with packaged bootstrap binaries
+mkdir -pv rust-build/tmp
+cd rust-build
+
+## Unpack the source
+tar xf ../rustc-1.48.0-src.tar.gz
+
+## Extract the bootstrap binaries & libraries
+cd tmp 
+tar xf ../cargo-0.46.1-i686-unknown-linux-musl.tar.xz
+tar xf ../rust-std-1.45.1-i686-unknown-linux-musl.tar.xz
+tar xf ../rustc-1.45.1-i686-unknown-linux-musl.tar.xz
+cd ../rustc-1.48.0-src
+
+## Create the bootstrap directory
+mkdir -v stage0
+
+## Install the bootstrap packages
+../tmp/rust-std-1.45.1-i686-unknown-linux-musl/install.sh --destdir=${PWD}/stage0 --prefix=/ --disable-ldconfig
+../tmp/rustc-1.45.1-i686-unknown-linux-musl/install.sh    --destdir=${PWD}/stage0 --prefix=/ --disable-ldconfig
+cp -v ../tmp/cargo-0.46.1-i686-unknown-linux-musl/cargo/bin/cargo stage0/bin/
+
+rm -rf src/llvm-project
+patch -Np1 -i ../../patches/rust-void-1.48.0/llvm-with-dependencies.patch
+
+# patch up source to support musl
+patch -Np1 -i ../../patches/rust-void-1.48.0/0001-Fix-LLVM-build.patch
+patch -Np1 -i ../../patches/rust-void-1.48.0/0002-Allow-rustdoc-to-work-when-cross-compiling-on-musl.patch
+patch -Np1 -i ../../patches/rust-void-1.48.0/0003-Require-static-native-libraries-when-linking-static-.patch
+patch -Np1 -i ../../patches/rust-void-1.48.0/0005-Prefer-libgcc_eh-over-libunwind-on-musl.patch
+patch -Np1 -i ../../patches/rust-void-1.48.0/0006-test-use-extern-for-plugins-Don-t-assume-multilib.patch
+patch -Np1 -i ../../patches/rust-void-1.48.0/0007-test-sysroot-crates-are-unstable-Fix-test-when-rpath.patch
+patch -Np1 -i ../../patches/rust-void-1.48.0/0008-Ignore-broken-and-non-applicable-tests.patch
+patch -Np1 -i ../../patches/rust-void-1.48.0/0009-Link-stage2-tools-dynamically-to-libstd.patch
+patch -Np1 -i ../../patches/rust-void-1.48.0/0010-Move-debugger-scripts-to-usr-share-rust.patch
+patch -Np1 -i ../../patches/rust-void-1.48.0/0011-Dynamically-link-libc-on-musl-by-default.patch
+patch -Np1 -i ../../patches/rust-void-1.48.0/0012-Fix-dynamic-linkage-of-musl-libc-for-the-libc-crate.patch
+patch -Np1 -i ../../patches/rust-void-1.48.0/0014-Void-fix-linkage-against-host-target-LLVM-in-cross-s.patch
+patch -Np1 -i ../../patches/rust-void-1.48.0/0015-Use-ELFv2-ABI-on-all-powerpc64-targets.patch
+patch -Np1 -i ../../patches/rust-void-1.48.0/need-ssp_nonshared.patch
+
+## Clear out all the checksum nonsense of patched vendor crates
+for d in libc typenum
+do
+   sed -i 's/\("files":{\)[^}]*/\1/' vendor/$d/.cargo-checksum.json
+done
+
+## Configure source
+cat > config.toml << "EOF"
+[build]
+build = 'i686-unknown-linux-musl'
+host = [ 'i686-unknown-linux-musl' ]
+target = [ 'i686-unknown-linux-musl' ]
+cargo = '/src-bmlfs/rust-build/rustc-1.48.0-src/stage0/bin/cargo'
+rustc = '/src-bmlfs/rust-build/rustc-1.48.0-src/stage0/bin/rustc'
+submodules = false
+python = "python3"
+locked-deps = true
+vendor = true
+full-bootstrap = false
+local-rebuild = true
+extended = true
+docs = false
+tools = ['analysis', 'cargo', 'src']
+[install]
+prefix = "/usr"
+[rust]
+codegen-units = 1
+codegen-units-std = 1
+debug-assertions = false
+debuginfo-level = 0
+debuginfo-level-rustc = 0
+debuginfo-level-tests = 0
+backtrace = true
+incremental = false
+parallel-compiler = false
+channel = "stable"
+rpath = false
+verbose-tests = true
+dist-src = false
+jemalloc = false
+llvm-libunwind = false
+codegen-tests = false
+[dist]
+src-tarball = false
+[target.i686-unknown-linux-musl]
+llvm-config = "/usr/bin/llvm-config"
+crt-static = false
+#cc = "${CC_host:-$CC}"
+#cxx = "${CXX_host:-$CXX}"
+#ar = "${AR_host:-$AR}"
+#linker = "${CC_host:-$CC}"
+#[target.i686-unknown-linux-musl]
+#llvm-config = "/usr/bin/llvm-config"
+#crt-static = false
+#cc = "${CC}"
+#cxx = "${CXX}"
+#ar = "${AR}"
+#linker = "${CC}"
+EOF
+
+export LLVM_LINK_SHARED=1
+export RUST_BACKTRACE=1
+export CARGO_HOME="${PWD}/.cargo"
+export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+export RUSTFLAGS=""
+
+# # Add compatability links for bootsrap Cargo
+sudo ln -sv libssl.so.48.0.1    /usr/lib/libssl.so.47
+sudo ln -sv libcrypto.so.46.0.1 /usr/lib/libcrypto.so.45
+
+python3  ./x.py build --jobs 4
+
+## Build fails:
+error: aborting due to 601 previous errors
+
+Some errors have detailed explanations: E0118, E0522, E0658.
+For more information about an error, try `rustc --explain E0118`.
+error: could not compile `core`.
+
+To learn more, run the command again with --verbose.
+command did not execute successfully: "/src-bmlfs/rust-build/rustc-1.48.0-src/stage0/bin/cargo" "build" "--target" "i686-unknown-linux-musl" "-Zbinary-dep-depinfo" "-j" "4" "--release" "--locked" "--frozen" "--features" "panic-unwind backtrace compiler-builtins-c" "--manifest-path" "/src-bmlfs/rust-build/rustc-1.48.0-src/library/test/Cargo.toml" "--message-format" "json-render-diagnostics"
+expected success, got: exit code: 101
