@@ -7,7 +7,7 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Xorg-Libraries
+# Required:     libpciacess (Xorg libraries)
 # Recommended:  NONE
 # Optional:     Cairo, CMake, docbook-xml, docbook-xsl, libxslt, libatomic_ops, valgrind, CUNIT 
 
