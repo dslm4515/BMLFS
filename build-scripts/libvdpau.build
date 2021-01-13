@@ -7,9 +7,9 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Xorg-libraries
+# Required:     libX11, xorgproto
 # Recommended:  NONE
-# Optional:     Doxygen, Graphviz, and texlive or install-tl-unx
+# Optional:     libXext,Doxygen, Graphviz, and texlive or install-tl-unx
 
 mkdir build &&
 cd    build &&
