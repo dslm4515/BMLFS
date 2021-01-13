@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libjpeg-turbo 
-# Source: https://downloads.sourceforge.net/libjpeg-turbo/libjpeg-turbo-2.0.5.tar.gz
+# Source: https://downloads.sourceforge.net/libjpeg-turbo/libjpeg-turbo-2.0.6.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -18,7 +18,7 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr \
       -DENABLE_STATIC=FALSE       \
       -DWITH_JPEG8=1 \
       -DBUILD_SHARED_LIBS=True \
-      -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/libjpeg-turbo-2.0.5 \
+      -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/libjpeg-turbo-2.0.6 \
       -DCMAKE_INSTALL_DEFAULT_LIBDIR=lib  \
       .. &&
 read -p "Compile?" && make -j2 &&
@@ -48,5 +48,5 @@ libjpeg-turbo: libjpeg-turbo home: http://libjpeg-turbo.virtualgl.org
 libjpeg-turbo:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libjpeg-turbo-2.0.5-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libjpeg-turbo-2.0.6-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
