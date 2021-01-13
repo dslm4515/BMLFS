@@ -13,7 +13,7 @@
 # Optional:     apache-ant, libxslt, Ruby, Zip, Saxon6, Xerces2 Java
 
 
-# Runt as root
+# Run as root
 
 patch -Np1 -i ../patches/docbook-xsl-nons-lfs/docbook-xsl-nons-1.79.2-stack_fix-1.patch &&
 
