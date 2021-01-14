@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libepoxy
-# Source: https://github.com/anholt/libepoxy/releases/download/1.5.4/libepoxy-1.5.4.tar.xz
+# Source: https://github.com/anholt/libepoxy/releases/download/1.5.5/libepoxy-1.5.5.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -14,7 +14,13 @@
 mkdir build &&
 cd    build &&
 
-meson --prefix=/usr .. &&
+# If GL is not missing from mesa set -Dglx=yes
+meson --prefix=/usr \
+      -Ddocs=false  \
+      -Degl=yes     \
+      -Dx11=true    \
+      -Dtests=true  \
+      -Dglx=no .. &&
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
@@ -42,5 +48,5 @@ libepoxy:
 libepoxy:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libepoxy-1.5.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libepoxy-1.5.5-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
