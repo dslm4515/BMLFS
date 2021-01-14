@@ -11,6 +11,8 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# NOTE: For no GL in mesa, add --enable-osmesa to configure
+
 ./configure --prefix=$XORG_PREFIX --disable-static $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
