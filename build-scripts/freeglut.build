@@ -26,6 +26,7 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr       \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo cp -a freeglut.pc /BUILD/usr/lib/pkgconfig/ &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
