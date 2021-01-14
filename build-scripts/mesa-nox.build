@@ -1,21 +1,21 @@
 #! /bin/bash
 
-# Mesa
+# Mesa without Xorg
 # Source: ftp://ftp.freedesktop.org/pub/mesa/mesa-20.3.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     libxext, libxdamage, libxcb, libxshmfence, libxfixes, 
-# Required:     libx11, libxrandr, libxt, libxvmc, libxxf86vm, libdrm, Mako
-# Recommended:  Libva, libvdpau, LLVM, wayland-protocols
+# Required:     LLVM, libdrm, Mako, libxcb, libX11, libxshmfence,
+# Recommended:  Libva, libvdpau, wayland-protocols
 # Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind
 
 patch -Np1 -i ../patches/mesa-alpine-20.3.2/0001-radeonsi-On-Aarch64-force-persistent-buffers-to-GTT.patch
 patch -Np1 -i ../patches/mesa-alpine-20.3.2/add-use-elf-tls.patch
 patch -Np1 -i ../patches/mesa-alpine-20.3.2/adjust-cache-deflate-buffer.patch
 patch -Np1 -i ../patches/mesa-alpine-20.3.2/musl-fix-includes.patch
+
 
 export CFLAGS="$CFLAGS -D_XOPEN_SOURCE=700" &&
 export GLL_DRV="i915,nouveau,radeonsi,svga,swrast" &&
@@ -25,32 +25,32 @@ python3 bin/git_sha1_gen.py --output include/git_sha1.h &&
 
 mkdir build &&
 cd    build &&
-meson --prefix=$XORG_PREFIX          \
+meson --prefix=/usr                  \
       -Dbuildtype=release            \
-      -Ddri-drivers=$DRI_DRIVERS     \
-      -Dgallium-drivers=$GLL_DRV     \
-      -Dgallium-nine=false           \
-      -Dglx=dri                      \
-      -Dosmesa=gallium               \
-      -Dvalgrind=false               \
-      -Dgallium-xa=true              \
+      -Dllvm="enabled"               \
+      -Dshared-llvm="enabled"        \
+      -Dglx="disabled"               \
+      -Dxlib-lease="disabled"        \
       -Ddri3=true                    \
-      -Dplatforms="x11,wayland,drm"  \
-      -Dllvm=true                    \
-      -Dshared-llvm=true             \
+      -Dplatforms="x11,wayland"      \
+      -Dglx-read-only-text=true      \
+      -Dasm=false                    \
       -Dshared-glapi=true            \
       -Dopengl=true                  \
-      -Dgles1=false \
-      -Dgles2=true \
-      -Degl=true \
-      -Dgallium-vdpau=true \
-      -Dgallium-va=true \
-      -Dglx-read-only-text=true \
-      -Dasm=false ..                 &&
+      -Degl=true                     \
+      -Dgallium-va=true              \
+      -Dgallium-xa=true              \
+      -Ddri-drivers=$DRI_DRIVERS     \
+      -Dgallium-drivers=$GLL_DRV     \
+      -Dosmesa=gallium               \
+      -Dvalgrind=false               \
+      -Dgallium-nine=false           \
+      -Dgallium-vdpau=true ..  
+
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
-unset CFLAGS &&
+unset CFLAGS GLL_DRV DRI_DRIVERS MESA_GIT_SHA1_OVERRIDE &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -72,8 +72,8 @@ mesa: Mesa was written by Brian Paul.
 mesa:
 mesa: Homepage: https://www.mesa3d.org
 mesa:
-mesa:
+mesa: Tailored for a Wayland-only system with reduced Xorg support/features
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mesa-20.3.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/mesa-20.3.2_nox-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
