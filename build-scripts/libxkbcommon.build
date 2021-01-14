@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # libxkbcommon
-# Source: https://xkbcommon.org/download/libxkbcommon-1.0.1.tar.xz
+# Source: https://xkbcommon.org/download/libxkbcommon-1.0.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     xkeyboard-config
+# Required:     xkeyboard-config(for X support)
 # Recommended:  libxcb, Wayland
 # Optional:     Doxygen
 
@@ -45,5 +45,5 @@ libxkbcommon: libxkbcommon does not distribute a dataset itself, other than for
 libxkbcommon: testing purposes.
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libxkbcommon-1.0.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libxkbcommon-1.0.3-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
