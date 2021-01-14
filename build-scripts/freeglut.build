@@ -2,14 +2,15 @@
 
 # FreeGLUT
 # Source: https://downloads.sourceforge.net/freeglut/freeglut-3.2.1.tar.gz
+# GitHub: https://github.com/dcnieho/FreeGLUT.git
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     CMake, Mesa
+# Required:     CMake, Mesa, libxkbcommon (GIT version req's it)
 # Recommended:  GLU
-# Optional:     NONE
+# Optional:     libXi
 
 patch -Np1 -i ../patches/freeglut-lfs/gcc10_fix-1.patch
 
@@ -19,6 +20,8 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr       \
       -DCMAKE_BUILD_TYPE=Release        \
       -DFREEGLUT_BUILD_DEMOS=OFF        \
       -DFREEGLUT_BUILD_STATIC_LIBS=OFF  \
+      -DFREEGLUT_GLES=ON \
+      -DFREEGLUT_WAYLAND=ON \ #if using svn for FreeGLUT on wayland
       -Wno-dev .. &&
 read -p "Compile?" && make -j2 &&
 
