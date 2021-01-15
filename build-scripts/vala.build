@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Vala
-# Source: ftp://ftp.gnome.org/pub/gnome/sources/vala/0.50/vala-0.50.1.tar.xz
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/vala/0.50/vala-0.50.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -39,5 +39,5 @@ vala:
 vala:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/vala-0.50.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/vala-0.50.3-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
