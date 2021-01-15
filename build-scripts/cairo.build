@@ -37,6 +37,13 @@ patch -Np1 -i ../patches/cairo-alpine/musl-stacksize.patch
 		--disable-static    \
 		--enable-gl \
 		--enable-xlib-xcb  --enable-trace=no  $BUILDTRUPLE &&
+## For building without GLX:
+#./autogen.sh --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-ft \
+#	--enable-gobject --enable-pdf --enable-png --enable-ps --enable-tee \
+#	--enable-xcb --enable-xcb-shm --enable-xlib --enable-xlib-xcb --disable-static \
+#	--enable-glesv2=no --enable-glesv3=yes --enable-egl=yes --enable-trace=no \
+#        --enable-glx=no --enable-test-surfaces=no $BUILDTRUPLE &&	
+
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
