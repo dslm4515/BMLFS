@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # librsvg
-# Source: ftp://ftp.gnome.org/pub/gnome/sources/librsvg/2.50/librsvg-2.50.1.tar.xz
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/librsvg/2.50/librsvg-2.50.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -15,7 +15,7 @@ export RUSTFLAGS="$RUSTFLAGS -C debuginfo=2" &&
 ./configure --prefix=/usr    \
             --enable-vala    \
             --disable-static \
-            --docdir=/usr/share/doc/librsvg-2.50.1 $BUILDTRUPLE &&
+            --docdir=/usr/share/doc/librsvg-2.50.2 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -44,5 +44,5 @@ librsvg:
 librsvg:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/librsvg-2.50.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/librsvg-2.50.2-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
