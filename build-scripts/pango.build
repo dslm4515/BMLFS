@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Pango 
-# Source: ftp://ftp.gnome.org/pub/gnome/sources/pango/1.47/pango-1.47.0.tar.xz
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/pango/1.48/pango-1.48.0.tar.xz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -15,7 +15,7 @@ mkdir build &&
 cd    build &&
 
 meson --prefix=/usr --sysconfdir=/etc \
-      -Dintrospection=true .. &&
+      -Dintrospection=enabled .. &&
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
@@ -43,5 +43,5 @@ pango:
 pango:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pango-1.47.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/pango-1.48.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
