@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # fftw
-# Source: ftp://ftp.fftw.org/pub/fftw/fftw-3.3.8.tar.gz
+# Source: ftp://ftp.fftw.org/pub/fftw/fftw-3.3.9.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -67,5 +67,5 @@ fftw: Homepage: http://www.fftw.org/
 fftw:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/fftw-3.3.8-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/fftw-3.3.9-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
