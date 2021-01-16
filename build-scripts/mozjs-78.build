@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # mozjs78 (JS 78)
-# Source: https://ftp.mozilla.org/pub/firefox/releases/78.3.1esr/source/firefox-78.3.1esr.source.tar.xz
+# Source: https://ftp.mozilla.org/pub/firefox/releases/78.6.1esr/source/firefox-78.6.1esr.source.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -87,5 +87,5 @@ mozjs:
 mozjs:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mozjs-78.3.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/mozjs-78.6.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
