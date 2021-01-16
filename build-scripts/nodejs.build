@@ -1,8 +1,7 @@
 #! /bin/bash
 
 # Node.js
-# Source: https://nodejs.org/dist/v12.19.0/node-v12.19.0.tar.xz
-# Source: https://nodejs.org/dist/v14.13.1/node-v14.13.1.tar.gz (void)
+# Source: https://nodejs.org/dist/v14.15.4/node-v14.15.4.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -14,28 +13,23 @@
 #
 # Node.js does not compile with LibreSSL. Use the bundled openssl.
 
-patch -Np1 -i ../patches/nodejs-alpine/dont-run-gyp-files-for-bundled-deps.patch
-patch -Np1 -i ../patches/nodejs-alpine/link-with-libatomic-on-mips32.patch
-patch -Np1 -i ../patches/nodejs-alpine/unbundle-uv.patch
-#patch -Np0 -i ../patches/nodejs-void/shared-uv.patch
-#patch -Np0 -i ../patches/nodejs-void/python3.9.patch
+#patch -Np0 -i ../patches/nodejs-void-14.15.4/shared-uv.patch
 
 case $(uname -m) in
-      i686) export LDFLAGS="-Wl,--no-keep-memory" ;;
-esac &&
-export CFLAGS="$CFLAGS -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"     &&
-export CXXFLAGS="$CXXFLAGS -D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" &&
+      i686) export LDFLAGS="-Wl,--no-keep-memory"             ;;
+esac
+export CFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"    &&
+export CXXFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"  &&
 
-#rm -rvf deps/brotli deps/cares deps/openssl deps/uv deps/zlib &&
-rm -rvf  deps/brotli  deps/cares deps/uv deps/zlib &&
-python3 configure.py --prefix=/usr \
-		--shared-brotli \
-		--shared-zlib \
-		--shared-libuv \
-		--shared-cares \
-		--shared-nghttp2 &&
-		
-read -p "Compile?" && make BUILDTYPE=Release -j2 &&
+#rm -rvf  deps/brotli  deps/cares deps/uv deps/zlib &&
+
+./configure --prefix=/usr --shared-zlib \
+            --with-intl=system-icu     \
+            --shared-libuv \
+	    --shared-nghttp2 \
+	    --shared-cares &&
+
+make BUILDTYPE=Release -j2
 
 sudo -S make DESTDIR=$BUILD install &&
 unset CXXFLAGS CFLAGS LDFLAGS &&
@@ -63,5 +57,5 @@ nodejs:
 nodejs:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/nodejs-12.19.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/nodejs-14.15.4-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
