@@ -1,0 +1,21 @@
+--- elogind-243.7/src/shared/musl_missing.h.old	2020-03-12 19:33:40.000000000 +0000
++++ elogind-243.7/src/shared/musl_missing.h	2020-07-24 23:42:45.556511070 +0000
+@@ -76,7 +76,6 @@
+ /* Make musl utmp/wtmp stubs visible if needed. */
+ #if ENABLE_UTMP
+ # include <paths.h>
+-# include <utmp.h>
+ # include <utmpx.h>
+ # if defined(_PATH_UTMP) && !defined(_PATH_UTMPX)
+ #   define _PATH_UTMPX _PATH_UTMP
+--- elogind-243.7/src/basic/user-util.c.old	2020-03-12 19:33:40.000000000 +0000
++++ elogind-243.7/src/basic/user-util.c	2020-07-24 23:44:44.253733648 +0000
+@@ -12,7 +12,7 @@
+ #include <string.h>
+ #include <sys/stat.h>
+ #include <unistd.h>
+-#include <utmp.h>
++#include <utmpx.h>
+ 
+ #include "alloc-util.h"
+ #include "errno-util.h"
