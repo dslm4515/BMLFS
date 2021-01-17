@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # ell (Embedded Linux Library) 0.33
-# source: https://mirrors.edge.kernel.org/pub/linux/libs/ell/ell-0.33.tar.xz
+# source: https://mirrors.edge.kernel.org/pub/linux/libs/ell/ell-0.35.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,6 +10,9 @@
 # Required:     glib
 # Recommended:  NONE
 # Optional:     NONE
+
+patch -Np0 -i ../patches/ell-void/musl-rawmemchr.patch
+patch -Np0 -i ../patches/ell-void/linux-types.patch
 
 ./configure --prefix=/usr \
             --enable-glib $BUILDTRUPLE
@@ -50,5 +53,5 @@ EOF
 sudo -S mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build and install package" &&
-sudo makepkg -l y -c n $PKGS/ell-0.33-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS/ell-0.35-$(uname -m)-mlfs.txz &&
 sudo rm -rf $BUILD/*                                     
