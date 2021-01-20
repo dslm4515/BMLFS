@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # gstreamer
-# Source: https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.18.0.tar.xz
+# Source: https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.18.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -19,7 +19,7 @@ meson  --prefix=/usr       \
        -Dbuildtype=release \
        -Dgst_debug=false   \
        -Dpackage-origin=https://github.com/dslm4515/BMLFS \
-       -Dpackage-name="GStreamer 1.18.0 BMLFS" && 
+       -Dpackage-name="GStreamer 1.18.2 BMLFS" && 
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
@@ -47,5 +47,5 @@ gstreamer: GStreamer is released under the LGPL.
 gstreamer: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gstreamer-1.18.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/gstreamer-1.18.2-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
