@@ -2,6 +2,7 @@
 
 # DConf Editor
 # Source: ftp://ftp.gnome.org/pub/gnome/sources/dconf-editor/3.38/dconf-editor-3.38.0.tar.xz
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/dconf-editor/3.38/dconf-editor-3.38.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -39,5 +40,5 @@ dconf-editor:
 dconf-editor:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/dconf-editor-3.38.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/dconf-editor-3.38.2-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
