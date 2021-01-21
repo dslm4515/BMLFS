@@ -2,6 +2,7 @@
 
 # GStreamer Base Plug-ins 
 # Source: https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.18.0.tar.xz
+# Source: https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.18.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -15,11 +16,14 @@
 mkdir build &&
 cd    build &&
 
+# For no Xorg & GLX (Pure Wayland)
+# export NOX_CONFIG='-Dgl_platform=egl -Dx11=disabled -Dgl_winsys="wayland,egl" -Dgl_api=gles2'
+
 meson  --prefix=/usr       \
        -Dbuildtype=release \
        -Dpackage-origin=https://github.com/dslm4515/BMLFS \
        -Dpackage-name="GStreamer 1.18.0 BMLFS"    \
-       --wrap-mode=nodownload &&
+       --wrap-mode=nodownload $NOX_CONFIG &&
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
@@ -47,5 +51,5 @@ gst-plugins-base: gst-plugins-base is a an essential exemplary set of plugins
 gst-plugins-base: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gst-plugins-base-1.18.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/gst-plugins-base-1.18.2-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
