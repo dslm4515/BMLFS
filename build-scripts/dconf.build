@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # DConf
-# Source: ftp://ftp.gnome.org/pub/gnome/sources/dconf/0.38/dconf-0.38.0.tar.xz
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/dconf/0.38/dconf-0.38.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
