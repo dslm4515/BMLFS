@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Pipewire
-# Source: https://github.com/PipeWire/pipewire/archive/0.3.13/pipewire-0.3.13.tar.gz
+# Source: https://github.com/PipeWire/pipewire/archive/0.3.20/pipewire-0.3.20.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -50,5 +50,5 @@ pipewire:
 pipewire:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pipewire-0.3.13-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/pipewire-0.3.20-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
