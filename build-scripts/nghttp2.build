@@ -8,8 +8,8 @@
 #
 # DEPS
 # Required:     NONE
-# Recommended:  NONE
-# Optional:     NONE
+# Recommended:  libevent, libxml2
+# Optional:     libev, jansson
 
 ./configure --prefix=/usr     \
             --disable-static  \
