@@ -25,6 +25,13 @@ autoreconf -vfi &&
             --enable-xlib-egl-platform \
             --enable-wayland-egl-server    \
             --enable-cogl-gst $BUILDTRUPLE &&
+## For non-GLX build:
+#./configure --prefix=/usr --disable-gles1  --enable-gles2 \
+#            -enable-gdk-pixbuf --enable-introspection     \
+#	   --enable-cairo --enable-kms-egl-platform \
+#	   --enable-wayland-egl-platform  --enable-wayland-egl-server \
+#	   $BUILDTRUPLE --enable-glx=no --disable-gl &&
+
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
