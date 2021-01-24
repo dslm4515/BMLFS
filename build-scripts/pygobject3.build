@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # PyGObject 3
-# Source: ftp://ftp.gnome.org/pub/gnome/sources/pygobject/3.38/pygobject-3.38.0.tar.xz
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/pygobject/3.38/pygobject-3.38.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
