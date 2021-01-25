@@ -2,6 +2,7 @@
 
 # Gcr
 # Source: ftp://ftp.acc.umu.se/pub/gnome/sources/gcr/3.38/gcr-3.38.0.tar.xz
+# GIT: https://gitlab.gnome.org/GNOME/gcr
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,16 +12,17 @@
 # Recommended:  GnuPG, gobject-introspection, GTK+3, libxslt, Vala
 # Optional:     GTK-Doc, Valgrind
 
-patch -Np1 -i ../patches/gcr-alpine/allow-building-without-gpg.patch
-patch -Np1 -i ../patches/gcr-alpine/dont-run-gpg-tests.patch
-patch -Np1 -i ../patches/gcr-alpine/fix-64-bit-time_t-32-bit.patch
+# Use if not using git version
+#patch -Np1 -i ../patches/gcr-alpine/allow-building-without-gpg.patch
+#patch -Np1 -i ../patches/gcr-alpine/dont-run-gpg-tests.patch
+#patch -Np1 -i ../patches/gcr-alpine/fix-64-bit-time_t-32-bit.patch
 
-sed -i 's:"/desktop:"/org:' schema/*.xml &&
+#sed -i 's:"/desktop:"/org:' schema/*.xml &&
 
 mkdir gcr-build &&
 cd    gcr-build &&
 
-meson --prefix=/usr -Dgtk_doc=false .. &&
+meson --prefix=/usr -Dgpg_path=/usr/bin/gpg2 -Dgtk_doc=false .. &&
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
