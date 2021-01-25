@@ -1,8 +1,0 @@
-#! /bin/bash
-
-# Gjs 1.56.2
-# Source: http://ftp.gnome.org/pub/gnome/sources/gjs/1.56/gjs-1.56.2.tar.xz
-
-./configure --prefix=/usr  $BUILDTRUPLE --disable-profiler
-make -j2
-sudo -S porg -lD "make install"
