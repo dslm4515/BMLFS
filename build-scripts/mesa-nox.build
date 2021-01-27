@@ -18,8 +18,13 @@ patch -Np1 -i ../patches/mesa-alpine-20.3.2/musl-fix-includes.patch
 
 
 export CFLAGS="$CFLAGS -D_XOPEN_SOURCE=700" &&
-export GLL_DRV="i915,nouveau,radeonsi,svga,swrast" &&
-export DRI_DRIVERS="i965,nouveau" &&
+case $(uname -m) in
+	i686|x86_64) export GLL_DRV="i915,nouveau,radeonsi,svga,swrast" 
+                     export DRI_DRIVERS="i965,nouveau" ;;
+	     arm*)   export GLL_DRV="vc4,panfrost,nouveau,tegra,swrast"
+		     export DRI_DRIVEiRS="nouveau" ;;
+esac
+
 export MESA_GIT_SHA1_OVERRIDE=53b2b224dc2de982c37915a0ad218e33365ff75e &&
 python3 bin/git_sha1_gen.py --output include/git_sha1.h &&
 
@@ -31,21 +36,25 @@ meson --prefix=/usr                  \
       -Dshared-llvm="enabled"        \
       -Dglx="disabled"               \
       -Dxlib-lease="disabled"        \
-      -Ddri3=true                    \
-      -Dplatforms="x11,wayland"      \
+      -Ddri3="enabled"                    \
+      -Dplatforms="wayland"      \
       -Dglx-read-only-text=true      \
       -Dasm=false                    \
-      -Dshared-glapi=true            \
+      -Dshared-glapi="enabled"         \
       -Dopengl=true                  \
-      -Degl=true                     \
-      -Dgallium-va=true              \
+      -Degl="enabled"                     \
+      -Dgallium-va="enabled"              \
       -Dgallium-xa=true              \
-      -Ddri-drivers=$DRI_DRIVERS     \
-      -Dgallium-drivers=$GLL_DRV     \
       -Dosmesa=gallium               \
       -Dvalgrind=false               \
       -Dgallium-nine=false           \
-      -Dgallium-vdpau=true ..  
+      -Dgallium-vdpau="disabled"     \
+      -Dgles2="enabled"              \
+      -Dvulkan-device-select-layer=false \
+      -Dvulkan-drivers=""            \
+      -Dvulkan-overlay-layer=false   \
+      -Ddri-drivers=${DRI_DRIVERS}   \
+      -Dgallium-drivers=${GLL_DRV}  ..  
 
 read -p "Compile?" && ninja -j2 &&
 
