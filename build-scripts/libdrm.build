@@ -15,7 +15,16 @@ patch -Np0 -i ../patches/libdrm-void/dont-build-noveau-tests.patch &&
 mkdir build &&
 cd    build &&
 
-meson --prefix=$XORG_PREFIX -Dudev=true &&
+case $(uname -m) in
+	i686|x86_64) export MARGS=" -Dnouveau=true -Dradeon=false -Damdgpu=true" ;;
+	arm*)        export MARGS=" -Dexynos=true Dvc4=true -Dtegra=true -Dfreedreno=false \
+		                    -Dnouveau=true -Dradeon=false -Damdgpu=false \
+				    -Dvmwgfx=false -Domap=false"
+        ;;
+esac
+
+meson --prefix=/usr -Dudev=true ${MARGS} ..
+
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
