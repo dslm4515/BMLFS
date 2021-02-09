@@ -12,7 +12,11 @@
 # Recommended:  GLU
 # Optional:     libXi
 
+# If source is not from git
 patch -Np1 -i ../patches/freeglut-lfs/gcc10_fix-1.patch
+
+# Rebuild with -DFREEGLUT_GLES=OFF to build freeglut library
+# the glut libraries and glut.pc can be added to glut-gles build
 
 mkdir build &&
 cd    build &&
@@ -21,12 +25,13 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr       \
       -DFREEGLUT_BUILD_DEMOS=OFF        \
       -DFREEGLUT_BUILD_STATIC_LIBS=OFF  \
       -DFREEGLUT_GLES=ON \
-      -DFREEGLUT_WAYLAND=ON \ #if using svn for FreeGLUT on wayland
+      -DFREEGLUT_WAYLAND=ON \ 
       -Wno-dev .. &&
 read -p "Compile?" && make -j2 &&
 
-sudo -S make DESTDIR=$BUILD install &&
-sudo cp -a freeglut.pc /BUILD/usr/lib/pkgconfig/ &&
+sudo -S make DESTDIR=$BUILD install && \
+sudo -S mkdir -pv ${BUILD}/usr/lib/pkgconfig/ && \
+sudo cp -a freeglut.pc ${BUILD}/usr/lib/pkgconfig/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
