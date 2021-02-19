@@ -16,6 +16,7 @@ patch -Np1 -i ../patches/elogind-adelie/utmps.patch
 mkdir build &&
 cd    build &&
 
+export LDFLAGS="-Wl,--no-as-needed -l:libutmps.so -Wl,--as-needed"
 meson --prefix=/usr                         \
       --sysconfdir=/etc                     \
       --localstatedir=/var                  \
@@ -36,6 +37,7 @@ sudo -S cp -v ../src/systemd/_sd-common.h ${BUILD}/usr/include/  &&
 sudo -S cp -v ../../files/elogind-void/elogind.wrapper ${BUILD}/usr/libexec/elogind &&
 sudo -S chmod -v 755 ${BUILD}/usr/libexec/elogind/elogind.wrapper &&
 sudo -S cp -v ../../files/elogind-lfs/elogind-user ${BUILD}/etc/pam.d/ &&
+unset LDFLAGS && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
