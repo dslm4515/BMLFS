@@ -2,6 +2,7 @@
 
 # 
 # Source: https://download.videolan.org/vlc/3.0.11.1/vlc-3.0.11.1.tar.xz
+# Source: http://get.videolan.org/vlc/3.0.12/vlc-3.0.12.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
