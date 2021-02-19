@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# Cairo 1.17.3
+# Cairo 1.17.4
 # Source: https://github.com/freedesktop/cairo.git
 # Commit Hash: f8967015029e2c1c59913a2a684c74f62b6e8979 
 #
@@ -17,26 +17,21 @@
 patch -Np1 -i ../patches/cairo-alpine/musl-stacksize.patch
 #patch -Np1 -i ../patches/cairo-alpine/pdf-flush.patch      # For cairo 1.16.0
 
-./autogen.sh \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		--enable-ft \
-		--enable-gobject \
-		--enable-pdf \
-		--enable-png \
-		--enable-ps \
-		--enable-svg \
-		--enable-tee \
-		--enable-x \
-		--enable-xcb \
-		--enable-xcb-shm \
-		--enable-xlib \
-		--enable-xlib-xrender \
-		--disable-xlib-xcb \
-		--disable-static    \
-		--enable-gl \
-		--enable-xlib-xcb  --enable-trace=no  $BUILDTRUPLE &&
+# Uss of autotools can be unpredictable with gettext-tiny
+#./autogen.sh \
+#		--prefix=/usr           --sysconfdir=/etc  \
+#		--localstatedir=/var    --enable-ft        \
+#		--enable-gobject        --enable-pdf       \
+#		--enable-png            --enable-ps        \
+#		--enable-svg            --enable-tee       \
+#		--enable-x              --enable-xcb       \
+#		--enable-xcb-shm        --enable-xlib      \
+#		--enable-xlib-xrender   --disable-xlib-xcb \
+#		--disable-static        --enable-gl        \
+#		--enable-xlib-xcb       --enable-trace=no  $BUILDTRUPLE && \
+#read -p "Compile?" && make -j2                  && \
+#sudo -S make DESTDIR=$BUILD install             && \
+
 ## For building without GLX:
 #./autogen.sh --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-ft \
 #	--enable-gobject --enable-pdf --enable-png --enable-ps --enable-tee \
@@ -44,11 +39,24 @@ patch -Np1 -i ../patches/cairo-alpine/musl-stacksize.patch
 #	--enable-glesv2=no --enable-glesv3=yes --enable-egl=yes --enable-trace=no \
 #        --enable-glx=no --enable-test-surfaces=no $BUILDTRUPLE &&	
 
-read -p "Compile?" && make -j2 &&
+# Autotool build broken. Use meson
+meson --prefix=/usr \
+	-Ddrm="enabled" \
+	-Dontconfig="enabled"\
+	-Dreetype="enabled" \
+	-Dgl-backend="glesv3" \
+	-Dglesv2="enabled" -Dglesv3="enabled" \
+	-Dpng="enabled" \
+	-Dtee="enabled" \
+	-Dxcb="enabled" \
+	-Dxlib="enabled" \
+	-Dtests="disabled" OUT && \
 
-sudo -S make DESTDIR=$BUILD install &&
+ninja -C OUT -j2                && \
 
-cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install    && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install && \
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
 # The "handy ruler" below makes it easier to edit a package description.  Line
@@ -71,5 +79,5 @@ cairo:
 cairo:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cairo-1.17.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/cairo-1.17.4-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
