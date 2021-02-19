@@ -12,7 +12,9 @@
 # Recommended:  NONE
 # Optional:     GTK-doc
 
- mkdir BUILD && cd BUILD && meson --prefix=/usr -Dlogind=none ..
+mkdir BUILD && cd BUILD && \
+
+meson --prefix=/usr -Dlogind=none .. && \
 
 read -p "Compile?" && ninja -j2 &&
 

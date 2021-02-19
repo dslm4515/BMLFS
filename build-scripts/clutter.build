@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Clutter
-# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/clutter/1.26/clutter-1.26.4.tar.xz
+# Source: https://download.gnome.org/sources/clutter/1.26/clutter-1.26.4.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -20,6 +20,20 @@
             --enable-evdev-input        \
             --enable-wayland-backend    \
             --enable-wayland-compositor $BUILDTRUPLE &&
+# For no-Xorg/No-GL/No-GLX systems:
+./configure --prefix=/usr               \
+            --sysconfdir=/etc           \
+            --enable-egl-backend        \
+            --enable-gdk-backend \
+            --without-x \
+            --enable-evdev-input        \
+            --enable-wayland-backend    \
+            --enable-wayland-compositor \
+	    --enable-tslib-input=yes \
+	    --enable-x11-backend=no \
+	    --enable-evdev-input=yes $BUILDTRUPLE
+
+	    
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&

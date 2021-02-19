@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GNOME Online Accounts
-# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/gnome-online-accounts/3.38/gnome-online-accounts-3.38.0.tar.xz
+# Source: https://download.gnome.org/sources/gnome-online-accounts/3.38/gnome-online-accounts-3.38.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -12,13 +12,13 @@
 # Optional:     GTK-Doc, MIT Kerberos V5, and Valgrind 
 
 # Go to  http://www.chromium.org/developers/how-tos/api-keys to
-# Generate ${gsecret} and ${goggle-id}
+# Generate ${gsecret} and ${goggle_id}
 
 ./configure --prefix=/usr \
             --disable-static \
             $BUILDTRUPLE \
             --with-google-client-secret=${gsecret} \
-            --with-google-client-id=${goggle-id} &&
+            --with-google-client-id=${goggle_id} &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
