@@ -38,6 +38,13 @@ sudo -S ln -sfnv qt-5.15.1 ${BUILD}/opt/qt5 &&
 # Allows using Python 3 instead of Python 2. This command destroys the build for QtWebEngine
 sed -i 's/python /python3 /' qtdeclarative/qtdeclarative.pro \
                              qtdeclarative/src/3rdparty/masm/masm.pri &&
+# For GLX/Xorg systems:
+export CONFIG_ARGS="-opengl"
+
+# For Wayland-only systems
+export CONFIG_ARGS=" -opengles3 -directfb -no-xcb -linuxfb -no-xcb-xlib \
+	             -no-gtk"
+
 MAKE=/usr/bin/make \
 CC="cc" CXX="c++" CPP="cpp" LD="c++" AR="ar" AS="as" NM="nm" \
 OBJDUMP="objdump" STRIP="strip" RANLIB="ranlib" \
@@ -60,7 +67,7 @@ LDFLAGS=$LDFLAGS \
             -no-use-gold-linker -system-libjpeg \
             -system-libpng      -system-zlib \
             -system-pcre        -no-separate-debug-info \
-            -opengl             -no-reduce-relocations \
+            ${CONFIG_ARGS}      -no-reduce-relocations \
             -skip qtwebengine &&
 
 read -p "Compile?" && make -j2 &&
