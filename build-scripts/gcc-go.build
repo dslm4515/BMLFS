@@ -93,7 +93,7 @@ done
 patch -Np0 -i ../patches/gcc-9.1.0-void/fix-musl-execinfo.patch &&
 
 # Apply patch for libgo
-
+patch -Np1 -i ../patches/gcc-10.2.0-bmlfs/gcc-10.2.0-go-fixes.patch
 
 # If building on x86_64, change the default
 # directory name for 64-bit libraries to “lib”:

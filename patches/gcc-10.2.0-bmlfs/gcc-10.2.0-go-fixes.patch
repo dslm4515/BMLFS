@@ -1,0 +1,180 @@
+diff -uNr gcc-10.2.0.orig/libgo/go/runtime/mem_gccgo.go gcc-10.2.0/libgo/go/runtime/mem_gccgo.go
+--- gcc-10.2.0.orig/libgo/go/runtime/mem_gccgo.go	2020-07-23 01:35:18.980402576 -0500
++++ gcc-10.2.0/libgo/go/runtime/mem_gccgo.go	2020-12-10 09:42:55.306279857 -0600
+@@ -15,7 +15,7 @@
+ //go:linkname sysFree
+ 
+ //extern mmap
+-func sysMmap(addr unsafe.Pointer, n uintptr, prot, flags, fd int32, off uintptr) unsafe.Pointer
++func sysMmap(addr unsafe.Pointer, n uintptr, prot, flags, fd int32, off int64) unsafe.Pointer
+ 
+ //extern munmap
+ func munmap(addr unsafe.Pointer, length uintptr) int32
+@@ -37,7 +37,7 @@
+ 	}
+ }
+ 
+-func mmap(addr unsafe.Pointer, n uintptr, prot, flags, fd int32, off uintptr) (unsafe.Pointer, int) {
++func mmap(addr unsafe.Pointer, n uintptr, prot, flags, fd int32, off int64) (unsafe.Pointer, int) {
+ 	p := sysMmap(addr, n, prot, flags, fd, off)
+ 	if uintptr(p) == _MAP_FAILED {
+ 		return nil, errno()
+diff -uNr gcc-10.2.0.orig/libgo/go/runtime/signal_gccgo.go gcc-10.2.0/libgo/go/runtime/signal_gccgo.go
+--- gcc-10.2.0.orig/libgo/go/runtime/signal_gccgo.go	2020-07-23 01:35:18.984402619 -0500
++++ gcc-10.2.0/libgo/go/runtime/signal_gccgo.go	2020-12-10 09:42:55.310279857 -0600
+@@ -106,7 +106,7 @@
+ 	if sigaction(i, nil, &sa) < 0 {
+ 		// On GNU/Linux glibc rejects attempts to call
+ 		// sigaction with signal 32 (SIGCANCEL) or 33 (SIGSETXID).
+-		if GOOS == "linux" && (i == 32 || i == 33) {
++		if GOOS == "linux" && (i == 32 || i == 33 || i == 34) {
+ 			return _SIG_DFL
+ 		}
+ 		throw("sigaction read failure")
+diff -uNr gcc-10.2.0.orig/libgo/go/syscall/libcall_linux.go gcc-10.2.0/libgo/go/syscall/libcall_linux.go
+--- gcc-10.2.0.orig/libgo/go/syscall/libcall_linux.go	2020-07-23 01:35:18.992402708 -0500
++++ gcc-10.2.0/libgo/go/syscall/libcall_linux.go	2020-12-10 09:42:55.300279857 -0600
+@@ -206,19 +206,19 @@
+ //sys	Setxattr(path string, attr string, data []byte, flags int) (err error)
+ //setxattr(path *byte, name *byte, value *byte, size Size_t, flags _C_int) _C_int
+ 
+-//sys	splice(rfd int, roff *_loff_t, wfd int, woff *_loff_t, len int, flags int) (n int64, err error)
+-//splice(rfd _C_int, roff *_loff_t, wfd _C_int, woff *_loff_t, len Size_t, flags _C_uint) Ssize_t
++//sys	splice(rfd int, roff *_off_t, wfd int, woff *_off_t, len int, flags int) (n int64, err error)
++//splice(rfd _C_int, roff *_off_t, wfd _C_int, woff *_off_t, len Size_t, flags _C_uint) Ssize_t
+ func Splice(rfd int, roff *int64, wfd int, woff *int64, len int, flags int) (n int64, err error) {
+-	var lroff _loff_t
+-	var plroff *_loff_t
++	var lroff _off_t
++	var plroff *_off_t
+ 	if roff != nil {
+-		lroff = _loff_t(*roff)
++		lroff = _off_t(*roff)
+ 		plroff = &lroff
+ 	}
+-	var lwoff _loff_t
+-	var plwoff *_loff_t
++	var lwoff _off_t
++	var plwoff *_off_t
+ 	if woff != nil {
+-		lwoff = _loff_t(*woff)
++		lwoff = _off_t(*woff)
+ 		plwoff = &lwoff
+ 	}
+ 	n, err = splice(rfd, plroff, wfd, plwoff, len, flags)
+diff -uNr gcc-10.2.0.orig/libgo/mksigtab.sh gcc-10.2.0/libgo/mksigtab.sh
+--- gcc-10.2.0.orig/libgo/mksigtab.sh	2020-07-23 01:35:19.004402840 -0500
++++ gcc-10.2.0/libgo/mksigtab.sh	2020-12-10 09:42:55.305279857 -0600
+@@ -82,7 +82,7 @@
+ checksig _SIGEMT     '{_SigThrow, "SIGEMT: emulate instruction executed"}'
+ checksig _SIGINFO    '{_SigNotify, "SIGINFO: status request from keyboard"}'
+ checksig _SIGTHR     '{_SigNotify, "SIGTHR: reserved"}'
+-checksig _SIGPOLL    '{_SigNotify, "SIGPOLL: pollable event occurred"}'
++#checksig _SIGPOLL    '{_SigNotify, "SIGPOLL: pollable event occurred"}'
+ checksig _SIGWAITING '{_SigNotify, "SIGWAITING: reserved signal no longer used by"}'
+ checksig _SIGLWP     '{_SigNotify, "SIGLWP: reserved signal no longer used by"}'
+ checksig _SIGFREEZE  '{_SigNotify, "SIGFREEZE: special signal used by CPR"}'
+@@ -95,10 +95,12 @@
+ 
+ # Special handling of signals 32 and 33 on GNU/Linux systems,
+ # because they are special to glibc.
++# Signal 34 is additionally special to Linux systems with musl.
+ if test "${GOOS}" = "linux"; then
+-    SIGLIST=$SIGLIST"_32__33_"
++    SIGLIST=$SIGLIST"_32__33__34_"
+     echo '	32: {_SigSetStack + _SigUnblock, "signal 32"}, /* SIGCANCEL; see issue 6997 */'
+     echo '	33: {_SigSetStack + _SigUnblock, "signal 33"}, /* SIGSETXID; see issues 3871, 9400, 12498 */'
++    echo '	34: {_SigSetStack + _SigUnblock, "signal 34"}, /* see issue 30062 */'
+ fi
+ 
+ if test "${GOOS}" = "aix"; then
+diff -uNr gcc-10.2.0.orig/libgo/mksysinfo.sh gcc-10.2.0/libgo/mksysinfo.sh
+--- gcc-10.2.0.orig/libgo/mksysinfo.sh	2020-07-23 01:35:19.004402840 -0500
++++ gcc-10.2.0/libgo/mksysinfo.sh	2020-12-10 09:42:55.311279857 -0600
+@@ -379,11 +379,7 @@
+ # Some basic types.
+ echo 'type Size_t _size_t' >> ${OUT}
+ echo "type Ssize_t _ssize_t" >> ${OUT}
+-if grep '^const _HAVE_OFF64_T = ' gen-sysinfo.go > /dev/null 2>&1; then
+-  echo "type Offset_t _off64_t" >> ${OUT}
+-else
+-  echo "type Offset_t _off_t" >> ${OUT}
+-fi
++echo "type Offset_t _off_t" >> ${OUT}
+ echo "type Mode_t _mode_t" >> ${OUT}
+ echo "type Pid_t _pid_t" >> ${OUT}
+ echo "type Uid_t _uid_t" >> ${OUT}
+@@ -510,9 +506,9 @@
+          -e 's/st_size/Size/' \
+          -e 's/st_blksize/Blksize/' \
+          -e 's/st_blocks/Blocks/' \
+-         -e 's/st_atim/Atim/' \
+-         -e 's/st_mtim/Mtim/' \
+-         -e 's/st_ctim/Ctim/' \
++         -e 's/st_atim/Atim/g' \
++         -e 's/st_mtim/Mtim/g' \
++         -e 's/st_ctim/Ctim/g' \
+          -e 's/\([^a-zA-Z0-9_]\)_timeval\([^a-zA-Z0-9_]\)/\1Timeval\2/g' \
+          -e 's/\([^a-zA-Z0-9_]\)_timespec_t\([^a-zA-Z0-9_]\)/\1Timespec\2/g' \
+          -e 's/\([^a-zA-Z0-9_]\)_st_timespec_t\([^a-zA-Z0-9_]\)/\1StTimespec\2/g' \
+diff -uNr gcc-10.2.0.orig/libgo/runtime/go-signal.c gcc-10.2.0/libgo/runtime/go-signal.c
+--- gcc-10.2.0.orig/libgo/runtime/go-signal.c	2020-07-23 01:35:19.004402840 -0500
++++ gcc-10.2.0/libgo/runtime/go-signal.c	2020-12-10 09:42:55.361279858 -0600
+@@ -224,7 +224,7 @@
+ #elif defined(__alpha__) && defined(__linux__)
+ 	ret.sigpc = ((ucontext_t*)(context))->uc_mcontext.sc_pc;
+ #elif defined(__PPC__) && defined(__linux__)
+-	ret.sigpc = ((ucontext_t*)(context))->uc_mcontext.regs->nip;
++	ret.sigpc = ((ucontext_t*)(context))->uc_mcontext.gp_regs[32];
+ #elif defined(__PPC__) && defined(_AIX)
+ 	ret.sigpc = ((ucontext_t*)(context))->uc_mcontext.jmp_context.iar;
+ #elif defined(__aarch64__) && defined(__linux__)
+@@ -333,7 +333,7 @@
+ 		runtime_printf("sp  %X\n", m->sc_regs[30]);
+ 		runtime_printf("pc  %X\n", m->sc_pc);
+ 	  }
+-#elif defined(__PPC__) && defined(__LITTLE_ENDIAN__) && defined(__linux__)
++#elif defined(__PPC__) && defined(__LITTLE_ENDIAN__) && defined(__GLIBC__)
+ 	  {
+ 		mcontext_t *m = &((ucontext_t*)(context))->uc_mcontext;
+ 		int i;
+diff -uNr gcc-10.2.0.orig/libgo/runtime/proc.c gcc-10.2.0/libgo/runtime/proc.c
+--- gcc-10.2.0.orig/libgo/runtime/proc.c	2020-07-23 01:35:19.008402883 -0500
++++ gcc-10.2.0/libgo/runtime/proc.c	2020-12-10 09:42:55.313279857 -0600
+@@ -66,6 +66,10 @@
+ 
+ __thread G *g __asm__(GOSYM_PREFIX "runtime.g");
+ 
++/* libucontext does not seem to support tlsbase, undef the macro
++ * here to make sure we define initcontext and fixcontext as dummies. */
++#undef SETCONTEXT_CLOBBERS_TLS
++
+ #ifndef SETCONTEXT_CLOBBERS_TLS
+ 
+ static inline void
+diff -uNr gcc-10.2.0.orig/libgo/sysinfo.c gcc-10.2.0/libgo/sysinfo.c
+--- gcc-10.2.0.orig/libgo/sysinfo.c	2020-07-23 01:35:19.008402883 -0500
++++ gcc-10.2.0/libgo/sysinfo.c	2020-12-10 11:32:41.724367602 -0600
+@@ -73,9 +73,6 @@
+ #include <sys/times.h>
+ #include <sys/wait.h>
+ #include <sys/un.h>
+-#if defined(HAVE_SYS_USER_H)
+-#include <sys/user.h>
+-#endif
+ #if defined(HAVE_SYS_UTSNAME_H)
+ #include <sys/utsname.h>
+ #endif
+@@ -141,9 +138,9 @@
+ #if defined(HAVE_SYS_TIMEX_H)
+ #include <sys/timex.h>
+ #endif
+-#if defined(HAVE_SYS_SYSINFO_H)
+-#include <sys/sysinfo.h>
+-#endif
++//#if defined(HAVE_SYS_SYSINFO_H)
++//#include <sys/sysinfo.h>
++//#endif
+ #if defined(HAVE_UTIME_H)
+ #include <utime.h>
+ #endif
