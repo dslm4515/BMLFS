@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# GTKterm
+# Source: https://github.com/Jeija/gtkterm/archive/1.1.1.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     GTK+3, vte, GLib
+# Recommended:  libgudev
+# Optional:     NONE
+
+meson --prefix=/usr OUT && \
+
+ninja -C OUT -j2 && \
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+gtkterm: GTKterm
+gtkterm:
+gtkterm: A simple, graphical serial port terminal emulator for Linux and 
+gtkterm: possibly other POSIX-compliant operating systems. It can be used to 
+gtkterm: communicate with all kinds of devices with a serial interface, such 
+gtkterm: as embedded computers, microcontrollers, modems, GPS receivers, CNC 
+gtkterm: machines and more.
+gtkterm:
+gtkterm: https://github.com/Jeija/gtkterm
+gtkterm:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gtkterm-1.1.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
