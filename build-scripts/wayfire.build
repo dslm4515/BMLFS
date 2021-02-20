@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# WayFire
+# Source: https://github.com/WayfireWM/wayfire/archive/v0.7.0.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     wlroots, wayland-protocol, GLM, libjpeg, libexecinfo
+# Required:     libpng, mesa, pixman, libinput, libxkbcommon, cairo
+# Recommended:  libappindicator, libdbusmenu
+# Optional:     NONE
+
+meson --prefix=/usr -Denable_gles32=true -Duse_system_wfconfig="disabled" -Duse_system_wlroots="enabled" BUILD && \
+
+ninja -C BUILD -j2 && \
+
+sudo -S DESTDIR=${BUILD} ninja -C BUILD install && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install && \
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+wayfire: WayFire
+wayfire:
+wayfire: Wayfire is a 3D Wayland compositor, inspired by Compiz and based on 
+wayfire: wlroots. It aims to create a customizable, extendable and lightweight
+wayfire: environment without sacrificing its appearance. 
+wayfire:
+wayfire: Homepage: https://github.com/WayfireWM/wayfire
+wayfire:
+wayfire:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/wayfire-0.7.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
