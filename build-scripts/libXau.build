@@ -7,12 +7,13 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     NONE
+# Required:     xorgproto
 # Recommended:  NONE
 # Optional:     NONE
 
-./configure $XORG_CONFIG &&
-read -p "Compile?" && make -j2 && 
+./configure --prefix=/usr --sysconfdir=/etc \
+	    --localstatedir=/var --disable-static  &&
+make -j2 && 
 read -p "Install?" &&
 
 sudo -S make DESTDIR=${BUILD} install &&
