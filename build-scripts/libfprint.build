@@ -1,0 +1,66 @@
+#! /bin/bash
+
+# libfprint
+# Source: https://gitlab.freedesktop.org/libfprint/libfprint.git
+# Source: https://gitlab.freedesktop.org/libfprint/libfprint/uploads/4272fab4f37516db5b20d07bb576a4b1/libfprint-0.8.2.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NSS, libgusb, pixman, glib, cairo
+# Recommended:  NONE
+# Optional:     gtk-doc, gtk3
+#
+# NOTE : fprintd older than v1.x.x will require libfprint version older 
+# than 1.x.x
+
+################################################ v1.90.7 #######################
+patch -Np0 -i ../patches/libfprint-void/fix-stderr-redefinition.patch
+
+meson --prefix=/usr \
+	-Ddoc=false \
+	-Dx11-examples=false \
+	-Dudev_rules=false OUT  && \
+sudo -S mkdir -pv ${BUILD}/usr/lib/udev/rules.d/ && \
+sudo -S cp -v ../files/libfprint-void/60-fprint-autosuspend.rules \
+              ${BUILD/}/usr/lib/udev/rules.d/     && \
+###############################################################################
+
+## v0.8.2 #####################################################################
+meson --prefix=/usr \
+      -Dudev_rules=false \
+      -Dx11-examples=false \
+      -Dgtk-examples=false \
+      -Ddoc=false OUT && \
+#############################################################################
+
+ninja -C OUT -j2 && \
+
+sudo -S DESTDIR=${BUILD} ninja -C OUT install &&  \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install && \
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+libfprint: libfprint (library for support fingerprint reader devices)
+libfprint:
+libfprint: libfprint is an open source software library designed to make it easy
+libfprint: for application developers to add support for consumer fingerprint
+libfprint: readers to their software.
+libfprint:
+libfprint:
+libfprint: Homepage: http://reactivated.net/fprint/wiki/Libfprint
+libfprint:
+libfprint:
+libfprint:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libfprint-1.90.7-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
