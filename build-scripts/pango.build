@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Pango 
-# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/pango/1.48/pango-1.48.0.tar.xz 
+# Source: https://download.gnome.org/sources/pango/1.48/pango-1.48.0.tar.xz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
