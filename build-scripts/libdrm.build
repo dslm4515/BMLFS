@@ -17,7 +17,7 @@ cd    build &&
 
 case $(uname -m) in
 	i686|x86_64) export MARGS=" -Dnouveau=true -Dradeon=true -Damdgpu=true \
-		                    -Dexynos=false Dvc4=false -Dtegra=false \
+		                    -Dexynos=false -Dvc4=false -Dtegra=false \
 				    -Dfreedreno=false -Dvmwgfx=false -Domap=false " ;;
 	arm*)        export MARGS=" -Dexynos=true Dvc4=true -Dtegra=true -Dfreedreno=false \
 		                    -Dnouveau=true -Dradeon=false -Damdgpu=false \
