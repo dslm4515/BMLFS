@@ -18,14 +18,14 @@ patch -Np1 -i ../patches/mesa-alpine-20.3.2/adjust-cache-deflate-buffer.patch
 patch -Np1 -i ../patches/mesa-alpine-20.3.2/musl-fix-includes.patch
 
 export CFLAGS="$CFLAGS -D_XOPEN_SOURCE=700" &&
-export GLL_DRV="i915,nouveau,radeonsi,svga,swrast" &&
+export GLL_DRV="i915,nouveau,radeonsi,svga,swrast,r600" &&
 export DRI_DRIVERS="i965,nouveau" &&
 export MESA_GIT_SHA1_OVERRIDE=53b2b224dc2de982c37915a0ad218e33365ff75e &&
 python3 bin/git_sha1_gen.py --output include/git_sha1.h &&
 
 mkdir build &&
 cd    build &&
-meson --prefix=$XORG_PREFIX          \
+meson --prefix=/usr          \
       -Dbuildtype=release            \
       -Ddri-drivers=$DRI_DRIVERS     \
       -Dgallium-drivers=$GLL_DRV     \
@@ -35,17 +35,19 @@ meson --prefix=$XORG_PREFIX          \
       -Dvalgrind=false               \
       -Dgallium-xa=true              \
       -Ddri3=true                    \
-      -Dplatforms="x11,wayland,drm"  \
+      -Dplatforms="x11,wayland"  \
       -Dllvm=true                    \
       -Dshared-llvm=true             \
       -Dshared-glapi=true            \
       -Dopengl=true                  \
-      -Dgles1=false \
+      -Dgles1=true \
       -Dgles2=true \
       -Degl=true \
       -Dgallium-vdpau=true \
       -Dgallium-va=true \
       -Dglx-read-only-text=true \
+      -Dvulkan-drivers="amd,swrast,intel" \
+      -Degl="enabled" \
       -Dasm=false ..                 &&
 read -p "Compile?" && ninja -j2 &&
 

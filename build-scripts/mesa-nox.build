@@ -7,9 +7,10 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     LLVM, libdrm, Mako, libxcb, libX11, libxshmfence,
+# Required:     LLVM, libdrm, Mako
 # Recommended:  Libva, libvdpau, wayland-protocols
-# Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind
+# Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind,
+# Optional:     libxcb, libX11, libxshmfence 
 
 patch -Np1 -i ../patches/mesa-alpine-20.3.2/0001-radeonsi-On-Aarch64-force-persistent-buffers-to-GTT.patch
 patch -Np1 -i ../patches/mesa-alpine-20.3.2/add-use-elf-tls.patch
@@ -19,17 +20,17 @@ patch -Np1 -i ../patches/mesa-alpine-20.3.2/musl-fix-includes.patch
 
 export CFLAGS="$CFLAGS -D_XOPEN_SOURCE=700" &&
 case $(uname -m) in
-	i686|x86_64) export GLL_DRV="i915,nouveau,radeonsi,svga,swrast" 
-                     export DRI_DRIVERS="i965,nouveau" ;;
+	i686|x86_64) export GLL_DRV="i915,nouveau,radeonsi,svga,swrast,r600" 
+                     export DRI_DRIVERS="i965,nouveau" 
+		     export V_DRIVERS="amd,swrast" ;;
 	     arm*)   export GLL_DRV="vc4,panfrost,nouveau,tegra,swrast"
-		     export DRI_DRIVEiRS="nouveau" ;;
+		     export DRI_DRIVEiRS="nouveau" 
+		     export V_DRIVERS="" ;;
 esac
 
 export MESA_GIT_SHA1_OVERRIDE=53b2b224dc2de982c37915a0ad218e33365ff75e &&
 python3 bin/git_sha1_gen.py --output include/git_sha1.h &&
 
-mkdir build &&
-cd    build &&
 meson --prefix=/usr                  \
       -Dbuildtype=release            \
       -Dllvm="enabled"               \
@@ -51,15 +52,16 @@ meson --prefix=/usr                  \
       -Dgallium-vdpau="disabled"     \
       -Dgles2="enabled"              \
       -Dvulkan-device-select-layer=false \
-      -Dvulkan-drivers=""            \
+      -Dvulkan-drivers="${V_DRIVERS}"            \
       -Dvulkan-overlay-layer=false   \
-      -Ddri-drivers=${DRI_DRIVERS}   \
-      -Dgallium-drivers=${GLL_DRV}  ..  
+      -Dtools="" \
+      -Ddri-drivers="${DRI_DRIVERS}"   \
+      -Dgallium-drivers="${GLL_DRV}"  OUT  
 
-read -p "Compile?" && ninja -j2 &&
+read -p "Compile?" && ninja -C OUT -j2 &&
 
-sudo -S DESTDIR=$BUILD ninja install &&
-unset CFLAGS GLL_DRV DRI_DRIVERS MESA_GIT_SHA1_OVERRIDE &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+unset CFLAGS GLL_DRV DRI_DRIVERS MESA_GIT_SHA1_OVERRIDE V_DRIVERS &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -84,5 +86,5 @@ mesa:
 mesa: Tailored for a Wayland-only system with reduced Xorg support/features
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mesa-20.3.2_nox-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/mesa-20.3.2-$(uname -m)-noxml.txz &&
 sudo -S rm -rf ${BUILD}/*
