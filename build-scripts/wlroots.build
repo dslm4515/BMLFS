@@ -2,6 +2,7 @@
 
 # wlroots
 # Source: https://github.com/swaywm/wlroots/releases/download/0.11.0/wlroots-0.11.0.tar.gz
+# Source: https://github.com/swaywm/wlroots/releases/download/0.12.0/wlroots-0.12.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,6 +14,10 @@
 # Optional:     xcb-errors
 
 mkdir build && cd build &&
+
+# For no-X11 support add to confiure:
+# -Dx11-backend="disabled" -Dxwayland="disabled"
+
 meson --prefix=/usr     \
       -Dlogind=enabled  \
       -Dlogind-provider=elogind  \
@@ -44,5 +49,5 @@ wlroots:
 wlroots: Homepage: https://github.com/swaywm/wlroots
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wlroots-0.11.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wlroots-0.12.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
