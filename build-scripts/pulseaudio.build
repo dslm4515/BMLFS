@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Pulseaudio
-# Source: https://www.freedesktop.org/software/pulseaudio/releases/pulseaudio-13.0.tar.xz
+# Source: https://www.freedesktop.org/software/pulseaudio/releases/pulseaudio-14.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -12,9 +12,11 @@
 # Optional:     Avahi, Bluez, fftw, GConf, GTK+-3, libsamplerate, SBC, Valgrind, JACK, 
 # Optional      libasyncns, LIRC, ORC, soxr, TDB, WebRTC AudioProcessing and XEN
 
-patch -Np1 -i ../patches/pulseaudio-alpine/define-tunnel_sink-for-module-tunnel-sink.patch
-patch -Np1 -i ../patches/pulseaudio-alpine/link-libintl.patch
-patch -Np1 -i ../patches/pulseaudio-alpine/python3.patch
+#patch -Np1 -i ../patches/pulseaudio-alpine/define-tunnel_sink-for-module-tunnel-sink.patch
+#patch -Np1 -i ../patches/pulseaudio-alpine/link-libintl.patch
+#patch -Np1 -i ../patches/pulseaudio-alpine/python3.patch
+
+# If GTK3 has no X11 support, it must be disabled -Dgtk=disabled 
 
 mkdir BUILD && cd BUILD &&
 meson --prefix=/usr \
