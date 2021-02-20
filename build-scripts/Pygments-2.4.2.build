@@ -1,6 +1,0 @@
-#! /bin/bash
-
-# Pygments 2.4.2
-# source: https://files.pythonhosted.org/packages/source/P/Pygments/Pygments-2.4.2.tar.gz
-
-sudo -S -E porg -lD "python3 setup.py install --optimize=1"
