@@ -1,0 +1,139 @@
+#! /bin/bash
+
+# QtWebengine
+# Source: https://download.qt.io/archive/qt/5.15/5.15.1/submodules/qtwebengine-everywhere-src-5.15.1.tar.xz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     qt5
+# Recommended:  NONE
+# Optional:     NONE
+
+# Apply Alpine Linux patches
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/musl-hacks.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/musl-sandbox.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/nasm.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/qt-musl-crashpad.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/qt-musl-dispatch_to_musl.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/qt-musl-elf-arm.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/qt-musl-execinfo.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/qt-musl-fpstate.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/qt-musl-mallinfo.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/qt-musl-off_t.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/qt-musl-pread-pwrite.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/qt-musl-pvalloc.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/qt-musl-resolve.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/qt-musl-siginfo_t.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/qt-musl-stackstart.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/qt-musl-sysreg-for__WORDSIZE.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/qt-musl-thread-stacksize.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/sandbox-sched_getparam.patch
+patch -Np1 -i ../patches/qtwebengine-5.15.1-alpine/yasm-nls.patch
+
+export WRKSRC=${PWD} && \
+export NINJA_PATH="/usr/bin/ninja" && \
+export CONFIG_ARG="-webengine-icu -webengine-ffmpeg -webengine-opus -webengine-webp \
+	  -webengine-pepper-plugins -webengine-printing-and-pdf -webengine-proprietary-codecs \
+	  -webengine-pulseaudio -webengine-spellchecker -webengine-webrtc -webengine-geolocation \
+	  -sndio" && \
+export CXXFLAGS=" -D_POSIX_THREAD_ATTR_STACKSIZE=2097152" && \
+case $(uname -m) in
+	i686*) export CFLAGS="-D__WORDSIZE=32" 
+	       export CXXFLAGS="$CXXFLAGS -D__WORDSIZE=32" 
+	       export QT_ARCH="i386" ;;
+      x84_64*) export QT_ARCH="x86_64" ;;
+      aarch64*) export QT_ARCH="arm64" ;;
+      arm*)     export QT_ARCH="arm" ;;
+esac
+
+mkdir -pv ${WRKSRC}/.target-spec/linux-g++ && \
+mkdir -pv ${WRKSRC}/.host-spec/linux-g++ && \
+cat > ${WRKSRC}/.target-spec/linux-g++/qmake.conf << "EOF"
+MAKEFILE_GENERATOR      = UNIX
+CONFIG                 += incremental
+QMAKE_INCREMENTAL_STYLE = sublib
+include(/opt/qt-5.15.1/mkspecs/common/linux.conf)
+include(opt/qt-5.15.1/mkspecs/common/gcc-base-unix.conf)
+include(/opt/qt-5.15.1/mkspecs/common/g++-unix.conf)
+QMAKE_TARGET_CONFIG     = /opt/qt-5.15.1/mkspecs/qconfig.pri
+QMAKE_TARGET_MODULE     = /opt/qt-5.15.1/mkspecs/qmodule.pri
+load(qt_config)
+EOF
+echo "#include \"\opt/qt-5.15.1/mkspecs/linux-g++/qplatformdefs.h"" \
+     > ${WRKSRC}/.target-spec/linux-g++/qplatformdefs.h && \
+cp -v .target-spec/linux-g++/qplatformdefs.h .host-spec/linux-g++/qplatformdefs.h
+cat > ${WRKSRC}/.host-spec/linux-g++/qmake.conf << "EOF"
+MAKEFILE_GENERATOR      = UNIX
+CONFIG                 += incremental
+QMAKE_INCREMENTAL_STYLE = sublib
+include(/opt/qt-5.15.1/mkspecs/common/linux.conf)
+include(opt/qt-5.15.1/mkspecs/common/gcc-base-unix.conf)
+include(/opt/qt-5.15.1/mkspecs/common/g++-unix.conf)
+QMAKE_TARGET_CONFIG     = /opt/qt-5.15.1/mkspecs/qconfig.pri
+QMAKE_TARGET_MODULE     = /opt/qt-5.15.1/mkspecs/qmodule.pri
+load(qt_config)
+EOF
+cat > ${WRKSRC}/qt.conf << "EOF"
+[Paths]
+Prefix=/opt/qt5
+ArchData=/opt/qt5/lib
+Headers=/opt/qt5/include/
+Libraries=/opt/qt5/lib
+LibraryExecutables=/opt/qt5/libexec
+Binaries=/opt/qt5/bin
+Plugins=/opt/qt5/plugins
+Imports=/opt/qt5/lib/imports
+Qml2Imports=/opt/qt5/lib/qml
+Translations=/opt/qt-5.15.1/translations
+Settings=/etc/xdg
+Spec=${WRKSEC}/.target-spec/linux-g++
+TargetSpec=${WRKSRC}/.target-spec/linux-g++
+EOF
+
+# Configure!
+#qmake-qt5 -qtconf ${WRKSRC}/qt.conf PREFIX=/opt/qt5 QT_INSTALL_PREFIX=/opt/qt5 \
+	  LIB=/opt/qt5/lib QT_TARGET_ARCH=${QT_ARCH}  ${CONFIG_ARG} 
+qmake-qt5 -qtconf qt.conf PREFIX=/opt/qt5 QT_INSTALL_PREFIX=/opt/qt5 \
+	  LIB=/opt/qt5/lib QT_TARGET_ARCH=${QT_ARCH}
+	  
+## Bootstrap gn (generate ninja) ...if corss-compiling
+#cd src/3rdparty/gn &&
+#PKGCONFIG=/usr/bin/pkgconf \
+#PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/share/pkconfig:/opt/qt5/lib/pkgconfig \
+#python2 build/gen.py --no-last-commit-position --out-path \
+#                     ${WRKSRC}/src/3rdparty/gn/out/Release
+#ninja -C out/Release gn -j2
+#cd  ${WRKSRC}
+
+make -j2
+
+sudo -S make PREFIX=/opt/qt5 DESTDIR=${BUILD} \
+	     INSTALL_ROOT=${BUILD} install
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+qtwebengine: qtwebengine 
+qtwebengine:
+qtwebengine: qtwebengine is an attempt to integrate chromium's fast moving web
+qtwebengine: capabilities into Qt.
+qtwebengine:
+qtwebengine: Homepage: http://qt-project.org/wiki/QtWebEngine
+qtwebengine:
+qtwebengine:
+qtwebengine:
+qtwebengine:
+qtwebengine:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/qtwebengine-5.15.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
