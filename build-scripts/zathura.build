@@ -1,0 +1,40 @@
+#! /bin/bash
+
+# zathura
+# Source:  https://git.pwmt.org/pwmt/zathura 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     GTK+3, GLib
+# Recommended:  libseccomp, librsvg
+# Optional:     girara, libnotify
+
+meson --prefix=/usr OUT && \
+ninja -C OUT -j2 && \
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+zathura: zathura
+zathura:
+zathura: A highly customizable and functional document viewer based on the 
+zathura: girara user interface library and several document libraries.
+zathura:
+zathura: https://git.pwmt.org/pwmt/zathura 
+zathura:
+zathura:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/zathura-0.4.7-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
