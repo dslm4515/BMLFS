@@ -1,8 +1,0 @@
-#! /bin/bash
-
-# Libassuan 2.5.3
-# Source: https://www.gnupg.org/ftp/gcrypt/libassuan/libassuan-2.5.3.tar.bz2
-
-./configure --prefix=/usr $BUILDTRUPLE &&
-read -p "Compile? " && make -j2 && 
-read -p "Install? " && sudo -S porg -lD "make install"

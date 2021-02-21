@@ -1,9 +1,0 @@
-#! /bin/bash
-
-# cdrdao 1.2.4
-# source: https://downloads.sourceforge.net/cdrdao/cdrdao-1.2.4.tar.bz2
-
-./configure --prefix=/usr --mandir=/usr/share/man $BUILDTRUPLE &&
-
-read -p "Compile? " && make -j2 &&
-read -p "Install? " && sudo -S porg -lD "make install"

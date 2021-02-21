@@ -1,9 +1,0 @@
-#! /bin/bash
-
-# SWIG 4.0.0
-# source: https://downloads.sourceforge.net/swig/swig-4.0.0.tar.gz
-
-./configure --prefix=/usr $BUILDTRUPLE \
-            --without-maximum-compile-warnings &&
-read -p "Compile?" && make -j2 &&
-read -p "Install?" && sudo -S porg -lD "make install"

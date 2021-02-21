@@ -1,8 +1,0 @@
-#! /bin/bash
-
-# Desktop File Utils 0.24
-# source: https://www.freedesktop.org/software/desktop-file-utils/releases/desktop-file-utils-0.24.tar.xz
-
-./configure --prefix=/usr &&
-read -p "Compile? " && make -j2 &&
-read -p "Install? " && sudo -S porg -lD "make install"

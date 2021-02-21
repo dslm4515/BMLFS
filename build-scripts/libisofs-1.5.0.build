@@ -1,9 +1,0 @@
-#! /bin/bash
-
-# libisofs 1.5.0
-# source: http://files.libburnia-project.org/releases/libisofs-1.5.0.tar.gz
-
-./configure --prefix=/usr $BUILDTRUPLE --disable-static &&
-
-read -p "Compile? " && make -j2 &&
-read -p "Install? " && sudo -S porg -lD "make install"
