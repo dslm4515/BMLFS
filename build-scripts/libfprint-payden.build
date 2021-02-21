@@ -1,0 +1,40 @@
+#! /bin/bash
+
+# payden's libfprint
+# Source: https://github.com/payden/libfprint.git
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NSS, libgusb, pixman, glib, cairo
+# Recommended:  NONE
+# Optional:     gtk-doc, gtk3
+
+./autogen.sh --prefix=/usr \
+	     --disable-x11-examples-build  && \
+
+make -j2 && \
+
+sudo -S make DESTDIR=${BUILD} install && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install && \
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                |-----handy-ruler------------------------------------------------------|
+libfprint-payden: payden's fork of libfprint
+libfprint-payden:
+libfprint-payden: Library support for consumer fingerprint reader devices.
+libfprint-payden:
+libfprint-payden: Homepage: https://github.com/payden/libfprint 
+libfprint-payden:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libfprint-payden-0.5.1-$(uname -m)-noxml.txz && \
+sudo -S rm -rf ${BUILD}/*
