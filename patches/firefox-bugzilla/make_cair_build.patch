@@ -1,0 +1,16 @@
+diff --git a/old-configure.in b/old-configure.in
+index 71a6d86cfb..b77d47c23e 100644
+--- a/old-configure.in
++++ b/old-configure.in
+@@ -2351,10 +2351,10 @@ fi
+
+ # Define macros for cairo-features.h
+ TEE_SURFACE_FEATURE="#define CAIRO_HAS_TEE_SURFACE 1"
++PS_SURFACE_FEATURE="#define CAIRO_HAS_PS_SURFACE 1"
+ if test "$MOZ_X11"; then
+     XLIB_SURFACE_FEATURE="#define CAIRO_HAS_XLIB_SURFACE 1"
+     XLIB_XRENDER_SURFACE_FEATURE="#define CAIRO_HAS_XLIB_XRENDER_SURFACE 1"
+-    PS_SURFACE_FEATURE="#define CAIRO_HAS_PS_SURFACE 1"
+ fi
+ if test "$_HAVE_FREETYPE2"; then
+     FT_FONT_FEATURE="#define CAIRO_HAS_FT_FONT 1"

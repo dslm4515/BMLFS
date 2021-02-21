@@ -1,0 +1,97 @@
+diff --git a/dom/plugins/test/moz.build b/dom/plugins/test/moz.build
+index 7f40fb3cbe9e..3320aaf009ff 100644
+--- a/dom/plugins/test/moz.build
++++ b/dom/plugins/test/moz.build
+@@ -4,7 +4,8 @@
+ # License, v. 2.0. If a copy of the MPL was not distributed with this
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ 
+-DIRS += ["testplugin"]
++if CONFIG["MOZ_X11"]:
++    DIRS += ["testplugin"]
+ 
+ if CONFIG["MOZ_WIDGET_TOOLKIT"] in ("gtk", "cocoa", "windows"):
+     MOCHITEST_MANIFESTS += ["mochitest/mochitest.ini"]
+diff --git a/toolkit/components/remote/moz.build b/toolkit/components/remote/moz.build
+index 235580d6b709..c068ec8933b4 100644
+--- a/toolkit/components/remote/moz.build
++++ b/toolkit/components/remote/moz.build
+@@ -13,10 +13,7 @@ SOURCES += [
+ 
+ if CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
+     SOURCES += [
+-        "nsGTKRemoteServer.cpp",
+         "nsUnixRemoteServer.cpp",
+-        "nsXRemoteClient.cpp",
+-        "nsXRemoteServer.cpp",
+         "RemoteUtils.cpp",
+     ]
+     if CONFIG["MOZ_ENABLE_DBUS"]:
+@@ -31,6 +28,13 @@ if CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
+         ]
+     CXXFLAGS += CONFIG["TK_CFLAGS"]
+ 
++if CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk" and CONFIG['MOZ_X11']:
++    SOURCES += [
++        "nsGTKRemoteServer.cpp",
++        "nsXRemoteClient.cpp",
++        "nsXRemoteServer.cpp",
++    ]
++
+ if CONFIG["MOZ_WIDGET_TOOLKIT"] == "windows":
+     SOURCES += [
+         "nsWinRemoteClient.cpp",
+diff --git a/widget/gtk/moz.build b/widget/gtk/moz.build
+index cddd45e49fd6..a7fc0d6473c1 100644
+--- a/widget/gtk/moz.build
++++ b/widget/gtk/moz.build
+@@ -92,14 +92,18 @@ if CONFIG["MOZ_X11"]:
+         "nsClipboardX11.cpp",
+         "nsDragService.cpp",
+         "WindowSurfaceProvider.cpp",
+-        "WindowSurfaceX11.cpp",
+-        "WindowSurfaceX11Image.cpp",
+-        "WindowSurfaceXRender.cpp",
+     ]
+     EXPORTS.mozilla.widget += [
+         "WindowSurfaceProvider.h",
+     ]
+ 
++if CONFIG["MOZ_X11"]:
++    UNIFIED_SOURCES += [
++        "WindowSurfaceX11.cpp",
++        "WindowSurfaceX11Image.cpp",
++        "WindowSurfaceXRender.cpp",
++    ]
++
+ if CONFIG["MOZ_WAYLAND"]:
+     UNIFIED_SOURCES += [
+         "DMABufLibWrapper.cpp",
+diff --git a/widget/gtk/mozgtk/moz.build b/widget/gtk/mozgtk/moz.build
+index 828858374534..9e75c14a1643 100644
+--- a/widget/gtk/mozgtk/moz.build
++++ b/widget/gtk/mozgtk/moz.build
+@@ -4,4 +4,7 @@
+ # License, v. 2.0. If a copy of the MPL was not distributed with this
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ 
+-DIRS += ["stub", "gtk2", "gtk3"]
++DIRS += ["stub", "gtk3"]
++
++if CONFIG["MOZ_X11"]:
++    DIRS += ["gtk2"]
+diff --git a/widget/moz.build b/widget/moz.build
+index 0645f2d46d37..f599a73d723d 100644
+--- a/widget/moz.build
++++ b/widget/moz.build
+@@ -273,6 +273,10 @@ if CONFIG["MOZ_X11"]:
+     DIRS += ["x11"]
+     SOURCES += [
+         "GfxInfoX11.cpp",
++    ]
++
++if CONFIG["MOZ_X11"]:
++    SOURCES += [
+         "nsShmImage.cpp",
+         "WindowSurfaceX11SHM.cpp",
+     ]

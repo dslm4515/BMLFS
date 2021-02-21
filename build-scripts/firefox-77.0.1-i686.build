@@ -1,0 +1,147 @@
+#! /bin/bash
+
+# Firefox 77.0.1 (for i686) 
+# Source:   https://ftp.mozilla.org/pub/firefox/releases/77.0.1/source/firefox-77.0.1.source.tar.xz 
+# Method:   Void Linux
+# Graphics: Pure Wayland
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Wayland-protocol, wayland, llvm, rustc, GTK+3, python2
+# Required:     llvm, nodejs, cbindgen, yasm, nspr, nss, libjpeg-turbo,
+# Required:     zip, unzip, autoconf-2.13, icu, pixman, libevent,
+# Required:     libnotify, libvpx, alsa-lib, dbus, startup-notification.
+# Required:     freetype
+# Recommended:  pulsaudio 
+# Optional:     libXrender, libXcomposite, libSM, libXt, libXdamag
+
+# Path source
+for p in disable-image-format-warning.patch fix-arm-opus-include.patch \
+	 fix-desktop-icon-path.patch fix-fortify-inline.patch \
+	 fix-i686-ppc-musl.patch fix-tools.patch fix-wasm-arm.patch \
+	 fix-webrtc-glibcisms.patch mallinfo.patch musl-rust.configure.patch \
+	 ppc32-fix-build.patch rust-configure.patch rust-glslopt.patch \
+	 rust-has-i128.patch sandbox-fork.patch skia-sucks1.patch \
+	 skia-sucks2.patch skia-sucks3.patch sndio.patch sqlite-be-crash.patch 
+ do
+	 patch -Np0 -i ../firefox-77.0.1-void/$p
+done
+
+patch -Np1 -i /src-bmlfs/patches/firefox-bugzilla/0001-Move-GTK2-checks-behind-MOZ_X11.patch
+patch -Np1 -i /src-bmlfs/patches/firefox-bugzilla/0002-Don-t-force-MOZ_X11-for-GTK.patch
+patch -Np1 -i /src-bmlfs/patches/firefox-bugzilla/0003-Move-X11-headers-behind-CONFIG-MOZ_X11.patch
+patch -Np1 -i /src-bmlfs/patches/firefox-bugzilla/0005-Copy-NPAPI-related-definitions-from-Android-for-Wayl.patch
+patch -Np1 -i /src-bmlfs/patches/firefox-bugzilla/0006-Explicitly-include-glib.h.patch
+patch -Np1 -i /src-bmlfs/patches/firefox-bugzilla/0007-Guard-X-related-include-s-behind-ifdef-MOZ_X11.patch
+patch -Np1 -i /src-bmlfs/patches/firefox-bugzilla/0008-Guard-X11-only-code-behind-ifdef-MOZ_X11.patch
+patch -Np1 -i /src-bmlfs/patches/firefox-bugzilla/Force-EGL-when-wayland-is-enabled.patch
+patch -Np1 -i /src-bmlfs/patches/firefox-bugzilla/Guard_X_and_GTK2_code_behind_MOZ_X11_ifdefs.patch
+patch -Np1 -i /src-bmlfs/patches/firefox-bugzilla/disabled-invalid-code-when-MOZ_X11-is-undefined.patch
+
+
+# Clear vendor checksums for rust
+for c in audio_thread_priority num-traits glslopt
+do
+	sed -i 's/\("files":{\)[^}]*/\1/' third_party/rust/$c/.cargo-checksum.json
+done
+
+# Add missing header
+cp -v  ../firefox-77.0.1-void/stab.h toolkit/crashreporter/google-breakpad/src/ 
+
+# Google API key (see http://www.chromium.org/developers/how-tos/api-keys)
+echo -n "LKXapTXXYWPkMzajsM-7n_BE" > google-api-key
+
+# Mozilla API keys (see https://location.services.mozilla.com/api)
+echo -n "cd894504-7a2a-4263-abff-ff73ee89ffca" > mozilla-api-key
+
+# Configure source  by creating mozconfig
+cat > .mozconfig << "EOF"
+ac_add_options --prefix=/usr
+ac_add_options --libdir=/usr/lib
+
+ac_add_options --with-system-nspr
+ac_add_options --with-system-nss
+ac_add_options --with-system-bz2
+ac_add_options --with-system-jpeg
+ac_add_options --with-system-zlib
+ac_add_options --with-system-libevent
+ac_add_options --with-system-libvpx
+ac_add_options --with-system-icu
+ac_add_options --enable-system-png
+ac_add_options --enable-system-pixman
+ac_add_options --enable-system-ffi
+
+ac_add_options --with-nspr-prefix=/usr
+ac_add_options --with-nss-prefix=/usr
+nspr_config_args=" --libdir=/usr/lib --includedir=/usr/include/nspr"
+nss_config_args=" --libdir=/usr/lib --includedir=/usr/include/nss"
+
+ac_add_options --disable-gconf
+ac_add_options --disable-tests
+ac_add_options --disable-crashreporter
+ac_add_options --disable-updater
+ac_add_options --disable-install-strip
+ac_add_options --disable-strip
+ac_add_options --disable-profiling
+ac_add_options --enable-release
+#ac_add_options --enable-optimize="$CFLAGS"
+ac_add_options --enable-official-branding
+ac_add_options --enable-application=browser
+
+ac_add_options --disable-elf-hack
+ac_add_options --disable-jemalloc
+ac_add_options --disable-gold
+ac_add_options --enable-rust-simd
+
+ac_add_options --enable-default-toolkit="cairo-gtk3-wayland"
+ac_add_options --enable-startup-notification
+ac_add_options --enable-pulseaudio
+ac_add_options --enable-dbus
+ac_add_options --with-google-location-service-api-keyfile="${PWD}/google-api-key"
+ac_add_options --with-google-safebrowsing-api-keyfile="${PWD}/google-api-key"
+#ac_add_options --with-mozilla-api-keyfile="${PWD}/mozilla-api-key"
+ac_add_options --disable-necko-wifi
+ac_add_options --disable-webrtc
+unset MOZ_TELEMETRY_REPORTING
+mk_add_options MOZ_OBJDIR=${PWD}/OBJ-BUILD
+EOF
+
+mkdir -pv third_party/rust/libloading/.deps
+
+export  CFLAGS="-g1"
+export CXXFLAGS="-g1"
+export LDFLAGS=" -Wl,--no-keep-memory -Wl,-rpath=/usr/lib/firefox"
+export MOZ_MAKE_FLAGS="-j4"
+export MOZ_NOSPAM=1
+export MOZBUILD_STATE_PATH="${PWD}/mozbuild"
+export MACH_USE_SYSTEM_PYTHON=/usr/bin/python3
+
+sed -i "s/debug_info = '2'/debug_info = '1'/" \
+	build/moz.configure/toolchain.configure
+
+# Build
+rm -f old-configure && ./mach build -j4 --verbose
+
+
+# Install
+sudo -S -E DESTDIR=${BUILD} ./mach install
+
+unset CFLAGS CXXFLAGS LDFLAGS MOZ_MAKE_FLAGS 
+unset MOZ_NOSPAM MOZBUILD_STATE_PATH  MACH_USE_SYSTEM_PYTHON
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/package-version-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

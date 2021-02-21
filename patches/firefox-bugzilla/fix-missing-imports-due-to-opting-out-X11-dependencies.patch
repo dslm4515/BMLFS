@@ -1,0 +1,62 @@
+diff --git a/gfx/thebes/gfxPlatformGtk.cpp b/gfx/thebes/gfxPlatformGtk.cpp
+index 1ce4497de7a0..a6d4b56fa3e8 100644
+--- a/gfx/thebes/gfxPlatformGtk.cpp
++++ b/gfx/thebes/gfxPlatformGtk.cpp
+@@ -36,6 +36,7 @@
+ #include "nsMathUtils.h"
+ #include "nsUnicharUtils.h"
+ #include "nsUnicodeProperties.h"
++#include "prenv.h"
+ #include "VsyncSource.h"
+ 
+ #ifdef MOZ_X11
+diff --git a/widget/gtk/DMABufLibWrapper.cpp b/widget/gtk/DMABufLibWrapper.cpp
+index c6e0976977f7..5b29be92745b 100644
+--- a/widget/gtk/DMABufLibWrapper.cpp
++++ b/widget/gtk/DMABufLibWrapper.cpp
+@@ -5,6 +5,7 @@
+  * License, v. 2.0. If a copy of the MPL was not distributed with this
+  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ 
++#include "base/message_loop.h"  // for MessageLoop
+ #include "nsWaylandDisplay.h"
+ #include "DMABufLibWrapper.h"
+ #include "mozilla/StaticPrefs_widget.h"
+diff --git a/widget/gtk/nsGtkKeyUtils.cpp b/widget/gtk/nsGtkKeyUtils.cpp
+index 68587f5c09a2..995d1e01930e 100644
+--- a/widget/gtk/nsGtkKeyUtils.cpp
++++ b/widget/gtk/nsGtkKeyUtils.cpp
+@@ -21,7 +21,7 @@
+ #endif
+ #include "IMContextWrapper.h"
+ #include "WidgetUtils.h"
+-#include "keysym2ucs.h"
++#include "x11/keysym2ucs.h"
+ #include "nsContentUtils.h"
+ #include "nsGtkUtils.h"
+ #include "nsIBidiKeyboard.h"
+diff --git a/widget/gtk/nsLookAndFeel.cpp b/widget/gtk/nsLookAndFeel.cpp
+index 0fdc7748ce2c..1230edafe9c3 100644
+--- a/widget/gtk/nsLookAndFeel.cpp
++++ b/widget/gtk/nsLookAndFeel.cpp
+@@ -38,6 +38,8 @@
+ #include "WidgetStyleCache.h"
+ #include "prenv.h"
+ #include "nsCSSColorUtils.h"
++#include "mozilla/Preferences.h"
++#include <dlfcn.h>
+ 
+ using namespace mozilla;
+ using mozilla::LookAndFeel;
+diff --git a/widget/gtk/nsWindow.cpp b/widget/gtk/nsWindow.cpp
+index 48b8187955ce..d595c9d47cc8 100644
+--- a/widget/gtk/nsWindow.cpp
++++ b/widget/gtk/nsWindow.cpp
+@@ -52,6 +52,7 @@
+ 
+ #ifdef MOZ_WAYLAND
+ #  include <gdk/gdkwayland.h>
++#  include <gdk/gdkkeysyms-compat.h>
+ #endif /* MOZ_WAYLAND */
+ 
+ #ifdef MOZ_X11
