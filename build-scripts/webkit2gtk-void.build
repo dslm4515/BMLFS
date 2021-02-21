@@ -7,55 +7,57 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Cairo, CMake, gst-plugins-base, gst-plugins-bad, GTK+3
+# Required:     llvm, Cairo, CMake, gst-plugins-base, gst-plugins-bad, GTK+3
 # Required:     ICU, libgudev, libsecret, libsoup, libwebp, Mesa, OpenJPEG
 # Required:     Ruby, SQLite, Which
 # Recommended:  enchant, GeoClue, goobject-introspection, hicolor-icon-theme, libnotify
 # Optional:     bubblewrap, GTK-Doc, harfuzz, Wayland, WOFF2, ccache, Hyphen, MathML,
 # Optional:     WPEBackend-fdo, and xdg-dbus-proxy, libseccomp, xdg-dbus-proxy
 
+patch -Np0 -i ../patches/webkit2gtk-void/be-typedarray.patch
+patch -Np0 -i ../patches/webkit2gtk-void/bwrap-libdir32.patch
+patch -Np0 -i ../patches/webkit2gtk-void/fix-eglmesaext_h.patch
+patch -Np0 -i ../patches/webkit2gtk-void/fix-musl-javascriptcore.patch
+patch -Np0 -i ../patches/webkit2gtk-void/fix_armv6l.patch
+patch -Np0 -i ../patches/webkit2gtk-void/le-check.patch
+patch -Np0 -i ../patches/webkit2gtk-void/ppc-llint.patch
 patch -Np1 -i ../patches/webkit2gtk-alpine/fix-fast-memory-disabled.patch
-patch -Np1 -i ../patches/webkit2gtk-alpine/fix-openjpeg.patch
-patch -Np1 -i ../patches/webkit2gtk-alpine/lower-stack-usage.patch
-patch -Np1 -i ../patches/webkit2gtk-alpine/musl-fixes.patch
-#patch -Np1 -i ../patches/webkit2gtk-alpine/use-versioned-libwpe.patch
 
-case $(uname -m) in
-   i686) export CXXFLAGS=" -U_FORTIFY_SOURCE -g1 -D__WORDSIZE=32"
-	 export CFLAGS=" -D__WORDSIZE=32"
-	 export LDFLAGS=" -Wl,-z,stack-size=2097152 -Wl,--no-keep-memory -fuse-ld=lld -rtlib=compiler-rt" 
-	 ;;
-   arm*) export ECONFIG="-DENABLE_JIT=OFF"
-         export CXXFLAGS="$CXXFLAGS -g1" ;;
-esac &&
+export CFLAGS="   -D__WORDSIZE=32 -g1 -march=native -O2"
+export CXXFLAGS=" -D__WORDSIZE=32 -g1 -march=native -O2"
+export LDFLAGS+=" -Wl,--no-keep-memory -fuse-ld=lld -rtlib=compiler-rt "
+# Build with Clang(llvm) instead of GCC
 export CC=clang CXX=clang++
 
 mkdir build && cd build &&
-cmake -GNinja \
-      -DPort=GTK
-      -DCMAKE_BUILD_TYPE=MinSizeRel \
-      -DCMAKE_SKIP_RPATH=ON \
-      -DCMAKE_INSTALL_PREFIX=/usr \
-      -DLIB_INSTALL_DIR=/usr/lib \
-      -DENABLE_GTKDOC=OFF \
-      -DENABLE_GEOLOCATION=ON \
-      -DENABLE_SAMPLING_PROFILER=OFF \
-      -DENABLE_MINIBROWSER=ON \
-      -DUSE_WPE_RENDERER=ON \
-      -DUSE_WOFF2=ON \
-      -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+cmake -DPORT=GTK \
       -DUSE_LD_GOLD=OFF \
+      -DCMAKE_CXX_FLAGS_RELEASE=-DNDEBUG \
+      -DCMAKE_CXX_FLAGS_DEBUG=-DNDEBUG \
+      -DCMAKE_CXX_FLAGS_RELWITHDEBINFO=-DNDEBUG \
+      -DCMAKE_C_FLAGS_RELEASE=-DNDEBUG \
+      -DCMAKE_C_FLAGS_DEBUG=-DNDEBUG \
+      -DCMAKE_C_FLAGS_RELWITHDEBINFO=-DNDEBUG \
       -DUSE_SYSTEMD=OFF \
-      -DUSE_LIBHYPHEN=OFF \
-      -DENABLE_X11_TARGET=OFF \
+      -DENABLE_GTKDOC=OFF -DUSE_GSTREAMER_GL=ON -DUSE_WPE_RENDERER=ON \
+      -DENABLE_MINIBROWSER=ON \
+      -DENABLE_JIT=OFF \
+      -DENABLE_C_LOOP=OFF \
+      -DENABLE_INTROSPECTION=ON \
       -DENABLE_WAYLAND_TARGET=ON \
-      -DENABLE_GLES2=ON ..
+      -DENABLE_X11_TARGET=OFF \
+      -DENABLE_SAMPLING_PROFILER=OFF \
+      -DENABLE_BUBBLEWRAP_SANDBOX=ON \
+      -GNinja -DCMAKE_BUILD_TYPE=MinSizeRel -DUSE_WOFF2=ON \
+      -DCMAKE_SKIP_RPATH=ON -DCMAKE_INSTALL_PREFIX=/usr \
+      -DENABLE_GLES2=ON -DUSE_LIBHYPHEN=OFF -DENABLE_GAMEPAD=OFF ..
 
-# Multiple ninja jobs seems to cause internal compiler errors
-ninja JavaScriptCore-4-gir -j1  && ninja -j1 &&
+ninja JavaScriptCore-4-gir -j2 &&
+ninja -j2 &&
+unset CXXFLAGS LDFLAGS CFLAGS 
 
 sudo -S DESTDIR=$BUILD ninja install &&
-unset CXXFLAGS ECONFIG CXXFLAGS LDFLAGS
+#unset CXXFLAGS ECONFIG CXXFLAGS
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
