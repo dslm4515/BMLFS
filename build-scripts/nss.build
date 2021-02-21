@@ -2,6 +2,7 @@
 
 # NSS 
 # Source: https://archive.mozilla.org/pub/security/nss/releases/NSS_3_60_RTM/src/nss-3.60.tar.gz
+# Source: https://archive.mozilla.org/pub/security/nss/releases/NSS_3_61_RTM/src/nss-3.61.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,9 +12,9 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-patch -Np1 -i ../patches/nss-lfs/nss-3.60-standalone-1.patch &&
+patch -Np1 -i ../patches/nss-lfs/nss-3.61-standalone-1.patch &&
 
-export NSS_VER=3.60
+export NSS_VER=3.61
 export NSPR_VER=4.29
 export NS_USE_GCC=1
 export LIBRUNPATH=
@@ -118,5 +119,5 @@ nss: standards into an application.
 nss:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/nss-3.60-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/nss-3.61-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
