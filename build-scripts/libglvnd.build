@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# libglvnd 
+# Source: https://gitlab.freedesktop.org/glvnd/libglvnd/-/archive/v1.3.2/libglvnd-v1.3.2.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libXll, libXext, xorgproto
+# Recommended:  NONE
+# Optional:     NONE
+
+meson --prefix=/usr -Dtls=disabled OUT && \
+ninja -j2 -C OUT && \
+sudo DESTDIR=${BUILD} ninja -C OUT install && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+libglvnd: libglvnd - The GL Vendor-Neutral Dispatch library
+libglvnd:
+libglvnd: libglvnd is a vendor-neutral dispatch layer for arbitrating OpenGL 
+libglvnd: API calls between multiple vendors. It allows multiple drivers from 
+libglvnd: different vendors to coexist on the same filesystem, and determines 
+libglvnd: which vendor to dispatch each API call to at runtime.
+libglvnd: 
+libglvnd: Both GLX and EGL are supported, in any combination with OpenGL and 
+libglvnd: OpenGL ES.
+libglvnd: Homepage: https://github.com/NVIDIA/libglvnd
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libglvnd-1.3.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

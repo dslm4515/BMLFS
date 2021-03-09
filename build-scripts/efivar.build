@@ -1,0 +1,50 @@
+#! /bin/bash
+
+# efivar 
+# Source: https://github.com/rhboot/efivar/releases/download/37/efivar-37.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/efivar-void/0001-Support-custom-cflags-for-CC_FOR_BUILD-and-CCLD_FOR_.patch && \
+patch -Np1 -i ../patches/efivar-void/0002-Replace-call-to-strncpy-by-memcpy-to-fix-some-GCC8-w.patch && \
+
+export CFLAGS="-D_GNU_SOURCE -Wno-error=address-of-packed-member" && \
+
+read -p "Compile?" && make PREFIX=/usr -j2 && \
+
+sudo -S make PREFIX=/usr DESTDIR=$BUILD install && \
+case $(uname -m) in
+	x86_64 | aarch64 sudo -S mv ${BUILD}/usr/lib64 ${BUILD}/usr/lib ;;
+esac &&\
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+efivar: efivar (library and utilities to handle UEFI variables)
+efivar:
+efivar: The efivar package contains a library and utilities for manipulating
+efivar: UEFI (Unified Extensible Firmware Interface) variables.
+efivar:
+efivar: Homepage: https://github.com/rhboot/efivar
+efivar:
+efivar:
+efivar:
+efivar:
+efivar:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/efivar-37-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

@@ -1,0 +1,55 @@
+#! /bin/bash
+
+# libindicator 
+# Source: https://launchpad.net/libindicator/12.10/12.10.1/+download/libindicator-12.10.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     GTK+3
+# Recommended:  NONE
+# Optional:     NONE
+
+sed '/-Werror/s// -Wno-deprecated-declarations/' -i libindicator/Makefile.am && \
+sed '/-Werror/s// -Wno-deprecated-declarations/' -i libindicator/Makefile.in && \
+cp -vf ../files/config.sub-musl build-aux/config.sub     && \
+cp -vf ../files/config.guess-musl build-aux/config.guess && \
+
+./configure --prefix=/usr \
+            --localstatedir=/var \
+	    --libexecdir=/usr/lib/libindicator \
+	    --sysconfdir=/etc \
+	    --with-gtk=3 \
+	    --disable-static \
+	    --disable-tests $BUILDTRUPLE && \
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+            |-----handy-ruler------------------------------------------------------|
+libindicator: libindicator (indicator library)
+libindicator:
+libindicator: A set of symbols and convience functions that all indicators would
+libindicator: like to use.
+libindicator:
+libindicator: homepage: https://launchpad.net/libindicator
+libindicator:
+libindicator:
+libindicator:
+libindicator:
+libindicator:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libindicator-12.10.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

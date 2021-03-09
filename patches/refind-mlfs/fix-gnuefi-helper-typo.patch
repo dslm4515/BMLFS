@@ -1,0 +1,11 @@
+--- refind-0.13.1.orig/EfiLib/gnuefi-helper.h	2021-02-21 21:40:57.000000000 +0000
++++ refind-0.13.1/EfiLib/gnuefi-helper.h	2021-03-08 21:46:22.668689904 +0000
+@@ -25,7 +25,7 @@
+ #include "efilib.h"
+ 
+ #define EFI_DEVICE_PATH_PROTOCOL EFI_DEVICE_PATH
+-#define UnicodeSPrint SPrint
++#define UnicodeSPrint IPrint
+ #define gRT RT
+ #define gBS BS
+ #ifndef CONST

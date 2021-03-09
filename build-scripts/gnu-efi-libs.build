@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# gnu-efi-libs 
+# Source: https://sourceforge.net/projects/gnu-efi/files/gnu-efi-3.0.13.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     pciutils
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np0 -i ../patches/gnu-efi-libs-void/no-werror.patch && \
+
+case $(uname -m ) in
+	x86_64)   export HOST_ARCH=x86_64  ;;
+	i686)     export HOST_ARCH=ia32    ;;
+	aarch64*) export HOST_ARCH=aarch64 ;;
+	arm*)     export HOST_ARCH=arm     ;;
+esac && \
+
+read -p "Compile?" && make ARCH=${HOST_ARCH} HOSTARCH=${HOST_ARCH} -j2 && \
+
+sudo -S make ARCH=${HOST_ARCH} INSTALLROOT=${BUILD} PREFIX=/usr LIBDIR=/usr/lib install && \
+unset HOST_ARCH && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+gnu-efi: gnu-efi (EFI Development files for the GNU toolchain)
+gnu-efi:
+gnu-efi: Develop EFI applications using the GNU toolchain and the EFI
+gnu-efi: development environment.
+gnu-efi:
+gnu-efi: Homepage: http://gnu-efi.sourceforge.net
+gnu-efi:
+gnu-efi:
+gnu-efi:
+gnu-efi:
+gnu-efi:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gnu-efi-3.0.13-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
