@@ -7,12 +7,12 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     NONE
-# Recommended:  NONE
+# Required:     xorgproto, xtrans, libXext, libX11
+# Recommended:  libxcb
 # Optional:     NONE
 
 ./configure --prefix=/usr        --sysconfdir=/etc \
-	    --localstatedir=/var --disable-static $BUILDTRUPLE
+	    --localstatedir=/var --disable-static $BUILDTRUPLE && \
 
 read -p "Compile?" && make -j2 &&
 

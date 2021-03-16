@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# libxshmfence
-# Source: ftp://ftp.x.org/pub/individual/lib/libxshmfence-1.3.tar.bz2
+# libXfont2
+# Source: ftp://ftp.x.org/pub/individual/lib/libXfont2-2.0.4.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -12,7 +12,7 @@
 # Optional:     NONE
 
 CFLAGS_FOR_BUILD="-fPIC" \
-./configure $XORG_CONFIG &&
+./configure $XORG_CONFIG --disable-devel-docs &&
 
 read -p "Compile?" && make -j2 &&
 
@@ -27,19 +27,19 @@ cat > /tmp/slack-desc << "EOF"
 # make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-            |-----handy-ruler------------------------------------------------------|
-libxshmfence: libxshmfence (The X Shared Memory Fence Library)
-libxshmfence:
-libxshmfence: libxshmfence is part of X11.
-libxshmfence:
-libxshmfence: For more information about the X.Org Foundation (the providers of the
-libxshmfence: X.Org implementation of the X Window System), see their website:
-libxshmfence:
-libxshmfence: http://www.x.org
-libxshmfence:
-libxshmfence:
-libxshmfence:
+         |-----handy-ruler------------------------------------------------------|
+libXfont2: libXfont2 (X11 font system library)
+libXfont2:
+libXfont2: libXfont2 provides the core of the new X11 font system, handling the
+libXfont2: index files (fonts.dir, fonts.alias, fonts.scale), the various font
+libXfont2: file formats, and rasterizing them. It is used by the X servers, the
+libXfont2: X Font Server (xfs), and some font utilities (bdftopcf for instance),
+libXfont2: but should not be used by normal X11 clients. X11 clients access fonts
+libXfont2: via either the new API's in libXft, or the legacy API's in libX11.
+libXfont2:
+libXfont2:
+libXfont2:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libxshmfence-1.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libXfont2-2.0.4-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*

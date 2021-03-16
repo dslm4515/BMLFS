@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# libxshmfence
-# Source: ftp://ftp.x.org/pub/individual/lib/libxshmfence-1.3.tar.bz2
+# LibSM
+# Source: ftp://ftp.x.org/pub/individual/lib/libSM-1.2.3.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -27,19 +27,19 @@ cat > /tmp/slack-desc << "EOF"
 # make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-            |-----handy-ruler------------------------------------------------------|
-libxshmfence: libxshmfence (The X Shared Memory Fence Library)
-libxshmfence:
-libxshmfence: libxshmfence is part of X11.
-libxshmfence:
-libxshmfence: For more information about the X.Org Foundation (the providers of the
-libxshmfence: X.Org implementation of the X Window System), see their website:
-libxshmfence:
-libxshmfence: http://www.x.org
-libxshmfence:
-libxshmfence:
-libxshmfence:
+     |-----handy-ruler------------------------------------------------------|
+libSM: libSM (X Session Management Library)
+libSM:
+libSM: libSM is part of X11.
+libSM:
+libSM: For more information about the X.Org Foundation (the providers of the
+libSM: X.Org implementation of the X Window System), see their website:
+libSM:
+libSM: http://www.x.org
+libSM:
+libSM:
+libSM:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libxshmfence-1.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libSM-1.2.3-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*

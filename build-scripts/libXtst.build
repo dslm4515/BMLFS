@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# libxshmfence
-# Source: ftp://ftp.x.org/pub/individual/lib/libxshmfence-1.3.tar.bz2
+# libXtst
+# Source: ftp://ftp.x.org/pub/individual/lib/libXtst-1.2.3.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -27,19 +27,19 @@ cat > /tmp/slack-desc << "EOF"
 # make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-            |-----handy-ruler------------------------------------------------------|
-libxshmfence: libxshmfence (The X Shared Memory Fence Library)
-libxshmfence:
-libxshmfence: libxshmfence is part of X11.
-libxshmfence:
-libxshmfence: For more information about the X.Org Foundation (the providers of the
-libxshmfence: X.Org implementation of the X Window System), see their website:
-libxshmfence:
-libxshmfence: http://www.x.org
-libxshmfence:
-libxshmfence:
-libxshmfence:
+       |-----handy-ruler------------------------------------------------------|
+libXtst: libXtst (client library for the XTEST & RECORD extensions)
+libXtst:
+libXtst: libXtst is part of X11.
+libXtst:
+libXtst: For more information about the X.Org Foundation (the providers of the
+libXtst: X.Org implementation of the X Window System), see their website:
+libXtst:
+libXtst: http://www.x.org
+libXtst:
+libXtst:
+libXtst:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libxshmfence-1.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libXtst-1.2.3-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*

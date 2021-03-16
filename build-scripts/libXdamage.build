@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# libxshmfence
-# Source: ftp://ftp.x.org/pub/individual/lib/libxshmfence-1.3.tar.bz2
+# LibXdamage
+# Source: ftp://ftp.x.org/pub/individual/lib/libXdamage-1.1.5.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -27,19 +27,19 @@ cat > /tmp/slack-desc << "EOF"
 # make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-            |-----handy-ruler------------------------------------------------------|
-libxshmfence: libxshmfence (The X Shared Memory Fence Library)
-libxshmfence:
-libxshmfence: libxshmfence is part of X11.
-libxshmfence:
-libxshmfence: For more information about the X.Org Foundation (the providers of the
-libxshmfence: X.Org implementation of the X Window System), see their website:
-libxshmfence:
-libxshmfence: http://www.x.org
-libxshmfence:
-libxshmfence:
-libxshmfence:
+     |-----handy-ruler------------------------------------------------------|
+libXdamage: libXdamage (client library for the X Damage Extension)
+libXdamage:
+libXdamage: libXdamage is part of X11.
+libXdamage:
+libXdamage: For more information about the X.Org Foundation (the providers of the
+libXdamage: X.Org implementation of the X Window System), see their website:
+libXdamage:
+libXdamage: http://www.x.org
+libXdamage:
+libXdamage:
+libXdamage:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libxshmfence-1.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libXdamage-1.1.5-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*

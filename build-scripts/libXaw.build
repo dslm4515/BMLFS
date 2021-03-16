@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# libxshmfence
-# Source: ftp://ftp.x.org/pub/individual/lib/libxshmfence-1.3.tar.bz2
+# LibXaw
+# Source: ftp://ftp.x.org/pub/individual/lib/libXaw-1.0.13.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -27,19 +27,19 @@ cat > /tmp/slack-desc << "EOF"
 # make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-            |-----handy-ruler------------------------------------------------------|
-libxshmfence: libxshmfence (The X Shared Memory Fence Library)
-libxshmfence:
-libxshmfence: libxshmfence is part of X11.
-libxshmfence:
-libxshmfence: For more information about the X.Org Foundation (the providers of the
-libxshmfence: X.Org implementation of the X Window System), see their website:
-libxshmfence:
-libxshmfence: http://www.x.org
-libxshmfence:
-libxshmfence:
-libxshmfence:
+      |-----handy-ruler------------------------------------------------------|
+libXaw: libXaw (client library for the X Athena Widget Set)
+libXaw:
+libXaw: Xaw is a widget set based on the X Toolkit Intrinsics (Xt) Library.
+libXaw:
+libXaw:
+libXaw:
+libXaw:
+libXaw:
+libXaw:
+libXaw:
+libXaw:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libxshmfence-1.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libXaw-1.0.13-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
