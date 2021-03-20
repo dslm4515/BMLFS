@@ -1,0 +1,49 @@
+#! /bin/bash
+
+# qca
+# Source: https://github.com/KDE/qca/archive/v2.3.1.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NSS, libgcrypt, Qt5, ca-certificates, 
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np0 -i ../patches/qca-qt5-void/libressl.patch 
+
+cmake -B OUTBUILD -DCMAKE_INSTALL_PREFIX=/usr \
+	          -DBUILD_TESTS=0  \
+		  -DUSE_RELATIVE_PATHS=true \
+		  -DQCA_FEATURE_INSTALL_DIR=/opt/qt5/mkspecs 
+
+read -p "Compile?" && make -C OUTBUILD -j2 &&
+
+sudo -S make DESTDIR=$BUILD -C OUTBUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+   |-----handy-ruler------------------------------------------------------|
+qca: qca (Qt Cryptographic Architecture)
+qca:
+qca: QCA aims to provide a straightforward and cross-platform cryptographic
+qca: API using Qt datatypes and conventions. The library and plugins
+qca: support a range of cryptographic features, including SSL/TLS, X.509
+qca: certificates, SASL, OpenPGP, smartcards, and much more.
+qca:
+qca: Homepage: https://github.com/KDE/qca
+qca:
+qca:
+qca:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/qca-2.3.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
