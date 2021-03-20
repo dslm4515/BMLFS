@@ -1,0 +1,12 @@
+diff -uNr gcompat-1.0.0.orig/Makefile gcompat-1.0.0/Makefile
+--- gcompat-1.0.0.orig/Makefile	2020-07-06 13:45:13.000000000 -0500
++++ gcompat-1.0.0/Makefile	2020-12-06 23:41:12.788007393 -0600
+@@ -75,7 +75,7 @@
+ ${LIBGCOMPAT_OBJ}: ${LIBGCOMPAT_INCLUDE}
+ 
+ ${LOADER_NAME}: ${LOADER_OBJ}
+-	${CC} ${CFLAGS} ${LDFLAGS} -static-pie -o ${LOADER_NAME} ${LOADER_OBJ}
++	${CC} ${CFLAGS} ${LDFLAGS} -o ${LOADER_NAME} ${LOADER_OBJ}
+ 
+ .c.o:
+ 	${CC} ${CPPFLAGS} ${CFLAGS} -c -D_BSD_SOURCE \
