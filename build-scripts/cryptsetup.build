@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# cryptsetup
+# Source: https://www.kernel.org/pub/linux/utils/cryptsetup/v2.3/cryptsetup-2.3.4.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     JSON-C, LVM2, popt
+# Recommended:  argon2
+# Optional:     libpwquality, Python2, passwdqc
+
+./configure --prefix=/usr --with-crypto_backend=openssl --enable-libargon2 $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+          |-----handy-ruler------------------------------------------------------|
+cryptsetup: cryptsetup (utility for setting up encrypted filesystems)
+cryptsetup:
+cryptsetup: LUKS is a standard for cross-platform hard disk encryption.
+cryptsetup: It provides secure management of multiple userpasswords and
+cryptsetup: stores setup information in the partition header.
+cryptsetup: LUKS for dm-crypt is now implemented in cryptsetup replacing the
+cryptsetup: original cryptsetup. It provides all the functionally of the
+cryptsetup: original version plus all LUKS features.
+cryptsetup:
+cryptsetup: cryptsetup home: http://luks.endorphin.org/dm-crypt
+cryptsetup:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/cryptsetup-2.3.4-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

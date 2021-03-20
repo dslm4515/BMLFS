@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# swaylock 
+# Source: https://github.com/swaywm/swaylock/releases/download/1.5/swaylock-1.5.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     wayland-protocols , libxkbcommon, cairo, gdk-pixbuf2, git
+# Recommended:  linux-PAM, scdoc 
+# Optional:     NONE
+
+meson --prefix=/usr OUT && \
+ninja -C OUT -j2 && \
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+swaylock: swaylock
+swaylock:
+swaylock: A screen locking utility for Wayland compositors. It is compatible 
+swaylock: with any Wayland compositor which implements the following Wayland 
+swaylock: protocols: wlr-layer-shell, wlr-input-inhibitor, xdg-output, and
+swaylock: xdg-shell
+swaylock:
+swaylock: https://github.com/swaywm/swaylock
+swaylock:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/swaylock-1.4-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

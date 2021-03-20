@@ -1,0 +1,44 @@
+#! /bin/bash
+
+# libao
+# Source: https://github.com/xiph/libao/archive/1.2.2.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     ALSA-lib, PulseAudio, X Org System
+
+autoreconf -fvi &&
+./configure --prefix=/usr --enable-alsa-mmap $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+libao: libao (Audio Output library)
+libao:
+libao: Libao is a cross-platform audio library, and is required by many
+libao: programs and other libraries that use audio (some examples include
+libao: ogg123, GAIM, and the Ogg Vorbis libraries). This package provides
+libao: plugins for OSS, ESD, aRts, and ALSA. You will need to install the
+libao: supporting libraries for any plugins you want to use.
+libao:
+libao:
+libao:
+libao:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libao-1.2.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
