@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# psensor
+# Source:  https://wpitchoune.net/psensor/files/psensor-1.2.1.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libnotify, GTK+3, libappindicator, json, cURL, libatasmart
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr &&
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+psensor: psensor
+psensor:
+psensor: A graphical hardware temperature monitor for Linux. It can monitor: 
+psensor: + motherboard and CPU sensors (using lm-sensors)
+psensor: + NVidia GPUs (using XNVCtrl)
+psensor: + the Hard Disk Drives
+psensor: + rotation speed of the fans 
+psensor: + CPU usage
+psensor:
+psensor: https://wpitchoune.net/psensor/
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/psensor-1.2.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

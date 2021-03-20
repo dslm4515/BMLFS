@@ -1,0 +1,46 @@
+#! /bin/bash
+
+# hdparm 
+# Source: https://downloads.sourceforge.net/sourceforge/hdparm/hdparm-9.60.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+sed -i '/^LDFLAGS/d' Makefile  && \
+export CFLAGS=" -D_GNU_SOURCE" && \
+
+make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S install -D -m755 contrib/idectl    ${BULLD}/sbin && \
+sudo -S install -D -m775 contrib/ultrabayd ${BUILD}/sbin && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+hdparm: hdparm (read/set hard drive parameters)
+hdparm:
+hdparm: hdparm provides a command line interface to various hard disk ioctls
+hdparm: supported by the Linux ATA/IDE device driver subsystem. This may be
+hdparm: required to enable higher-performing disk modes
+hdparm:
+hdparm: hdparm was written by Mark Lord.
+hdparm:
+hdparm: Homepage:
+hfparm: https://sourceforge.net/projects/hdparm/
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/hdparm-9.60-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
