@@ -1,0 +1,44 @@
+#! /bin/bash
+
+# DConf Editor
+# Source: ftp://ftp.gnome.org/pub/gnome/sources/dconf-editor/3.38/dconf-editor-3.38.0.tar.xz
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/dconf-editor/3.38/dconf-editor-3.38.2.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     DBus, GLib, GTK+3, libxml2
+# Recommended:  libxslt, Vala
+# Optional:     GTK-Doc
+
+mkdir build &&
+cd    build &&
+meson --prefix=/usr --sysconfdir=/etc .. &&
+sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+            |-----handy-ruler------------------------------------------------------|
+dconf-editor: dconf-editor (graphical editor for dconf)
+dconf-editor:
+dconf-editor: The dconf-editor program provides a graphical interface for editing
+dconf-editor: settings that are stored in the dconf database. The gsettings utility
+dconf-editor: provides similar functionality on the command line.
+dconf-editor:
+dconf-editor:
+dconf-editor:
+dconf-editor:
+dconf-editor:
+dconf-editor:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/dconf-editor-3.38.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

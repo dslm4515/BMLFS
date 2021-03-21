@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# libfm
+# Source: https://downloads.sourceforge.net/pcmanfm/libfm-1.3.1.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     GTK+3 or GTK+2, menu-cache
+# Recommended:  libexif, vala, lxmenu-data
+# Optional:     GTK-Doc, D-Bus-GLib, Gvfs or udisks 
+
+./configure --prefix=/usr     \
+            --sysconfdir=/etc \
+            --disable-static  \
+            --with-gtk=3      $BUILDTRUPLE &&
+# sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+libfm: libfm (pcmanfm library)
+libfm:
+libfm: LibFM provides file management functions built on top of Glib/GIO,
+libfm: giving a convenient higher-level API.
+libfm:
+libfm: Homepage: http://pcmanfm.sourceforge.net/
+libfm:
+libfm:
+libfm:
+libfm:
+libfm:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libfm-1.3.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

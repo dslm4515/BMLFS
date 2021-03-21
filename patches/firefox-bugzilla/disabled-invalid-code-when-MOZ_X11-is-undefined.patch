@@ -1,0 +1,20 @@
+diff --git a/widget/gtk/nsWindow.cpp b/widget/gtk/nsWindow.cpp
+index e97dd848743a..48b8187955ce 100644
+--- a/widget/gtk/nsWindow.cpp
++++ b/widget/gtk/nsWindow.cpp
+@@ -5676,6 +5676,7 @@ void nsWindow::ApplyTransparencyBitmap() {
+                     ShapeSet);
+   XFreePixmap(xDisplay, maskPixmap);
+ #else
++#  if 0 //Not working
+   cairo_surface_t* maskBitmap;
+   maskBitmap = cairo_image_surface_create_for_data(
+       (unsigned char*)mTransparencyBitmap, CAIRO_FORMAT_A1,
+@@ -5687,6 +5688,7 @@ void nsWindow::ApplyTransparencyBitmap() {
+   gtk_widget_shape_combine_region(mShell, maskRegion);
+   cairo_region_destroy(maskRegion);
+   cairo_surface_destroy(maskBitmap);
++#  endif
+ #endif  // MOZ_X11
+ }
+ 

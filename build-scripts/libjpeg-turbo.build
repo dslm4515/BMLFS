@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# libjpeg-turbo 
+# Source: https://downloads.sourceforge.net/libjpeg-turbo/libjpeg-turbo-2.0.6.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     CMake, NASM or yasm
+# Recommended:  NONE
+# Optional:     NONE
+
+mkdir build &&
+cd    build &&
+cmake -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_BUILD_TYPE=RELEASE  \
+      -DENABLE_STATIC=FALSE       \
+      -DWITH_JPEG8=1 \
+      -DBUILD_SHARED_LIBS=True \
+      -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/libjpeg-turbo-2.0.6 \
+      -DCMAKE_INSTALL_DEFAULT_LIBDIR=lib  \
+      .. &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+             |-----handy-ruler------------------------------------------------------|
+libjpeg-turbo: libjpeg-turbo (high-speed version of libjpeg)
+libjpeg-turbo:
+libjpeg-turbo: libjpeg-turbo is a high-speed version of libjpeg for x86 and
+libjpeg-turbo: x86-64 processors which uses SIMD instructions (MMX, SSE2, etc.)
+libjpeg-turbo: to accelerate baseline JPEG compression and decompression.
+libjpeg-turbo: libjpeg-turbo is generally 2-4x as fast as the unmodified
+libjpeg-turbo: version of libjpeg, all else being equal.
+libjpeg-turbo:
+libjpeg-turbo:
+libjpeg-turbo: libjpeg-turbo home: http://libjpeg-turbo.virtualgl.org
+libjpeg-turbo:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libjpeg-turbo-2.0.6-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

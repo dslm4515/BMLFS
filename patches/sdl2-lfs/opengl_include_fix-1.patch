@@ -1,0 +1,44 @@
+Submitted By:            Douglas R. Reno <renodr at linuxfromscratch dot org>
+Date:                    2019-10-29
+Initial Package Version: 2.0.10
+Upstream Status:         Submitted
+Origin:                  Self
+Description:             Fixes problems with compilation on i686 systems by
+                         including compatible versions of the OpenGL data types.
+                         See BLFS Ticket #12633.
+
+diff -Naurp SDL2-2.0.10.orig/include/SDL_opengl_glext.h SDL2-2.0.10/include/SDL_opengl_glext.h
+--- SDL2-2.0.10.orig/include/SDL_opengl_glext.h	2019-07-24 23:32:36.000000000 -0500
++++ SDL2-2.0.10/include/SDL_opengl_glext.h	2019-10-29 20:00:11.739525454 -0500
+@@ -1,5 +1,6 @@
+ #ifndef __glext_h_
+ #define __glext_h_ 1
++#endif
+ 
+ #ifdef __cplusplus
+ extern "C" {
+@@ -43,6 +44,14 @@ extern "C" {
+ #include <windows.h>
+ #endif
+ 
++#ifdef __IPHONEOS__
++#include <OpenGLES/ES1/gl.h>
++#include <OpenGLES/ES1/glext.h>
++#else
++#include <GLES/gl.h>
++#include <GLES/glext.h>
++#endif
++
+ #ifndef APIENTRY
+ #define APIENTRY
+ #endif
+@@ -469,9 +478,6 @@ GLAPI void APIENTRY glBlendEquation (GLe
+ typedef long GLsizeiptr;
+ typedef long GLintptr;
+ #else
+-typedef ptrdiff_t GLsizeiptr;
+-typedef ptrdiff_t GLintptr;
+-#endif
+ #define GL_BUFFER_SIZE                    0x8764
+ #define GL_BUFFER_USAGE                   0x8765
+ #define GL_QUERY_COUNTER_BITS             0x8864

@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# rest
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/rest/0.8/rest-0.8.1.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     ca-certificates, libsoup
+# Recommended:  Gobject-introspection
+# Optional:     GTK-Doc, LCOV
+
+./configure --prefix=/usr \
+    --with-ca-certificates=/etc/ssl/certs/ca-certificates.crt \
+    --enable-introspection $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+rest: rest (RESTful Library)
+rest:
+rest: This library has been designed to make it easier to access web
+rest: services that claim to be "RESTful".
+rest:
+rest:
+rest:
+rest:
+rest:
+rest:
+rest:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/rest-0.8.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

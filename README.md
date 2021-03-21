@@ -27,9 +27,9 @@ Build scripts assume Slackware's pkgtools is installed as package manager and as
        + -- (source packages)
 ```
 <ol>
-        <li>Unpack package in `source` and `cd` into the unpacked source:
-        `tar xf foo-4.3.tar.xz && cd foo-4.3` </li>
-        <li>Run build script: `sh ../scripts/foo-4.3.build` </li>
+	<li>Unpack package in `source` and `cd` into the unpacked source:
+	`tar xf foo-4.3.tar.xz && cd foo-4.3` </li>
+	<li>Run build script: `sh ../scripts/foo-4.3.build` </li>
 </ol>
 
 Changelog since 2.00

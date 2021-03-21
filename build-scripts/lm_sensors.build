@@ -1,0 +1,55 @@
+#! /bin/bash
+
+# lm_sensors 
+# Source:  https://github.com/lm-sensors/lm-sensors/archive/V3-6-0/lm-sensors-3-6-0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     sysfsutils
+# Recommended:  NONE
+# Optional:     NONE
+
+sed -i -e 's:^# \(PROG_EXTRA\):\1:' Makefile && \
+sed -i -e 's/\$(LIBDIR)$/\$(LIBDIR) \$(LDFLAGS)/g' Makefile && \
+sed -i -e 's/\$(LIBSHSONAME) -o/$(LIBSHSONAME) \$(LDFLAGS) -o/g' \
+          lib/Module.mk && \
+sed -i -e 's/^LIBICONV.*/LIBICONV ?=/' prog/sensors/Module.mk && \
+export CFLAGS="$CFLAGS -fno-stack-protector" && \
+
+make PREFIX=/usr BUILD_STATIC_LIB=0 \
+     MANDIR=/usr/share/man -j2 
+
+sudo -S make DESTDIR=$BUILD PREFIX=/usr        \
+             BUILD_STATIC_LIB=0 \
+             MANDIR=/usr/share/man install	    && \
+sudo -S install -v -m755 -d ${BUILD}/usr/share/doc/lm_sensors-3-6-0  && \
+sudo -S cp -rv              README INSTALL doc/* \
+                    ${BUILD}/usr/share/doc/lm_sensors-3-6-0
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+lm_sensors: lm_sensors (hardware monitoring package)
+lm_sensors:
+lm_sensors: lm_sensors provides tools for monitoring the temperatures, voltages,
+lm_sensors: and fans of Linux systems with hardware monitoring devices.  Included
+lm_sensors: are text-based tools for sensor reporting, and a library for sensors
+lm_sensors: access called libsensors.  It also contains tools for sensor hardware
+lm_sensors: identification and I2C bus probing.
+lm_sensors:
+lm_sensors:
+lm_sensors:
+lm_sensors:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/lm_sensors-3.6.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

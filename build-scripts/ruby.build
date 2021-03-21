@@ -1,0 +1,64 @@
+#! /bin/bash
+
+# Ruby 
+# Source: http://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libucontext
+# Recommended:  NONE
+# Optional:     Berkeley DB, Doxygen, Graphviz, libyaml, Tk, Valgrind, and DTrace 
+
+autoconf -v &&
+export CFLAGS="$CFLAGS -fno-omit-frame-pointer -fno-strict-aliasing"     &&
+export CPPFLAGS="$CPPFLAGS -fno-omit-frame-pointer -fno-strict-aliasing" &&
+export LIBS="-lucontext"                                                 &&
+export INSTALL=install        &&
+export ac_cv_func_isnan=yes   &&
+export ac_cv_func_isinf=yes   &&
+
+patch -Np1 -i ../patches/ruby-alpine/fix-get_main_stack.patch
+patch -Np1 -i ../patches/ruby-alpine/rubygems-avoid-platform-specific-gems.patch
+patch -Np1 -i ../patches/ruby-alpine/test_insns-lower-recursion-depth.patch
+
+./configure --prefix=/usr   \
+            --enable-shared \
+            --docdir=/usr/share/doc/ruby-2.7.2 \
+            --enable-pthread \
+            --disable-rpath  \
+            --enable-shared $BUILDTURPLE &&
+            
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+unset CFLAGS CPPFLAGS LIBS INSTALL ac_cv_func_isnan ac_cv_func_isinf     &&
+sudo -S rm -v    ${BUILD}/usr/lib/ruby/2.7.0/rubygems/ssl_certs/*/*.pem  &&
+sudo -S rmdir -v ${BUILD}/usr/lib/ruby/2.7.0/rubygems/ssl_certs/*        &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+ruby: ruby (Interpreted object-oriented scripting language)
+ruby:
+ruby: Ruby is an interpreted scripting language for quick and easy
+ruby: object-oriented programming. It has many features to process text
+ruby: files and to do system management tasks (as in Perl). It is simple,
+ruby: straight-forward, and extensible.
+ruby:
+ruby: Homepage: http://www.ruby-lang.org/
+ruby:
+ruby:
+ruby:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/ruby-2.7.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

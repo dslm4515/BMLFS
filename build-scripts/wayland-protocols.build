@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# Wayland-Protocols
+# Source: https://wayland.freedesktop.org/releases/wayland-protocols-1.20.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Wayland
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                 |-----handy-ruler------------------------------------------------------|
+wayland-protocols: wayland-protocols (extended Wayland protocols)
+wayland-protocols:
+wayland-protocols: wayland-protocols contains Wayland protocols that add functionality
+wayland-protocols: not available in the Wayland core protocol. Such protocols either add
+wayland-protocols: completely new functionality, or extend the functionality of some
+wayland-protocols: other protocol either in Wayland core or in wayland-protocols.
+wayland-protocols:
+wayland-protocols: Homepage: https://wayland.freedesktop.org/
+wayland-protocols:
+wayland-protocols:
+wayland-protocols:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/wayland-protocols-1.20-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

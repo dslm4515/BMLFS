@@ -1,0 +1,10 @@
+diff --git a/gfx/angle/moz.build.common b/gfx/angle/moz.build.common
+index fa906ac78a00..c361f3695c14 100644
+--- a/gfx/angle/moz.build.common
++++ b/gfx/angle/moz.build.common
+@@ -11,3 +11,5 @@ if CONFIG['INTEL_ARCHITECTURE']:
+ DEFINES['__NDK_FPABI__'] = ''
+ DEFINES['ANGLE_SKIP_DXGI_1_2_CHECK'] = True
+ DEFINES['ANGLE_ENABLE_KEYEDMUTEX'] = True
++if CONFIG["MOZ_WAYLAND"]:
++    CXXFLAGS += [ "-DWL_EGL_PLATFORM" ]

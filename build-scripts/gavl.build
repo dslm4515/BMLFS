@@ -1,0 +1,49 @@
+#! /bin/bash
+
+# gavl
+# Source: https://downloads.sourceforge.net/gmerlin/gavl-1.4.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libpng
+# Recommended:  NONE
+# Optional:     Doxygen
+
+patch -Np1 -i ../patches/gavl-alpine/musl-sched_h.patch &&
+cp -v ../files/config.guess-musl config.guess &&
+cp -v ../files/config.sub-musl config.sub     &&
+LIBS=-lm                      \
+./configure --prefix=/usr     \
+            --without-doxygen \
+            --docdir=/usr/share/doc/gavl-1.4.0 $BUILDTRUPLE && 
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+gavl: gavl (Gmerlin audio video library)
+gavl:
+gavl: gavl is a library which provides basic support for uncompressed Audio,
+gavl: Video and Image data.
+gavl:
+gavl: gavl homepage: http://gmerlin.sourceforge.net/
+gavl:
+gavl:
+gavl:
+gavl:
+gavl:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gavl-1.4.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

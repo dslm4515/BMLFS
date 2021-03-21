@@ -1,0 +1,61 @@
+#! /bin/bash
+
+# Node.js
+# Source: https://nodejs.org/dist/v14.15.4/node-v14.15.4.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Python2, Which
+# Recommended:  c-ares, ICU, libuv, nghttp2
+# Optional:     http-parser, NPM
+#
+# Node.js does not compile with LibreSSL. Use the bundled openssl.
+
+#patch -Np0 -i ../patches/nodejs-void-14.15.4/shared-uv.patch
+
+case $(uname -m) in
+      i686) export LDFLAGS="-Wl,--no-keep-memory"             ;;
+esac
+export CFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"    &&
+export CXXFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"  &&
+
+#rm -rvf  deps/brotli  deps/cares deps/uv deps/zlib &&
+
+./configure --prefix=/usr --shared-zlib \
+            --with-intl=system-icu     \
+            --shared-libuv \
+	    --shared-nghttp2 \
+	    --shared-cares &&
+
+make BUILDTYPE=Release -j2
+
+sudo -S make DESTDIR=$BUILD install &&
+unset CXXFLAGS CFLAGS LDFLAGS &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+nodejs: nodejs (JavaScript runtime)
+nodejs:
+nodejs: Node.jsÂ® is a JavaScript runtime built on Chrome's V8 JavaScript
+nodejs: engine.
+nodejs:
+nodejs:
+nodejs:
+nodejs: https://nodejs.org/
+nodejs:
+nodejs:
+nodejs:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/nodejs-14.15.4-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

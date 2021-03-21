@@ -1,0 +1,53 @@
+#! /bin/bash
+
+# libidn2 2.3.0
+# Source: https://ftp.gnu.org/gnu/libidn/libidn2-2.3.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libunistring
+# Recommended:  NONE
+# Optional:     git and GTK-Doc
+
+./configure --prefix=/usr --disable-static $BUILDTRUPLE  &&
+
+read -p "Compile?" && make -j2 &&
+
+read -p "Press Enter to install" &&
+# if not using a package manager:
+# make install
+
+# if using pkgtools from Slackware, then:
+sudo -S make DESTDIR=$BUILD install &&
+
+read -p "Press Enter to create package description."                                                                                                                                                                              
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+      |-----handy-ruler------------------------------------------------------|
+libidn2: libidn (GNU Internationalized Domain Name library)
+libidn2:
+libidn2: GNU Libidn is an implementation of the Stringprep, Punycode and IDNA
+libidn2: specifications defined by the IETF Internationalized Domain Names
+libidn2: (IDN) working group, used for internationalized domain names.
+libidn2:
+libidn2: This package designed for internationalized string handling 
+libidn2: based on standards from the Internet Engineering Task Force 
+libidn2: (IETF)'s IDN working group, designed for internationalized domain
+libidn2: names
+libidn2:
+EOF
+sudo mv /tmp/slack-desc install/ &&
+
+read -p "Enter to build package" &&
+sudo makepkg -l y -c n $PKGS/libidn2-2.3.0-$(uname -m)-mlfs.txz &&
+sudo rm -rf $BUILD/*
+

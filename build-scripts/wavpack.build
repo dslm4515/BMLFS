@@ -1,0 +1,44 @@
+#! /bin/bash
+
+# wavpack
+# Source: http://www.wavpack.com/wavpack-5.3.0.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr \
+            --sysconfdir=/etc $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+wavpack: wavpack (Open audio compression codec)
+wavpack:
+wavpack: WavPack is a completely open audio compression format providing
+wavpack: lossless, high-quality lossy, and a unique hybrid compression mode.
+wavpack: The compression ratio depends on the source material, but generally is
+wavpack: between 30% and 70%.
+wavpack: The hybrid mode combines a relatively small, high-quality lossy file
+wavpack: with a 'correction' file that enables full lossless restoration.
+wavpack:
+wavpack: wavpack home: http://www.wavpack.com
+wavpack:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/wavpack-3.5.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

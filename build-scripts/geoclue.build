@@ -1,0 +1,49 @@
+#! /bin/bash
+
+# GeoClue
+# Source: https://gitlab.freedesktop.org/geoclue/geoclue/-/archive/2.5.6/geoclue-2.5.6.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     JSON-glib, libsoup
+# Recommended:  ModemManager, Vala, Avahi
+# Optional:     GTK-Doc, libnotify
+
+mkdir build &&
+cd    build &&
+
+meson --prefix=/usr -Dgtk-doc=false \
+      -Dnmea-source=true \
+      -Ddbus-sys-dir=/usr/share/dbus-1/system.d .. &&
+
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+geoclue: geoclue (geoinformation service)
+geoclue:
+geoclue: Geoclue is a modular geoinformation service built on top of the D-Bus
+geoclue: messaging system. The goal of the Geoclue project is to make creating
+geoclue: location-aware applications as simple as possible.
+geoclue: Geoclue defines a set of geoinformation APIs, but it also includes
+geoclue: some providers that implement those APIs.
+geoclue:
+geoclue: homepage: http://geoclue.freedesktop.org/
+geoclue:
+geoclue:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/geoclue-2.5.6-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

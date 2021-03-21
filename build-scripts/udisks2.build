@@ -1,0 +1,56 @@
+#! /bin/bash
+
+# UDisks2
+# Source: https://github.com/storaged-project/udisks/releases/download/udisks-2.9.1/udisks-2.9.1.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libatasmart, libblockdev, libgudev, libxslt, and Polkit 
+# Recommended:  elogind 
+# Optional:     btrfs-progs, dbus, dosfstools, gptfdisk, mdadm, xfsprogs,
+# Optional:     Gobject-introspection, D-Bus Python, GTK-Doc, LVM2, ntfs-3g
+# Optional:     PyGobject3, exFAT, libisci
+
+patch -Np1 -i ../patches/udisk2-adelie/O_CLOEXEC.patch &&
+
+./configure --prefix=/usr        \
+            --sysconfdir=/etc    \
+            --localstatedir=/var \
+            --disable-static     \
+            --enable-daemon \
+            --enable-fhs-media \
+            --enable-lvm2 \
+            --disable-nls \
+            --enable-introspection=yes $BUILDTRUPLE &&
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+udisks2: udisks2 (storage device daemon v2)
+udisks2:
+udisks2: The udisks project provides a storage daemon that implements D-Bus
+udisks2: interfaces that can be used to query and manipulate storage devices.
+udisks2:
+udisks2: It also includes a command-line tool, udisks(1), that can be used to
+udisks2: query and control the daemon.
+udisks2:
+udisks2: Homepage:  http://www.freedesktop.org/wiki/Software/udisks
+udisks2:
+udisks2:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/udisks2-2.9.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

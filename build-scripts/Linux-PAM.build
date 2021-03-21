@@ -1,0 +1,100 @@
+#! /bin/bash
+
+# Linux-PAM-1.4.0 
+# Source: https://github.com/linux-pam/linux-pam/releases/download/v1.4.0/Linux-PAM-1.4.0.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required: None
+# Optional:  Berkeley DB-5.3.28, libnsl-1.2.0, libtirpc-1.2.6, libaudit, and Prelude 
+# Optional for docs:  docbook-xml-4.5, docbook-xsl-1.79.2, fop-2.5, libxslt-1.1.34 and either Lynx-2.8.9rel.1 or W3m 
+
+# disable insecure modules
+sed -e 's/pam_rhosts//g' -i modules/Makefile.am
+
+autoreconf -fvi &&
+
+# Use patches from Alpine:
+patch -Np1 -i ../patches/Linux-PAM-alpine/0001-avoid-opendir-since-it-may-be-called-during-fork-exe.patch
+patch -Np1 -i ../patches/Linux-PAM-alpine/0adbaeb273da1d45213134aa271e95987103281c.patch
+patch -Np1 -i ../patches/Linux-PAM-alpine/c9593778a6133bf29eb2f47c24cc6d2f5d729fc8.patch
+
+# Enable utmps support
+patch -Np1 -i ../patches/Linux-PAM-adelie/use-utmpx.patch
+
+ac_cv_search_crypt=no \
+./configure --prefix=/usr                    \
+            --sysconfdir=/etc                \
+            --libdir=/usr/lib                \
+            --enable-securedir=/lib/security \
+            --docdir=/usr/share/doc/Linux-PAM-1.4.0 \
+            --disable-nls                    \
+            --disable-audit $BUILDTUPLE &&
+
+read -p "Compile? " && make -j2 &&
+
+read -p "Press Enter to install" &&
+# if not using a package manager:
+# make install
+
+# if using pkgtools from Slackware, then:
+su -c "make DESTDIR=$BUILD install"
+su -c "install -vdm755 ${BUILD}/etc/pam.d"
+for f in other system-account system-auth system-password system-session
+do
+        su -c "cp -v ../files/Linux-PAM-lfs/$f ${BUILD}/etc/pam.d/"
+done	
+
+read -p "Press Enter to create pakage description."
+cd $BUILD && su -c "mkdir -v install" &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description. Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in. You must make
+# exactly 11 lines for the formatting to be correct. It's also customary to
+# leave one space after the ':'.
+
+         |-----handy-ruler------------------------------------------------------|
+linux-pam: linux-pam (Pluggable Authentication Modules)
+linux-pam: 
+linux-pam: Linux-PAM is a library that enables the local system administrator
+linux-pam: to choose how individual applications authenticate users. The purpose
+linux-pam: of the Linux-PAM project is to liberate the development of privilege
+linux-pam: granting software from the development of secure and appropriate
+linux-pam: authentication schemes.
+linux-pam:
+linux-pam: Homepage: https://github.com/linux-pam/linux-pam
+linux-pam:
+linux-pam:
+EOF
+su -c "mv /tmp/slack-desc install/" &&
+
+for file in pam_misc pamc
+do
+  su -c "mv -v usr/lib/lib${file}.so.* lib/" &&
+  su -c "ln -sfv ../../lib/lib${file}.so.0.82.1 usr/lib/lib${file}.so"
+  su -c "rm -v usr/lib/lib${file}.so.0"
+  su -c "ln -sfv ../../lib/lib${file}.so.0.82.1 usr/lib/lib${file}.so.0"
+done
+
+su -c "mv -v usr/lib/libpam.so.0.85.1 lib/"
+su -c "rm -v usr/lib/libpam.so usr/lib/libpam.so.0"
+su -c "ln -sfv ../../lib/libpam.so.0.85.1 usr/lib/libpam.so"
+su -c "ln -sfv ../../lib/libpam.so.0.85.1 usr/lib/libpam.so.0"
+su -c "ln -sfv libpam.so.0.85.1 lib/libpam.so.0"
+read -p "Enter to build package" &&                                                                                                                                                                                               
+su -c  "makepkg -l y -c n $PKGS/linux-pam-1.4.0-$(uname -m)-mlfs.txz" &&
+
+cp -v install/doinst.sh /tmp/
+cat >> /tmp/doinst.sh << "EOF"
+chmod -v 4755 /sbin/unix_chkpwd
+echo ">>Recommended to re-install shadow with PAM support.<<"
+EOF
+
+su -c "mv -v /tmp/doinst.sh install/"
+
+su -c  "makepkg -l y -c n $PKGS/linux-pam-1.4.0-$(uname -m)-mlfs.txz" &&
+su -c "rm -rf ${BUILD}/*"

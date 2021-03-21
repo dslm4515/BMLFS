@@ -1,0 +1,38 @@
+#! /bin/bash
+
+# ACPI Client 1.7
+# https://sourceforge.net/projects/acpiclient/files/acpiclient/1.7/acpi-1.7.tar.gz
+
+autoreconf -vfi
+
+./configure --prefix=/usr $BUILDTRUPLE &&
+
+read -p "Compile? " && make  -j2 && 
+read -p "Install? " &&
+sudo -S make DESTDIR=$BUILD install &&
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+acpi: acpi (an acpi client for linux)
+acpi: 
+acpi: Linux ACPI client is a command-line tool, similar to the "apm"
+acpi: command, that provides information on battery status, AC power, 
+acpi: and thermal readings.
+acpi: 
+acpi: Homepage: http://sourceforge.net/projects/acpiclient/
+acpi:
+acpi:
+acpi:
+acpi:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/acpi-1.7-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
+

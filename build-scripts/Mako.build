@@ -1,0 +1,42 @@
+#! /bin/bash
+
+# Mako
+# Source: https://files.pythonhosted.org/packages/source/M/Mako/Mako-1.1.3.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Python2 or Python3, MarkupSafe
+# Recommended:  NONE
+# Optional:     NONE
+
+read -p "Compile?" && python3 setup.py build &&
+
+sudo -S python3 setup.py install --prefix=/usr --root=${BUILD} &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+Mako: Mako (A python templating language)
+Mako:
+Mako: Mako is a template library written in Python. It provides a familiar,
+Mako: non-XML syntax which compiles into Python modules for maximum
+Mako: performance. Mako's syntax and API borrows from the best ideas of many
+Mako: others, including Django templates, Cheetah, Myghty, and Genshi.
+Mako: Conceptually, Mako is an embedded Python (i.e. Python Server Page)
+Mako: language, which refines the familiar ideas of componentized layout and
+Mako: inheritance to produce one of the most straightforward and flexible
+Mako: models available, while also maintaining close ties to Python.
+Mako: Homepage: http://www.makotemplates.org/
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/Mako-1.1.3-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

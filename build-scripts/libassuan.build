@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# libassuan
+# Source: ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-2.5.4.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libgpg-error
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+libassuan: libassuan (Interprocess Communication Library for GPG)
+libassuan:
+libassuan: This is the IPC library used by GnuPG 2.x, GPGME and a few other
+libassuan: packages. 
+libassuan:
+libassuan:
+libassuan:
+libassuan:
+libassuan:
+libassuan:
+libassuan:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libassuan-2.5.4-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

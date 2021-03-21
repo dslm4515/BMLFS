@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# libogg
+# Source: https://downloads.xiph.org/releases/ogg/libogg-1.3.4.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/libogg-1.3.4 &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+libogg: libogg (Ogg Bitstream library)
+libogg:
+libogg: Libogg is a library for manipulating ogg bitstreams.  It handles
+libogg: both making ogg bitstreams and getting packets from ogg bitstreams.
+libogg:
+libogg: libogg is needed to use the Ogg Vorbis audio format.
+libogg:
+libogg:
+libogg:
+libogg:
+libogg:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libogg-1.3.4-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

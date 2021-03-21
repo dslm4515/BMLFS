@@ -1,0 +1,49 @@
+#! /bin/bash
+
+# Bullet  
+# Source:  https://github.com/bulletphysics/bullet3/archive/2.89.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     mesa
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np0 -i ../patches/bullet-void/musl.patch && \
+export CMAKE_GENERATOR="Unix Makefiles" && \
+
+cmake -B OUTPUT -DCMAKE_INSTALL_PREFIX=/usr \
+	        -DBUILD_SHARED_LIBS=1 \
+		-DBUILD_BULLET2_DEMOS=0 \
+		-DBUILD_CPU_DEMOS=0 \
+		-DBUILD_UNIT_TESTS=0 \
+		-DBUILD_OPENGL3_DEMOS=0 \
+		-DBUILD_EXTRAS=1 \
+		-DINSTALL_EXTRA_LIBS=1
+
+read -p "Compile?" && make -C OUTPUT -j2 &&
+
+sudo -S make DESTDIR=$BUILD -C OUTPUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+bullet: bullet
+bullet:
+bullet: 3D Collision Detection and Rigid Body Dynamics Library
+bullet:
+bullet: https://github.com/bulletphysics/bullet3
+bullet:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/bullet-2.89-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

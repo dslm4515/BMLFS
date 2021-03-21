@@ -1,0 +1,15 @@
+#! /bin/bash
+
+# taglib 1.11.1
+# source: https://taglib.github.io/releases/taglib-1.11.1.tar.gz
+
+mkdir build &&
+cd    build &&
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_BUILD_TYPE=Release  \
+      -DBUILD_SHARED_LIBS=ON \
+      .. &&
+
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lp taglib-1.11.1 "make install"

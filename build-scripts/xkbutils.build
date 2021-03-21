@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# xkbutils 
+# Source: https://www.x.org/pub/individual/app/xkbutils-1.0.4.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     xorgproto
+# Recommended:  NONE
+# Optional:     NONE
+
+cp -vf ../files/config.sub-musl config.sub     && \
+cp -vf ../files/config.guess-musl config.guess && \
+
+./configure --prefix=/usr --sysconfdir=/etc \
+	    --localstatedir=/var \
+	    --disable-static $BUILDTRUPLE && \
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+xkbutils: xkbutils (X11 keyboard utilities)
+xkbutils:
+xkbutils: xkbutils is a collection of small utilities utilizing the XKeyboard
+xkbutils: (XKB) extension to the X11 protocol.
+xkbutils:
+xkbutils:
+xkbutils:
+xkbutils:
+xkbutils:
+xkbutils:
+xkbutils:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/xkbutils-1.0.4-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

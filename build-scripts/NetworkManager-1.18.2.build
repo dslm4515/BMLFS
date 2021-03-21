@@ -1,0 +1,36 @@
+#! /bin/bash
+
+# NetworkManager 1.18.2
+# Source: http://ftp.gnome.org/pub/gnome/sources/NetworkManager/1.18/NetworkManager-1.18.2.tar.xz
+
+export patchfiles="fix-cross-gir.patch musl-fix-includes.patch musl-network-support.patch musl-basic.patch musl-has-not-secure-getenv.patch musl-process-util.patch"
+for p in $patchfiles; do
+	echo "[ PATCHING ] Applying $p ..." &&
+	patch -Np0 -i ../patches/NetworkManager-1.18.1-void/$p
+done
+unset patchfiles
+
+
+mkdir build &&
+cd    build &&
+
+CXXFLAGS+="-O2 -fPIC"            \
+meson --prefix /usr              \
+      --sysconfdir /etc          \
+      --localstatedir /var       \
+      -Dlibaudit=no              \
+      -Dnmtui=true               \
+      -Dovs=false                \
+      -Dppp=false                \
+      -Dselinux=false            \
+      -Dudev_dir=/lib/udev       \
+      -Dsession_tracking=elogind \
+      -Dsystemdsystemunitdir=no  \
+      -Dsystemd_journal=false    \
+      -DRTLD_DEEPBIND=0          \
+      -Dtests=no .. &&
+
+ninja -j2 &&
+sudo -S porg -lp  NetworkManager-1.18.2 "ninja install" &&
+sudo -S porg -lp+ NetworkManager-1.18.2 "mv -v /usr/share/doc/NetworkManager{,-1.18.2}"
+

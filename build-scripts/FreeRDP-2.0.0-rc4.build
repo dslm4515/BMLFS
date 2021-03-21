@@ -1,0 +1,22 @@
+# FreeRDP 2.0.0-rc4
+# Source: https://github.com/FreeRDP/FreeRDP/archive/2.0.0-rc4.tar.gz
+
+patch -Np0 -i ../patches/FreeRDP-2.0.0-rc4-void-libressl.patch
+patch -Np0 -i ../patches/FreeRDP-2.0.0-rc4-void-fix_5049.patch
+
+mkdir -v BUILD && cd BUILD
+
+cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+      -GNinja \
+      -DCHANNEL_URBDRC=ON \
+      -DWITH_DSP_FFMPEG=ON \
+      -DWITH_CUPS=ON \
+      -DWITH_PULSE=ON \
+      -DWITH_FAAC=ON \
+      -DWITH_FAAD2=ON \
+      -DWITH_GSM=OFF \
+      -DWITH_LIBSYSTEMD=OFF  ..
+      
+ninja -j2
+
+sudo -S porg -lp freerdp-2.0.0-rc4 "ninja install"

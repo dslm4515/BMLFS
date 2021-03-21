@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# LAME
+# Source: https://downloads.sourceforge.net/lame/lame-3.100.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     Dmalloc, Electric Fence, libsndfile and NASM 
+
+./configure --prefix=/usr    --enable-mp3rtp \
+            --disable-static --enable-nasm   $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+
+    |-----handy-ruler------------------------------------------------------|
+lame: Lame (LAME Ain't an Mp3 Encoder)
+lame: 
+lame: LAME is an educational tool to be used for learning about MP3
+lame: encoding. The goal of the LAME project is to use the open source model
+lame: to improve the psycho acoustics, noise shaping and speed of MP3. 
+lame: 
+lame: 
+lame: 
+lame: 
+lame: 
+lame: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/lame-3.100-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

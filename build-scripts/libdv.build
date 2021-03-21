@@ -1,0 +1,59 @@
+#! /bin/bash
+
+# Libdv
+# Source: https://downloads.sourceforge.net/libdv/libdv-1.0.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     popt, SDL, and X ORG Window System 
+
+patch -Np1 -i ../patches/libdv-alpine/automake.patch
+patch -Np1 -i ../patches/libdv-alpine/libdv-0.104-no-exec-stack.patch
+patch -Np1 -i ../patches/libdv-alpine/libdv-1.0.0-dso-linking.patch
+patch -Np1 -i ../patches/libdv-alpine/libdv-1.0.0-gtk2.patch
+patch -Np1 -i ../patches/libdv-alpine/libdv-1.0.0-pic.patch
+
+cp -v ../files/config.sub-musl config.sub     &&
+cp -v ../files/config.guess-musl config.guess &&
+rm -vf missing &&
+libtoolize --force && aclocal && autoconf && automake --add-missing &&
+
+./configure --prefix=/usr \
+            --disable-static \
+            --sysconfdir=/etc \
+            --localstatedir=/var \
+            --with-pic $BUILDTRUPLE &&
+            
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+libdv: libdv (DV Video codec)
+libdv:
+libdv: The Quasar DV codec (libdv) is a software codec for DV video. DV is
+libdv: the encoding format used by most digital camcorders, typically those
+libdv: that support the IEEE 1394 (aka FireWire or i.Link) interface. libdv
+libdv: was developed according to the official standards for DV video, IEC
+libdv: 61834 and SMPTE 314M.
+libdv:
+libdv: Homepage: http://libdv.sourceforge.net/
+libdv:
+libdv:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libdv-1.0.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

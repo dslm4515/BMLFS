@@ -1,0 +1,67 @@
+#! /bin/bash
+
+# fingerprint-gui 
+# Source: https://github.com/maksbotan/fingerprint-gui/archive/v1.09-qt5.tar.gz
+# git: https://github.com/maksbotan/fingerprint-gui
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     qt5, qca
+# Recommended:  libfprint, fprintd
+# Optional:     NONE
+
+patch -Np0 -i ../patches/fingerprint-gui-void/fix-udev-paths.patch         && \
+patch -Np0 -i ../patches/fingerprint-gui-void/fix-udev-rules-groups.patch  && \
+patch -Np0 -i ../patches/fingerprint-gui-void/musl.patch                   && \
+patch -Np0 -i ../patches/fingerprint-gui-void/time64.patch                 && \
+
+
+CXXFLAGS=" -I/opt/qt5/include/Qca-qt5/QtCrypto"    && \
+CXXFLAGS+=" -I/opt/qt5/include"                    && \
+CXXFLAGS+=" -I/opt/qt5/include/QtCore"             && \
+CXXFLAGS+=" -I/opt/qt5/include/QtGui"              && \
+CXXFLAGS+=" -I/opt/qt5/include/QtWidgets"          && \
+CXXFLAGS+=" -I/opt/qt5/include/QtXml"              && \
+CXXFLAGS+=" -I/usr/include/Qca-qt5"                && \
+CXXFALGS+=" -I/usr/include/Qca-qt5/QtCrypto"       && \
+LDFLAGS=" -Wl,-rpath=/opt/qt5/lib"                 && \
+export LDFLAGS="-Wl,--no-as-needed -lqca-qt5"      && \
+export CFLAGS=""                                   && \
+
+qmake PREFIX=/usr  LIB=/usr/lib MAKE_CC=cc \
+      QMAKE_CXX=c++ QMAKE_LINK=c++ QMAKE_LINK_C=cc \
+      QMAKE_CFLAGS="${CFLAGS}" \
+      QMAKE_CXXFLAGS="${CXXFLAGS}" \
+      QMAKE_LFLAGS="${LDFLAGS}"                    && \
+
+make -j2                                           && \
+
+sudo -S make DESTDIR=${BUILD} install              && \
+sudo -S make DESTDIR=${BUILD} upek-rules           && \
+sudo -S make DESTDIR=${BUILD} upek-cfg             && \
+sudo -S mv -v ${BUILD}/usr/lib/security/pam_fingerprint-gui.so ${BUILD}/lib/security && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+               |-----handy-ruler------------------------------------------------------|
+fingerprint-gui: fingerprint-gui
+fingerprint-gui:
+fingerprint-gui: Fingerprint GUI is an application providing fingerprint-based 
+fingerprint-gui: authentication on Linux desktops. It features a simple GUI for 
+fingerprint-gui: fingerprint management and a PAM module.
+fingerprint-gui:
+fingerprint-gui: https://github.com/maksbotan/fingerprint-gui
+fingerprint-gui:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/fingerprint-gui-1.09-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

@@ -1,0 +1,90 @@
+#! /bin/bash
+
+# Mesa without Xorg
+# Source: ftp://ftp.freedesktop.org/pub/mesa/mesa-20.3.2.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     LLVM, libdrm, Mako
+# Recommended:  Libva, libvdpau, wayland-protocols
+# Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind,
+# Optional:     libxcb, libX11, libxshmfence 
+
+patch -Np1 -i ../patches/mesa-alpine-20.3.2/0001-radeonsi-On-Aarch64-force-persistent-buffers-to-GTT.patch
+patch -Np1 -i ../patches/mesa-alpine-20.3.2/add-use-elf-tls.patch
+patch -Np1 -i ../patches/mesa-alpine-20.3.2/adjust-cache-deflate-buffer.patch
+patch -Np1 -i ../patches/mesa-alpine-20.3.2/musl-fix-includes.patch
+
+
+export CFLAGS="$CFLAGS -D_XOPEN_SOURCE=700" &&
+case $(uname -m) in
+	i686|x86_64) export GLL_DRV="i915,nouveau,radeonsi,svga,swrast,r600" 
+                     export DRI_DRIVERS="i965,nouveau" 
+		     export V_DRIVERS="amd,swrast" ;;
+	     arm*)   export GLL_DRV="vc4,panfrost,nouveau,tegra,swrast"
+		     export DRI_DRIVEiRS="nouveau" 
+		     export V_DRIVERS="" ;;
+esac
+
+export MESA_GIT_SHA1_OVERRIDE=53b2b224dc2de982c37915a0ad218e33365ff75e &&
+python3 bin/git_sha1_gen.py --output include/git_sha1.h &&
+
+meson --prefix=/usr                  \
+      -Dbuildtype=release            \
+      -Dllvm="enabled"               \
+      -Dshared-llvm="enabled"        \
+      -Dglx="disabled"               \
+      -Dxlib-lease="disabled"        \
+      -Ddri3="enabled"                    \
+      -Dplatforms="wayland"      \
+      -Dglx-read-only-text=true      \
+      -Dasm=false                    \
+      -Dshared-glapi="enabled"         \
+      -Dopengl=true                  \
+      -Degl="enabled"                     \
+      -Dgallium-va="enabled"              \
+      -Dgallium-xa=true              \
+      -Dosmesa=gallium               \
+      -Dvalgrind=false               \
+      -Dgallium-nine=false           \
+      -Dgallium-vdpau="disabled"     \
+      -Dgles2="enabled"              \
+      -Dvulkan-device-select-layer=false \
+      -Dvulkan-drivers="${V_DRIVERS}"            \
+      -Dvulkan-overlay-layer=false   \
+      -Dtools="" \
+      -Ddri-drivers="${DRI_DRIVERS}"   \
+      -Dgallium-drivers="${GLL_DRV}"  OUT  
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+unset CFLAGS GLL_DRV DRI_DRIVERS MESA_GIT_SHA1_OVERRIDE V_DRIVERS &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+mesa: mesa (a 3-D graphics library)
+mesa:
+mesa: Mesa is a 3-D graphics library with an API very similar to that of
+mesa: another well-known 3-D graphics library. The Mesa libraries are used
+mesa: by X to provide both software and hardware accelerated graphics.
+mesa:
+mesa: Mesa was written by Brian Paul.
+mesa:
+mesa: Homepage: https://www.mesa3d.org
+mesa:
+mesa: Tailored for a Wayland-only system with reduced Xorg support/features
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/mesa-20.3.2-$(uname -m)-noxml.txz &&
+sudo -S rm -rf ${BUILD}/*

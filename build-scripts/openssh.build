@@ -1,0 +1,117 @@
+#! /bin/bash
+
+# OpenSSH 8.0p1
+# source: http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.0p1.tar.gz
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     GDB(for tests), Linux-PAM, X Window System, MIT Kerberos V5, 
+# Optional:     libedit, LibreSSL Portable, OpenSC, and libsectok 
+
+
+sudo -S install  -v -m700 -d /var/lib/sshd 
+sudo -S chown    -v root:sys /var/lib/sshd
+
+sudo -S groupadd -g 50 sshd        
+sudo -S useradd  -c 'sshd PrivSep' \
+         -d /var/lib/sshd  \
+         -g sshd           \
+         -s /bin/false     \
+         -u 50 sshd
+
+sed -i -e 's|#include <sys/sysctl.h>||' servconf.c
+
+case $(uname -m) in
+	i686*)    export CFLAGS=" -fno-stack-protector"
+		  ;;
+esac
+
+export CFLAGS="${CFLAGS} -Wno-format-truncation -Wno-stringop-truncation"
+
+patch -Np0 -i ../patches/openssh-void/config.patch   &&  
+patch -Np0 -i ../patches/openssh-void/libressl.patch &&
+patch -Np1 -i ../patches/openssh-adelie/fix-utmpx.patch &&
+
+autoreconf -fiv &&
+
+LIBS="-lutmps -lskarnet" \
+ac_cv_header_sys_cdefs_h=false \
+./configure --prefix=/usr \
+            --sysconfdir=/etc/ssh \
+            --with-md5-passwords \
+            --with-privsep-path=/var/lib/sshd \
+            --with-pam --with-libedit \
+            --with-Werror \
+            --without-selinux \
+            --without-rpath \
+            --with-ssl-engine \
+            --enable-wtmp \
+            --with-Werror=no $BUILDTRUPLE  &&
+read -p "Compile? " && make -j2 &&
+
+unset CFLAGS
+
+read -p "Press Enter to install" &&
+# if not using a package manager:
+# make install
+
+# if using pkgtools from Slackware, then:
+sudo -S make DESTDIR=$BUILD install &&
+
+sudo -S mkdir -pv  ${BUILD}/usr/bin &&
+sudo -S install -v -m755    contrib/ssh-copy-id ${BUILD}/usr/bin && 
+
+sudo -S sed -i ${BUILD}/etc/ssh/sshd_config \
+	-e 's|^#\(UsePAM\) no|\1 yes|g' \
+	-e 's|^#\(ChallengeResponseAuthentication\) yes|\1 no|g' \
+	-e 's|^#\(PrintMotd\) yes|\1 no|g' &&
+
+read -p "Press Enter to create pakage description."
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+openssh: openssh (Secure Shell daemon and clients)
+openssh:
+openssh: ssh (Secure Shell) is a program for logging into a remote machine and
+openssh: for executing commands on a remote machine.  It is intended to replace
+openssh: rlogin and rsh, and provide secure encrypted communications between
+openssh: two untrusted hosts over an insecure network.  sshd (SSH Daemon) is
+openssh: the daemon program for ssh.  OpenSSH is based on the last free version
+openssh: of Tatu Ylonen's SSH, further enhanced and cleaned up by Aaron
+openssh: Campbell, Bob Beck, Markus Friedl, Niels Provos, Theo de Raadt, and
+openssh: Dug Song.  It has a homepage at http://www.openssh.com/
+openssh:
+EOF
+sudo mv /tmp/slack-desc install/ &&
+
+cat > /tmp/doinst.sh << "EOF"
+chown    -v root:sys /var/lib/sshd &&
+echo "Adding sshd user..."
+groupadd -g 50 sshd        &&
+useradd  -c 'sshd PrivSep' \
+         -d /var/lib/sshd  \
+         -g sshd           \
+         -s /bin/false     \
+         -u 50 sshd &&
+echo "Generating host keys.."
+ssh-keygen
+EOF
+sudo -S cp -v /tmp/doinst.sh install/
+
+# skip if not using PAM
+sudo -S mkdir -v etc/pam.d
+sudo -S sed 's@d/login@d/sshd@g' /etc/pam.d/login > etc/pam.d/sshd &&
+sudo -S chmod 644 etc/pam.d/sshd &&
+sudo -S echo "UsePAM yes" >> etc/ssh/sshd_config
+
+read -p "Enter to build package" &&
+sudo makepkg -l y -c n $PKGS/openssh-8.3p1-$(uname -m)-mlfs.txz 
+sudo rm -rf $BUILD/*                                                                                                                                                                                                              

@@ -1,0 +1,59 @@
+#! /bin/bash
+
+# JBIG-KIT
+# Source: https://www.cl.cam.ac.uk/~mgk25/download/jbigkit-2.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+unset CFLAGS CPPFLAGS LDFLAGS &&
+case $(uname -m) in
+    x86_64) export CFLAGS="$CFLAGS -fPIC" ;;
+esac &&
+read -p "Compile?" && make CFLAGS="$CFLAGS" -j2 &&
+sudo -S mkdir -pv ${BUILD}/usr/lib            &&
+sudo -S mkdir -pv ${BUILD}/usr/include        &&
+sudo -S mkdir -pv ${BUILD}/usr/bin            &&
+sudo -S mkdir -pv ${BUILD}/usr/share/man/man1 &&
+sudo -S install -D -m644 libjbig/libjbig.a      ${BUILD}/usr/lib/libjbig.a
+sudo -S install -D -m644 libjbig/libjbig85.a    ${BUILD}/usr/lib/libjbig85.a
+sudo -S install -D -m644 libjbig/jbig.h         ${BUILD}/usr/include/jbig.h
+sudo -S install -D -m644 libjbig/jbig_ar.h      ${BUILD}/usr/include/jbig_ar.h
+sudo -S install -D -m644 libjbig/jbig85.h       ${BUILD}/usr/include/jbig85.h
+sudo -S install -D -m755 pbmtools/jbgtopbm      ${BUILD}/usr/bin/jbgtopbm
+sudo -S install -D -m755 pbmtools/pbmtojbg      ${BUILD}/usr/bin/pbmtojbg
+sudo -S install -D -m755 pbmtools/jbgtopbm85    ${BUILD}/usr/bin/jbgtopbm85
+sudo -S install -D -m755 pbmtools/pbmtojbg85    ${BUILD}/usr/bin/pbmtojbg85
+sudo -S install -m644 pbmtools/*.1*             ${BUILD}/usr/share/man/man1
+unset CFLAGS CPPFLAGS LDFLAGS       &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+jbigkit: JBIG-KIT (highly effective lossless compression algorithm)
+jbigkit:
+jbigkit: JBIG is a highly effective lossless compression algorithm for 
+jbigkit: high-resolution bi-level images (one bit per pixel), which is 
+jbigkit: particularly suitable for scanned documents or fax pages.
+jbigkit: 
+jbigkit: JBIG-KIT provides a portable library of compression and decompression
+jbigkit: functions with a documented interface that you can easily include
+jbigkit: into your image or document processing software. JBIG-KIT also 
+jbigkit: provides ready-to-use compression and decompression programs with a 
+jbigkit: simple command line interface.
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/jbigkit-2.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

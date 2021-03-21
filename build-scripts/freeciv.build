@@ -1,0 +1,77 @@
+#! /bin/bash
+
+# FreeCiv 
+# Source:  http://files.freeciv.org/stable/freeciv-2.6.2.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libXaw, libcurl,
+# Recommended:  SDL2_gfx, SDL_gfx, SDL2_image, SDL_image, SDL2_mixer, 
+# Recommended:  SDL_mixer, SDL2_ttf, SDL2_ttf, GTK+3, GTK+2, lua
+# Optional:     NONE
+
+# 3.0.92.2(Git) version has dropped SDL and GTK+2 in favor of SDL2 and GTK+3.x.
+# Now requires Lua 5.4.x+
+# For Qt Client, make sure /opt/qt5/bin is in $PATH
+# Game server segfaults. Disable and use server from 2.6.2
+#export BUILD_CLIENTS=" --enable-client=gtk3,gtk3.22,sdl2,qt,stub"
+#export EXTRA_CONFIG=" --with-zoom --with-3d --enable-json --with-qt5x --disable-server"
+
+# Released source has SDL and GTK+2 Clients.
+# Uses Lua 5.3.x
+# For SDL, cannot build both: Either SDL2 or SDL
+patch -Np1 -i ../patches/freeciv-mlfs/qt5-client-fixes.patch
+export BUILD_CLIENTS=" --enable-client=gtk2,gtk3,gtk3.22,sdl2,xaw,qt,stub"
+export EXTRA_CONFIG=""
+
+PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/qt5/lib/pkgconfig \
+CFLAGS=" -Wno-error" \
+./configure --prefix=/usr \
+            --disable-static \
+            --enable-shared \
+            --sysconfdir=/etc \
+            --localstatedir=/var \
+            --enable-ipv6=yes  \
+            --enable-aimodules=yes \
+            --disable-rpath \
+            --disable-nls \
+            --enable-debug=yes \
+            --enable-sdl-mixer=sdl2 \
+            --enable-fcmp=all  \
+            --with-readline \
+            --enable-fcdb=sqlite3 \
+            --with-qt5-libs=/opt/qt5/lib \
+            --with-qt5-includes=/opt/qt5/include \
+            --with-qt5-framework-bin \
+            $BUILD_CLIENTS $EXTRA_CONFIG $BUiLDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+freeciv: freeciv (turn-based multiplayer strategy game)
+freeciv:
+freeciv: Freeciv is a free turn-based multiplayer strategy game, in which
+freeciv: each player becomes the leader of a civilization, fighting to
+freeciv: obtain the ultimate goal: To become the greatest civilization.
+freeciv: 
+freeciv: Includes SDL2/GTK+2/GTK+4/Xaw/Qt clients and server.
+freeciv: 
+freeciv: 
+freeciv: Homepage: http://www.freeciv.org/
+freeciv:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/freeciv-2.6.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

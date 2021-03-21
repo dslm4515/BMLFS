@@ -1,0 +1,23 @@
+diff -uNr gpm-1.20.7.orig/src/prog/gpm-root.y gpm-1.20.7/src/prog/gpm-root.y
+--- gpm-1.20.7.orig/src/prog/gpm-root.y	2012-10-26 21:21:38.000000000 +0000
++++ gpm-1.20.7/src/prog/gpm-root.y	2021-01-18 13:32:35.862805598 +0000
+@@ -46,7 +46,7 @@
+ #include <termios.h>        /* winsize */
+ #include <linux/vt.h>       /* VT_ACTIVATE */
+ #include <linux/keyboard.h> /* K_SHIFT */
+-#include <utmp.h>         
++#include <utmpx.h>         
+ #include <endian.h>
+ 
+ #ifdef HAVE_SYS_SYSMACROS_H
+@@ -1264,8 +1264,8 @@
+ 
+          if (disallocFlag)
+             {
+-          struct utmp *uu;
+-          struct utmp u;
++          struct utmpx *uu;
++          struct utmpx u;
+           char s[8];
+           int i=0;
+           

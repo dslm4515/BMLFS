@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# libnl3
+# Source: https://github.com/thom311/libnl/releases/download/libnl3_5_0/libnl-3.5.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+autoreconf -fiv &&
+sed -i '/<linux\/if_bridge.h>/i#define _LINUX_IN6_H' lib/route/link/bridge.c &&
+./configure --prefix=/usr     \
+            --sysconfdir=/etc \
+            --disable-static  $BUILDTRUPLE &&
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+libnl3: libnl3 (Netlink Protocol Library Suite version 3)
+libnl3:
+libnl3: The libnl suite is a collection of libraries providing APIs to 
+libnl3: netlink protocol based Linux kernel interfaces. Netlink is a IPC
+libnl3: mechanism primarily between the kernel and user space processes.
+libnl3: It was designed to be a more flexible successor to ioctl to provide
+libnl3: mainly networking related kernel configuration and monitoring
+libnl3: interfaces. 
+libnl3:
+libnl3: Homepage: https://github.com/thom311/libnl
+libnl3:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libnl3-3.5.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

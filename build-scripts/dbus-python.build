@@ -1,0 +1,54 @@
+#! /bin/bash
+
+# D-Bus Python
+# Source: https://dbus.freedesktop.org/releases/dbus-python/dbus-python-1.2.16.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     DBus, GLib
+# Recommended:  Python 2
+# Optional:     PyGobject 3
+
+mkdir python2 &&
+pushd python2 &&
+PYTHON=/usr/bin/python2     \
+../configure --prefix=/usr --disable-documentation &&
+make -j2 &&
+popd &&
+mkdir python3 &&
+pushd python3 &&
+PYTHON=/usr/bin/python3    \
+../configure --prefix=/usr --docdir=/usr/share/doc/dbus-python-1.2.16 &&
+make -j2 &&
+popd &&
+
+sudo -S make DESTDIR=$BUILD -C python2 install &&
+sudo -S make DESTDIR=$BUILD -C python3 install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+dbus-glib: dbus-glib (Glib bindings for dbus)
+dbus-glib:
+dbus-glib: This package includes the glib bindings for the dbus IPC library.
+dbus-glib:
+dbus-glib:
+dbus-glib:
+dbus-glib:
+dbus-glib:
+dbus-glib:
+dbus-glib:
+dbus-glib:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/dbus-python-1.2.16-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

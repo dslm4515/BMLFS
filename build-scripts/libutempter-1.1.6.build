@@ -1,0 +1,10 @@
+#! /bin/bash
+
+# Libutempter 1.1.6
+# source: http://ftp.altlinux.org/pub/people/ldv/utempter/libutempter-1.1.6.tar.bz2
+
+patch -Np0 -i ../patches/libutempter-remove-glibc-assumption.patch 
+
+make -j2 &&
+read -p "Install?" && sudo -S porg -lD "make install"
+ 

@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# SoundTouch
+# Source: https://gitlab.com/soundtouch/soundtouch/-/archive/2.2/soundtouch-2.2.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+export OLD_ACLOCAL=$ACLOCAL && export ACLOCAL="" &&
+./bootstrap &&
+./configure --prefix=/usr \
+            --docdir=/usr/share/doc/soundtouch-2.2 \
+            --localstatedir=/var \
+            --enable-shared \
+            --disable-static $BUILDTRUPLE &&
+
+read -p "Compile?" && make -j2 &&
+
+export ACLOCAL=$OLD_ACLOCAL && unset OLD_ACLOCAL
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+          |-----handy-ruler------------------------------------------------------|
+soundtouch: soundtouch (sound processing library)
+soundtouch:
+soundtouch: SoundTouch is a library for changing tempo, pitch and playback rate
+soundtouch: of digital sound.  
+soundtouch: SoundStretch is a command-line application for changing tempo, pitch
+soundtouch: and playback rates of WAV sound files. This program also
+soundtouch: demonstrates how the "SoundTouch" library can be used to process
+soundtouch: sound in own programs.
+soundtouch:
+soundtouch: soundtouch home: http://www.surina.net/soundtouch/
+soundtouch:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/soundtouch-2.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# XviD
+# Source: http://downloads.xvid.com/downloads/xvidcore-1.3.7.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     yasm
+
+cd build/generic &&
+sed -i 's/^LN_S=@LN_S@/& -f -v/' platform.inc.in &&
+./configure --prefix=/usr --disable-assembly $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+sed -i '/libdir.*STATIC_LIB/ s/^/#/' Makefile  &&
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+xvidcore: xvidcore (MPEG-4 video codec)
+xvidcore:
+xvidcore: XviD is a high performance and high quality ISO MPEG-4 compliant
+xvidcore: video de-/encoding solution.
+xvidcore: xvidcore is the main MPEG-4 de-/encoding library. Several example
+xvidcore: programs are included in the package.
+xvidcore:
+xvidcore:
+xvidcore:
+xvidcore: xvidcore home: http://www.xvid.org/
+xvidcore:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/xvidcore-1.3.7-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

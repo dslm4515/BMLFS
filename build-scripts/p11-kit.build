@@ -1,0 +1,60 @@
+#! /bin/bash
+
+# p11-kit 0.23.21
+# source: https://github.com/p11-glue/p11-kit/releases/download/0.23.21/p11-kit-0.23.21.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+#
+# DEPS
+# Required:     None
+# Recommended:  libtasn1, ca-certificates (runtime)
+# Optional:     GTK-Doc, libxslt, NSS (runtime) 
+
+NOCONFIGURE=1 autoreconf -fiv &&
+
+./configure --prefix=/usr --sysconfdir=/etc \
+            --with-trust-paths=/etc/pki/anchors $BUILDTRUPLE &&
+
+read -p "Compile?" && make -j2 &&
+
+read -p "Press Enter to install" &&
+# if not using a package manager:
+# make install
+
+# if using pkgtools from Slackware, then:
+sudo -S make DESTDIR=$BUILD install &&
+
+read -p "Press Enter to create package description." &&
+
+cd $BUILD && sudo -S mkdir -v install &&
+
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+p11-kit: p11-kit (PKCS#11 toolkit)
+p11-kit:
+p11-kit: p11-kit provides a way to load and enumerate PKCS#11 modules.
+p11-kit:
+p11-kit: It provides a standard configuration setup for installing PKCS#11
+p11-kit: modules in such a way that they're discoverable.  It also solves
+p11-kit: problems with coordinating the use of PKCS#11 by different components
+p11-kit: or libraries living in the same process.
+p11-kit:
+p11-kit: Homepage: http://p11-glue.freedesktop.org/p11-kit.html
+p11-kit:
+EOF
+
+sudo -S mv /tmp/slack-desc install/ &&
+
+read -p "Enter to build package" &&                                                                                                                                                                                               
+sudo -S makepkg -l y -c n $PKGS/p11-kit-0.23.21-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf $BUILD/*
+

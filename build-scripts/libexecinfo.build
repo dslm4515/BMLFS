@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# libexecinfo
+# Source: http://distcache.freebsd.org/local-distfiles/itetcu/libexecinfo-1.1.tar.bz2 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/libexecinfo-alpine/10-execinfo.patch
+patch -Np1 -i ../patches/libexecinfo-alpine/20-define-gnu-source.patch
+patch -Np1 -i ../patches/libexecinfo-alpine/30-linux-makefile.patch
+
+CFLAGS=" -fno-omit-frame-pointer" make -j2 && \
+
+sudo -S install -D -m755 -v execinfo.h       ${BUILD}/usr/include/execinfo.h     && \
+sudo -S install -D -m755 -v stacktraverse.h  ${BUILD}/usr/include/stacktraverse.h && \
+sudo -S install -D -m755 -v libexecinfo.a    ${BUILD}/usr/lib/libexecinfo.a      && \
+sudo -S install -D -m755 -v libexecinfo.so.1 ${BUILD}/usr/lib/libexecinfo.so.1   && \
+sudo -S ln -sv /usr/lib/libexecinfo.so.1 ${BUILD}/usr/lib/libexecinfo.so      && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+libexecinfo: libexecinfo
+libexecinfo:
+libexecinfo: A quick-n-dirty BSD licensed clone of the GNU libc backtrace 
+libexecinfo: facility.
+libexecinfo:
+libexecinfo: Homepage: https://www.freshports.org/devel/libexecinfo
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libexecinfo-1.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

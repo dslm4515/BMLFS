@@ -1,0 +1,51 @@
+#! /bin/bash
+
+# Graphite2
+# Source: https://github.com/silnrsi/graphite/releases/download/1.3.14/graphite2-1.3.14.tgz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     CMake
+# Recommended:  NONE
+# Optional:     FreeType, silgraphite, HarfBuzz
+
+patch -Np1 -i ../patches/graphite2-alpine/cmake.patch
+
+mkdir build &&
+cd    build &&
+cmake -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_VERBOSE_MAKEFILE=ON  \
+      -DGRAPHITE2_COMPARE_RENDERER=OFF \
+      -DCMAKE_C_FLAGS:STRING="$CFLAGS" \
+      -DGRAPHITE2_NFILEFACE=ON         \
+      -DCMAKE_BUILD_TYPE:STRING=None  \ 
+      -G "Unix Makefiles" .. &&
+read -p "Compile?" && make -j2 &&
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+graphite2: Graphite2
+graphite2:
+graphite2: Graphite2 is a rendering engine for graphite fonts. These are
+graphite2: TrueType fonts with additional tables containing smart rendering
+graphite2: information and were originally developed to support complex
+graphite2: non-Roman writing systems. They may contain rules for e.g. ligatures,
+graphite2: glyph substitution, kerning, justification - this can make them
+graphite2: useful even on text written in Roman writing systems such as English.
+graphite2:
+graphite2:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/graphite2-1.3.14-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

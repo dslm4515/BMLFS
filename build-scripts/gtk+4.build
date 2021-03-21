@@ -1,0 +1,67 @@
+#! /bin/bash
+
+# GTK+ 4
+# Source: https://download.gnome.org/sources/gtk/4.0/gtk-4.0.2.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     at-spi2-atk, FriBidi, gdk-pixbuf, libepoxy, Graphene and Pango
+# Recommended:  adwaita-icon-theme,  hicolor-icon-theme, ISO Codes, libxkbcommon, 
+# Recommended:  sassc, wayland, wayland-protocols, gobject-introspection
+# Optional:     Colord, CUPS, DocBook Utils, GTK-Doc, JSON-Glib, PyAtSpi, rest, PAPI
+
+meson   --prefix=/usr \
+	-Dman-pages=false \
+	-Dbuild-tests=false \
+	-Dmedia=all \
+	-Dbroadway-backend=true \
+	-Dx11-backend=false \
+	-Dwayland-backend=true \
+	-Dintrospection=enabled \
+	-Dprint-backends=file \
+	-Dcolord=disabled \
+	-Dcloudproviders=disabled \
+	-Dvulkan=disabled \
+	BUILD &&
+
+ninja -C BUILD  -j2 && 
+sudo -S DESTDIR=${BUILD} ninja -C BUILD  install &&
+
+# Can use meson instead:
+#mkdir BUILD && cd BUILD &&
+#meson --prefix=/usr   \
+#      -Dman=true      \
+#      -Dgtk_doc=false \
+#      -Dbroadway_backend=true ..
+#
+#read -p "Compile?" && ninja -j2 &&
+
+#sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+gtk+4: GTK+ version 4 (multi-platform GUI toolkit)
+gtk+4:
+gtk+4: This is GTK+, a multi-platform toolkit for creating graphical user
+gtk+4: interfaces.  Offering a complete set of widgets, GTK+ is suitable for
+gtk+4: projects ranging from small one-off projects to complete application
+gtk+4: suites.
+gtk+4:
+gtk+4: GTK+ 4 is the successor to GTK+ 3 and GTK+ 2
+gtk+4:
+gtk+4:
+gtk+4:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gtk+4-4.0.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

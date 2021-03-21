@@ -1,0 +1,28 @@
+From afed9d0a456b01e12f35e692f1ec49175e98e28f Mon Sep 17 00:00:00 2001
+From: Philipp Ammann <philipp.ammann@posteo.de>
+Date: Tue, 11 Aug 2020 17:17:20 +0200
+Subject: [PATCH 6/8] Explicitly include glib.h
+
+The build breaks without MOZ_X11 because gboolean and guint are
+undefined.
+---
+ dom/plugins/ipc/PluginModuleChild.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/dom/plugins/ipc/PluginModuleChild.h b/dom/plugins/ipc/PluginModuleChild.h
+index 84df35e5d8c1..31d4eafb8fb7 100644
+--- a/dom/plugins/ipc/PluginModuleChild.h
++++ b/dom/plugins/ipc/PluginModuleChild.h
+@@ -32,6 +32,10 @@
+ #include "mozilla/plugins/PluginMessageUtils.h"
+ #include "mozilla/plugins/PluginQuirks.h"
+ 
++#if defined(MOZ_WIDGET_GTK)
++#  include <glib.h>
++#endif
++
+ namespace mozilla {
+ 
+ class ChildProfilerController;
+-- 
+2.27.0

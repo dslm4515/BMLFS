@@ -1,0 +1,50 @@
+#! /bin/bash
+
+# Ntfs-3g 
+# Source: https://tuxera.com/opensource/ntfs-3g_ntfsprogs-2017.3.23.tgz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     libfuse (disables user mounts)
+
+patch -Np1 -i ../patches/ntfs-3g-adelie/CVE-2019-9755.patch &&
+
+./configure --prefix=/usr        \
+            --disable-static     \
+            --with-fuse=internal \
+            --docdir=/usr/share/doc/ntfs-3g-2017.3.23 $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S mkdir -pv ${BUILD}/lib &&
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+ntfs-3g: ntfs-3g (NTFS read-write filesystem driver)
+ntfs-3g:
+ntfs-3g: The NTFS-3G driver is an open source, freely available NTFS driver
+ntfs-3g: for Linux with read and write support. It provides safe and fast
+ntfs-3g: handling of the Windows XP, Windows Server 2003, Windows 2000 and
+ntfs-3g: Windows Vista file systems. Most POSIX file system operations are
+ntfs-3g: supported, with the exception of full file ownership and access
+ntfs-3g: rights support.
+ntfs-3g:
+ntfs-3g: Homepage: http://www.tuxera.com/community/open-source-ntfs-3g/
+ntfs-3g:
+EOF
+sudo -S mv -v /tmp/slack-desc install/    &&
+sudo -S ln -s bin/ntfs-3g sbin/mount.ntfs &&
+sudo -S makepkg -l y -c n $PKGS/ntfs-3g-2017.3.23-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

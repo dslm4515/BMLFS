@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# luit
+# Source: https://www.x.org/pub/individual/app/luit-1.1.1.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     xorgproto
+# Recommended:  NONE
+# Optional:     NONE
+
+cp -v ../files/config.guess-musl config.guess  && \
+cp -v ../files/config.sub-musl config.sub    && \
+sed -i -e "/D_XOPEN/s/5/6/" configure && \
+./configure --prefix=/usr --sysconfdir=/etc \
+	    --localstatedir=/var \
+	    --disable-static $BUILDTRUPLE && \
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+luit: luit (character encoding convertor for X11 terminals)
+luit:
+luit: Luit is a filter that can be run between an arbitrary application and
+luit: a UTF-8 terminal emulator such as xterm. It will convert application
+luit: output from the locale's encoding into UTF-8, and convert terminal
+luit: input from UTF-8 into the locale's encoding.
+luit:
+luit:
+luit:
+luit:
+luit:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/luit-1.1.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

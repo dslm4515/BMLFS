@@ -1,0 +1,46 @@
+#! /bin/bash
+
+# bmake
+# Source: http://www.crufty.net/ftp/pub/sjg/bmake-20201101.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+sed -i 's/op_test() {/& return 0;/' boot-strap &&
+sed -i '1s,:,#!/bin/sh,g' install-sh           &&
+
+read -p "Compile?" &&
+mkdir -pv bmake-build && cd bmake-build &&
+../boot-strap --prefix=/usr op=build &&
+
+sudo -S ./boot-strap --prefix=/usr --install-destdir=${BUILD} op=install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+bmake: bmake
+bmake:
+bmake: Portable version of the NetBSD make build tool
+bmake:
+bmake: Homepage: http://www.crufty.net/help/sjg/bmake.html
+bmake:
+bmake:
+bmake:
+bmake:
+bmake:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/bmake-2020.11.01-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

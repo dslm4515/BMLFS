@@ -1,0 +1,54 @@
+#! /bin/bash
+
+# Gcr
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/gcr/3.38/gcr-3.38.0.tar.xz
+# GIT: https://gitlab.gnome.org/GNOME/gcr
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     GLib, libgcrypt, p11-kit
+# Recommended:  GnuPG, gobject-introspection, GTK+3, libxslt, Vala
+# Optional:     GTK-Doc, Valgrind
+
+# Use if not using git version
+#patch -Np1 -i ../patches/gcr-alpine/allow-building-without-gpg.patch
+#patch -Np1 -i ../patches/gcr-alpine/dont-run-gpg-tests.patch
+#patch -Np1 -i ../patches/gcr-alpine/fix-64-bit-time_t-32-bit.patch
+
+#sed -i 's:"/desktop:"/org:' schema/*.xml &&
+
+mkdir gcr-build &&
+cd    gcr-build &&
+
+meson --prefix=/usr -Dgpg_path=/usr/bin/gpg2 -Dgtk_doc=false .. &&
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+   |-----handy-ruler------------------------------------------------------|
+gcr: gcr (crypto library and ui for gnome-keyring)
+gcr:
+gcr: GCR is a library for displaying certificates and crypto UI accessing
+gcr: key stores. It also provides the viewer for crypto files on the GNOME
+gcr: desktop.
+gcr:
+gcr: GCK is a library for accessing PKCS#11 modules like smart cards, in a
+gcr: (G)object oriented way.
+gcr:
+gcr:
+gcr:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gcr-3.38.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

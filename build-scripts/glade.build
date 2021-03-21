@@ -1,0 +1,73 @@
+#! /bin/bash
+
+# glade 
+# Source: https://download.gnome.org/sources/glade/3.38/glade-3.38.2.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     GTK+3, libxml2, itstool, gobject-introspection, 
+# Recommended:  NONE
+# Optional:     webkit2gtk, pygobject3
+
+# For python 3.9:
+sed -i meson.build -e "/python_dep/s/3.8/3.9/g"
+
+mkdir BUILD && cd BUILD &&
+meson --prefix=/usr -Dgladeui=true -Dman=false -Dgtk_doc=true .. &&
+read -p "Compile?" && ninja -j2 &&
+
+#sudo -S DESTDIR=$BUILD ninja install -no-rebuild &&
+sudo DESTDIR=${BUILD} meson install --no-rebuild 
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+glade: glade (GTK+ User Interface Builder)
+glade:
+glade: Glade is a RAD tool to enable quick & easy development of user
+glade: interfaces for the Gtk+ toolkit and the GNOME desktop environment.
+glade: The user interfaces designed in Glade are stored in XML format,
+glade: enabling easy integration with external tools.
+glade:
+glade: This version of Glade (Glade-3) is a complete rewrite of the original
+glade: Glade codebase.
+glade:
+glade:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/glade-3.38.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
+
+# Build  succeeds, but install fails:
+
+Traceback (most recent call last):
+  File "/usr/bin/meson", line 33, in <module>
+    sys.exit(load_entry_point('meson==0.56.0', 'console_scripts', 'meson')())
+  File "/usr/lib/python3.9/site-packages/mesonbuild/mesonmain.py", line 240, in main
+    return run(sys.argv[1:], launcher)
+  File "/usr/lib/python3.9/site-packages/mesonbuild/mesonmain.py", line 229, in run
+    return run_script_command(args[1], args[2:])
+  File "/usr/lib/python3.9/site-packages/mesonbuild/mesonmain.py", line 177, in run_script_command
+    return module.run(script_args)
+  File "/usr/lib/python3.9/site-packages/mesonbuild/scripts/yelphelper.py", line 131, in run
+    install_help(src_subdir, build_subdir, sources, media, langs, install_dir,
+  File "/usr/lib/python3.9/site-packages/mesonbuild/scripts/yelphelper.py", line 72, in install_help
+    shutil.copy2(infile, outfile)
+  File "/usr/lib/python3.9/shutil.py", line 435, in copy2
+    copyfile(src, dst, follow_symlinks=follow_symlinks)
+  File "/usr/lib/python3.9/shutil.py", line 264, in copyfile
+    with open(src, 'rb') as fsrc, open(dst, 'wb') as fdst:
+FileNotFoundError: [Errno 2] No such file or directory: '/src-bmlfs/glade-3.38.2/BUILD/help/hi/index.docbook'
+FAILED: install script '/usr/bin/meson --internal yelphelper install --subdir=help --id=glade --installdir=share/help --sources=index.docbook@@legal.xml --symlinks=true --media=figures/main-window.png' exit code 1, stopped
+FAILED: meson-install
+/usr/bin/meson install --no-rebuild
+ninja: build stopped: subcommand failed.

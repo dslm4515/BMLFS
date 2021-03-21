@@ -1,0 +1,46 @@
+#! /bin/bash
+
+# GLEW
+# Source: https://downloads.sourceforge.net/glew/glew-2.2.0.tgz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     mesa
+# Recommended:  NONE
+# Optional:     NONE
+
+sed -i 's%lib64%lib%g' config/Makefile.linux &&
+sed -i -e '/glew.lib.static:/d' \
+       -e '/0644 .*STATIC/d'    \
+       -e 's/glew.lib.static//' Makefile     &&
+make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install.all &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+glew: glew (the OpenGL Extension Wrangler Library)
+glew:
+glew: The OpenGL Extension Wrangler Library (GLEW) is a cross-platform
+glew: open-source C/C++ extension loading library. GLEW provides efficient
+glew: run-time mechanisms for determining which OpenGL extensions are
+glew: supported on the target platform.
+glew:
+glew: Homepage: http://glew.sourceforge.net/
+glew:
+glew:
+glew:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/glew-2.2.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

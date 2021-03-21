@@ -1,0 +1,49 @@
+#! /bin/bash
+
+# Frei0r-plugins
+# Source: https://files.dyne.org/frei0r/releases/frei0r-plugins-1.7.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  gavl
+# Optional:     NONE
+
+mkdir -vp build &&
+cd        build &&
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_BUILD_TYPE=Release  \
+      -DWITHOUT_OPENCV=TRUE       \
+      -Wno-dev ..                &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+              |-----handy-ruler------------------------------------------------------|
+frei0r-plugins: frei0r-plugins (minimalistic plugin API for video effects)
+frei0r-plugins:
+frei0r-plugins: Frei0r is a minimalistic plugin API for video effects.
+frei0r-plugins: The main emphasis is on simplicity for an API that will round up
+frei0r-plugins: the most common video effects into simple filters, sources and mixers
+frei0r-plugins: that can be controlled by parameters.
+frei0r-plugins: Its goal is that these simple effects can be shared between many
+frei0r-plugins: applications, avoiding their reimplementation by different projects.
+frei0r-plugins:
+frei0r-plugins: See also: http://frei0r.dyne.org
+frei0r-plugins:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/frei0r-plugins-1.7.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

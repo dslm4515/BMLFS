@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# AOM
+# Source: https://aomedia.googlesource.com/aom/+archive/v1.0.0-errata1-avif.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     CMake, yasm
+# Recommended:  NONE
+# Optional:     NONE
+#
+# Source does not unpack into a directory
+
+case $(uname -m) in
+     arm*)  export ECONF="-DENABLE_NEON=OFF" ;;
+esac &&
+mkdir BUILD && cd BUILD &&
+cmake  -DCMAKE_INSTALL_PREFIX=/usr \
+       -DCMAKE_INSTALL_LIBDIR=lib  \
+       -DBUILD_SHARED_LIBS=True    \
+       -DCMAKE_BUILD_TYPE=None $ECONF .. &&
+read -p "Compile?" && make -j2 &&
+unset ECONF &&
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+   |-----handy-ruler------------------------------------------------------|
+aom: aom (Open Source Video Codec)
+aom:
+aom: AOMedia Video 1 (AV1) is designed to be the successor to VP9 and
+aom: also to eventually be a direct competitor for HEVC/H.265.
+aom: This Slackbuild builds the 'reference' encoder aomenc as well as
+aom: the 'reference' decoder aomdec.
+aom:
+aom: Homepage: https://aomedia.googlesource.com/aom
+aom:
+aom:
+aom:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/aom-1.0.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

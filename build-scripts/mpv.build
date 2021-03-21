@@ -1,0 +1,54 @@
+#! /bin/bash
+
+# mpv
+# Source: https://github.com/mpv-player/mpv/archive/v0.33.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Mesa, FFmpeg, libXv
+# Recommended:  harfbuzz, libass, 
+# Optional:     wayland, lcms2, libbluray
+
+python3 bootstrap.py &&
+./waf configure --prefix=/usr      \
+                --libdir=/usr/lib  \
+                --confdir=/etc/mpv \
+                --enable-dvdnav    \
+                --enable-libarchive \
+                --enable-cdda \
+                --enable-libmpv-shared \
+                --enable-alsa \
+                --enable-pulse \
+                --enable-sdl2 
+                
+read -p "Compile?" && ./waf -j 2 &&
+
+sudo -S -E ./waf --destdir=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+   |-----handy-ruler------------------------------------------------------|
+mpv: mpv (a movie player based on MPlayer and mplayer2)
+mpv:
+mpv: mpv is a fork of mplayer2 and MPlayer. It shares some features with
+mpv: the former projects while introducing many more. It supports a wide
+mpv: variety of video file formats, audio and video codecs, and subtitle
+mpv: types.  
+mpv:
+mpv:
+mpv:
+mpv: mpv homepage: http://mpv.io/
+mpv:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/mpv-0.33.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

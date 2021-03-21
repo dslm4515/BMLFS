@@ -1,0 +1,66 @@
+#! /bin/bash
+
+# Lua 54
+# Source: https://www.lua.org/ftp/lua-5.4.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np0 -i ../patches/lua54-void/liblua.so.patch
+
+read -p "Compile?" &&
+
+sed -i src/Makefile -r \
+    -e '/^LUA_(SO|A|T)=/ s;lua;lua5.4;' \
+    -e '/^LUAC_T=/ s;luac;luac5.4;'       &&
+make MYCFLAGS="$CFLAGS -fPIC" \
+     INSTALL_DATA="cp -d" LUA_SO=liblua5.4.so -j2 linux-readline
+
+read -p "Install?" &&
+sudo -S make INSTALL_DATA="cp -d" INSTALL_TOP="${BUILD}/usr" \
+             TO_BIN="lua5.4 luac5.4" \
+             TO_LIB="liblua5.4.a liblua5.4.so liblua5.4.so.5.4 liblua5.4.so.5.4.1" \
+             INSTALL_INC="${BUILD}/usr/include/lua5.4" \
+             INSTALL_MAN="${BUILD}/usr/share/man/man1" install &&
+#sudo -S 
+             
+cp -v ../files/lua53-void/lua.pc  /tmp/            &&
+sed /tmp/lua.pc \
+    -e "s;%VER%;5.4;g;s;%REL%;5.4.1;g" > lua5.4.pc &&
+sudo -S install -D -m644 lua5.4.pc ${BUILD}/usr/lib/pkgconfig/lua5.4.pc          &&
+rm -v /tmp/lua.pc &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+lua-54: Lua (a powerful, fast, light-weight, embeddable scripting language)
+lua-54: 
+lua-54: Lua combines simple procedural syntax with powerful data description 
+lua-54: constructs based on associative arrays and extensible semantics.
+lua-54: Lua is dynamically typed, runs by interpreting bytecode for a 
+lua-54: register-based virtual machine, and has automatic memory management
+lua-54: with incremental garbage collection, making it ideal for
+lua-54: configuration, scripting, and rapid prototyping.
+lua-54:
+lua-54:
+lua-54:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+# Fix a few libraries and headers...
+sudo -s rm -rvf usr/lib/lua/5.4 &&
+sudo -s ln -sv liblua5.4.so.5.4.1 usr/lib/liblua.so.5.4.1 &&
+sudo -S ln -sv luac5.4 usr/bin/luac &&
+sudo -S makepkg -l y -c n $PKGS/lua-54-5.4.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

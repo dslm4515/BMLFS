@@ -1,0 +1,46 @@
+#! /bin/bash
+
+# LXAppearance
+# Source: https://downloads.sourceforge.net/lxde/lxappearance-0.6.3.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     GTK+2
+# Recommended:  D-Bus-GLib
+# Optional:     Libxslt, docbook-xml, docbook-xsl
+
+./configure --prefix=/usr     \
+            --sysconfdir=/etc \
+            --enable-dbus $BUILDTRUPLE &&
+            
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+            |-----handy-ruler------------------------------------------------------|
+lxappearance: lxappearance (Simple GTK theme switcher)
+lxappearance:
+lxappearance: LXAppearance is the standard theme switcher of LXDE. Users are able
+lxappearance: to change the theme, icons, and fonts used by applications easily.
+lxappearance:
+lxappearance:
+lxappearance:
+lxappearance:
+lxappearance:
+lxappearance: Homepage: http://lxde.org/
+lxappearance:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/lxappearance-0.6.3-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

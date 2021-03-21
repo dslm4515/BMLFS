@@ -1,0 +1,20 @@
+#! /bin/bash
+
+# WPA Supplicant 2.8
+# Source: https://w1.fi/releases/wpa_supplicant-2.8.tar.gz
+
+cp -v ../files/wpa_supplicant.config wpa_supplicant/.config
+patch -Np0 -i ../patches/wpa_supplicant-2.8-void-patch-src_utils_eloop_c.diff
+
+cd wpa_supplicant                                         &&
+read -p "Compile? " && make BINDIR=/sbin LIBDIR=/lib -j4 &&
+
+read -p "Install? " &&
+sudo -S porg -lp  wpa_supplicant-2.8 "install -v -m755 wpa_{cli,passphrase,supplicant} /sbin/" &&
+sudo -S porg -lp+ wpa_supplicant-2.8 "install -v -m644 doc/docbook/wpa_supplicant.conf.5 /usr/share/man/man5/" &&
+sudo -S porg -lp+ wpa_supplicant-2.8 "install -v -m644 doc/docbook/wpa_{cli,passphrase,supplicant}.8 /usr/share/man/man8/" &&
+sudo -S porg -lp+ wpa_supplicant-2.8 "install -v -m644 dbus/fi.{epitest.hostap.WPASupplicant,w1.wpa_supplicant1}.service \
+                 /usr/share/dbus-1/system-services/" &&
+sudo -S porg -lp+ wpa_supplicant-2.8 "install -v -d -m755 /etc/dbus-1/system.d" &&
+sudo -S porg -lp+ wpa_supplicant-2.8 "install -v -m644 dbus/dbus-wpa_supplicant.conf \
+                 /etc/dbus-1/system.d/wpa_supplicant.conf"

@@ -1,0 +1,21 @@
+diff -uNr firefox-82.0.old/memory/build/Mutex.h firefox-82.0/memory/build/Mutex.h
+--- firefox-82.0.old/memory/build/Mutex.h	2020-10-14 12:20:22.000000000 -0500
++++ firefox-82.0/memory/build/Mutex.h	2020-10-26 10:17:51.528854685 -0500
+@@ -42,7 +42,7 @@
+     if (pthread_mutexattr_init(&attr) != 0) {
+       return false;
+     }
+-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ADAPTIVE_NP);
++    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_STALLED);
+     if (pthread_mutex_init(&mMutex, &attr) != 0) {
+       pthread_mutexattr_destroy(&attr);
+       return false;
+@@ -103,7 +103,7 @@
+ #  if defined(XP_DARWIN)
+ #    define STATIC_MUTEX_INIT OS_SPINLOCK_INIT
+ #  elif defined(XP_LINUX) && !defined(ANDROID)
+-#    define STATIC_MUTEX_INIT PTHREAD_ADAPTIVE_MUTEX_INITIALIZER_NP
++#    define STATIC_MUTEX_INIT PTHREAD_MUTEX_INITIALIZER
+ #  else
+ #    define STATIC_MUTEX_INIT PTHREAD_MUTEX_INITIALIZER
+ #  endif

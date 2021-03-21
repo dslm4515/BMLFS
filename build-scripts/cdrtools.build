@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# Cdrtools
+# Source: https://downloads.sourceforge.net/cdrtools/cdrtools-3.02a09.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     alsa-lib
+# Recommended:  NONE
+# Optional:     NONE
+
+export GMAKE_NOWARN=true &&
+make -j1 INS_BASE=/usr DEFINSUSR=root DEFINSGRP=root &&
+
+sudo -S make INS_BASE=/usr DEFINSUSR=root DEFINSGRP=root DESTDIR=$BUILD install &&
+
+unset GMAKE_NOWARN &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+cdrtools: cdrtools (CD-R, ISO and related tools)
+cdrtools:
+cdrtools: Tools for mastering and writing compact discs.
+cdrtools:
+cdrtools: cdda2wav -- CD audio sampling utility.
+cdrtools: cdrecord -- burn discs in most ATAPI and SCSI CD-R drives.
+cdrtools: mkisofs  -- create ISO9660/HFS/Joliet CD-ROM images.
+cdrtools: mkzftree -- compress a file tree to make a compressed CD-ROM.
+cdrtools:
+cdrtools:
+cdrtools:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/cdrtools-3.02a09-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

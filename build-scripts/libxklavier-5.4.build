@@ -1,0 +1,13 @@
+#! /bin/bash
+
+# libxklavier 5.4
+# source: https://people.freedesktop.org/~svu/libxklavier-5.4.tar.bz2
+
+cp -v ../files/config.guess-musl build-aux/config.guess &&
+cp -v ../files/config.sub-musl build-aux/config.sub &&
+./configure --prefix=/usr \
+            --sysconfdir=/etc    \
+            --disable-static $BUILDTRUPLE &&
+read -p "Compile? " && make -j2 &&
+read -p "Install? " && sudo -S porg -lD "make install"
+

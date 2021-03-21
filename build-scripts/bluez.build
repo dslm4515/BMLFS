@@ -1,0 +1,60 @@
+#! /bin/bash
+
+# BlueZ
+# Source: https://www.kernel.org/pub/linux/bluetooth/bluez-5.55.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     dbus, GLib, and libical
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/bluez-alpine/001-bcm43xx-Add-bcm43xx-3wire-variant.patch
+patch -Np1 -i ../patches/bluez-alpine/002-bcm43xx-The-UART-speed-must-be-reset-after-the-firmw.patch
+patch -Np1 -i ../patches/bluez-alpine/003-Increase-firmware-load-timeout-to-30s.patch
+patch -Np1 -i ../patches/bluez-alpine/004-Move-the-43xx-firmware-into-lib-firmware.patch
+patch -Np1 -i ../patches/bluez-alpine/disable-lock-test.patch
+patch -Np1 -i ../patches/bluez-alpine/fix-endianness.patch
+patch -Np1 -i ../patches/bluez-alpine/musl.patch
+
+./configure --prefix=/usr         \
+            --sysconfdir=/etc     \
+            --localstatedir=/var  \
+            --enable-library      \
+            --disable-systemd     \
+            --enable-hid2hci      \
+            --enable-deprecated   \
+            --enable-mesh $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S install -D -m644 src/main.conf ${BUILD}/etc/bluetooth/main.conf      &&
+sed 's|^#!/usr/bin/python$|#!/usr/bin/env python3|g' -i test/simple-agent    &&
+sudo -S install -Dm755 test/simple-agent ${BUILD}/usr/bin/bluez-simple-agent &&
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+bluez: bluez (Bluetooth libraries and utilities)
+bluez:
+bluez: Bluez is the Bluetooth stack for Linux, allowing Bluetooth adaptors
+bluez: and devices to be used with Linux. This package contains the Bluez
+bluez: libraries, utilities, and other support files.
+bluez: 
+bluez: Homepage: http://www.bluez.org
+bluez:
+bluez:
+bluez:
+bluez:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/bluez-5.55-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

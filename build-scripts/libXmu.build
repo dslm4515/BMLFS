@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# Libxmu
+# Source: ftp://ftp.x.org/pub/individual/lib/libXmu-1.1.3.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     xorgproto, xtrans, libXext, libX11, libXmu
+# Recommended:  libxcb
+# Optional:     NONE
+
+CFLAGS_FOR_BUILD="-fPIC" \
+./configure $XORG_CONFIG &&
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+libXmu: libXmu (X miscellaneous utility library)
+libXmu:
+libXmu: This library contains miscellaneous utilities and is not part of the
+libXmu: Xlib standard.  It contains routines which only use public interfaces
+libXmu: so that it may be layered on top of any proprietary implementation
+libXmu: of Xlib or Xt.
+libXmu:
+libXmu:
+libXmu:
+libXmu:
+libXmu:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libXmu-1.1.3-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

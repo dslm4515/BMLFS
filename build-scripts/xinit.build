@@ -1,0 +1,59 @@
+#! /bin/bash
+
+# xInit
+# Source: ftp://ftp.x.org/pub/individual/app/xinit-1.4.1.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     xorg-libraries
+# Recommended:  xterm, xclock, twm, dwm
+# Optional:     NONE
+
+patch -Np1 -i ../patches/xinit-alpine/06_move_serverauthfile_into_tmp.patch
+
+./configure $XORG_CONFIG --with-xinitdir=/etc/X11/app-defaults $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+#sudo -S install -m755 -d ${BUILD}/etc/skel &&
+#sudo -S install -m755 -D ../files/xinit-alpine/xinitrc ${BUILD}/etc/X11/xinit/xinitrc
+#sudo -S install -m755 -D ../files/xxinit-alpine/Xsession ${BUILD}/etc/X11/xinit/Xsession
+#sudo -S install -m755 ../files/xinit-alpine/xsession.skel ${BUILD}/etc/skel/.xsession
+#sudo -S install -m755 ..files/xinit-alpine/xserverrc ${BUILD}/etc/X11/xinit/xserverrc
+#sudo -S mkdir -p ${BUILD}/etc/X11/xinit/xinitrc.d
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+xinit: xinit (scripts to start X11 servers)
+xinit:
+xinit: xinit is not intended for naive users.  Instead, site administrators 
+xinit: should design user-friendly scripts that present the desired interface
+xinit: when starting up X.  The startx script is one such example.
+xinit:
+xinit:
+xinit:
+xinit:
+xinit:
+xinit:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S ln -sv dwm usr/bin/twm &&
+sudo -S makepkg -l y -c n $PKGS/xinit-1.4.1-$(uname -m)-mlfs.txz &&
+cp -v install/doinst.sh /tmp/ &&
+cat >> /tmp/doinst.sh << "EOF"
+chmod -v +x /usr/bin/startx
+EOF
+sudo -S mv /tmp/doinst.sh install/ &&
+sudo -S makepkg -l y -c n $PKGS/xinit-1.4.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

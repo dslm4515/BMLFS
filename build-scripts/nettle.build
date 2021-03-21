@@ -1,0 +1,53 @@
+#! /bin/bash
+
+# Nettle 3.6
+# Source: https://ftp.gnu.org/gnu/nettle/nettle-3.6.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 && 
+
+read -p "Install?" && 
+
+# If not using any package manager:
+#sudo -S make install &&
+#sudo -S chmod -v 755 /usr/lib/lib{hogweed,nettle}.so
+
+sudo -S make DESTDIR=$BUILD install &&
+
+sudo -S  chmod -v 755 ${BUILD}/usr/lib/lib{hogweed,nettle}.so
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install
+cat > /tmp/slack-desc << "EOF"
+
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+nettle: Nettle (small cryptographic library)
+nettle:
+nettle: Nettle is a cryptographic library that is designed to fit easily in
+nettle: more or less any context: In crypto toolkits for object-oriented
+nettle: languages (C++, Python, Pike, ...), in applications like LSH or
+nettle: GNUPG, or even in kernel space.
+nettle:
+nettle: Homepage: http://www.lysator.liu.se/~nisse/nettle/
+nettle:
+nettle:
+nettle:
+EOF
+
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/nettle-3.6-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
+

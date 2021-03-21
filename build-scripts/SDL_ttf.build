@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# SDL_ttf
+# Source:  https://www.libsdl.org/projects/SDL_ttf/release/SDL_ttf-2.0.11.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     SDL, freetype, libSM
+# Recommended:  NONE
+# Optional:     NONE
+
+cp -v ../files/config.sub-musl config.sub     &&
+cp -v ../files/config.guess-musl config.guess &&
+
+./configure --prefix=/usr --sysconfdir=/etc $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+SDL_ttf: SDL_ttf (SDL truetype font library)
+SDL_ttf:
+SDL_ttf: This is a sample library which allows you to use
+SDL_ttf: TrueType fonts in your SDL applications.
+SDL_ttf:
+SDL_ttf:
+SDL_ttf:
+SDL_ttf:
+SDL_ttf:
+SDL_ttf:
+SDL_ttf:
+EOF
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/SDL_ttf-2.0.11-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

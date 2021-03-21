@@ -1,0 +1,74 @@
+#! /bin/bash
+
+# rEFInd
+# Source: https://sourceforge.net/projects/refind/files/0.13.1/refind-src-0.13.1.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     gnu-efi
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/refind-mlfs/fix-gnuefi-helper-typo.patch      && \
+patch -Np1 -i ../patches/refind-alpine/10-refind-disable-fortify.patch && \
+sed -e 's|RefindDir=\"\$ThisDir/refind\"|RefindDir="/usr/share/refind/"|g' \
+    -i refind-install && \
+
+#patch -Np0 -i ../patches/refind-void/force-inline-musl.patch && \
+
+#sed -e 's|RefindDir=\"\$ThisDir/refind\"|RefindDir="/usr/share/refind"|g' \
+#    -i refind-install && \
+#sed -e '1s,^.*python3$,#!/usr/bin/python3,' \
+#    -i refind-mkdefault && \
+
+unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS && \
+case $(uname -m) in
+	i686)    export BARCH="ia32"    
+		 export EARCH="ia32"    ;;
+	x86_64)  export BARCH="x86_64"  
+	         export EARCH="x64"     ;;
+	aarch64) export BARCH="aarch64" 
+		 export EARCH="aa64"    ;;
+esac && \
+
+# Multiple errors when trying to build fs_gnuefi... no drivers built.
+#make -j2 ARCH=${BARCH} gnuefi fs_gnuefi  &&
+make -j2 ARCH=${BARCH} gnuefi && \
+
+sudo -S mkdir -pv ${BUILD}/usr/sbin \
+                  ${BUILD}/usr/share/refind \
+		  ${BUILD}/usr/share/man/man8 && \
+sudo -S install -Dm0755 -v mkrlconf mvrefind refind-mkdefault refind-install -t ${BUILD}/usr/sbin && \
+sudo -S install -Dm0755 -v refind/*.efi -t ${BUILD}/usr/share/refind       && \
+sudo -S install -Dm0755 -v refind.conf-sample -t ${BUILD}/usr/share/refind && \
+sudo -S install -Dm0644 -v docs/man/*.8 -t ${BUILD}/usr/share/man/man8     && \
+sudo -S cp -rv icons ${BUILD}/usr/share/refind && \
+unset BRACH ERACH && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+refind: refind (An EFI boot manager utility)
+refind:
+refind: A graphical boot manager for EFI and UEFI-based computers, such as all
+refind: Intel-based Macs and recent (most 2011 and later) PCs. rEFInd presents
+refind: a boot menu showing all the EFI boot loaders on the EFI-accessible
+refind: partitions, and optionally BIOS-bootable partitions on Macs.
+refind: EFI-compatible OSes, including Linux, provide boot loaders that rEFInd
+refind: can detect and launch. rEFInd can launch Linux EFI boot loaders such
+refind: as ELILO, GRUB Legacy, GRUB 2, and 3.3.0 and later kernels with EFI
+refind: stub support.
+refind: Home page: http://www.rodsbooks.com/refind/
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/refind-0.13.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

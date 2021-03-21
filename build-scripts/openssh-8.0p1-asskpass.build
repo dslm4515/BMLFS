@@ -1,0 +1,16 @@
+#! /bin/bash
+
+# AskPass
+# source: http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.0p1.tar.gz
+
+
+cd contrib &&
+make gnome-ssh-askpass2 -j2 &&
+
+read -p "Install? " &&
+sudo -S porg -lp  ssh-askpass-8.0p1 "install -v -d -m755 /usr/libexec/openssh/contrib"  
+sudo -S porg -lp+ ssh-askpass-8.0p1 "cp -v  gnome-ssh-askpass2 \
+                    /usr/libexec/openssh/contrib"  &&
+sudo -S porg -lp+ ssh-askpass-8.0p1 "ln -sv -f contrib/gnome-ssh-askpass2 \
+                    /usr/libexec/openssh/ssh-askpass"
+sudo -S chmod -v 0755 /usr/libexec/openssh/contrib/gnome-ssh-askpass2

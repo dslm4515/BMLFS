@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Setting up the Xorg Build Environment
+# Source: http://linuxfromscratch.org/blfs/view/svn/x/xorg7.html
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+# Choose your installation prefix, and set the XORG_PREFIX 
+# variable. /usr is the default. Alternative: /opt/X11
+export XORG_PREFIX="/usr"
+
+# Set the following configure switches for Xorg  packages
+export XORG_CONFIG="--prefix=$XORG_PREFIX --sysconfdir=/etc \
+	    --localstatedir=/var --disable-static"
+
+# Create an /etc/profile.d/xorg.sh configuration file containing 
+# these variables as the root user:
+cat > /etc/profile.d/xorg.sh << EOF
+XORG_PREFIX="$XORG_PREFIX"
+XORG_CONFIG="--prefix=\$XORG_PREFIX --sysconfdir=/etc --localstatedir=/var --disable-static"
+export XORG_PREFIX XORG_CONFIG
+EOF
+chmod 644 /etc/profile.d/xorg.sh
+
+# If sudo is installed, ensure that XORG_PREFIX and XORG_CONFIG 
+# are available in the sudo environment. As the root user, run 
+# the following command
+cat > /etc/sudoers.d/xorg << EOF
+Defaults env_keep += XORG_PREFIX
+Defaults env_keep += XORG_CONFIG
+EOF
+
+#################################################
+# If the prefix was set to /usr, skip the rest. #
+#################################################
+
+cat >> /etc/profile.d/xorg.sh << "EOF"
+
+pathappend $XORG_PREFIX/bin             PATH
+pathappend $XORG_PREFIX/lib/pkgconfig   PKG_CONFIG_PATH
+pathappend $XORG_PREFIX/share/pkgconfig PKG_CONFIG_PATH
+
+pathappend $XORG_PREFIX/lib             LIBRARY_PATH
+pathappend $XORG_PREFIX/include         C_INCLUDE_PATH
+pathappend $XORG_PREFIX/include         CPLUS_INCLUDE_PATH
+
+ACLOCAL="aclocal -I $XORG_PREFIX/share/aclocal"
+
+export PATH PKG_CONFIG_PATH ACLOCAL LIBRARY_PATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH
+EOF
+
+echo "$XORG_PREFIX/lib" >> /etc/ld.so.conf
+sed "s@/usr/X11R6@$XORG_PREFIX@g" -i /etc/man_db.conf
+ln -svf $XORG_PREFIX/share/X11 /usr/share/X11
+ln -svf $XORG_PREFIX /usr/X11R6

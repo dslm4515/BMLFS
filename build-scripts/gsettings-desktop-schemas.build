@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# GSettings Desktop Schemas 
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/gsettings-desktop-schemas/3.38/gsettings-desktop-schemas-3.38.0.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     GLib, gobject-introspection
+# Recommended:  NONE
+# Optional:     NONE
+
+sed -i -r 's:"(/system):"/org/gnome\1:g' schemas/*.in &&
+mkdir build &&
+cd    build &&
+meson --prefix=/usr .. &&
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja  install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                         |-----handy-ruler------------------------------------------------------|
+gsettings-desktop-schemas: gsettings-desktop-schemas (GSettings schemas)
+gsettings-desktop-schemas:
+gsettings-desktop-schemas: gsettings-desktop-schemas contains a collection of GSettings schemas 
+gsettings-desktop-schemas: for settings shared by various components of a desktop.
+gsettings-desktop-schemas:
+gsettings-desktop-schemas: 
+gsettings-desktop-schemas:
+gsettings-desktop-schemas:
+gsettings-desktop-schemas:
+gsettings-desktop-schemas:
+gsettings-desktop-schemas:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+echo "glib-compile-schemas /usr/share/glib-2.0/schemas" > /tmp/doinst.sh &&
+sudo -S mv /tmp/doinst.sh install/ &&
+sudo -S makepkg -l y -c n $PKGS/gsettings-desktop-schemas-3.38.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

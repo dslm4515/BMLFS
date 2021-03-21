@@ -1,0 +1,70 @@
+#! /bin/bash
+
+# gcompat 
+# Source: https://distfiles.AdelieLinux.org/source/gcompat/gcompat-1.0.0.tar.xz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libucontext
+# Recommended:  NONE
+# Optional:     NONE
+
+case $(uname -m) in
+	x86_64*) export GLIBC="ld-linux-x86-64.so."
+		 export MUSL="ld-musl-x86_64.so.1"
+		;;
+	i686*)   export GLIBC="ld-linux.so.2"
+		 export MUSL="ld-musl-x86.so.1"
+		;;
+	aarch64*) export GLIBC="ld-linux-aarch64.so.1"
+		  export MUSL="ld-musl-aarch64.so.1"
+		;;
+	armv7*)  export GLIBC="ld-linux-armhf.so.3"
+		 export MUSL="ld-musl-armhf.so.1"
+		;;
+	armv6*)  export GLIBC="ld-linux-armhf.so.3"
+		 export MUSL="ld-musl-armhf.so.1"
+		;;
+esac &&
+
+patch -Np1 -i ../patches/gcompat-mlfs/no-static-pie.patch &&
+
+make LINKER_PATH=/usr/lib/${MUSL} \
+     LOADER_NAME=${GLIBC}         \
+     LIBGCOMPAT_PATH=/usr/lib/libgcompat.so.0 \
+     WITH_OBSTACK=musl-obstack \
+     WITH_LIBUCONTEXT=1  &&
+
+sudo -S make LINKER_PATH=/usr/lib/${MUSL} \
+             LOADER_NAME=${GLIBC}         \
+	     LIBGCOMPAT_PATH=/usr/lib/libgcompat.so.0 \
+	     WITH_OBSTACK=musl-obstack \
+	     WITH_LIBUCONTEXT=1 \
+	     DESTDIR=${BUILD} &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+gcompat: gcompat
+gcompat:
+gcompat: Compatibility layer to allow running glibc binaries on musl
+gcompat: systems.
+gcompat:
+gcompat: homepage="https://code.foxkit.us/adelie/gcompat"
+gcompat:
+gcompat:
+gcompat:
+gcompat:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gcompat-1.0.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

@@ -1,0 +1,112 @@
+diff --git a/dom/base/moz.build b/dom/base/moz.build
+index 196f54558822..dbe040c56797 100644
+--- a/dom/base/moz.build
++++ b/dom/base/moz.build
+@@ -546,7 +546,7 @@ FINAL_LIBRARY = "xul"
+ if CONFIG["MOZ_BUILD_APP"] in ["browser", "mobile/android", "xulrunner"]:
+     DEFINES["HAVE_SIDEBAR"] = True
+ 
+-if CONFIG["MOZ_X11"]:
++if CONFIG["MOZ_X11"] or CONFIG["MOZ_WAYLAND"]:
+     CXXFLAGS += CONFIG["TK_CFLAGS"]
+ 
+ GeneratedFile(
+diff --git a/dom/plugins/ipc/moz.build b/dom/plugins/ipc/moz.build
+index 62a726e25c5e..8047987afac0 100644
+--- a/dom/plugins/ipc/moz.build
++++ b/dom/plugins/ipc/moz.build
+@@ -137,7 +137,7 @@ if CONFIG["MOZ_SANDBOX"] and CONFIG["OS_ARCH"] == "WINNT":
+ 
+ DEFINES["FORCE_PR_LOG"] = True
+ 
+-if CONFIG["MOZ_WIDGET_TOOLKIT"] != "gtk":
++if CONFIG["MOZ_WIDGET_TOOLKIT"] != "gtk" or not CONFIG['MOZ_X11']:
+     CXXFLAGS += CONFIG["TK_CFLAGS"]
+ else:
+     # Force build against gtk+2 for struct offsets and such.
+diff --git a/gfx/gl/moz.build b/gfx/gl/moz.build
+index 72e576a408bf..234c4768f7cb 100644
+--- a/gfx/gl/moz.build
++++ b/gfx/gl/moz.build
+@@ -13,7 +13,7 @@ elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "cocoa":
+ elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "uikit":
+     gl_provider = "EAGL"
+ elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
+-    if CONFIG["MOZ_EGL_XRENDER_COMPOSITE"]:
++    if CONFIG["MOZ_EGL_XRENDER_COMPOSITE"] or not CONFIG["MOZ_X11"]:
+         gl_provider = "EGL"
+     else:
+         gl_provider = "GLX"
+diff --git a/old-configure.in b/old-configure.in
+index 26e3d65079d9..1018094a6e24 100644
+--- a/old-configure.in
++++ b/old-configure.in
+@@ -2337,10 +2337,10 @@ fi
+ 
+ # Define macros for cairo-features.h
+ TEE_SURFACE_FEATURE="#define CAIRO_HAS_TEE_SURFACE 1"
++PS_SURFACE_FEATURE="#define CAIRO_HAS_PS_SURFACE 1"
+ if test "$MOZ_X11"; then
+     XLIB_SURFACE_FEATURE="#define CAIRO_HAS_XLIB_SURFACE 1"
+     XLIB_XRENDER_SURFACE_FEATURE="#define CAIRO_HAS_XLIB_XRENDER_SURFACE 1"
+-    PS_SURFACE_FEATURE="#define CAIRO_HAS_PS_SURFACE 1"
+ fi
+ if test "$_HAVE_FREETYPE2"; then
+     FT_FONT_FEATURE="#define CAIRO_HAS_FT_FONT 1"
+diff --git a/widget/gtk/components.conf b/widget/gtk/components.conf
+index a65c8e02b0d1..0ea1386ccf24 100644
+--- a/widget/gtk/components.conf
++++ b/widget/gtk/components.conf
+@@ -84,7 +84,7 @@ Classes = [
+     },
+ ]
+ 
+-if defined('MOZ_X11'):
++if defined('MOZ_X11') or defined('MOZ_WAYLAND'):
+     Classes += [
+         {
+             'js_name': 'clipboard',
+diff --git a/widget/gtk/moz.build b/widget/gtk/moz.build
+index a7fc0d6473c1..41843be30a6e 100644
+--- a/widget/gtk/moz.build
++++ b/widget/gtk/moz.build
+@@ -63,7 +63,7 @@ SOURCES += [
+     "WaylandVsyncSource.cpp",  # conflicts with X11 headers
+ ]
+ 
+-if CONFIG["MOZ_X11"]:
++if CONFIG["MOZ_X11"] or CONFIG["MOZ_WAYLAND"]:
+     UNIFIED_SOURCES += [
+         "CompositorWidgetChild.cpp",
+         "CompositorWidgetParent.cpp",
+@@ -86,7 +86,7 @@ if CONFIG["NS_PRINTING"]:
+         "nsPrintSettingsServiceGTK.cpp",
+     ]
+ 
+-if CONFIG["MOZ_X11"]:
++if CONFIG["MOZ_X11"] or CONFIG["MOZ_WAYLAND"]:
+     UNIFIED_SOURCES += [
+         "nsClipboard.cpp",
+         "nsClipboardX11.cpp",
+diff --git a/widget/moz.build b/widget/moz.build
+index f599a73d723d..f37ebf4a508a 100644
+--- a/widget/moz.build
++++ b/widget/moz.build
+@@ -269,7 +269,7 @@ if CONFIG["MOZ_INSTRUMENT_EVENT_LOOP"]:
+ 
+ EXPORTS.ipc = ["nsGUIEventIPC.h"]
+ 
+-if CONFIG["MOZ_X11"]:
++if CONFIG["MOZ_X11"] or CONFIG["MOZ_WAYLAND"]:
+     DIRS += ["x11"]
+     SOURCES += [
+         "GfxInfoX11.cpp",
+@@ -337,7 +337,7 @@ if toolkit == "windows":
+         "windows/PCompositorWidget.ipdl",
+         "windows/PlatformWidgetTypes.ipdlh",
+     ]
+-elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk" and CONFIG["MOZ_X11"]:
++elif CONFIG["MOZ_WIDGET_TOOLKIT"] == "gtk":
+     IPDL_SOURCES = [
+         "gtk/PCompositorWidget.ipdl",
+         "gtk/PlatformWidgetTypes.ipdlh",

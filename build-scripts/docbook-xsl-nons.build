@@ -1,0 +1,98 @@
+#! /bin/bash
+
+# docbook-xsl-nons 1.79.2 
+# Source: https://github.com/docbook/xslt10-stylesheets/releases/download/release/1.79.2/docbook-xsl-nons-1.79.2.tar.bz2
+# http://www.linuxfromscratch.org/patches/blfs/svn/docbook-xsl-nons-1.79.2-stack_fix-1.patch
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  libxml2
+# Optional:     apache-ant, libxslt, Ruby, Zip, Saxon6, Xerces2 Java
+
+
+# Run as root
+
+patch -Np1 -i ../patches/docbook-xsl-nons-lfs/docbook-xsl-nons-1.79.2-stack_fix-1.patch &&
+
+
+install -v -m755 -d ${BUILD}/usr/share/xml/docbook/xsl-stylesheets-nons-1.79.2 &&
+
+cp -v -R VERSION assembly common eclipse epub epub3 extensions fo        \
+         highlighting html htmlhelp images javahelp lib manpages params  \
+         profiling roundtrip slides template tests tools webhelp website \
+         xhtml xhtml-1_1 xhtml5                                          \
+    ${BUILD}/usr/share/xml/docbook/xsl-stylesheets-nons-1.79.2 &&
+
+
+ln -s VERSION ${BUILD}/usr/share/xml/docbook/xsl-stylesheets-nons-1.79.2/VERSION.xsl &&
+
+install -v -m644 -D README \
+                    ${BUILD}/usr/share/doc/docbook-xsl-nons-1.79.2/README.txt &&
+install -v -m644    RELEASE-NOTES* NEWS* \
+                    ${BUILD}/usr/share/doc/docbook-xsl-nons-1.79.2
+cd ${BUILD} && mkdir install
+makepkg -l y -c n ${PKGS}/docbook-xsl-nons-1.79.2-noarch-mlfs.txz
+cat >> install/doinst.sh << "EOF"
+if [ ! -d /etc/xml ]; then install -v -m755 -d /etc/xml; fi &&
+if [ ! -f /etc/xml/catalog ]; then
+    xmlcatalog --noout --create /etc/xml/catalog
+fi &&
+
+xmlcatalog --noout --add "rewriteSystem" \
+           "https://cdn.docbook.org/release/xsl-nons/1.79.2" \
+           "/usr/share/xml/docbook/xsl-stylesheets-nons-1.79.2" \
+    /etc/xml/catalog &&
+
+xmlcatalog --noout --add "rewriteURI" \
+           "https://cdn.docbook.org/release/xsl-nons/1.79.2" \
+           "/usr/share/xml/docbook/xsl-stylesheets-nons-1.79.2" \
+    /etc/xml/catalog &&
+
+xmlcatalog --noout --add "rewriteSystem" \
+           "https://cdn.docbook.org/release/xsl-nons/current" \
+           "/usr/share/xml/docbook/xsl-stylesheets-nons-1.79.2" \
+    /etc/xml/catalog &&
+
+xmlcatalog --noout --add "rewriteURI" \
+           "https://cdn.docbook.org/release/xsl-nons/current" \
+           "/usr/share/xml/docbook/xsl-stylesheets-nons-1.79.2" \
+    /etc/xml/catalog &&
+
+xmlcatalog --noout --add "rewriteSystem" \
+           "http://docbook.sourceforge.net/release/xsl/current" \
+           "/usr/share/xml/docbook/xsl-stylesheets-nons-1.79.2" \
+    /etc/xml/catalog &&
+
+xmlcatalog --noout --add "rewriteURI" \
+           "http://docbook.sourceforge.net/release/xsl/current" \
+           "/usr/share/xml/docbook/xsl-stylesheets-nons-1.79.2" \
+    /etc/xml/catalog
+EOF
+cat > install/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+                |-----handy-ruler------------------------------------------------------|
+docbook-xsl-nons: docbook-xsl-nons (DocBook XSL Stylesheets)
+docbook-xsl-nons:
+docbook-xsl-nons: The DocBook XSL Stylesheets package contains XSL stylesheets. These 
+docbook-xsl-nons: are useful for performing transformations on XML DocBook files.
+docbook-xsl-nons:
+docbook-xsl-nons: Homepage: https://github.com/docbook/xslt10-stylesheets
+docbook-xsl-nons:
+docbook-xsl-nons:
+docbook-xsl-nons:
+docbook-xsl-nons:
+docbook-xsl-nons:
+EOF
+
+makepkg -l y -c n ${PKGS}/docbook-xsl-nons-1.79.2-noarch-mlfs.txz
+
+

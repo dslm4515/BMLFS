@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# GNOME Keyring
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/gnome-keyring/3.36/gnome-keyring-3.36.0.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     DBus, Gcr
+# Recommended:  Linux-Pam, libxslt, OpenSSH
+# Optional:     Gnupg, Valgrind, libcap-ng, LCOV
+
+sed -i 's:"/desktop:"/org:' schema/*.xml &&
+
+./configure --prefix=/usr     \
+            --sysconfdir=/etc \
+            --with-pam-dir=/lib/security $BUILDTRUPLE
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+             |-----handy-ruler------------------------------------------------------|
+gnome-keyring: GNOME Keyring (a tool to handle security credentials)
+gnome-keyring: 
+gnome-keyring: GNOME Keyring is a program designed to take care of the user's
+gnome-keyring: security credentials, such as user names and passwords, in an
+gnome-keyring: easy to access manner. The keyring is implemented as a daemon
+gnome-keyring: and uses the process name gnome-keyring-daemon.
+gnome-keyring: 
+gnome-keyring: 
+gnome-keyring: 
+gnome-keyring: 
+gnome-keyring: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gnome-keyring-3.36.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

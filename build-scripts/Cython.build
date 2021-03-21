@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# Cython 
+# Source: https://github.com/cython/cython/archive/0.29.21.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Python3
+# Recommended:  NONE
+# Optional:     NONE
+#
+# NOTE version 3.0a6 will not build libplist:
+# OverflowError: Python int too large to convert to C ssize_t
+
+read -p "Compile?" && python3 setup.py build &&
+
+sudo -S python3 setup.py install --prefix=/usr --root=$BUILD  &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+Cython: Cython (C bindings for Python)
+Cython:
+Cython: Cython is a language that makes writing C extensions for the Python
+Cython: language as easy as Python itself. Cython is based on the well-known
+Cython: Pyrex, but supports more cutting edge functionality and optimizations.
+Cython:
+Cython: Homepage: http://www.cython.org/
+Cython:
+Cython:
+Cython:
+Cython:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/Cython-0.29.21-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

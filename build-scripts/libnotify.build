@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# libnotify
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/libnotify/0.7/libnotify-0.7.9.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     GTK+3
+# Recommended:  NONE
+# Optional:     gobject-introspection, GTK-Doc, Xmlto, notification-daemon or  xfce4-notify
+
+mkdir build &&
+cd    build &&
+meson --prefix=/usr -Dgtk_doc=false -Dman=false .. &&
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+libnotify: libnotify (notification library)
+libnotify: 
+libnotify: A general library for event notification
+libnotify:
+libnotify: Homepage: http://www.galago-project.org/news/index.php
+libnotify:
+libnotify:
+libnotify:
+libnotify:
+libnotify:
+libnotify:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libnotify-0.7.9-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

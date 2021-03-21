@@ -1,0 +1,53 @@
+#! /bin/bash
+
+# Speex
+# Source: https://downloads.xiph.org/releases/speex/speex-1.2.0.tar.gz
+# Source: https://downloads.xiph.org/releases/speex/speexdsp-1.2.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libogg
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/speex-1.2.0 $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+sudo -S make DESTDIR=$BUILD install &&
+
+cd ..                          &&
+tar -xf speexdsp-1.2.0.tar.gz &&
+cd speexdsp-1.2.0             &&
+./configure --prefix=/usr    \
+            --disable-static \
+            --docdir=/usr/share/doc/speexdsp-1.2.0 $BUILDTRUPLE  &&
+read -p "Compile?" && make -j2                     &&
+udo -S make DESTDIR=$BUILD install                 &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+sppex: Speex
+speex:
+speex: Speex is an audio compression format designed especially for speech. 
+speex: It is well-adapted to internet applications and provides useful 
+speex: features that are not present in most other CODECs.
+speex:
+speex: Homepage: https://www.speex.org/
+speex:
+speex:
+speex:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/speex-1.2.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

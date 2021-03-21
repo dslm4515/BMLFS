@@ -1,0 +1,57 @@
+#! /bin/bash
+
+# efitools 
+# Source: https://git.kernel.org/pub/scm/linux/kernel/git/jejb/efitools.git/snapshot/efitools-1.9.2.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     gnu-efi
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/efitools-void/01-gnu-efi-libs-update.patch && \
+patch -Np1 -i ../patches/efitools-void/02-libressl-compatibility.patch && \
+patch -Np1 -i ../patches/efitools-void/03-makefile-enable-harden-local-files.patch && \
+patch -Np1 -i ../patches/efitools-void/04-makefile-keep-freestanding-flag.patch && \
+patch -Np1 -i ../patches/efitools-void/05-makefile-remove-useless-problematic-target.patch && \
+
+#case $(uname -m) in
+#	arm*)    export BARCH="arm"  ;;
+#	i686)    export BARCH="ia32" ;;
+#	*)       export BARCH="$(uname -m)-linux-musl" ;;
+#esac && \
+
+#sed -i -e "/^ARCH[[:space:]]*=/s/=.*/=${BARCH}/" Make.rules && \
+
+read -p "Compile?" && make PREFIX=/usr -j2 && \
+
+sudo -S make DESTDIR=$BUILD PREFIX=/usr install && \
+#unset BARCH && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install && \
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+efitools: efitools (Tools for manipulating UEFI secure boot platforms)
+efitools:
+efitools: efitools is a set of tools for manipulating EFI secure boot platforms.
+efitools:
+efitools:
+efitools:
+efitools:
+efitools:
+efitools:
+efitools:
+efitools:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/efitools-1.9.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

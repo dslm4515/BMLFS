@@ -1,0 +1,68 @@
+From 6239ef2e43ad94a85130a40e02f27b9b30aa043e Mon Sep 17 00:00:00 2001
+From: Amit Prakash Ambasta <amit.prakash.ambasta@gmail.com>
+Date: Tue, 19 Jan 2021 14:01:52 +0530
+Subject: [PATCH] Remove X dependencies from webrtc
+
+---
+ .../libwebrtc/webrtc/modules/desktop_capture/BUILD.gn       | 6 ++++++
+ .../webrtc/modules/desktop_capture/desktop_capturer.cc      | 2 ++
+ .../modules/desktop_capture/desktop_device_info_null.cc     | 6 +++++-
+ 3 files changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/third_party/libwebrtc/webrtc/modules/desktop_capture/BUILD.gn b/third_party/libwebrtc/webrtc/modules/desktop_capture/BUILD.gn
+index d1033cbd71..e21849d96b 100644
+--- a/third_party/libwebrtc/webrtc/modules/desktop_capture/BUILD.gn
++++ b/third_party/libwebrtc/webrtc/modules/desktop_capture/BUILD.gn
+@@ -356,6 +356,12 @@ rtc_static_library("desktop_capture_generic") {
+     }
+   }
+ 
++  if (rtc_use_pipewire && !use_x11) {
++    sources += [
++      "desktop_device_info_null.cc",
++    ]
++  }
++
+   if (rtc_use_pipewire) {
+     sources += [
+       "linux/base_capturer_pipewire.cc",
+diff --git a/third_party/libwebrtc/webrtc/modules/desktop_capture/desktop_capturer.cc b/third_party/libwebrtc/webrtc/modules/desktop_capture/desktop_capturer.cc
+index 5e4dcb058d..c40297d907 100644
+--- a/third_party/libwebrtc/webrtc/modules/desktop_capture/desktop_capturer.cc
++++ b/third_party/libwebrtc/webrtc/modules/desktop_capture/desktop_capturer.cc
+@@ -15,8 +15,10 @@
+ 
+ #if defined(WEBRTC_USE_PIPEWIRE) || defined(USE_X11)
+ #include <gtk/gtk.h>
++#if defined(USE_X11)
+ #include <gtk/gtkx.h>
+ #endif
++#endif
+ 
+ namespace webrtc {
+ 
+diff --git a/third_party/libwebrtc/webrtc/modules/desktop_capture/desktop_device_info_null.cc b/third_party/libwebrtc/webrtc/modules/desktop_capture/desktop_device_info_null.cc
+index 20a3568928..0229f05333 100644
+--- a/third_party/libwebrtc/webrtc/modules/desktop_capture/desktop_device_info_null.cc
++++ b/third_party/libwebrtc/webrtc/modules/desktop_capture/desktop_device_info_null.cc
+@@ -2,7 +2,7 @@
+  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+  * You can obtain one at http://mozilla.org/MPL/2.0/. */
+ 
+-#include "webrtc/modules/desktop_capture/desktop_device_info.h"
++#include "modules/desktop_capture/desktop_device_info.h"
+ 
+ namespace webrtc {
+ 
+@@ -40,4 +40,8 @@ void
+ DesktopDeviceInfoNull::InitializeApplicationList() {
+ }
+ 
++void
++DesktopDeviceInfoNull::InitializeTabList() {
++}
++
+ } //namespace webrtc
+-- 
+2.30.0
+

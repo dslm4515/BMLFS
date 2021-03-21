@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# libatasmart
+# Source: http://0pointer.de/public/libatasmart-0.19.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+cp -v ../files/config.sub-musl build-aux/config.sub &&
+cp -v ../files/config.guess-musl build-aux/config.guess &&
+
+./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+libatasmart: libatasmart (ATA S.M.A.R.T. library)
+libatasmart:
+libatasmart: libatasmart is a lean, small and clean implementation of an ATA
+libatasmart: S.M.A.R.T. ((Self-Monitoring, Analysis and Reporting Technology)
+libatasmart: reading and parsing library.  S.M.A.R.T. is a system used by hard
+libatasmart: drives to monitor factors that may impact drive reliability in the
+libatasmart: hope of predicting a drive failure before it occurs.
+libatasmart:
+libatasmart: Homepage: http://0pointer.de/blog/projects/being-smart.html
+libatasmart:
+libatasmart:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libatasmart-0.19-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

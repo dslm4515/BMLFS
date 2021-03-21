@@ -1,0 +1,122 @@
+#! /bin/bash
+
+# NSS 
+# Source: https://archive.mozilla.org/pub/security/nss/releases/NSS_3_61_RTM/src/nss-3.61.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NSPR, SQlite
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/nss-lfs/nss-3.61-standalone-1.patch &&
+
+export NSS_VER=3.61
+export NSPR_VER=4.29
+export NS_USE_GCC=1
+export LIBRUNPATH=
+export BUILD_OPT=1
+export NSS_USE_SYSTEM_SQLITE=1
+export NSS_ENABLE_WERROR=0
+export NSS_ENABLE_ECC=1
+export FREEBL_NO_DEPEND=1
+
+case $(uname -m) in
+	x86_64*)    export USE_64=1
+		    export NSS_DISABLE_AVX2=1
+		    ;;
+	  aarch64*) export USE_64=1
+		    ;;
+	    ppc*)   export NSS_DISABLE_ALTIVEC=1
+		    ;;
+esac
+
+sed -e 's/\$(MKSHLIB) -o/\$(MKSHLIB) \$(LDFLAGS) -o/g' \
+    -i nss/coreconf/rules.mk
+
+cd nss &&
+
+make  -C coreconf &&
+
+export NSPR_INCLUDE_DIR=/usr/include/nspr &&
+export NSPR_LIB_DIR=/usr/lib &&
+make all
+
+unset NS_USE_GCC LIBRUNPATH BUILD_OPT NSS_USE_SYSTEM_SQLITE     &&
+unset NSS_ENABLE_WERROR NSS_ENABLE_ECC FREEBL_NO_DEPEND USE_64  &&
+unset USE_64 NSS_DISABLE_ALTIVEC NSPR_INCLUDE_DIR NSPR_LIB_DIR  &&
+
+read -p "Install?" &&
+
+sudo -S mkdir -pv ${BUILD}/usr/lib/pkgconfig &&
+sudo -S mkdir -pv ${BUILD}/usr/bin           &&
+sudo -S mkdir -pv ${BUILD}/usr/include/nss    &&
+sudo -S mkdir -pv ${BUILD}/install           &&
+
+
+export NSS_VMAJOR=$(grep "#define.*NSS_VMAJOR" lib/nss/nss.h | awk '{print $3}')
+export NSS_VMINOR=$(grep "#define.*NSS_VMINOR" lib/nss/nss.h | awk '{print $3}')
+export NSS_VPATCH=$(grep "#define.*NSS_VPATCH" lib/nss/nss.h | awk '{print $3}')
+
+sed ../../files/nss-void/nss.pc.in \
+	-e "s,%libdir%,/usr/lib,g" \
+	-e "s,%prefix%,/usr,g" \
+	-e "s,%exec_prefix%,/usr/bin,g" \
+	-e "s,%includedir%,/usr/include/nss,g" \
+	-e "s,%NSPR_VERSION%,${NSS_VER},g" \
+	-e "s,%NSS_VERSION%,${NSPR_VER},g" > \
+	${BUILD}/usr/lib/pkgconfig/nss.pc &&
+ln -sf nss.pc ${BUILD}/usr/lib/pkgconfig/mozilla-nss.pc &&
+chmod 644 ${BUILD}/usr/lib/pkgconfig/*.pc &&
+
+sed ../../files/nss-void/nss-config.in \
+         -e "s,@libdir@,/usr/lib,g" \
+	 -e "s,@prefix@,/usr/bin,g" \
+	 -e "s,@exec_prefix@,/usr/bin,g" \
+	 -e "s,@includedir@,/usr/include/nss,g" \
+	 -e "s,@MOD_MAJOR_VERSION@,${NSS_VMAJOR},g" \
+	 -e "s,@MOD_MINOR_VERSION@,${NSS_VMINOR},g" \
+	 -e "s,@MOD_PATCH_VERSION@,${NSS_VPATCH},g" \
+	 > ${BUILD}/usr/bin/nss-config &&
+chmod 755 ${BUILD}/usr/bin/nss-config  &&
+
+for f in libsoftokn3.so libfreebl3.so libnss3.so libnssutil3.so \
+	libssl3.so libsmime3.so libnssckbi.so libnssdbm3.so; do
+	install -m755 ../dist/*.OBJ/lib/${f} ${BUILD}/usr/lib
+done
+
+install -m644 ../dist/*.OBJ/lib/libcrmf.a ${BUILD}/usr/lib &&
+for f in certutil cmsutil crlutil modutil pk12util shlibsign \
+	signtool signver ssltap; do
+        install -m755 ../dist/*.OBJ/bin/${f} ${BUILD}/usr/bin
+done
+
+install -m644 ../dist/public/nss/*.h ${BUILD}/usr/include/nss &&
+unset NSS_ENABLE_ECC _target BUILD_OPT NSS_USE_SYSTEM_SQLITE NSS_ENABLE_WERROR &&
+unset FREEBL_NO_DEPEND NSS_VER NSPR_VER &&
+cd $BUILD &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+   |-----handy-ruler------------------------------------------------------|
+nss: nss (Network Security Services)
+nss:
+nss: The Network Security Services (NSS) package is a set of libraries 
+nss: designed to support cross-platform development of security-enabled 
+nss: client and server applications. Applications built with NSS can 
+nss: support SSL v2 and v3, TLS, PKCS #5, PKCS #7, PKCS #11, PKCS #12, 
+nss: S/MIME, X.509 v3 certificates, and other security standards. This is 
+nss: useful for implementing SSL and S/MIME or other Internet security 
+nss: standards into an application.
+nss:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/nss-3.61-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

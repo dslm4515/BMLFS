@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# Zenity 
+# Source: https://download.gnome.org/sources/zenity/3.32/zenity-3.32.0.tar.xz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     gtk+3, itstool
+# Recommended:  libglib, libnotify
+# Optional:     webkit2gtk
+
+./configure --prefix=/usr $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+zenity: zenity (GNOME/GTK+ Dialog Boxes)
+zenity:
+zenity: Zenity allows the display of GTK+ dialog boxes from shell scripts. It 
+zenity: is a rewrite of `gdialog', and includes a gdialog wrapper script so 
+zenity: that it can be used with legacy scripts.
+zenity:
+zenity:
+zenity:
+zenity:
+zenity:
+zenity:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/zenity-3.32.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

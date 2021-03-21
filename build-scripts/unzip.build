@@ -1,0 +1,98 @@
+#! /bin/bash
+
+# UnZip 6.0
+# Source: https://downloads.sourceforge.net/infozip/unzip60.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+for p in unzip-6.0-bzip2-configure.patch \
+	 unzip-6.0-exec-shield.patch \
+	 unzip-6.0-close.patch \
+	 unzip-6.0-attribs-overflow.patch \
+	 unzip-6.0-configure.patch \
+	 unzip-6.0-manpage-fix.patch \
+	 unzip-6.0-fix-recmatch.patch \
+	 unzip-6.0-symlink.patch \
+	 unzip-6.0-caseinsensitive.patch \
+	 unzip-6.0-format-secure.patch \
+	 unzip-6.0-valgrind.patch \
+	 unzip-6.0-x-option.patch \
+	 unzip-6.0-overflow.patch \
+	 unzip-6.0-cve-2014-8139.patch \
+	 unzip-6.0-cve-2014-8140.patch \
+	 unzip-6.0-cve-2014-8141.patch \
+	 unzip-6.0-overflow-long-fsize.patch \
+	 unzip-6.0-heap-overflow-infloop.patch \
+	 unzip-6.0-alt-iconv-utf8.patch \
+	 unzip-6.0-alt-iconv-utf8-print.patch \
+	 0001-Fix-CVE-2016-9844-rhbz-1404283.patch \
+	 unzip-6.0-timestamp.patch \
+	 unzip-6.0-cve-2018-1000035-heap-based-overflow.patch \
+	 unzip-6.0-cve-2018-18384.patch \
+	 unzip-6.0-COVSCAN-fix-unterminated-string.patch \
+	 unzip-zipbomb-part1.patch \
+	 unzip-zipbomb-part2.patch \
+	 unzip-zipbomb-part3.patch unzip-zipbomb-manpage.patch; do
+	patch -Np1 -i ../patches/unzip-void/$p
+done
+
+export CFLAGS=" -D_FILE_OFFSET_BITS=64 -DWILD_STOP_AT_DIR \
+	        -DLARGE_FILE_SUPPORT   -DUNICODE_SUPPORT  \
+		-DUNICODE_WCHAR        -DUTF8_MAYBE_NATIVE \
+		-DNO_LCHMOD            -LDDATE_FORMAT=DF_YMD \
+		-DUSE_BZIP2            -DNATIVE"
+
+make -j4 -f unix/Makefile LOCAL_UNZIP="$CFLAGS" \
+	prefix=/usr LF2="" CC=cc CFLAGS="$CFLAGS" LFLAGS1="$LDFLAGS" \
+	D_USE_BZ2=-DUSE_BZIP2 L_BZ2=-lbz2 unzips
+
+unset CFLAGS
+
+read -p "Press Enter to install" &&
+# if not using a package manager:
+# make prefix=/usr MANDIR=/usr/share/man/man1 \
+#      -f unix/Makefile install
+
+# if using pkgtools from Slackware, then:
+sudo -S make -f unix/Makefile prefix=${BUILD}/usr \
+        INSTALL_PROGRAM="install" MANDIR=${BUILD}/usr/share/man/man1 install
+
+read -p "Press Enter to create pakage description."  &&
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+     |-----handy-ruler------------------------------------------------------|
+unzip: unzip  (ZIP Archive Decompressor)
+unzip:
+unzip: The UnZip package contains ZIP extraction utilities. These are useful 
+unzip: for extracting files from ZIP archives. ZIP archives are created
+unzip: with PKZIP or Info-ZIP utilities, primarily in a DOS environment.
+unzip:
+unzip:
+unzip:
+unzip:
+unzip:
+unzip:
+EOF
+
+sudo -S mv /tmp/slack-desc install/ &&
+
+#sudo -S mkdir -pv usr/share/man  &&
+#sudo -S mv -v usr/man usr/share/man/man1 &&
+
+read -p "Enter to build and install package" &&
+sudo makepkg -l y -c n $PKGS/unzip-6.0-$(uname -m)-mlfs.txz &&
+sudo rm -rf $BUILD/*
+

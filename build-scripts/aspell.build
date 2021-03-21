@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# Aspell
+# Source: ftp://ftp.gnu.org/gnu/aspell/aspell-0.60.8.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     which
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr --sysconfdir=/etc \
+            --enable-compile-in-filters $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S ln -svfn aspell-0.60 ${BUILD}/usr/lib/aspell &&
+sudo -S install -v -m 755 scripts/ispell ${BUILD}/usr/bin/ &&
+sudo -S install -v -m 755 scripts/spell  ${BUILD}/usr/bin/ &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+aspell: aspell (spell checker)
+aspell:
+aspell: GNU Aspell is a spell checker designed to eventually replace Ispell.
+aspell: It can either be used as a library or as an independent spell checker.
+aspell:
+aspell:
+aspell:
+aspell:
+aspell:
+aspell:
+aspell:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/aspell-0.60.8-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

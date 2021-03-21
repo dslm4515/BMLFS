@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# Glade3
+# Source: https://download.gnome.org/sources/glade3/3.8/glade3-3.8.6.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     GTK+2, itstool, libxml2, Python2
+# Recommended:  NONE
+# Optional:     Webkit2gtk
+
+./configure --prefix=/usr \
+	    --sysconfdir=/etc \
+	    --enable-compile-warnings=no \
+	    --disable-gnome \
+	    --disable-nls \
+	    --disable-gtk-doc $BUILDTRUPLE &&
+
+# Some of the documentation errors out:
+# UnicodeDecodeError: 'utf-8' codec can't decode byte 0xb0 in position 0: invalid start byte
+# Force make to continue as its non-critical
+read -p "Compile?" && make -j2 -k &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+glade3: glade3 (user interface designer)
+glade3:
+glade3: Glade is a RAD tool to enable quick & easy development of user
+glade3: interfaces for the GTK+ toolkit and the GNOME desktop environment.
+glade3: The user interfaces designed in Glade are saved as XML, and by using
+glade3: the GtkBuilder GTK+ object these can be loaded by applications
+glade3: dynamically as needed.
+glade3:
+glade3: Homepage: http://glade.gnome.org/
+glade3:
+glade3:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/glade3-3.8.6-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# ssh-askpass
+# Source: ftp://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.0p1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     GTK+2, Sudo, Xorg Libraries, X Org System
+# Recommended:  NONE
+# Optional:     NONE
+
+cd contrib &&
+read -p "Compile?" && make gnome-ssh-askpass2 -j2 &&
+
+sudo -S install -v -d -m755 ${BUILD}/usr/libexec/openssh/contrib  &&
+sudo -S install -v -m755    gnome-ssh-askpass2 \
+                    ${BUILD}/usr/libexec/openssh/contrib  &&
+sudo -S ln -sv -f contrib/gnome-ssh-askpass2 \
+                    ${BUILD}/usr/libexec/openssh/ssh-askpass
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+ssh-askpass: ssh-askpass (an X11-based passphrase dialog)
+ssh-askpass:
+ssh-askpass: ssh-askpass is Damien Miller's GTK+2	-based passphrase dialog 
+ssh-askpass: distributed in OpenSSH source.
+ssh-askpass:
+ssh-askpass:
+ssh-askpass:
+ssh-askpass:
+ssh-askpass:
+ssh-askpass:
+ssh-askpass:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/ssh-askpass-8.0p1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

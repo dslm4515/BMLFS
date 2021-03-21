@@ -1,0 +1,51 @@
+#! /bin/bash
+
+# efibootmngr
+# Source: https://github.com/rhboot/efibootmgr/archive/17.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     efivar, popt
+# Recommended:  NONE
+# Optional:     NONE
+
+#patch -Np0 -i ../patches/efibootmgr-void/efivar-efi_set_verbose.patch && \
+
+case $(uname -m) in
+	x86_64)  export EFI_LOADER="grubx64.efi"  ;;
+	i686)    export EFI_LOADER="grub.efi"     ;;
+	aarch64*) export EFI_LOADER="grubaa64.efi" ;;
+	arm*)     export EFI_LOADER="grubarm.efi"  ;;
+esac
+
+read -p "Compile?" && make -j2 EXTRA_CFLAGS="$CFLAGS" EFIDIR="mlfs" EFI_LOADER="${EFI_LOADER}" &&
+
+sudo -S make DESTDIR=$BUILD EXTRA_CFLAGS="$CFLAGS" EFIDIR="mlfs" EFI_LOADER="${EFI_LOADER}" install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+efibootmgr: efibootmgr (tool to modify UEFI boot entries)
+efibootmgr:
+efibootmgr: efibootmgr is a Linux userspace application to modify the Intel
+efibootmgr: Extensible Firmware Interface (EFI) Boot Manager.  This application
+efibootmgr: can create and destroy boot entries, change the boot order, change
+efibootmgr: the next running boot option, and more.
+efibootmgr:
+efibootmgr: Homepage:  http://linux.dell.com/efibootmgr
+efibootmgr:
+efibootmgr:
+efibootmgr:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/efibootmgr-17-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

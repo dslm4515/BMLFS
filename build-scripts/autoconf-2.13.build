@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# Autoconf2.13
+# Source: https://ftp.gnu.org/gnu/autoconf/autoconf-2.13.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+patch -Np1 -i ../patches/autoconf-2.13-lfs/consolidated_fixes-1.patch &&
+mv -v autoconf.texi autoconf213.texi                      &&
+rm -v autoconf.info                                       &&
+./configure --prefix=/usr  --program-suffix=2.13 $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+autoconf: autoconf213 (generate configuration scripts)
+autoconf:
+autoconf: GNU autoconf is an extensible package of m4 macros that produce shell
+autoconf: scripts to automatically configure software source code packages.
+autoconf: These scripts can adapt the packages to many kinds of UNIX-like
+autoconf: systems without manual user intervention.  Autoconf creates a
+autoconf: configuration script for a package from a template file that lists the
+autoconf: operating system features that the package can use, in the form of m4
+autoconf: macro calls.  You must install the "m4" package to be able to use
+autoconf: autoconf.
+autoconf: This is version 2.13, explicitly needed to build firefox.
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/autoconf-2.13-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

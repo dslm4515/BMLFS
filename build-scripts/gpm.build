@@ -1,0 +1,61 @@
+#! /bin/bash
+
+# GPM 
+# Source: http://anduin.linuxfromscratch.org/BLFS/gpm/gpm-1.20.7.tar.bz2 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np0 -i ../patches/gpm-void/musl-fcntl.patch &&
+patch -Np0 -i ../patches/gpm-void/musl-gpm_h.patch &&
+patch -Np0 -i ../patches/gpm-void/musl-linux_major_h.patch &&
+patch -Np0 -i ../patches/gpm-void/musl-select.patch &&
+patch -Np0 -i ../patches/gpm-void/musl-sigaction.patch &&
+
+./autogen.sh                                &&
+export CFLAGS="-fcommon" &&
+./configure --prefix=/usr --sysconfdir=/etc $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S install-info --dir-file=/usr/share/info/dir  \
+                     ${BUILD}/usr/share/info/gpm.info &&
+sudo -S mkdir -pv ${BUILD}/usr/lib &&
+sudo -S ln -sfv libgpm.so.2.1.0 ${BUILD}/usr/lib/libgpm.so &&
+sudo -S install -v -m755 -d ${BUILD}/usr/share/doc/gpm-1.20.7/support &&
+sudo -S install -v -m644    doc/support/*                     \
+                    ${BUILD}/usr/share/doc/gpm-1.20.7/support &&
+sudo -S install -v -m644    doc/{FAQ,HACK_GPM,README*}        \
+                    ${BUILD}/usr/share/doc/gpm-1.20.7 &&
+unset CFLAGS
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+   |-----handy-ruler------------------------------------------------------|
+gpm: gpm (general purpose mouse server)
+gpm:
+gpm: The general purpose mouse server, or gpm, allows you to use the mouse
+gpm: to cut and paste text from the screen. It also acts as a mouse 
+gpm: server for applications running on the Linux console, such as the
+gpm: Midnight Commander file manager. 
+gpm:
+gpm:
+gpm:
+gpm:
+gpm:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gpm-1.20.7-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

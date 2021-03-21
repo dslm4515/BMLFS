@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# libgcrypt
+# Source: ftp://ftp.gnupg.org/gcrypt/libgcrypt/libgcrypt-1.8.7.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libgpg-error
+# Recommended:  NONE
+# Optional:     Pth
+
+case $(uname -m) in
+     arm*) export gcry_cv_gcc_arm_platform_as_ok=no ;;
+     i686 | x86_64) export ECONFIG="--enable-padlock-support" ;;
+esac &&
+./configure --prefix=/usr $BUILDTRUPLE ${ECONFIG} &&
+read -p "Compile?" && make -j2 &&
+unset ECONFIG &&
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+libgcrypt: libgcrypt (general purpose cryptographic library)
+libgcrypt:
+libgcrypt: This is a general purpose cryptographic library based on the code
+libgcrypt: from GnuPG. It provides functions for all cryptograhic building
+libgcrypt: blocks: symmetric ciphers (AES, DES, Blowfish, CAST5, Twofish,
+libgcrypt: Arcfour), hash algorithms (MD4, MD5, RIPE-MD160, SHA-1, TIGER-192),
+libgcrypt: MACs (HMAC for all hash algorithms), public key algorithms
+libgcrypt: (RSA, ElGamal, DSA), large integer functions, random numbers and a
+libgcrypt: lot of supporting functions.
+libgcrypt:
+libgcrypt: libgcrypt home: http://directory.fsf.org/security/libgcrypt.html
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libgcrypt-1.8.7-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

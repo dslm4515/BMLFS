@@ -1,0 +1,49 @@
+#! /bin/bash
+
+# HTOP
+# Source: https://github.com/htop-dev/htop/archive/3.0.2.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+./autogen.sh &&
+
+CFLAGS="-fcommon" \
+./configure --prefix=/usr      --sysconfdir=/etc \
+            --enable-unicode   --enable-cgroup   \
+            --enable-taskstats $BUILDTRUPLE &&
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+htop: htop (ncurses-based interactive process viewer)
+htop:
+htop: htop is a free (GPL) ncurses-based process viewer that is similar to
+htop: the well-known "top" program, but allows to scroll the list vertically
+htop: and horizontally to see all processes and their full command lines.
+htop: Tasks related to processes (killing, renicing) can be done without
+htop: entering their PIDs.
+htop:
+htop: htop is developed by Hisham Muhammad.
+htop: Homepage:  http://hisham.hm/htop/
+htop:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/htop-3.0.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

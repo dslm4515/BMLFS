@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# libaio
+# Source: http://ftp.de.debian.org/debian/pool/main/liba/libaio/libaio_0.3.112.orig.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/libaio-alpine/libaio-errno.patch           &&
+patch -Np1 -i ../patches/libaio-alpine/libaio-optional-werror.patch &&
+
+read -p "Compile?" && make prefix=${BUILD}/usr sysconfdir=${BUILD}/etc -j2 &&
+
+sudo -S make prefix=${BUILD}/usr sysconfdir=${BUILD}/etc install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+libaio: libaio (asynchronous I/O library)
+libaio:
+libaio: The Linux-native asynchronous I/O facility ("async I/O", or "aio")
+libaio: has a richer API and capability set than the simple POSIX async I/O
+libaio: facility. This library provides the Linux-native API for async I/O.
+libaio: The POSIX async I/O facility requires this library in order to
+libaio: provide kernel-accelerated async I/O capabilities, as do applications
+libaio: which require the Linux-native async I/O API.
+libaio:
+libaio:
+libaio:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libaio-0.3.112-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

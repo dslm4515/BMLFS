@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# Wayland
+# Source: https://wayland.freedesktop.org/releases/wayland-1.18.0.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libxml2
+# Recommended:  NONE
+# Optional:     Doxygen, Graphviz, xmlto,  docbook-xml, docbook-xsl, and libxslt
+
+./configure --prefix=/usr    \
+            --disable-static \
+            --disable-documentation $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+wayland: wayland (The Wayland display server)
+wayland:
+wayland: Wayland is a project to define a protocol for a compositor to talk
+wayland: to its clients as well as a library implementation of the protocol.
+wayland: The compositor can be a standalone display server running on Linux
+wayland: kernel modesetting and evdev input devices, an X application, or a
+wayland: wayland client itself. The clients can be traditional applications,
+wayland: X servers (rootless or fullscreen) or other display servers.
+wayland:
+wayland: Homepage: http://wayland.freedesktop.org/
+wayland:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/wayland-1.18.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

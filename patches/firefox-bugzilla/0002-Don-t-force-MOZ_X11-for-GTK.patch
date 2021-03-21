@@ -1,0 +1,32 @@
+From ceb5b552503d61e1824f47ae290408fa2950c541 Mon Sep 17 00:00:00 2001
+From: Philipp Ammann <philipp.ammann@posteo.de>
+Date: Tue, 11 Aug 2020 09:49:36 +0000
+Subject: [PATCH 2/8] Don't force MOZ_X11 for GTK.
+
+GTK3 can work on Wayland without X11. Required in preparation for a
+Wayland-only build.
+
+---
+ toolkit/moz.configure | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/toolkit/moz.configure b/toolkit/moz.configure
+index ebc4dbdb2d3c..9416a7a78686 100644
+--- a/toolkit/moz.configure
++++ b/toolkit/moz.configure
+@@ -269,9 +269,9 @@ set_define(toolkit_define, True)
+ def toolkit_gtk(toolkit):
+     return toolkit == 'gtk'
+ 
+-set_config('MOZ_X11', True, when=toolkit_gtk)
+-set_define('MOZ_X11', True, when=toolkit_gtk)
+-add_old_configure_assignment('MOZ_X11', True, when=toolkit_gtk)
++#set_config('MOZ_X11', True, when=toolkit_gtk)
++#set_define('MOZ_X11', True, when=toolkit_gtk)
++#add_old_configure_assignment('MOZ_X11', True, when=toolkit_gtk)
+ 
+ # Wayland support
+ # ==============================================================
+-- 
+2.27.0
+

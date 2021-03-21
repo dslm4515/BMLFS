@@ -1,0 +1,42 @@
+#! /bin/bash
+
+# xdg-desktop-portal-wlr
+# Source: https://github.com/emersion/xdg-desktop-portal-wlr 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+ninja --prefix=/usr BUILD &&
+ninja -C BUILD -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                      |-----handy-ruler------------------------------------------------------|
+xdg-desktop-portal-wlr: Wlroots port of xdg-desktop-portal
+xdg-desktop-portal-wlr:
+xdg-desktop-portal-wlr: xdg-desktop-portal works by exposing a series of D-Bus interfaces 
+xdg-desktop-portal-wlr: known as portals under a well-known name 
+xdg-desktop-portal-wlr: (org.freedesktop.portal.Desktop) and object path 
+xdg-desktop-portal-wlr: (/org/freedesktop/portal/desktop).
+xdg-desktop-portal-wlr: 
+xdg-desktop-portal-wlr: The portal interfaces include APIs for file access, opening URIs, 
+xdg-desktop-portal-wlr: printing and others.
+xdg-desktop-portal-wlr: Source: https://github.com/emersion/xdg-desktop-portal-wlr
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/xdg-desktop-portal-wlr-0.1.0_git-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

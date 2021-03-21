@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# GTK-Doc
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/gtk-doc/1.33/gtk-doc-1.33.1.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     docbook-xml, docbook-xsl, itstool, libxslt
+# Recommended:  Pygments
+# Optional:     dblatex or fop, GLib, lxml, anytree, parameterized, and yelp-tools
+
+autoreconf -fiv           &&
+./configure --prefix=/usr $BUILDTRUPLE &&
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+gtk-doc: gtk-doc (API documentation generation tool for GTK+ and GNOME)
+gtk-doc:
+gtk-doc: gtk-doc is a tool for generating API reference documentation.
+gtk-doc: It is used for generating the documentation for GTK+, GLib and GNOME.
+gtk-doc:
+gtk-doc: http://www.gtk.org/gtk-doc
+gtk-doc:
+gtk-doc:
+gtk-doc: Packager: _PACKAGER on _BUILD_DATE
+gtk-doc:
+gtk-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gtk-doc-1.33.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

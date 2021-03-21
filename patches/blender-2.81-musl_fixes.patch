@@ -1,0 +1,71 @@
+diff -uNr blender-2.81.orig/CMakeLists.txt blender-2.81/CMakeLists.txt
+--- blender-2.81.orig/CMakeLists.txt	2019-11-20 08:01:53.000000000 -0600
++++ blender-2.81/CMakeLists.txt	2019-12-16 16:11:48.216895883 -0600
+@@ -183,6 +183,18 @@
+   set(_init_SDL                            OFF)
+   set(_init_FFTW3                          OFF)
+   set(_init_OPENSUBDIV                     OFF)
++# musl-libc related checks (missing execinfo.h, and feenableexcept())
++  include(CheckIncludeFiles)
++  check_include_files(execinfo.h HAVE_EXECINFO_H)
++  if (HAVE_EXECINFO_H)
++	add_definitions(-DHAVE_EXECINFO_H)
++  endif()
++
++  include(CheckLibraryExists)
++  check_library_exists(m feenableexcept "fenv.h" HAVE_FEENABLEEXCEPT)
++  if (HAVE_FEENABLEEXCEPT)
++	add_definitions(-DHAVE_FEENABLEEXCEPT)
++  endif()
+   set(_init_OPENVDB                        OFF)
+   set(_init_OPENIMAGEDENOISE               OFF)
+ elseif(WIN32)
+diff -uNr blender-2.81.orig/intern/guardedalloc/intern/mallocn_intern.h blender-2.81/intern/guardedalloc/intern/mallocn_intern.h
+--- blender-2.81.orig/intern/guardedalloc/intern/mallocn_intern.h	2019-10-21 09:04:53.000000000 -0500
++++ blender-2.81/intern/guardedalloc/intern/mallocn_intern.h	2019-12-16 16:58:38.731919708 -0600
+@@ -40,7 +40,7 @@
+ #undef HAVE_MALLOC_STATS
+ #define USE_MALLOC_USABLE_SIZE /* internal, when we have malloc_usable_size() */
+ 
+-#if defined(__linux__) || (defined(__FreeBSD_kernel__) && !defined(__FreeBSD__)) || \
++#if (defined(__linux__) && defined(HAVE_EXECINFO_H)) || (defined(__FreeBSD_kernel__) && !defined(__FreeBSD__)) || \
+     defined(__GLIBC__)
+ #  include <malloc.h>
+ #  define HAVE_MALLOC_STATS
+diff -uNr blender-2.81.orig/source/blender/blenlib/intern/system.c blender-2.81/source/blender/blenlib/intern/system.c
+--- blender-2.81.orig/source/blender/blenlib/intern/system.c	2019-10-21 09:04:54.000000000 -0500
++++ blender-2.81/source/blender/blenlib/intern/system.c	2019-12-18 10:26:41.420185164 -0600
+@@ -38,7 +38,9 @@
+ #  include <dbghelp.h>
+ #  pragma warning(pop)
+ #else
++#if (defined(__linux__) && defined(HAVE_EXECINFO_H)) || defined(__APPLE__)
+ #  include <execinfo.h>
++#endif 
+ #  include <unistd.h>
+ #endif
+ 
+@@ -81,8 +83,8 @@
+ {
+   /* ------------- */
+   /* Linux / Apple */
+-#if defined(__linux__) || defined(__APPLE__)
+-
++//#if defined(__linux__) || defined(__APPLE__)
++#if (defined(__linux__) && defined(HAVE_EXECINFO_H)) || defined(__APPLE__)
+ #  define SIZE 100
+   void *buffer[SIZE];
+   int nptrs;
+diff -uNr blender-2.81.orig/source/creator/creator_signals.c blender-2.81/source/creator/creator_signals.c
+--- blender-2.81.orig/source/creator/creator_signals.c	2019-10-21 09:04:54.000000000 -0500
++++ blender-2.81/source/creator/creator_signals.c	2019-12-18 10:28:55.588186302 -0600
+@@ -329,7 +329,8 @@
+    * set breakpoints on sig_handle_fpe */
+   signal(SIGFPE, sig_handle_fpe);
+ 
+-#    if defined(__linux__) && defined(__GNUC__)
++//#    if defined(__linux__) && defined(__GNUC__)
++# if defined(__linux__) && defined(__GNUC__) && defined(HAVE_FEENABLEEXCEPT)
+   feenableexcept(FE_DIVBYZERO | FE_INVALID | FE_OVERFLOW);
+ #    endif /* defined(__linux__) && defined(__GNUC__) */
+ #    if defined(OSX_SSE_FPE)

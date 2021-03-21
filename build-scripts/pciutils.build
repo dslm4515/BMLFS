@@ -1,0 +1,57 @@
+#! /bin/bash
+
+# PCI Utils
+# Source: https://www.kernel.org/pub/software/utils/pciutils/pciutils-3.7.0.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  cURL, Wget or Lynx
+# Optional:     NONE
+
+patch -Np1 -i ../patches/pcituils-alpine/fix-linking-pci-malloc-Makefile.patch
+patch -Np1 -i ../patches/pcituils-alpine/pread.patch
+
+read -p "Compile?" && 
+sed -i -e "106s/^/\#/" Makefile &&
+make OPT="$CFLAGS" ZLIB=no \
+		SHARED=yes \
+		PREFIX=/usr \
+		SHAREDIR=/usr/share/hwdata \
+		MANDIR=/usr/share/man \
+		all &&
+
+sudo -S make PREFIX=${BUILD}/usr \
+             SHARED=yes \
+	     SHAREDIR=${BUILD}/usr/share/hwdata \
+	     MANDIR=${BUILD}/usr/share/man      \
+	     install install-lib &&
+sudo -S chmod -v 755 ${BUILD}/usr/lib/libpci.so &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+pciutils: pciutils (PCI utilities)
+pciutils:
+pciutils: lspci displays detailed information about all PCI buses and devices
+pciutils: in the system, replacing the original /proc/pci interface.
+pciutils:
+pciutils: setpci allows reading from and writing to PCI device configuration
+pciutils: registers. For example, you can adjust the latency timers with it.
+pciutils:
+pciutils: pcimodules lists the kernel modules for all plugged in PCI devices.
+pciutils:
+pciutils: See the manual pages for more details.
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/pciutils-3.7.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

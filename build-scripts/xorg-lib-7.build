@@ -1,0 +1,71 @@
+#! /bin/bash
+export BUILD=/BUILD
+export PKGS=/PKGS
+export MJ="-j2"
+
+for package in $(grep -v '^#' ../xorg-lib-7.md5 | awk '{print $2}')
+do
+  packagedir=${package%.tar.bz2}
+  tar -xf $package
+  pushd $packagedir
+  case $packagedir in
+    libICE* )
+      ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-static ICE_LIBS=-lpthread
+    ;;
+
+    libXfont2-[0-9]* )
+      ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-static --disable-devel-docs
+    ;;
+
+    libXt-[0-9]* )
+      ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-static  \
+                  --with-appdefaultdir=/etc/X11/app-defaults
+    ;;
+
+    * )
+      ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-static
+    ;;
+  esac
+  make ${MJ}
+  #make check 2>&1 | tee ../$packagedir-make_check.log
+  read -p "(1) DESTDIR Install?" && sudo -S make DESTDIR=${BUILD} install &&
+  popd
+  rm -rf $packagedir
+  cd ${BUILD} &&
+  sudo -S mkdir install &&
+  packagename=$(echo "$packagedir" | cut -d "-" -f 1 )
+  LENGTH=$(expr length "$packagename")
+  SPACES=0
+  SHIM=""
+  until [ "$SPACES" = "$LENGTH" ]; do
+    SHIM="$SHIM "
+    let SPACES=$SPACES+1
+  done
+cat > /tmp/slack-desc << EOF
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+$SHIM|-----handy-ruler------------------------------------------------------|
+$packagename: $packagedir
+$packagename:
+$packagename: The Xorg libraries provide library routines that are used
+$packagename: within all X Window applications.
+$packagename:
+$packagename: Source: https://www.x.org/pub/individual/lib/
+$packagename:
+$packagename:
+$packagename:
+$packagename:
+$packagename:
+EOF
+sudo mv -v /tmp/slack-desc install/slack-desc && read -p "(2) CHECK DESC FILE" &&
+sudo makepkg -l y -c n  ${PKGS}/${packagedir}-$(uname -m)-mlfs.txz &&
+cd - && echo ${PWD} && read -p "(3) Install pkg?" &&
+sudo installpkg ${PKGS}/${packagedir}-$(uname -m)-mlfs.txz &&
+sudo rm -rf ${BUILD}/* 
+#sudo /sbin/ldconfig
+done

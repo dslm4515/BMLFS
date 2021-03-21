@@ -1,0 +1,44 @@
+#! /bin/bash
+
+# mtdev
+# Source: http://bitmath.org/code/mtdev/mtdev-1.1.6.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+cp -v ../files/config.sub-musl config-aux/config.sub &&
+cp -v ../files/config.guess-musl config-aux/config.guess &&
+./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+mtdev: mtdev (multitouch device library)
+mtdev:
+mtdev: mtdev is a stand-alone library which transforms all variants of
+mtdev: kernel MT events to the slotted type B protocol.  The events put
+mtdev: into mtdev may be from any MT device, specifically type A without
+mtdev: contact tracking, type A with contact tracking, or type B with
+mtdev: contact tracking.
+mtdev: The bulk of the mtdev code has been out there since 2008 as part of
+mtdev: the Multitouch X Driver.  With this package, finger tracking and 
+mtdev: seamless MT protocol handling is available under a free license. 
+mtdev:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/mtdev-1.1.6-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

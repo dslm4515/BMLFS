@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# libplist
+# Source: https://github.com/libimobiledevice/libplist/releases/download/2.2.0/libplist-2.2.0.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Cython, GLib
+# Recommended:  Swig
+# Optional:     NONE
+
+sed -i 's,-L$(libdir),,g' cython/Makefile.am &&
+autoreconf -fvi &&
+sed -i "s#\$PYTHON-config#__DOES_NOT_EXIST__#" configure &&
+
+./configure --prefix=/usr  &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+libplist: libplist (A library for Apple Binary and XML Property Lists) 
+libplist:
+libplist: libplist is a library that attempts to support Apple Binary and XML
+libplist: Property Lists. It is used by libgpod.
+libplist:
+libplist: The libplist homepage: http://www.libimobiledevice.org/
+libplist:
+libplist:
+libplist:
+libplist:
+libplist:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libplist-2.2.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

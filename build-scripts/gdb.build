@@ -1,0 +1,58 @@
+#! /bin/bash
+
+# GDB
+# Source: https://ftp.gnu.org/gnu/gdb/gdb-10.1.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Python3
+# Recommended:  Six
+# Optional:     Doxygen, GCC, Guile, 
+
+#patch -Np1 -i ../patches/gdb-alpine/musl-signals.patch
+patch -Np1 -i ../patches/gdb-alpine/ppc-musl.patch
+#patch -Np1 -i ../patches/gdb-alpine/ppc-ptregs.patch
+patch -Np1 -i ../patches/gdb-alpine/s390x-use-elf-gdb_fpregset_t.patch
+
+mkdir build &&
+cd    build &&
+
+../configure --prefix=/usr          \
+             --with-system-readline \
+             --with-python=/usr/bin/python3 \
+             --disable-nls --disable-werror
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S rm -fv  ${BUILD}/usr/share/info/bfd.info  &&
+sudo -S rm -fv  ${BUILD}/usr/share/info/dir       &&
+sudo -S rm -rvf ${BUILD}/usr/include              &&
+sudo -S rm -rvf ${BUILD}/usr/lib                  &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+   |-----handy-ruler------------------------------------------------------|
+gdb: gdb (the GNU symbolic debugger)
+gdb: GDB, the GNU Project debugger, allows you to see what is going on 
+gdb: inside another program while it executes -- or what another program
+gdb: was doing at the moment it crashed.  GDB can do four main kinds of
+gdb: things to help you catch bugs in the act:   1) Start your program,
+gdb: specifying anything that might affect its behavior.  2) Make your
+gdb: program stop on specified conditions.  3) Examine what has happened,
+gdb: when your program has stopped.  4) Change things in your program, so
+gdb: you can experiment with correcting the effects of one bug and go on
+gdb: to learn about another.  The program being debugged can be written in
+gdb: Ada, C, C++, Objective-C, Pascal and many other languages.
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gdb-10.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

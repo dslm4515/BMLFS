@@ -1,0 +1,51 @@
+#! /bin/bash
+
+# GLM 
+# Source:  https://github.com/g-truc/glm/archive/0.9.9.8.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/glm-alpine/fix-endian-test.patch && \
+
+cmake -B BUILD -DCMAKE_BUILD_TYPE=None -DCMAKE_INSTALL_PREFIX=/usr \
+               -DGLM_TEST_ENABLE=TRUE && \
+make -C BUILD -j2 && \
+
+sudo -S mkdir -p         ${BUILD}/usr/include/       && \
+sudo -S cp -r glm        ${BUILD}/usr/include/       && \
+sudo -S mkdir -p         ${BUILD}/usr/share/doc      && \
+sudo -S cp -r doc        ${BUILD}/usr/share/doc/glm  && \
+sudo -S mkdir -p         ${BUILD}/usr/lib/pkgconfig  && \
+sudo -S cp -v ../files/glm-alpine/glm.pc ${BUILD}/usr/lib/pkgconfig/
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+glm: glm (OpenGL Mathematics)
+glm:
+glm: OpenGL Mathematics (GLM) is a header only C++ mathematics library for
+glm: graphics software based on the OpenGL Shading Language (GLSL)
+glm: specification.
+glm: GLM provides classes and functions designed and implemented with the
+glm: same naming conventions and functionalities than GLSL so that when a
+glm: programmer knows GLSL, he knows GLM as well which makes it really easy
+glm: to use.
+glm:
+glm: homepage: http://glm.g-truc.net/
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/glm-0.9.9.8-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

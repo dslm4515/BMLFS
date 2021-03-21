@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# xev 
+# Source: https://www.x.org/pub/individual/app/xev-1.2.4.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     xorgproto
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr --sysconfdir=/etc \
+	    --localstatedir=/var \
+	    --disable-static $BUILDTRUPLE && \
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+   |-----handy-ruler------------------------------------------------------|
+xev: xev (X11 event viewer)
+xev:
+xev: xev creates a window and then asks the X server to send it X11 events
+xev: whenever anything happens to the window (such as it being moved,
+xev: resized, typed in, clicked in, etc.). You can also attach it to an
+xev: existing window. It is useful for seeing what causes events to occur
+xev: and to display the information that they contain; it is essentially
+xev: a debugging and development tool, and should not be needed in normal
+xev: usage.
+xev:
+xev:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/xev-1.2.4-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

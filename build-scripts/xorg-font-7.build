@@ -1,0 +1,78 @@
+#! /bin/bash
+export BUILD=/BUILD
+export PKGS=/PKGS
+export MJ="-j2"
+
+for package in $(grep -v '^#' ../xorg-font-7.md5 | awk '{print $2}')
+do
+  packagedir=${package%.tar.bz2}
+  tar -xf $package
+  pushd $packagedir
+    ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-static &&
+    make -j2 &&
+    sudo -S make DESTDIR=${BUILD} install && read -p "(1)Destdir installed" &&
+  popd
+  rm -rf $packagedir
+  cd ${BUILD}
+  sudo -S mkdir install &&
+  case $packagedir in
+	  font-util* )
+		  packagename=$(echo $packagedir | cut -d "-" -f 1,2 )
+		  ;;
+	  encodings* )
+		  packagename=$(echo $packagedir | cut -d "-" -f 1 )
+                  ;;
+	  font-alias* )
+                  packagename=$(echo $packagedir | cut -d "-" -f 1,2 )
+		  ;;
+	  font-adobe* )
+                  packagename=$(echo $packagedir | cut -d "-" -f 1,2,3,4 )
+		  ;;
+	  font-bh* )
+                  packagename=$(echo $packagedir | cut -d "-" -f 1,2,3 )
+		  ;;
+	  font-ibm-type1* )
+                  packagename=$(echo $packagedir | cut -d "-" -f 1,2,3 )
+		  ;;
+	  font-misc-* )
+		  packagename=$(echo $packagedir | cut -d "-" -f 1,2,3 )
+	          ;;
+	  font-xfree86* )
+		  packagename=$(echo $packagedir | cut -d "-" -f 1,2,3 )
+		  ;;
+  esac
+  LENGTH=$(expr length "$packagename")
+  SPACES=0
+  SHIM=""
+  until [ "$SPACES" = "$LENGTH" ]; do
+  SHIM="$SHIM "
+  let SPACES=$SPACES+1
+  done
+  cat > /tmp/slack-desc << EOF
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+$SHIM|-----handy-ruler------------------------------------------------------|
+$packagename: $packagedir
+$packagename:
+$packagename: The Xorg Font packages provide some scalable fonts and 
+$packagename: supporting packages for Xorg applications. 
+$packagename:
+$packagename: Source: https://www.x.org/pub/individual/font/
+$packagename:
+$packagename:
+$packagename:
+$packagename:
+$packagename:
+EOF
+sudo mv -v /tmp/slack-desc install/slack-desc && read -p "(2) CHECK DESC FILE" &&
+sudo makepkg -l y -c n  ${PKGS}/$packagedir-$(uname -m)-mlfs.txz &&
+cd - && echo $PWD && read -p "(3) Install pkg?" &&
+sudo installpkg ${PKGS}/$packagedir-$(uname -m)-mlfs.txz &&
+sudo rm -rf ${BUILD}/*
+done
+

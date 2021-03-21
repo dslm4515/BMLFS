@@ -1,0 +1,46 @@
+#! /bin/bash
+
+# argon2
+# Source: https://github.com/P-H-C/phc-winner-argon2/archive/20190702.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+export CFLAGS="$CFLAGS -DHAVE_EXPLICIT_BZERO=1" &&
+
+read -p "Compile?" && make OPTTARGET=none -j2 &&
+
+sed -i 's#libdir=${prefix}/lib#libdir=/lib#' libargon2.pc &&
+sudo -S make OPTTARGET=none DESTDIR=$BUILD LIBRARY_REL=lib install &&
+unset CFLAGS &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+argon2: argon2 (Argon2 password-hashing function)
+argon2:
+argon2: This is the reference C implementation of Argon2, the password-hashing
+argon2: function that won the Password Hashing Competition
+argon2: (see https://password-hashing.net).
+argon2:
+argon2: Argon2 is a password-hashing function that summarizes the state of the
+argon2: art in the design of memory-hard functions and can be used for
+argon2: credential storage, key derivation, or other applications.
+argon2:
+argon2: Homepage: https://github.com/P-H-C/phc-winner-argon2
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/argon2-2019.07.02-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

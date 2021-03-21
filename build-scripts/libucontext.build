@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# libucontext
+# Source: https://github.com/kaniini/libucontext/archive/libucontext-0.11.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+case $(uname -m) in
+	i686)   export LIBUCONTEXT_ARCH="x86"
+	        sed -i arch/x86/startcontext.S -e "s;__i686.get_pc_thunk.bx;i686_get_pc_thunk_bx;g"
+	        ;;
+	arm*)	export LIBUCONTEXT_ARCH="arm" ;;
+esac &&
+
+read -p "Compile?" && make ARCH="${LIBUCONTEXT_ARCH}" -j2 &&
+
+sudo -S make DESTDIR=$BUILD ARCH="${LIBUCONTEXT_ARCH}" install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+libucontext: libucontext
+libucontext:
+libucontext: A library which provides the ucontext.h C API. Unlike other 
+libucontext: implementations, it faithfully follows the kernel process ABI when 
+libucontext: doing context swaps.
+libucontext:
+libucontext: Homepage: https://github.com/kaniini/libucontext
+libucontext:
+libucontext:
+libucontext:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libucontext-0.11-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

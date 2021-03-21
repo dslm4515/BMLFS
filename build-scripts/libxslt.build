@@ -1,0 +1,54 @@
+#! /bin/bash
+
+# LibXSLT 1.1.34
+# Source: http://xmlsoft.org/sources/libxslt-1.1.34.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libxml2
+# Recommended:  docbook-xml and docbook-xsl
+# Optional:     libgcrypt and Python2 libxml2-2.9.10 module 
+
+
+sed -i s/3000/5000/ libxslt/transform.c doc/xsltproc.{1,xml} &&
+./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
+
+read -p "Compile? "  && make -j2  && 
+
+read -p "Press Enter to install" &&
+# if not using a package manager:
+# make install
+
+# if using pkgtools from Slackware, then:
+sudo -S make DESTDIR=$BUILD install &&
+
+read -p "Press Enter to create pakage description."  &&
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+libxslt: libxslt (XSLT Libraries)
+libxslt:
+libxslt: The libxslt package contains XSLT libraries used for extending
+libxslt: libxml2 libraries to support XSLT files.
+libxslt:
+libxslt: Homepage: http://xmlsoft.org
+libxslt:
+libxslt:
+libxslt:
+libxslt:
+libxslt:
+EOF
+sudo mv /tmp/slack-desc install/ &&
+
+read -p "Enter to build and install package" &&
+sudo makepkg -l y -c n $PKGS/libxslt-1.1.34-$(uname -m)-mlfs.txz &&
+sudo rm -rf $BUILD/*

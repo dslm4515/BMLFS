@@ -1,0 +1,39 @@
+#! /bin/bash
+
+# wf-shell
+# Source: https://github.com/WayfireWM/wf-shell 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     gtkmm3
+# Recommended:  libnotify, pulseaudio, gobject-introspectopn, 
+# Optional:     NONE
+
+meson --prefix=/usr OUT && \
+ninja -C OUT -j2 && \
+sudo -S DESTDIR=${BULD} ninja -C OUT install && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+wf-shell: wf-shell
+wf-shell: 
+wf-shell: wf-shell is a repository which contains the various components 
+wf-shell: needed to built a fully functional DE based around wayfire.
+wf-shell: Currently it has only a GTK-based panel and background client.
+wf-shell:
+wf-shell: Source: https://github.com/WayfireWM/wf-shell
+wf-shell:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/wf-shell-0.7.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

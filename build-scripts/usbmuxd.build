@@ -1,0 +1,56 @@
+#! /bin/bash
+
+# usbmuxd
+# Source: https://github.com/libimobiledevice/usbmuxd/archive/1.1.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libusb, libplist, libimobiledevice
+# Recommended:  NONE
+# Optional:     NONE
+
+autoreconf -fiv &&
+
+./configure --prefix=/usr \
+            --sysconfdir=/etc \
+            --localstatedir=/var \
+            --without-systemd $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+usbmuxd: usbmuxd (USB Multiplex Daemon)
+usbmuxd:
+usbmuxd: usbmuxd USB Multiplex Daemon. This bit of software is in charge of
+usbmuxd: talking to your iPhone or iPod Touch over USB and coordinating 
+usbmuxd: access to its services by other applications.
+usbmuxd:
+usbmuxd:
+usbmuxd:
+usbmuxd:
+usbmuxd:
+usbmuxd:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+cat > /tmp/doinst.sh << "EOF"
+groupadd -g 23 usbmux
+useradd  -c "USB Mux Daemon User" \
+         -d /run/usbmuxd \
+         -u 23 -g usbmux \
+         -s /bin/false usbmux
+EOF
+sudo -S mv /tmp/doinst.sh install/
+sudo -S makepkg -l y -c n $PKGS/usbmuxd-1.1.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

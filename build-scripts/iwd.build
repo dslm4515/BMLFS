@@ -1,0 +1,86 @@
+#! /bin/bash
+
+# iwd
+# source: https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-1.10.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     ell
+# Recommended:  NONE
+# Optional:     NONE
+
+# Make sure kernel has these symbols enabled:
+#        CONFIG_CRYPTO_USER_API_HASH 
+#        CONFIG_CRYPTO_USER_API_SKCIPHER
+#        CONFIG_KEY_DH_OPERATIONS
+#        CONFIG_CRYPTO_ECB
+#        CONFIG_CRYPTO_MD5
+#        CONFIG_CRYPTO_CBC
+#        CONFIG_CRYPTO_SHA256
+#        CONFIG_CRYPTO_AES
+#        CONFIG_CRYPTO_DES
+#        CONFIG_CRYPTO_CMAC
+#        CONFIG_CRYPTO_HMAC
+#        CONFIG_CRYPTO_SHA512
+#        CONFIG_CRYPTO_SHA1
+# Additional symbols:
+#        CONFIG_CRYPTO_SHA1_SSSE3
+#        CONFIG_CRYPTO_AES_NI_INTEL
+#        CONFIG_CRYPTO_SHA512_SSSE3
+#        CONFIG_CRYPTO_AES_X86_64
+#        CONFIG_CRYPTO_DES3_EDE_X86_64
+#        CONFIG_CRYPTO_SHA256_SSSE3
+
+patch -Np0 -i ../patches/iwd-void/fix-name-request.patch
+#patch -Np0 -i ../patches/iwd-void/musl-rawmemchr.patch
+patch -Np0 -i ../resolvconf-default.patch
+
+autoreconf -fiv
+
+./configure --prefix=/usr \
+            --disable-systemd-service \
+	        --enable-pie \
+	        --enable-external-ell \
+	        --enable-dbus-policy \
+	        --enable-wired \
+	        --localstatedir=/var \
+	        --sysconfdir=/etc $BUILDTRUPLE
+
+make -j2 && 
+
+# if not using a package manager:
+# make install
+
+# if using pkgtools from Slackware, then:
+sudo -S make DESTDIR=${BUILD} install
+
+read -p "Press Enter to create pakage description." &&
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+   |-----handy-ruler------------------------------------------------------|
+iwd: iwd (iNet Wireless Daemon) 
+iwd:
+iwd: A wireless daemon for Linux that aims to replace WPA supplicant.
+iwd:
+iwd: Homepage: https://git.kernel.org/pub/scm/network/wireless/iwd.git
+iwd:
+iwd:
+iwd:
+iwd:
+iwd:
+EOF
+
+sudo -S mv /tmp/slack-desc install/ &&
+
+read -p "Enter to build and install package" &&
+sudo -S makepkg -l y -c n $PKGS/iwd-1.10-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf $BUILD/*                                     

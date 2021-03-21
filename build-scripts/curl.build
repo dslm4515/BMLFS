@@ -1,0 +1,70 @@
+#! /bin/bash
+
+# cURL 1.65.3
+# Source: https://curl.haxx.se/download/curl-7.72.0.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  ca-certificates
+# Optional:     Brotli, c-ares, GnuTLS, libidn2, libpsl, 
+# Optional:     libssh2, MIT Kerberos V5, nghttp2, 
+# Optional:     OpenLDAP, Samba, impacket, libmetalink, 
+# Optinal:      librtmp, ngtcp2, quiche, and SPNEGO 
+
+autoreconf -vfi &&
+
+export CFLAGS="-D_FORTIFY_SOURCE=2 -I/usr/include/"
+export CPPFLAGS="-D_FORTIFY_SOURCE=2"
+
+ac_cv_sizeof_off_t=8                                \
+./configure --prefix=/usr                           \
+            --disable-static                        \
+            --enable-threaded-resolver              \
+            --with-ca-path=/etc/ssl/certs           \
+            --enable-ipv6                           \
+            --enable-unix-sockets                   \
+	    --with-pic $BUILDTRUPLE                 \
+	    --without-libssh2                         # https://bugs.alpinelinux.org/issues/10222 &&
+read -p "Compile? " && make -j2  && 
+
+unset  CFLAGS CPPFLAGS
+
+read -p "Press Enter to install" &&
+# if not using a package manager:
+# make install
+
+# if using pkgtools from Slackware, then:
+sudo -S make DESTDIR=$BUILD install &&
+
+read -p "Press Enter to create package description."
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+    |-----handy-ruler------------------------------------------------------|
+curl: curl (command line URL data transfer tool)
+curl:
+curl: Curl is a command line tool for transferring data specified with URL
+curl: syntax.  The command is designed to work without user interaction or
+curl: any kind of interactivity.   Curl offers a busload of useful tricks
+curl: like proxy support, user authentication, ftp upload, HTTP post,  SSL
+curl: (https:) connections, cookies, file transfer resume and more.
+curl:
+curl: libcurl is a library that Curl uses to do its job. It is readily
+curl: available to be used by your software, too.
+curl:
+EOF
+sudo mv /tmp/slack-desc install/ &&
+
+read -p "Enter to build package" &&
+sudo makepkg -l y -c n $PKGS/curl-7.72.0-$(uname -m)-mlfs.txz &&
+sudo rm -rf $BUILD/*
+

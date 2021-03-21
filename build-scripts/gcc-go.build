@@ -1,0 +1,172 @@
+#! /bin/bash
+
+# GCC Go Compiler Frontend
+# Source: http://ftp.gnu.org/gnu/gcc/gcc-10.2.0/gcc-10.2.0.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+#
+# NOTE
+# Even if you specify only languages other than C and C++ to the 
+# ./configure command below, the installation process will 
+# overwrite your existing GCC C and C++ compilers and libraries
+
+# Options based on architecture
+case $(uname -m) in
+  x86_64) export TRUPLE="x86_64-linux-musl"
+          export EXTRA_CONFIG=" --with-arch=x86-64"
+          ;;
+  i686)   export TRUPLE="i686-linux-musl"
+          export EXTRA_CONFIG=" --with-arch=pentium3 --with-tune=pentium-m"
+          ;;
+  armv7l) export TRUPLE="armv7l-linux-musleabihf"
+          export EXTRA_CONFIG=" --with-arch=armv7-a --with-tune=generic-armv7-a --with-fpu=vfp v3-d16 --with-float=hard --with-abi=aapcs-linux --with-mode=thumb"
+          ;;
+  armv6l) export TRUPLE="armv6l-linux-musleabihf"
+          export EXTRA_CONFIG=" --with-arch=armv6zk --with-tune=arm1176jzf-s --with-fpu=vfp --with-float=hard --with-abi=aapcs-linux"
+          ;;
+  aarch64) export TRUPLE="aarch64-linux-musleabihf"
+           export EXTRA_CONFIG=" --with-arch=armv8-a --with-abi=lp64 --enable-fix-cortex-a53-835769 --enable-fix-cortex-a53-843419"
+           sed -i '/m64=/s/lib64/lib/' gcc/config/aarch64/t-aarch64-linux
+          ;;
+esac &&
+
+# libitm has TEXTRELs in ARM build, so disable for now
+case $(uname -m) in
+     arm*) export LIBITM=false ;;
+esac &&
+
+# Add isl source
+tar -xf ../isl-0.19.tar.xz &&
+mv -v isl-0.19 isl &&
+
+# Apply all 40 patches [from alpine-linux]
+
+for p in 0001-posix_memalign.patch \
+         0002-gcc-poison-system-directories.patch \
+         0003-Turn-on-Wl-z-relro-z-now-by-default.patch \
+         0004-Turn-on-D_FORTIFY_SOURCE-2-by-default-for-C-C-ObjC-O.patch \
+         0005-On-linux-targets-pass-as-needed-by-default-to-the-li.patch \
+         0006-Enable-Wformat-and-Wformat-security-by-default.patch \
+         0007-Enable-Wtrampolines-by-default.patch \
+         0008-Disable-ssp-on-nostdlib-nodefaultlibs-and-ffreestand.patch \
+         0009-Ensure-that-msgfmt-doesn-t-encounter-problems-during.patch \
+         0010-Don-t-declare-asprintf-if-defined-as-a-macro.patch \
+         0011-libiberty-copy-PIC-objects-during-build-process.patch \
+         0012-libitm-disable-FORTIFY.patch \
+         0013-libgcc_s.patch \
+         0014-nopie.patch \
+         0015-libffi-use-__linux__-instead-of-__gnu_linux__-for-mu.patch \
+         0016-dlang-update-zlib-binding.patch \
+         0017-dlang-fix-fcntl-on-mips-add-libucontext-dep.patch \
+         0018-ada-fix-shared-linking.patch \
+         0019-build-fix-CXXFLAGS_FOR_BUILD-passing.patch \
+         0020-add-fortify-headers-paths.patch \
+         0021-Alpine-musl-package-provides-libssp_nonshared.a.-We-.patch \
+         0022-DP-Use-push-state-pop-state-for-gold-as-well-when-li.patch \
+         0023-Pure-64-bit-MIPS.patch \
+         0024-use-pure-64-bit-configuration-where-appropriate.patch \
+         0025-always-build-libgcc_eh.a.patch \
+         0026-ada-libgnarl-compatibility-for-musl.patch \
+         0027-ada-musl-support-fixes.patch \
+         0028-gcc-go-Use-_off_t-type-instead-of-_loff_t.patch \
+         0029-gcc-go-Don-t-include-sys-user.h.patch \
+         0030-gcc-go-Fix-ucontext_t-on-PPC64.patch \
+         0031-gcc-go-Fix-handling-of-signal-34-on-musl.patch \
+         0032-gcc-go-Use-int64-type-as-offset-argument-for-mmap.patch \
+         0033-gcc-go-Fix-st_-a-m-c-tim-fields-in-generated-sysinfo.patch \
+         0034-gcc-go-signal-34-is-special-on-musl-libc.patch \
+         0035-gcc-go-Prefer-_off_t-over-_off64_t.patch \
+         0036-gcc-go-undef-SETCONTEXT_CLOBBERS_TLS-in-proc.c.patch \
+         0037-gcc-go-link-to-libucontext.patch \
+         0038-gcc-go-Disable-printing-of-unaccessible-ppc64-struct.patch \
+         0040-CRuntime_Musl-Support-v1.2.0-for-32-bits.patch; do
+         patch -Np1 -i ../patches/gcc-10.2.1-alpine/$p
+done
+
+# Apply patches [from void-linux] .. works for version 10.2.0
+patch -Np0 -i ../patches/gcc-9.1.0-void/fix-musl-execinfo.patch &&
+
+# Apply patch for libgo
+patch -Np1 -i ../patches/gcc-10.2.0-bmlfs/gcc-10.2.0-go-fixes.patch
+
+# If building on x86_64, change the default
+# directory name for 64-bit libraries to “lib”:
+case $(uname -m) in
+  x86_64)
+    sed -e '/m64=/s/lib64/lib/' \
+        -i.orig gcc/config/i386/t-linux64
+  ;;
+  aarch64)
+    sed -e '/mabi.lp64=/s/lib64/lib/' \
+        -i.orig gcc/config/aarch64/t-aarch64-linux
+  ;;
+esac &&
+
+# _FORTIFY_SOURCE needs an optimization level.
+sed -i "/ac_cpp=/s/\$CPPFLAGS/\$CPPFLAGS -O2/" {gcc,libiberty}/configure &&
+
+mkdir -v build && cd build &&
+SED=sed  libat_cv_have_ifunc=no       \
+../configure --prefix=/usr            \
+             --build="${TRUPLE}"\
+             --with-system-zlib       \
+             --with-isl \
+             --with-linker-hash-style=gnu \
+             --enable-languages=c,c++,go \
+             --enable-threads=posix \
+             --enable-clocale=generic \
+             --enable-tls \
+             --enable-libstdcxx-time \
+             --enable-fully-dynamic-string \
+             --enable-default-pie \
+             --enable-default-ssp \
+             --enable-vtable-verify \
+             --enable-linker-build-id \
+             --enable-fast-character \
+             --disable-libstdcxx-pch \
+             --disable-nls \
+             --disable-multilib       \
+             --disable-bootstrap      \
+             --disable-symvers \
+             --disable-libsanitizer \
+             --disable-target-libiberty \
+             --disable-libunwind-exceptions \
+             --disable-libssp --disable-libmpx \
+             --disable-libmudflap $EXTRA_CONFIG
+
+read -p "Compile?" && make -j2 &&
+
+#46m39.377s+12m25.502s = c,c++,go
+#55m3.185s = go
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+gcc-go: GCC Go Compiler Frontend
+gcc-go:
+gcc-go: This is part of the GNU Compiler Collection.
+gcc-go:
+gcc-go: This package contains parts for the Go compiler collection needed to
+gcc-go: compile Go code.  C/C++ compiler frontend included.
+gcc-go:
+gcc-go: Go is a statically typed, compiled programming language designed 
+gcc-go: at Google. It is syntactically similar to C, but with memory safety,
+gcc-go: garbage collection, structural typing, and CSP-style concurrency.
+gcc-go: The language is often referred to as Golang.
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gcc-go-10.2.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

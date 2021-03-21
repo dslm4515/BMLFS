@@ -1,0 +1,42 @@
+#! /bin/bash
+
+# FreeType
+# Source: https://downloads.sourceforge.net/freetype/freetype-2.10.3.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  HarfBuzz(build w/o then rebuild w/i), libpng, Which
+# Optional:     Brotli, docwriter
+
+patch -Np0 -i ../patches/freetype-void/enable-subpixel-rendering.patch           &&
+./configure --prefix=/usr --enable-freetype-config --disable-static $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+freetype: freetype (A free, high-quality, and portable font engine)
+freetype:
+freetype: FreeType is a free and portable font rendering engine.  It has been
+freetype: developed to provide support for a number of font formats, including
+freetype: TrueType, Type 1, and OpenType, and is designed to be small,
+freetype: efficient, highly customizable, and portable while capable of
+freetype: producing high-quality output.
+freetype:
+freetype: Homepage:  http://www.freetype.org
+freetype:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/freetype-2.10.3-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

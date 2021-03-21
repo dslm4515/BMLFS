@@ -1,0 +1,62 @@
+#! /bin/bash
+
+# COGL
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/cogl/1.22/cogl-1.22.8.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Cairo, gdk-pixbuf, GLU, Mesa, Pango, Wayland
+# Recommended:  Gobject-introspection
+# Optional:     gst-plugins-base, GTK-Doc, SDL, and SDL2
+
+autoreconf -vfi &&
+
+./configure --prefix=/usr  \
+            --disable-gles1 \
+            --enable-gles2 \
+            --enable-gl \
+            --enable-gdk-pixbuf \
+            --enable-introspection \
+            --enable-cairo \
+            --enable-kms-egl-platform \
+            --enable-wayland-egl-platform \
+            --enable-xlib-egl-platform \
+            --enable-wayland-egl-server    \
+            --enable-cogl-gst $BUILDTRUPLE &&
+## For non-GLX build:
+#./configure --prefix=/usr --disable-gles1  --enable-gles2 \
+#            -enable-gdk-pixbuf --enable-introspection     \
+#	   --enable-cairo --enable-kms-egl-platform \
+#	   --enable-wayland-egl-platform  --enable-wayland-egl-server \
+#	   $BUILDTRUPLE --enable-glx=no --disable-gl &&
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+cogl: COGL 
+cogl:
+cogl: Cogl is a modern 3D graphics API with associated utility APIs 
+cogl: designed to expose the features of 3D graphics hardware using a 
+cogl: direct state access API design, as opposed to the state-machine 
+cogl: style of OpenGL.
+cogl:
+cogl: Homepage: https://gitlab.gnome.org/GNOME/cogl
+cogl:
+cogl:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/cogl-1.22.8-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

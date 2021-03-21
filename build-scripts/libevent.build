@@ -1,0 +1,49 @@
+#! /bin/bash
+
+# Libevent 2.1.12
+# Source: https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     Doxygen
+
+./configure --prefix=/usr --disable-static $BUILDTRUPLE  &&
+read -p "Compile?" && make -j2  && 
+
+read -p "Install?" && 
+
+# If not using any package manager:
+#sudo -S make install
+
+sudo -S make DESTDIR=${BUILD} install &&
+sudo -S mkdir -pv ${BUILD}/install && cd $BUILD &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+        |-----handy-ruler------------------------------------------------------|
+libevent: libevent (event loop library)
+libevent:
+libevent: libevent is meant to replace the event loop found in event driven
+libevent: network servers.  An application just needs to call event_dispatch()
+libevent: and then add or remove events dynamically without having to change the
+libevent: event loop.  The libevent API provides a mechanism to execute a
+libevent: callback function when a specific event occurs on a file descriptor or
+libevent: after a timeout has been reached.
+libevent:
+libevent: Homepage:  http://libevent.org
+libevent:
+EOF
+
+sudo -S mv -v /tmp/slack-desc install/ &&
+
+sudo -S makepkg -l y -c n $PKGS/libevent-2.1.12-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
