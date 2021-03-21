@@ -1,0 +1,50 @@
+#! /bin/bash
+
+# libdaemon
+# Source: http://0pointer.de/lennart/projects/libdaemon/libdaemon-0.14.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     Doxygen, Lynx
+cp -vf ../files/config.sub-musl   config.sub    &&
+cp -vf ../files/config.guess-musl config.guess  &&
+
+# Modify  examples/testd.c (line 26) from
+# 26 | #include <sys/unistd.h>
+# to
+# 26 | #include <unistd.h>
+
+./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD docdir=/usr/share/doc/libdaemon-0.14 install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+libdaemon: libdaemon (Unix daemonizing library)
+libdaemon:
+libdaemon: libdaemon is a lightweight C library that eases the
+libdaemon: writing of Unix daemons.
+libdaemon:
+libdaemon: Homepage: http://0pointer.de/lennart/projects/libdaemon/
+libdaemon:
+libdaemon:
+libdaemon:
+libdaemon:
+libdaemon:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libdaemon-0.14-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
