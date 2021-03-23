@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# ICU 67.1
-# source: http://github.com/unicode-org/icu/releases/download/release-67-1/icu4c-67_1-src.tgz
+# ICU 68.2
+# source: http://github.com/unicode-org/icu/releases/download/release-68-2/icu4c-68_2-src.tgz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -42,7 +42,7 @@ icu:
 icu:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/icu-67.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/icu-68.2-$(uname -m)-mlfs.txz &&
 cd - && sudo -S rm -rf $BUILD/*
 
 # If not using nay package manager:
