@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# libunwind-llvm 
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-11.0.0/libunwind-11.0.0.src.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     llvm, cmake
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np0 -i ../patches/libunwind-llvm-void/fix-unsigned-long-long-shift.patch  &&
+sed -i 's,^# Setup flags.$,add_library_flags(ssp_nonshared),' src/CMakeLists.txt &&
+
+cmake -B BUILD \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_BUILD_TYPE=Release  &&
+
+read -p "Compile?" && make -C BUILD -j2 &&
+
+sudo -S make DESTDIR=$BUILD -C BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+              |-----handy-ruler------------------------------------------------------|
+libunwind-llvm: llvm's libunwind
+libunwind-llvm:
+libunwind-llvm: libunwind is an implementation of the interface defined by the HP 
+libunwind-llvm: libunwind project. It was contributed by Apple as a way to enable 
+libunwind-llvm: clang++ to port to platforms that do not have a system unwinder. It 
+libunwind-llvm: is intended to be a small and fast implementation of the ABI, leaving
+libunwind-llvm: off some features of HP’s libunwind that never materialized (e.g. 
+libunwind-llvm: remote unwinding)
+libunwind-llvm:
+libunwind-llvm:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libunwind-llvm-11.0.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
