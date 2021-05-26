@@ -47,6 +47,10 @@ sed -i 's/set(COMPILER_RT_HAS_SANITIZER_COMMON TRUE)/set(COMPILER_RT_HAS_SANITIZ
 export CFLAGS=" -g -g1"
 export CXXFLAGS=" -g -g1"
 
+# If building with binutils in /opt/gnu instead of /usr (CMLFS):
+export   CFLAGS="$CFLAGS -I/opt/gnu/include"
+export CXXFLAGS="$CXXFLAGS -I/opt/gnu/include"
+
 case $(uname -m) in
 	i686*)    export BARCH="X86"
 		  export B_TARGETS="AMDGPU"
