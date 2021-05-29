@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Wayland
-# Source: https://wayland.freedesktop.org/releases/wayland-1.18.0.tar.xz
+# Source: https://wayland.freedesktop.org/releases/wayland-1.19.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -41,5 +41,5 @@ wayland: Homepage: http://wayland.freedesktop.org/
 wayland:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wayland-1.18.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wayland-1.19.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
