@@ -25,7 +25,7 @@ cd speexdsp-1.2.0             &&
             --disable-static \
             --docdir=/usr/share/doc/speexdsp-1.2.0 $BUILDTRUPLE  &&
 read -p "Compile?" && make -j2                     &&
-udo -S make DESTDIR=$BUILD install                 &&
+sudo -S make DESTDIR=$BUILD install                 &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
