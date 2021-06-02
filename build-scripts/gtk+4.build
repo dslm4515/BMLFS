@@ -63,5 +63,9 @@ gtk+4:
 gtk+4:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
+
+# pkgconf wont find gtk4. Fix:
+sudo ln -sv gtk4.pc usr/lib/pkgconfig/gtk+-4.0.pc && 
+	
 sudo -S makepkg -l y -c n $PKGS/gtk+4-4.0.2-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
