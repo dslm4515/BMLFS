@@ -1,7 +1,8 @@
 #! /bin/bash
 
 # dhcpcd 9.2.0
-# source: https://roy.marples.name/downloads/dhcpcd/dhcpcd-9.2.0.tar.xz
+# Source: https://roy.marples.name/downloads/dhcpcd/dhcpcd-9.2.0.tar.xz
+# Source: https://roy.marples.name/downloads/dhcpcd/dhcpcd-9.4.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -61,5 +62,5 @@ sudo -S mv /tmp/doinst.sh  install/ &&
 sudo -S mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build and install package" &&
-sudo makepkg -l y -c n $PKGS/dhcpcd-9.2.0-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS/dhcpcd-9.4.0-$(uname -m)-mlfs.txz &&
 sudo rm -rf $BUILD/*                                     
