@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# CA Certificates 2020-06-01
-# Source: http://deb.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_20200601.tar.xz
+# CA Certificates 2021-01-19
+# Source: http://ftp.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_20210119.tar.xz
 #
 # ** Unpacks to a directory named 'work' **
 #
@@ -18,10 +18,9 @@ cc ../files/certdata2pem.c -o  mozilla/certdata2pem
 cp -v ../files/remove-expired-certs.sh mozilla/
 chmod -v +x mozilla/remove-expired-certs.sh
 
-sed -i mozilla/Makefile \
-  -e 's,python certdata2pem.py,./certdata2pem,g'
-sed -i mozilla/Makefile \
-  -e "s;\(.*\)\(certdata2pem.*\);\1\2\n\1./remove-expired-certs.sh;"
+sed -i mozilla/Makefile -e 's,python3 certdata2pem.py,./certdata2pem,g'
+sed -i mozilla/Makefile -e "s;\(.*\)\(certdata2pem.*\);\1\2\n\1./remove-expired-certs.sh;"
+
 
 read -p "Compile? " && make -j2 &&
 
@@ -67,14 +66,14 @@ ca-certificates:
 ca-certificates:
 EOF
 sudo mv -v /tmp/slack-desc $BUILD/install/
-sudo -S makepkg -l y -c n $PKGS/ca-certificates-2020.06.01-$(uname -m)-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/ca-certificates-2021.01.19-$(uname -m)-mlfs.txz
 cp -v install/doinst.sh /tmp/ &&
 cat >> /tmp/doinst.sh << "EOF"
 echo "Updating certificates..." &&
 /usr/bin/update-ca-certificates
 EOF
 sudo -S mv -v /tmp/doinst.sh install/ &&
-sudo -S makepkg -l y -c n $PKGS/ca-certificates-2020.06.01-$(uname -m)-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/ca-certificates-2020.01.19-$(uname -m)-mlfs.txz
 
 
 #if not using any package manager:
