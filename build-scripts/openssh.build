@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # OpenSSH 8.0p1
-# source: http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.0p1.tar.gz
+# Source: https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.6p1.tar.gz
 #
 # DEPS
 # Required:     NONE
@@ -20,18 +20,9 @@ sudo -S useradd  -c 'sshd PrivSep' \
          -s /bin/false     \
          -u 50 sshd
 
-sed -i -e 's|#include <sys/sysctl.h>||' servconf.c
-
-case $(uname -m) in
-	i686*)    export CFLAGS=" -fno-stack-protector"
-		  ;;
-esac
-
-export CFLAGS="${CFLAGS} -Wno-format-truncation -Wno-stringop-truncation"
-
-patch -Np0 -i ../patches/openssh-void/config.patch   &&  
-patch -Np0 -i ../patches/openssh-void/libressl.patch &&
-patch -Np1 -i ../patches/openssh-adelie/fix-utmpx.patch &&
+patch  -Np1 -i ../patches/openssh-alpine/disable-forwarding-by-default.patch
+patch  -Np1 -i ../patches/openssh-alpine/fix-utmp.patch
+patch  -Np1 -i ../patches/openssh-alpine/sftp-interactive.patch
 
 autoreconf -fiv &&
 
@@ -49,8 +40,6 @@ ac_cv_header_sys_cdefs_h=false \
             --enable-wtmp \
             --with-Werror=no $BUILDTRUPLE  &&
 read -p "Compile? " && make -j2 &&
-
-unset CFLAGS
 
 read -p "Press Enter to install" &&
 # if not using a package manager:
@@ -113,5 +102,5 @@ sudo -S chmod 644 etc/pam.d/sshd &&
 sudo -S echo "UsePAM yes" >> etc/ssh/sshd_config
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/openssh-8.3p1-$(uname -m)-mlfs.txz 
+sudo makepkg -l y -c n $PKGS/openssh-8.6p1-$(uname -m)-mlfs.txz 
 sudo rm -rf $BUILD/*                                                                                                                                                                                                              
