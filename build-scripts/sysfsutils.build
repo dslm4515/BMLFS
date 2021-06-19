@@ -11,10 +11,7 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-patch -Np1 -i ../patches/sysfsutils-alpine/gcc-10.patch && \
-
-cp -vf ../files/config.sub-musl config.sub     && \
-cp -vf ../files/config.guess-musl config.guess && \
+./autogen
 
 ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var $BUILDTRUPLE && \
 
@@ -45,5 +42,5 @@ sysfsutils:
 sysfsutils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/sysfsutils-2.1.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/sysfsutils-2.1.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
