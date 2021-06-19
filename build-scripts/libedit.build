@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Libedit 3.1.2019.12.31
-# Source: https://thrysoee.dk/editline/libedit-20191231-3.1.tar.gz
+# Source: https://thrysoee.dk/editline/libedit-20210522-3.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built package
@@ -48,6 +48,6 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/libedit-3.1.2019.12.31-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS/libedit-3.1.2021.05.22-$(uname -m)-mlfs.txz &&
 sudo rm -rf $BUILD/*
 
