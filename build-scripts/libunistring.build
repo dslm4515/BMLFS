@@ -9,8 +9,7 @@
 # DEPS
 # Required:     NONE
 # Recommended:  NONE
-# Optional:     texlive
-(or install-tl-unx) (to rebuild the documentation) 
+# Optional:     texlive(or install-tl-unx) (to rebuild the documentation) 
 
 ./configure --prefix=/usr    \
             --disable-static \
