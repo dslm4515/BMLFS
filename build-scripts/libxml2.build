@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# LibXML2 2.9.10
-# Source: http://xmlsoft.org/sources/libxml2-2.9.10.tar.gz
+# LibXML2 2.9.12
+# Source: http://xmlsoft.org/sources/libxml2-2.9.12.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,16 +13,7 @@
 
 autoreconf -fvi &&
 
-patch -Np1 -i ../patches/libxml2-adelie/CVE-2019-20388.patch
-patch -Np1 -i ../patches/libxml2-adelie/CVE-2020-7595.patch
 patch -Np1 -i ../patches/libxml2-adelie/python-segfault-fix.patch
-
-# Prevent errors from Python 3.9
-sed -i '/if Py/{s/Py/(Py/;s/)/))/}' python/{types.c,libxml.c}
-sed -i '/_PyVerify_fd/,+1d' python/types.c
-
-# If using ICU
-# sed -i 's/ TRUE/ true/' encoding.c
 
 rm python/setup.py
 
@@ -64,6 +55,6 @@ libxml2:
 EOF
 
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libxml2-2.9.10-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libxml2-2.9.12-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
 
