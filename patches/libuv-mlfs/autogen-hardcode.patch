@@ -1,0 +1,11 @@
+diff -uNr libuv-v1.41.0.orig/autogen.sh libuv-v1.41.0/autogen.sh
+--- libuv-v1.41.0.orig/autogen.sh	2021-02-13 11:57:24.000000000 -0600
++++ libuv-v1.41.0/autogen.sh	2021-06-21 10:48:58.247976405 -0500
+@@ -41,6 +41,6 @@
+ 
+ set -ex
+ "$LIBTOOLIZE" --copy
+-"$ACLOCAL" -I m4
++aclocal -I /usr/share/aclocal -I m4
+ "$AUTOCONF"
+ "$AUTOMAKE" --add-missing --copy
