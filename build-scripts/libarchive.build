@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# LibArchive 3.4.3
-# Source: https://github.com/libarchive/libarchive/releases/download/v3.4.3/libarchive-3.4.3.tar.gz
+# LibArchive 3.5.1
+# Source: https://github.com/libarchive/libarchive/releases/download/3.5.1/libarchive-3.5.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -50,6 +50,6 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/libarchive-3.4.3-$(uname -m)-mlfs.txz &&                                                                                                                                                                     
+sudo makepkg -l y -c n $PKGS/libarchive-3.5.1-$(uname -m)-mlfs.txz &&                                                                                                                                                                     
 sudo rm -rf $BUILD/*
 
