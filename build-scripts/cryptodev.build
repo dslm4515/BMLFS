@@ -1,7 +1,6 @@
 #! /bin/bash
 
-# Cryptodev 1.11
-# Source: https://github.com/cryptodev-linux/cryptodev-linux/archive/cryptodev-linux-1.11.tar.gz
+# Cryptodev 1.12
 # Source: https://github.com/cryptodev-linux/cryptodev-linux/archive/cryptodev-linux-1.12.tar.gz
 #
 # $BUILD = Directory to temporarily install
@@ -45,6 +44,6 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/cryptodev-1.11-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS/cryptodev-1.12-$(uname -m)-mlfs.txz &&
 sudo rm -rf $BUILD/*
 
