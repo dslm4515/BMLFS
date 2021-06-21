@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# nghttp2 1.41.0
-# Source: https://github.com/nghttp2/nghttp2/releases/download/v1.41.0/nghttp2-1.41.0.tar.xz
+# nghttp2 1.43.0
+# Source: https://github.com/nghttp2/nghttp2/releases/download/v1.43.0/nghttp2-1.43.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -14,7 +14,7 @@
 ./configure --prefix=/usr     \
             --disable-static  \
             --enable-lib-only \
-            --docdir=/usr/share/doc/nghttp2-1.41.0 $BUILDTRUPLE &&
+            --docdir=/usr/share/doc/nghttp2-1.43.0 $BUILDTRUPLE &&
 
 read -p "Compile?" && make -j2  && 
 
@@ -50,5 +50,5 @@ nghttp2:
 EOF
 
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/nghttp2-1.41.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/nghttp2-1.43.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
