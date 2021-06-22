@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# iucode tool 2.3.1
+# Source: https://gitlab.com/iucode-tool/iucode-tool/-/archive/v2.3.1/iucode-tool-v2.3.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1-i ../patches/iucode-tool-void/musl-limits_h.patch
+
+./configure  --prefix=/usr --sysconfdir=/etc \
+	     --mandir=/usr/share/man --localstatedir=/var $BT
+
+make 
+
+make DESTDIR=${BUILD} install
+
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+           |-----handy-ruler------------------------------------------------------|
+iucode-tool: iucode-tool
+iucode-tool:
+iucode-tool: A program to manipulate microcode update collections for Intel® i686 
+iucode-tool: and X86-64 system processors, and prepare them for use by the Linux 
+iucode-tool: kernel.
+iucode-tool:
+iucode-tool: https://gitlab.com/iucode-tool 
+iucode-tool:
+iucode-tool:
+EOF
+
+sudo -S mv /tmp/slack-desc install/ &&
+
+read -p "Enter to build and install package" &&
+sudo makepkg -l y -c n $PKGS/iucode-tools-2.3.1-$(uname -m)-mlfs.txz &&
+sudo rm -rf $BUILD/*
