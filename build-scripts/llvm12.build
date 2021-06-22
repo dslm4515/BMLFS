@@ -1,0 +1,161 @@
+#! /bin/bash
+
+# LLVM 12.0.0
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/llvm-12.0.0.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/clang-12.0.0.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/compiler-rt-12.0.0.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/lld-12.0.0.src.tar.xz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     CMake
+# Recommended:  NONE
+# Optional:     Doxygen, git, Graphviz, libxml2, Python2, rsync(for tests), 
+# Optional:     texlive-20200406 (or install-tl-unx), Valgrind, PyYAML, 
+# Optional:     Zip, OCaml, psutil, recommonmark, Sphinx, and Z3 
+
+# Unpack the sources:
+cd projects && \
+tar xf ../../pkgs/compiler-rt-12.0.0.src.tar.xz && \
+mv compiler-rt-12.0.0.src compiler-rt           && \
+cd - && \
+cd tools && \
+tar xf ../../pkgs/clang-12.0.0.src.tar.xz && \
+mv clang-12.0.0.src clang                 && \
+tar xf ../../pkgs/lld-12.0.0.src.tar.xz   && \
+mv lld-12.0.0.src lld                     && \
+cd -
+
+# Apply patches from Void Linux
+cd projects/compiler-rt
+patch -Np1 -i ../../../patches/llvm12-compiler-rt-void/compiler-rt-aarch64-ucontext.patch      && \
+patch -Np1 -i ../../../patches/llvm12-compiler-rt-void/compiler-rt-sanitizer-ppc64-musl.patch  && \
+patch -Np1 -i ../../../patches/llvm12-compiler-rt-void/compiler-rt-size_t.patch                && \
+patch -Np1 -i ../../../patches/llvm12-compiler-rt-void/compiler-rt-xray-ppc64-musl.patch       && \
+cd -
+cd tools/clang
+patch -Np1 -i ../../../patches/llvm12-clang-void/clang-001-fix-unwind-chain-inclusion.patch    && \
+patch -Np1 -i ../../../patches/llvm12-clang-void/clang-002-add-musl-triples.patch              && \
+patch -Np1 -i ../../../patches/llvm12-clang-void/clang-003-ppc64-dynamic-linker-path.patch     && \
+patch -Np1 -i ../../../patches/llvm12-clang-void/clang-004-ppc64-musl-elfv2.patch              && \
+cd -
+patch  -Np1 -i ../patches/llvm12-void/llvm-001-musl.patch              && \
+patch  -Np1 -i ../patches/llvm12-void/llvm-002-musl-ppc64-elfv2.patch  && \
+patch  -Np1 -i ../patches/llvm12-void/llvm-003-ppc-secureplt.patch     && \
+patch  -Np1 -i ../patches/llvm12-void/llvm-004-override-opt.patch      && \
+patch  -Np1 -i ../patches/llvm12-void/llvm-005-ppc-bigpic.patch        && \
+patch  -Np1 -i ../patches/llvm12-void/llvm-006-aarch64-mf_exec.patch   
+
+# Disable sanitizers for musl-based systems
+sed -i 's/set(COMPILER_RT_HAS_SANITIZER_COMMON TRUE)/set(COMPILER_RT_HAS_SANITIZER_COMMON FALSE)/' projects/compiler-rt/cmake/config-ix.cmake &&
+
+# Update host/target triple detection
+cp -v ../files/config.guess-musl cmake/config.guess
+
+# Fix missing header for lld, https://bugs.llvm.org/show_bug.cgi?id=49228
+mkdir -pv tools/lld/include/mach-o
+cp -v ../files/libunwind-llvm12/compact_unwind_encoding.h tools/lld/include/mach-o
+
+# some sanitizer currently only on x86_64 stuff needs backtrace
+#sed -i 's,# Set common link flags.,list(APPEND SANITIZER_COMMON_LINK_LIBS execinfo),' \
+#	projects/compiler-rt/CMakeLists.txt
+
+# Vastly reduce size of debugging symbols:
+export CFLAGS=" -g -g1"
+export CXXFLAGS=" -g -g1"
+
+# If building with binutils in /opt/gnu instead of /usr (CMLFS):
+export   CFLAGS="$CFLAGS -I/opt/gnu/include"
+export CXXFLAGS="$CXXFLAGS -I/opt/gnu/include"
+
+case $(uname -m) in
+	i686*)    export BARCH="X86"
+		  export B_TARGETS="AMDGPU"
+		  export B_TRUPLE="i686-unknown-linux-musl"
+		;;
+	x86_64*)  export BARCH="X86"
+		  export B_TARGETS="AMDGPU"
+		  export B_TRUPLE="x86_64-unknown-linux-musl"
+		;;
+	armv5*)   export BARCH="Armv5te"
+		  export B_TARGETS="ARM"
+		  export B_TRUPLE="armv5l-unknown-linux-musleabi"
+		;;
+	armv6*)   export BARCH="Armv6"
+		  export B_TARGETS="ARM"
+		  export B_TRUPLE="armv6l-unknown-linux-musleabi"
+		;;
+	armv7*)   export BARCH="Armv7"
+		  export B_TARGETS="ARM"
+		  export B_TRUPLE="armv7l-unknown-linux-musleabihf"
+		;;
+	aarch64*) export BARCH="AArch64"
+		  export B_TARGETS="ARM;AArch64"
+		  export B_TRUPLE="aarch64-unknown-linux-musleabihf"
+		;;
+esac
+
+
+mkdir -v build &&
+cd       build &&
+
+CC=gcc CXX=g++                                  \
+cmake -DCMAKE_INSTALL_PREFIX=/usr               \
+      -DLLVM_ENABLE_FFI=ON                      \
+      -DCMAKE_BUILD_TYPE=Release                \
+      -DLLVM_BUILD_LLVM_DYLIB=ON                \
+      -DLLVM_LINK_LLVM_DYLIB=ON                 \
+      -DLLVM_ENABLE_RTTI=ON                     \
+      -DLLVM_BUILD_TESTS=ON                     \
+      -DLLVM_INSTALL_UTILS=ON                   \
+      -DLLVM_BINUTILS_INCDIR="/usr/include"     \
+      -DLLVM_TARGET_ARCH=${BARCH}               \
+      -DLLVM_TARGETS_TO_BUILD="host;BPF;${B_TARGETS}"    \
+      -DLLVM_HOST_TRIPLE="${B_TRUPLE}"                   \
+      -DLLVM_DEFAULT_TARGET_TRIPLE="${B_TRUPLE}"         \
+      -DCOMPILER_RT_DEFAULT_TARGET_TRIPLE="${B_TRUPLE}"     \  
+      -Wno-dev -G Ninja ..
+
+unset CFLAGS CXXFLAGS BARCH B_TARGETS
+
+read -p "Compile?" && time { ninja -j2 ; } &&
+
+read -p "Press Enter to install" &&
+# if not using a package manager:
+# ninja install
+# OR
+# cmake -DCMAKE_INSTALL_PREFIX=/usr -P cmake_install.cmake
+
+# if using pkgtools from Slackware, then:
+sudo -S cmake -DCMAKE_INSTALL_PREFIX=${BUILD}/usr -P cmake_install.cmake
+
+read -p "Press Enter to create pakage description."
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+llvm: llvm (LLVM compiler toolkit)
+llvm:
+llvm: Low Level Virtual Machine is a toolkit for the construction of highly
+llvm: optimized compilers, optimizers, and runtime environments.
+llvm:
+llvm: This package also includes the clang frontend for the C family of
+llvm: languages:  C, C++, Objective-C, and Objective-C++
+llvm:
+llvm:
+llvm: Homepage: http://llvm.org/
+llvm:
+EOF
+sudo mv /tmp/slack-desc install/ &&
+
+read -p "Enter to build and install package" &&
+sudo makepkg -l y -c n $PKGS/llvm-12.0.0-$(uname -m)-mlfs.txz &&
+sudo rm -rf $BUILD/*
