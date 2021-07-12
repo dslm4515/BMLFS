@@ -10,6 +10,7 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     Doxygen
+# LTO           LLVM, untested with GCC=Binutils
 
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE  &&
 read -p "Compile?" && make -j2  && 
