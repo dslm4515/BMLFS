@@ -10,6 +10,7 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     Python2, ICU, Valgrind
+# LTO:          Tested with LLVM
 
 autoreconf -fvi &&
 
