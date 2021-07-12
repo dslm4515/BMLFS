@@ -9,6 +9,7 @@
 # DEPS
 # Required:  None
 # Optional:  None 
+# LTO:       Tested with LLVM
 
 # Sometimes, autogen.sh fails with a petty error. Just
 # hardcode it.
