@@ -10,9 +10,13 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     NONE
+# LTO:          Tested with LLVM
 
 ./autogen.sh &&
 
+# If libexecinfo is installed, make sure to link it at the end:
+# export LDFLAGS="-lexecinfo"
+	
 CFLAGS="-fcommon" \
 ./configure --prefix=/usr      --sysconfdir=/etc \
             --enable-unicode   --enable-cgroup   \
