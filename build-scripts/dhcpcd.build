@@ -10,7 +10,8 @@
 # DEPS
 # Required:     NONE
 # Recommended:  NONE
-# Optional:      LLVM(with Clang), ntp, chronyd, and ypbind 
+# Optional:     LLVM(with Clang), ntp, chronyd, and ypbind 
+# LTO:          LLVM, not yet tested with GCC+binutils
 
 ./configure --libexecdir=/lib/dhcpcd \
             --dbdir=/var/lib/dhcpcd  \
