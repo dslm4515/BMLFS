@@ -10,6 +10,7 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     NONE
+# LTO:          GCC + Binutils, no LLVM
 
 ./configure --prefix=/usr $BUILDTRUPLE &&
 
