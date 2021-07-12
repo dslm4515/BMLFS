@@ -8,7 +8,7 @@
 # Recommended:  NONE
 # Optional:     GDB(for tests), Linux-PAM, X Window System, MIT Kerberos V5, 
 # Optional:     libedit, LibreSSL Portable, OpenSC, and libsectok 
-
+# LTO:          LLVM works, untested with GCC+binutils
 
 sudo -S install  -v -m700 -d /var/lib/sshd 
 sudo -S chown    -v root:sys /var/lib/sshd
