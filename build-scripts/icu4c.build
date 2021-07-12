@@ -10,6 +10,7 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     LLVM, Doxygen(for documentation)
+# LTO:          Tested with LLVM
 
 cd source &&
 ./configure --prefix=/usr $BUILDTRUPLE  &&
