@@ -10,6 +10,7 @@
 # Required:     libevent
 # Recommended:  NONE
 # Optional:     NONE
+# LTO:          LLVM, not yet tested with GCC & Binutils
 
 ./configure --prefix=/usr $BUILDTRUPLE &&
 
