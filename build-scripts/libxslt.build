@@ -10,7 +10,7 @@
 # Required:     libxml2
 # Recommended:  docbook-xml and docbook-xsl
 # Optional:     libgcrypt and Python2 libxml2-2.9.10 module 
-
+# LTO:          tested with LLVM
 
 sed -i s/3000/5000/ libxslt/transform.c doc/xsltproc.{1,xml} &&
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
