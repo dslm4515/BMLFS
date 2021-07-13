@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # iwd
-# source: https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-1.10.tar.xz
+# source: https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-1.15.tar.xz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,6 +10,7 @@
 # Required:     ell
 # Recommended:  NONE
 # Optional:     NONE
+# LTO:          Tested with GCC+Binutils
 
 # Make sure kernel has these symbols enabled:
 #        CONFIG_CRYPTO_USER_API_HASH 
@@ -35,7 +36,7 @@
 
 patch -Np0 -i ../patches/iwd-void/fix-name-request.patch
 #patch -Np0 -i ../patches/iwd-void/musl-rawmemchr.patch
-patch -Np0 -i ../resolvconf-default.patch
+#patch -Np0 -i ../resolvconf-default.patch
 
 autoreconf -fiv
 
@@ -82,5 +83,5 @@ EOF
 sudo -S mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build and install package" &&
-sudo -S makepkg -l y -c n $PKGS/iwd-1.10-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/iwd-1.15-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf $BUILD/*                                     
