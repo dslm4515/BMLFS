@@ -10,10 +10,15 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     GnuPG, libgcrypt, and OpenSSH (all three required for the testsuite) 
+# LTO:          Tested with LLVM
+
 
 # Update 2 files to support musl builds
 cp -v ../files/config.sub-musl ./config.sub
 cp -v ../files/config.guess-musl ./config.guess
+
+# LFS suggested security fixes;
+patch -Np1 -i ../patches/libssh2-lfs/libssh2-1.9.0-security_fixes-1.patch
 
 ./configure --prefix=/usr $BUILDTRUPLE \
             --disable-static &&
