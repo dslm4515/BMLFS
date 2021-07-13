@@ -10,6 +10,7 @@
 # Required:     libuv
 # Recommended:  cURL, libarchive, and nghttp2
 # Optional:     git, QT5, subversion, rhash, sphinx
+# LTO:          tested with LLVM
 
 sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake
 
