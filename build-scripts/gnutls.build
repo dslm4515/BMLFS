@@ -15,6 +15,7 @@
 # Optional:     Valgrind-3.16.1 (used during the test suite), autogen, cmocka and 
 # Optional:     datefudge (used during the test suite if the DANE library is built), 
 # Optional:     and Trousers (Trusted Platform Module support) 
+# LTO:          Tested with LLVM
 
 autoreconf -vfi &&
 
