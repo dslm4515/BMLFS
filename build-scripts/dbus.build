@@ -7,7 +7,7 @@
 # Required:     NONE
 # Recommended:  Xorg Libraries and elogind (build first without)
 # Optional:     PyGobject,valgrind, Doxygen, mito, DuckType, Yelp Tools
-
+# LTO:          Tested with LLVM
 
 ./configure --prefix=/usr \
             --sysconfdir=/etc \
