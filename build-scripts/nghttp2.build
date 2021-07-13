@@ -10,6 +10,7 @@
 # Required:     NONE
 # Recommended:  libevent, libxml2
 # Optional:     libev, jansson
+# LTO:          Tested with LLVM
 
 ./configure --prefix=/usr     \
             --disable-static  \
