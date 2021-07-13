@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # openresolv
-# Source: https://github.com/rsmarples/openresolv/archive/openresolv-3.11.0.tar.gz
+# Source: https://github.com/NetworkConfiguration/openresolv/archive/refs/tags/openresolv-3.12.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,6 +10,7 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     NONE
+# LTO:          Tested with LLVM
 
 ./configure --prefix=/usr \
             --libexecdir=/usr/libexec/openresolv \
@@ -41,5 +42,5 @@ openresolv: https://roy.marples.name/projects/openresolv
 openresolv:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/openresolv-3.11.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/openresolv-3.12.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
