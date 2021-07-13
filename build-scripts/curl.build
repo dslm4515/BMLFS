@@ -13,7 +13,7 @@
 # Optional:     libssh2, MIT Kerberos V5, nghttp2, 
 # Optional:     OpenLDAP, Samba, impacket, libmetalink, 
 # Optinal:      librtmp, ngtcp2, quiche, and SPNEGO 
-
+# LTO:          Tested with LLVM
 autoreconf -vfi &&
 
 export CFLAGS="-D_FORTIFY_SOURCE=2 -I/usr/include/"
