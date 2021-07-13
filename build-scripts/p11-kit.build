@@ -11,6 +11,7 @@
 # Required:     None
 # Recommended:  libtasn1, ca-certificates (runtime)
 # Optional:     GTK-Doc, libxslt, NSS (runtime) 
+# LTO:          tested with LLVM
 
 NOCONFIGURE=1 autoreconf -fiv &&
 
