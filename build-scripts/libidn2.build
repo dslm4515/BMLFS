@@ -10,6 +10,7 @@
 # Required:     libunistring
 # Recommended:  NONE
 # Optional:     git and GTK-Doc
+# LTO:          Tested with LLVM
 
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE  &&
 
