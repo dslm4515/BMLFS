@@ -10,6 +10,7 @@
 # Required:     libidn2
 # Recommended:  NONE
 # Optional:     GTK-Doc(for documentation) and Valgrind(for tests) 
+# LTO:          tested with LLVM
 
 sed -i 's/env python/&3/' src/psl-make-dafsa &&
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
