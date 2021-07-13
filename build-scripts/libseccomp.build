@@ -9,7 +9,8 @@
 # DEPS
 # Required:     NONE
 # Recommended:  NONE
-# Optional:      Which(needed for tests), Valgrind, Cython, LCOV 
+# Optional:     Which(needed for tests), Valgrind, Cython, LCOV 
+# LTO:          Tested with LLVM
 
 sed -i '/<linux\/prctl.h>/d' src/system.h &&
 
