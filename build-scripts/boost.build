@@ -10,6 +10,7 @@
 # Required:     NONE
 # Recommended:  Which
 # Optional:     ICU, Open MPI
+# LTO:          Tested with LLVM
 
 # Setup build environment
 export CXXFLAGS="-std=c++14"
