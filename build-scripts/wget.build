@@ -11,7 +11,7 @@
 # Recommended:  ca-certificates
 # Optional:     gnuTLS, HTTP-Daemon, IO-Socket-SSL, 
 # Optional:     libidn2, libpsl, PCRE or pcre2, and Valgrind
-
+# LTO:          Tested with LLVM
 
 ./configure --prefix=/usr      \
             --sysconfdir=/etc  \
