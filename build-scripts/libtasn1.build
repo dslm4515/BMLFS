@@ -7,8 +7,9 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:  None
+# Required:   None
 # Optional:   GTK-Doc, Valgrind  
+# LTO:        Tested with LLVM
 
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE  &&
 
