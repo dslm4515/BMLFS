@@ -10,6 +10,7 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     texlive(or install-tl-unx) (to rebuild the documentation) 
+# LTO:          tested with LLVM
 
 ./configure --prefix=/usr    \
             --disable-static \
