@@ -1,0 +1,11 @@
+--- trousers-0.3.15.orig/src/trspi/crypto/openssl/rsa.c	2020-05-28 01:01:45.000000000 -0500
++++ trousers-0.3.15/src/trspi/crypto/openssl/rsa.c	2021-07-26 18:04:13.242266265 -0500
+@@ -39,7 +39,7 @@
+ #endif
+ 
+ #if (OPENSSL_VERSION_NUMBER < 0x10100001L) || defined(LIBRESSL_VERSION_NUMBER)
+-static int
++int
+ RSA_set0_key(RSA *r, BIGNUM *n, BIGNUM *e, BIGNUM *d)
+ {
+ 	if (n != NULL) {
