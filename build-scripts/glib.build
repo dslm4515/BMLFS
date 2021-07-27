@@ -33,6 +33,9 @@ read -p "Press Enter to install" &&
 # if not using a package manager:
 # ninja install
 
+# Install may fail due to missint 'otool'. Use a link for now.
+sudo -S ln -sv ../../bin/true /usr/bin/otool
+
 # if using pkgtools from Slackware, then:
 sudo -S DESTDIR=$BUILD ninja install &&
 
