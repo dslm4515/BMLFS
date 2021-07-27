@@ -1,0 +1,53 @@
+#! /bin/bash
+
+# TPM Tools 
+# Source: https://sourceforge.net/projects/trousers/files/tpm-tools/1.3.9.1/tpm-tools-1.3.9.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+export CFLAGS+="-Wno-error=misleading-indentation -Wno-error=bool-compare -Wno-error=logical-not-parentheses"
+
+
+# Configure source
+./configure --prefix=/usr  $BUILDTRUPLE
+
+read -p "Compile?" && make -j2 && 
+
+read -p "Press Enter to install" &&
+# if not using a package manager:
+# make install
+
+# if using pkgtools from Slackware, then:
+sudo -S make DESTDIR=$BUILD install &&
+
+read -p "Press Enter to create package description." &&
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+         |-----handy-ruler------------------------------------------------------|
+tpm-tools: TPM Tools
+tpm-tools:
+tpm-tools: Manage and diagnose tools for a Trusted Platform Module 1.2 (TPM)
+tpm-tools:
+tpm-tools: https://sourceforge.net/projects/trousers
+tpm-tools:
+tpm-tools:
+EOF
+sudo mv /tmp/slack-desc install/ &&
+
+read -p "Enter to build package" &&
+sudo makepkg -l y -c n $PKGS/tpm-tools-1.3.9.1-$(uname -m)-mlfs.txz &&
+sudo rm -rf $BUILD/*
+
