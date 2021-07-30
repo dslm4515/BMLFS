@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # LibXfixes
-# Source: https://www.x.org/releases/individual/lib/libXfixes-5.0.3.tar.bz2
+# Source: https://www.x.org/releases/individual/lib/libXfixes-6.0.0.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     xorgproto
+# Required:     xorgproto, libX11
 # Recommended:  libxcb
 # Optional:     NONE
 
@@ -41,5 +41,5 @@ libXfixes:
 libXfixes:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libXfixes-5.0.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libXfixes-6.0.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
