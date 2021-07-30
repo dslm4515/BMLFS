@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Libdrm
-# Source: https://dri.freedesktop.org/libdrm/libdrm-2.4.102.tar.xz
+# Source: https://dri.freedesktop.org/libdrm/libdrm-2.4.107.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -16,12 +16,12 @@ mkdir build &&
 cd    build &&
 
 case $(uname -m) in
-	i686|x86_64) export MARGS=" -Dnouveau=true -Dradeon=true -Damdgpu=true \
-		                    -Dexynos=false -Dvc4=false -Dtegra=false \
-				    -Dfreedreno=false -Dvmwgfx=false -Domap=false " ;;
-	arm*)        export MARGS=" -Dexynos=true Dvc4=true -Dtegra=true -Dfreedreno=false \
-		                    -Dnouveau=true -Dradeon=false -Damdgpu=false \
-				    -Dvmwgfx=false -Domap=false"
+	i686|x86_64) export MARGS+=" -Dnouveau=true -Dradeon=true -Damdgpu=true "
+		     export MARGS+=" -Dexynos=false -Dvc4=false -Dtegra=false "
+		     export MARGS+=" -Dfreedreno=false -Dvmwgfx=false -Domap=false " ;;
+	arm*)        export MARGS+=" -Dexynos=true Dvc4=true -Dtegra=true -Dfreedreno=false "
+		     export MARGS+=" -Dnouveau=true -Dradeon=false -Damdgpu=false "
+		     export MARGS+=" -Dvmwgfx=false -Domap=false "
         ;;
 esac
 
@@ -54,5 +54,5 @@ libdrm:
 libdrm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libdrm-2.4.102-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libdrm-2.4.107-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
