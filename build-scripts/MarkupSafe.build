@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # MarkupSafe
-# Source: https://files.pythonhosted.org/packages/source/M/MarkupSafe/MarkupSafe-1.1.1.tar.gz
+# Source: https://files.pythonhosted.org/packages/source/M/MarkupSafe/MarkupSafe-2.0.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -38,5 +38,5 @@ MarkupSafe:
 MarkupSafe:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/MarkupSafe-1.1.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/MarkupSafe-2.0.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
