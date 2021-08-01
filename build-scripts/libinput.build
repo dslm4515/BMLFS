@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libinput 
-# Source: https://www.freedesktop.org/software/libinput/libinput-1.16.2.tar.xz
+# Source: https://www.freedesktop.org/software/libinput/libinput-1.18.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -48,5 +48,5 @@ libinput: Homepage:  http://www.freedesktop.org/wiki/Software/libinput/
 libinput:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libinput-1.16.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libinput-1.18.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
