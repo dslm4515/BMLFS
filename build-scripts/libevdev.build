@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libevdev
-# Source: https://www.freedesktop.org/software/libevdev/libevdev-1.9.1.tar.xz
+# Source: https://www.freedesktop.org/software/libevdev/libevdev-1.11.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -38,5 +38,5 @@ libevdev:
 libevdev:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libevdev-1.9.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libevdev-1.11.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
