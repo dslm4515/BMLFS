@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Elogind
-# Source: https://github.com/elogind/elogind/archive/v246.9.1/elogind-246.9.1.tar.gz
+# Source: https://github.com/elogind/elogind/archive/v246.10/elogind-246.10.tar.gz
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
@@ -67,5 +67,5 @@ cd - &&
 cat ../../files/elogind-lfs/system-session >> /tmp/doinst.sh &&
 cd - &&
 sudo -S mv -v /tmp/doinst.sh install/doinst.sh &&
-sudo -S makepkg -l y -c n $PKGS/elogind-243.7-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/elogind-246.10-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
