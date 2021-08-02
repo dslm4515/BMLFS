@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # libXxf86vm
-# Source: ftp://ftp.x.org/pub/individual/lib/libXxf86vm-1.1.4.tar.bz2
+# Source: ftp://ftp.x.org/pub/individual/lib/libXxf86vm-1.1.4.tar.bz2 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     xorgproto, xtrans, libXext, libX11
+# Required:     xorgproto, xtrans
 # Recommended:  libxcb
 # Optional:     NONE
 
