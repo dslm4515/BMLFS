@@ -35,5 +35,5 @@ scdoc:
 scdoc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/seatd-1.11.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/scdoc-1.11.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/* 
