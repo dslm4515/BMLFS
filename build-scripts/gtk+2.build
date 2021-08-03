@@ -8,7 +8,7 @@
 #
 # DEPS
 # Required:     ATK, gdk-pixbuf, Pango
-# Recommended:  hi-color-theme
+# Recommended:  hi-color-theme, libXi
 # Optional:     CUPS, DocBook-Utils, gnome-themes-extra,  gobject-introspection, GTK-Doc
 
 patch -Np1 -i ../patches/gtk+2-alpine/gtk2-fixdso.patch
