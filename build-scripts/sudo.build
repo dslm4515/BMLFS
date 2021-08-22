@@ -10,6 +10,13 @@
 # Required:  None 
 # Optional:  Linux-PAM, MIT Kerberos V5, OpenLDAP, MTA (that provides a sendmail command), AFS, FWTK, and Opie 
 
+# If optimizing, use these flags
+# Recommended to not use LTO
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=auto -fstack-protector-strong "
+export CFLAGS+="-fzero-call-used-regs=used "
+export LDFLAGS="-Wl,-O2 -Wl,--as-needed "
+
 ./configure --prefix=/usr              \
             --libexecdir=/usr/lib      \
             --with-secure-path         \
