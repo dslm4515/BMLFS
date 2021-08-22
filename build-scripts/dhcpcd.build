@@ -13,6 +13,11 @@
 # Optional:     LLVM(with Clang), ntp, chronyd, and ypbind 
 # LTO:          LLVM, not yet tested with GCC+binutils
 
+# If optimizing, use these flags
+# Recommended to not use LTO
+export  CFLAGS="-march=native -mtune=native -pipe -O3 "
+#export LDFLAGS="-Wl,-O2 -Wl,--as-needed "
+
 ./configure --libexecdir=/lib/dhcpcd \
             --dbdir=/var/lib/dhcpcd  \
             --privsepuser=dhcpcd $BUILDTRUPLE
