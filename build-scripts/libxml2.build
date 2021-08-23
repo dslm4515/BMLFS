@@ -12,12 +12,41 @@
 # Optional:     Python2, ICU, Valgrind
 # LTO:          Tested with LLVM
 
+# If optimizing, use these flags
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-O3 -falign-functions=32 -ffat-lto-objects -flto=4 "
+export CFLAGS+="-fno-math-errno -fno-semantic-interposition "
+export CFLAGS+="-fno-trapping-math -fstack-protector-strong -fzero-call-used-regs=used "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+# Optimize with PGO -- need refinement, more research
+#export  FCFLAGS="$FFLAGS -O3 -falign-functions=32 -ffat-lto-objects -flto=4 "
+#export FCFLAGS+="-fno-math-errno -fno-semantic-interposition -fno-trapping-math "
+#export FCFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
+#export FFLAGS="$FCFLAGS"
+#export  CFLAGS_GENERATE="$CFLAGS -fprofile-generate -fprofile-dir=/var/tmp/pgo "
+#export CFLAGS_GENERATE+="-fprofile-update=atomic "
+#export FCFLAGS_GENERATE="$CFLAGS_GENERATE"
+#export FFLAGS_GENERATE="$CFLAGS_GENERATE"
+#export CXXFLAGS_GENERATE="$$CFLAGS_GENERATE"
+#export  LDFLAGS_GENERATE="$LDFLAGS -fprofile-generate -fprofile-dir=/var/tmp/pgo "
+#export LDFLAGS_GENERATE+="-fprofile-update=atomic "
+#export CFLAGS_USE="$CFLAGS -fprofile-use -fprofile-dir=/var/tmp/pgo -fprofile-correction "
+#export FCFLAGS_USE="$FCFLAGS -fprofile-use -fprofile-dir=/var/tmp/pgo -fprofile-correction "
+#export FFLAGS_USE="$FFLAGS -fprofile-use -fprofile-dir=/var/tmp/pgo -fprofile-correction "
+#export CXXFLAGS_USE="$CXXFLAGS -fprofile-use -fprofile-dir=/var/tmp/pgo -fprofile-correction "
+#export LDFLAGS_USE="$LDFLAGS -fprofile-use -fprofile-dir=/var/tmp/pgo -fprofile-correction "
+
 autoreconf -fvi &&
 
 patch -Np1 -i ../patches/libxml2-adelie/python-segfault-fix.patch
 
 rm python/setup.py
 
+#CFLAGS="${CFLAGS_GENERATE}" \
+#CXXFLAGS="${CXXFLAGS_GENERATE}" \
+#FFLAGS="${FFLAGS_GENERATE}" \
+#FCFLAGS="${FCFLAGS_GENERATE}" \
+#LDFLAGS="${LDFLAGS_GENERATE}" \
 ./configure --prefix=/usr    \
             --disable-static \
             --with-history   \
