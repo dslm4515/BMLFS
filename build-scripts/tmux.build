@@ -12,6 +12,10 @@
 # Optional:     NONE
 # LTO:          LLVM, not yet tested with GCC & Binutils
 
+# If optimizing, use these flags:
+export  CFLAGS="-march=native -mtune=native -O3 -pipe "
+export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
+
 ./configure --prefix=/usr $BUILDTRUPLE &&
 
 read -p "Compile?" && make -j2 &&
