@@ -10,10 +10,17 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     NONE
+# LTO:          Tested with LLVM
 
 patch -Np1 -i ../patches/libev-alpine/libev-4.11-Add-pkgconfig-support.patch &&
 libtoolize --force && aclocal -I m4 && autoheader &&
 autoconf && automake --add-missing &&
+
+# If optimizing, use these flags
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 -fstack-protector-strong "
+export CFLAGS+="-fzero-call-used-regs=used "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 ./configure \
 		--prefix=/usr \
