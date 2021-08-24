@@ -12,6 +12,12 @@
 # Optional:     GTK-Doc(for documentation) and Valgrind(for tests) 
 # LTO:          tested with LLVM
 
+# If optimizing, use these flags
+# Recommened to not use LTO
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-O3 -fno-lto "
+#export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+
 sed -i 's/env python/&3/' src/psl-make-dafsa &&
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
 
