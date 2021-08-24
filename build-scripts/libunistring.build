@@ -12,6 +12,11 @@
 # Optional:     texlive(or install-tl-unx) (to rebuild the documentation) 
 # LTO:          tested with LLVM
 
+# If optimizing, use these flags
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 ./configure --prefix=/usr    \
             --disable-static \
             --docdir=/usr/share/doc/libunistring-0.9.10 $BUILDTRUPLE &&
