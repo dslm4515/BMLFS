@@ -11,6 +11,12 @@
 # Optional:   GTK-Doc, Valgrind  
 # LTO:        Tested with LLVM
 
+# If optimizing, use these flags
+# LTO not recommended
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
+#export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE  &&
 
 read -p "Compile?" && make -j2 &&
