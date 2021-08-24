@@ -12,6 +12,12 @@
 # Optional:     libev, jansson
 # LTO:          Tested with LLVM
 
+# If optimizing, use these flags
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-O3 -Os -fdata-sections -ffat-lto-objects "
+export CFLAGS+="-ffunction-sections -flto=4 -fno-semantic-interposition "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 ./configure --prefix=/usr     \
             --disable-static  \
             --enable-lib-only \
