@@ -12,6 +12,11 @@
 # Optional:     Which(needed for tests), Valgrind, Cython, LCOV 
 # LTO:          Tested with LLVM
 
+# If optimizing, use these flags
+# Recommened to not use LTO
+export  CFLAGS="-march=native -mtune=native -pipe -O2 -fno-lto "
+#export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+
 sed -i '/<linux\/prctl.h>/d' src/system.h &&
 
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE && 
