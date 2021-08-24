@@ -13,6 +13,14 @@
 # Optional:     GTK-Doc, libxslt, NSS (runtime) 
 # LTO:          tested with LLVM
 
+# If optimizing, use these flags
+# LTO not recommended
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-Os -fdata-sections -ffunction-sections -fno-lto "
+export CFLAGS+="-fno-semantic-interposition -fstack-protector-strong "
+export CFlAGS+="-fzero-call-used-regs=used "
+#export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 NOCONFIGURE=1 autoreconf -fiv &&
 
 ./configure --prefix=/usr --sysconfdir=/etc \
