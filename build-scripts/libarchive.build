@@ -10,8 +10,16 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     libxml2, LZO, and Nettle
+# LTO:          Tested with LLVM
 
 patch -Np0 -i ../patches/libarchive-void/filter-xz-enable-threads.patch
+
+# If optimizing, use these flags
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-O3 -falign-functions=32 -fno-lto -fno-math-errno "
+export CFLAGS+="-fno-semantic-interposition -fno-trapping-math "
+export CFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
+#export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
 
