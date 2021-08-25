@@ -13,6 +13,11 @@
 # Optional:     libidn2, libpsl, PCRE or pcre2, and Valgrind
 # LTO:          Tested with LLVM
 
+# If optimizing,
+# Recommended not to use LTO
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
+
 ./configure --prefix=/usr      \
             --sysconfdir=/etc  \
             --with-ssl=openssl $BUILDTRUPLE &&
