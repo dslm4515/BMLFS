@@ -10,7 +10,14 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     libedit, valgrind
+# LTO:          Tested with GCC=Binutils
 
+# If coptimizing:
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-O3 -Ofast -falign-functions=32 "
+export CFLAGS+="-ffat-lto-objects -flto=auto "
+export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
+export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
 ./configure --prefix=/usr  \
             --docdir=/usr/share/doc/pcre2-10.37 \
