@@ -14,9 +14,18 @@
 # Optional:     OpenLDAP, Samba, impacket, libmetalink, 
 # Optinal:      librtmp, ngtcp2, quiche, and SPNEGO 
 # LTO:          Tested with LLVM
+
 autoreconf -vfi &&
 
-export CFLAGS="-D_FORTIFY_SOURCE=2 -I/usr/include/"
+# If optimizing, use these flags
+# Recommened to not use LTO
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-Os -fdata-sections -ffunction-sections "
+export CFLAGS+="-fno-lto -fno-semantic-interposition "
+export CFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
+#export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+
+export CFLAGS+="-D_FORTIFY_SOURCE=2 -I/usr/include/"
 export CPPFLAGS="-D_FORTIFY_SOURCE=2"
 
 ac_cv_sizeof_off_t=8                                \
