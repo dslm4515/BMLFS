@@ -10,11 +10,17 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     NONE
+# LTO:          NO
 
 patch -Np1 -i ../patches/zip-alpine/10-zip-3.0-build.patch
 patch -Np1 -i ../patches/zip-alpine/20-zip-3.0-exec-stack.patch
 patch -Np1 -i ../patches/zip-alpine/30-zip-3.0-pic.patch
 patch -Np1 -i ../patches/zip-alpine/40-fix-zipnote.patch
+
+# If optimizing:
+# Recommend no LTO
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
 
 read -p "Compile?" && make -f unix/Makefile prefix=/usr generic -j2 &&
 
