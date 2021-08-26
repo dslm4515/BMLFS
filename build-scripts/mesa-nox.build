@@ -1,22 +1,30 @@
 #! /bin/bash
 
 # Mesa without Xorg
-# Source: ftp://ftp.freedesktop.org/pub/mesa/mesa-20.3.2.tar.xz
+# Source: ftp://ftp.freedesktop.org/pub/mesa/mesa-21.2.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     LLVM, libdrm, Mako
-# Recommended:  Libva, libvdpau, wayland-protocols
+# Recommended:  Libva, libvdpau(for Xorg), wayland-protocols
 # Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind,
-# Optional:     libxcb, libX11, libxshmfence 
+# Optional:     libxcb(for Xorg), libX11(for Xorg), libxshmfence(for Xorg), libXxf86vm(for Xorg), 
+# Optional:     libXrandr(for Xorg)
 
-patch -Np1 -i ../patches/mesa-alpine-20.3.2/0001-radeonsi-On-Aarch64-force-persistent-buffers-to-GTT.patch
-patch -Np1 -i ../patches/mesa-alpine-20.3.2/add-use-elf-tls.patch
-patch -Np1 -i ../patches/mesa-alpine-20.3.2/adjust-cache-deflate-buffer.patch
-patch -Np1 -i ../patches/mesa-alpine-20.3.2/musl-fix-includes.patch
+# Apply patches from Alpine Linux
+patch -Np1 -i ../patches/mesa-alpine-21.2.1/0001-radeonsi-On-Aarch64-force-persistent-buffers-to-
+GTT.patch
+patch -Np1 -i ../patches/mesa-alpine-21.2.1/add-use-elf-tls.patch
+patch -Np1 -i ../patches/mesa-alpine-21.2.1/disable-rgb10-by-default.patch
+patch -Np1 -i ../patches/mesa-alpine-21.2.1/musl-fix-includes.patch
 
+# If optimizing, use these flags
+# LTO is not recommended
+export  CFLAGS="-march=native -mtune=native "
+export CFLAGS+="-Ofast -falign-functions=32 -fno-lto "
+export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
 
 export CFLAGS="$CFLAGS -D_XOPEN_SOURCE=700" &&
 case $(uname -m) in
@@ -46,7 +54,7 @@ meson --prefix=/usr                  \
       -Degl="enabled"                     \
       -Dgallium-va="enabled"              \
       -Dgallium-xa=true              \
-      -Dosmesa=gallium               \
+      -Dosmesa=true               \
       -Dvalgrind=false               \
       -Dgallium-nine=false           \
       -Dgallium-vdpau="disabled"     \
@@ -86,5 +94,5 @@ mesa:
 mesa: Tailored for a Wayland-only system with reduced Xorg support/features
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mesa-20.3.2-$(uname -m)-noxml.txz &&
+sudo -S makepkg -l y -c n $PKGS/mesa-21.2.1-$(uname -m)-noxml.txz &&
 sudo -S rm -rf ${BUILD}/*
