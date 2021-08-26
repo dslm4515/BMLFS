@@ -9,6 +9,11 @@
 # Optional:     PyGobject,valgrind, Doxygen, mito, DuckType, Yelp Tools
 # LTO:          Tested with LLVM
 
+# If optimizing:
+# LTO not recommended
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
+
 ./configure --prefix=/usr \
             --sysconfdir=/etc \
             --localstatedir=/var \
