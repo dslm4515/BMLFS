@@ -12,6 +12,12 @@
 # Optional:     libgcrypt and Python2 libxml2-2.9.10 module 
 # LTO:          tested with LLVM
 
+# If optimizing, use these flags
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=auto "
+export CFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
+export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+
 sed -i s/3000/5000/ libxslt/transform.c doc/xsltproc.{1,xml} &&
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
 
