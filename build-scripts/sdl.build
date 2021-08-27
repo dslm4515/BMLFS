@@ -12,6 +12,13 @@
 # Optional:     AAlib, ALSA, GLU, NASM, PulseAudio, Pth,
 # Optional:     X Window System, DirectFB, GGI, libcaca, PicoGUI, and SVGAlib 
 
+# If optimizing, use these flags with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -falign-functions=32 -ffat-lto-objects -flto=4 "
+export CFLAGS+="-fno-math-errno -fno-semantic-interposition -fno-trapping-math "
+export CFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 patch -Np1 -i ../patches/sdl-alpine/SDL-1.2.10-GrabNotViewable.patch
 patch -Np1 -i ../patches/sdl-alpine/SDL-1.2.15-const_XData32.patch
 patch -Np1 -i ../patches/sdl-alpine/0001-CVE-2019-7574.patch
@@ -47,17 +54,17 @@ cat > /tmp/slack-desc << "EOF"
 # customary to leave one space after the ':' except on otherwise blank lines.
 
    |-----handy-ruler------------------------------------------------------|
-sdl: sdl (Simple DirectMedia Layer library)
-sdl:
-sdl: This is the Simple DirectMedia Layer, a generic API that provides low
-sdl: level access to audio, keyboard, mouse, joystick, 3D hardware via
-sdl: OpenGL, and 2D framebuffer across multiple platforms.
-sdl:
-sdl: SDL links against alsa-lib, arts, audiofile, esound, and the X11
-sdl: libraries.  Make sure all of these are installed if you're planning to
-sdl: use SDL (a full installation will cover all of the prerequisites).
-sdl:
-sdl:
+SDL: SDL (Simple DirectMedia Layer library)
+SDL:
+SDL: This is the Simple DirectMedia Layer, a generic API that provides low
+SDL: level access to audio, keyboard, mouse, joystick, 3D hardware via
+SDL: OpenGL, and 2D framebuffer across multiple platforms.
+SDL:
+SDL: SDL links against alsa-lib, arts, audiofile, esound, and the X11
+SDL: libraries.  Make sure all of these are installed if you're planning to
+SDL: use SDL (a full installation will cover all of the prerequisites).
+SDL:
+SDL:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/SDL-1.2.15-$(uname -m)-mlfs.txz &&
