@@ -3,6 +3,7 @@
 # Cairo 1.17.4
 # Source: https://github.com/freedesktop/cairo.git
 # Commit Hash: f8967015029e2c1c59913a2a684c74f62b6e8979 
+# Commit Hash: 06f405c775f46e29a7cc89b03fba9ab71a3f2623 (newer)
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -12,6 +13,13 @@
 # Recommended:  fontconfig, Glib, Xorg-libraries
 # Optional:     Cogl, ghostscript, GTK+-2, GTK+-3, GTK-Doc, libdrm, libtsvg, libxml2
 # Optional:     Lzo, Mesa, poppler, Qt5, Valgrind, DirectFB, jbig2dec, libspectre,skia, Qt4
+
+# If optimizing, use these flags with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -falign-functions=32 -ffat-lto-objects -flto=4 "
+export CFLAGS+="-fno-math-errno -fno-semantic-interposition "
+export CFLAGS+="-fno-trapping-math -fstack-protector-strong -fzero-call-used-regs=used "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 #patch -Np1 -i ../patches/cairo-alpine/CVE-2018-19876.patch # for cairo 1.16.0
 patch -Np1 -i ../patches/cairo-alpine/musl-stacksize.patch
@@ -39,11 +47,17 @@ patch -Np1 -i ../patches/cairo-alpine/musl-stacksize.patch
 #	--enable-glesv2=no --enable-glesv3=yes --enable-egl=yes --enable-trace=no \
 #        --enable-glx=no --enable-test-surfaces=no $BUILDTRUPLE &&	
 
+## For building without Xorg
+#./autogen.sh --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-ft \
+#       --enable-gobject --enable-pdf --enable-png --enable-ps --enable-tee --disable-static \
+#        --enable-glesv2=yes --enable-glesv3=yes --enable-egl=yes --enable-trace=no \
+#        --enable-glx=no --enable-test-surfaces=no $BUILDTRUPLE
+
 # Autotool build broken. Use meson
 meson --prefix=/usr \
 	-Ddrm="enabled" \
-	-Dontconfig="enabled"\
-	-Dreetype="enabled" \
+	-Dfontconfig="enabled"\
+	-Dfreetype="enabled" \
 	-Dgl-backend="glesv3" \
 	-Dglesv2="enabled" -Dglesv3="enabled" \
 	-Dpng="enabled" \
@@ -51,6 +65,20 @@ meson --prefix=/usr \
 	-Dxcb="enabled" \
 	-Dxlib="enabled" \
 	-Dtests="disabled" OUT && \
+
+# For building without Xorg
+meson --prefix=/usr \
+        -Ddrm="enabled" \
+        -Dfontconfig="enabled"\
+        -Dfreetype="enabled" \
+        -Dgl-backend="glesv3" \
+        -Dglesv2="enabled" -Dglesv3="enabled" \
+        -Dpng="enabled" \
+        -Dtee="enabled" \
+        -Dxcb="disabled" \
+        -Dxlib="disabled" \
+        -Dtests="disabled" OUT
+
 
 ninja -C OUT -j2                && \
 
