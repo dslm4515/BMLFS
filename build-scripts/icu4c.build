@@ -12,6 +12,13 @@
 # Optional:     LLVM, Doxygen(for documentation)
 # LTO:          Tested with LLVM
 
+# If optimizing, optimize with GCC
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export CFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+export CC=gcc CXX=g++
+
 cd source &&
 ./configure --prefix=/usr $BUILDTRUPLE  &&
 read -p "Compile?" && make -j2 &&
