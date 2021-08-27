@@ -11,6 +11,11 @@
 # Recommended:  Pygments
 # Optional:     dblatex or fop, GLib, lxml, anytree, parameterized, and yelp-tools
 
+# If optimizing, use these flags with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 autoreconf -fiv           &&
 ./configure --prefix=/usr $BUILDTRUPLE &&
 
@@ -36,7 +41,6 @@ gtk-doc:
 gtk-doc: http://www.gtk.org/gtk-doc
 gtk-doc:
 gtk-doc:
-gtk-doc: Packager: _PACKAGER on _BUILD_DATE
 gtk-doc:
 gtk-doc:
 EOF
