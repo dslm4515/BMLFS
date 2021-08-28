@@ -11,6 +11,11 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# If optimizing, use these flags with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 patch -Np1 -i ../patches/giflib-alpine/giflib-restore-deprecated-functions.patch
 read -p "Compile?" && make PREFIX=/usr -j2 &&
 
