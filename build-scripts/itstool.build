@@ -11,6 +11,13 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# If optimizing, use Clang + Gold Linker
+export  CC=clang CXX=clang++ LD=ld.gold
+export  CFLAGS="-march=native "
+export CFLAGS+="O2 -g -Wp,-D_FORTIFY_SOURCE=2 -fexceptions "
+export CFLAGS+="-fstack-protector --param=ssp-buffer-size=32 "
+export CFLAGS+="-Wformat -Wformat-security -Wno-error -Wl,-z,max-page-size=0x1000 "
+
 patch -Np1 -i ../patches/itstool-alpine/fix-segfault.patch     &&
 PYTHON=/usr/bin/python3 ./configure --prefix=/usr $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
