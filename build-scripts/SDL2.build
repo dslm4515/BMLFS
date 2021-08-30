@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # SDL2 
-# Source: http://www.libsdl.org/release/SDL2-2.0.12.tar.gz
+# Source: https://www.libsdl.org/release/SDL2-2.0.16.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,9 +11,16 @@
 # Recommended:  NONE
 # Optional:     ALSA, Doxygen, iBus, NASM, PulseAudio, libsamplerate, XOrg, DirectFB, fcitx
 
-patch -Np1 -i ../patches/sdl2-alpine/0001-src-video-directfb-SDL_DirectFB_render.c-fix-build.patch
+# If optimizing, use these flags
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-O3 -Ofast -falign-functions=32 -ffat-lto-objects "
+export CFLAGS+="-flto=auto -fno-semantic-interposition -fstack-protector-strong "
+export CFLAGS+="-fzero-call-used-regs=used -mprefer-vector-width=256 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
+#patch -Np1 -i ../patches/sdl2-alpine/0001-src-video-directfb-SDL_DirectFB_render.c-fix-build.patch
 patch -Np1 -i ../patches/sdl2-alpine/directfb-cflags.patch
-patch -Np1 -i ../patches/sdl2-alpine/khronos.patch
+#patch -Np1 -i ../patches/sdl2-alpine/khronos.patch
 mkdir BUILD && cd BUILD &&
 cmake   -DCMAKE_INSTALL_PREFIX=/usr \
         -DCMAKE_INSTALL_LIBDIR=lib \
@@ -62,5 +69,5 @@ SDL2:
 SDL2:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/SDL2-2.0.12-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/SDL2-2.0.16-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
