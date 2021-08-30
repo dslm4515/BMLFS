@@ -11,6 +11,13 @@
 # Recommended:  NONE
 # Optional:     Doxygen
 
+# If optimizing, use these flags with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffast-math -ffat-lto-objects -flto=4 "
+export CFLAGS+="-fstack-protector-strong -ftree-loop-vectorize "
+export CFLAGS+="-fzero-call-used-regs=used "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
