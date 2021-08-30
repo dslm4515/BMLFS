@@ -12,6 +12,14 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# If optimizing, use these flags with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -falign-functions=32 -ffast-math "
+export CFLAGS+="-ffat-lto-objects -flto=4 -fno-math-errno "
+export CFLAGS+="-fno-semantic-interposition -fno-trapping-math "
+export CFLAGS+="-ftree-loop-vectorize "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 ./configure --prefix=/usr    \
             --disable-static \
             --docdir=/usr/share/doc/speex-1.2.0 $BUILDTRUPLE &&
@@ -21,6 +29,12 @@ sudo -S make DESTDIR=$BUILD install &&
 cd ..                          &&
 tar -xf speexdsp-1.2.0.tar.gz &&
 cd speexdsp-1.2.0             &&
+
+# If optimizing, use these flags with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 ./configure --prefix=/usr    \
             --disable-static \
             --docdir=/usr/share/doc/speexdsp-1.2.0 $BUILDTRUPLE  &&
