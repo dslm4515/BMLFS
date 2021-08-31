@@ -11,6 +11,11 @@
 # Recommended:  Gobject-introspection
 # Optional:     gst-plugins-base, GTK-Doc, SDL, and SDL2
 
+# If optimizing, use these flags with GCC
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 autoreconf -vfi &&
 
 ./configure --prefix=/usr  \
