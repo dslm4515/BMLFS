@@ -11,6 +11,11 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# If optimizing, use flags with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 cp -v ../files/config.sub-musl config-aux/config.sub &&
 cp -v ../files/config.guess-musl config-aux/config.guess &&
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
