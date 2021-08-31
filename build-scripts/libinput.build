@@ -11,6 +11,11 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# If optimizing, use flags with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=auto "
+export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+
 mkdir build &&
 cd    build &&
 
@@ -48,5 +53,5 @@ libinput: Homepage:  http://www.freedesktop.org/wiki/Software/libinput/
 libinput:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libinput-1.18.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libinput-1.18.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
