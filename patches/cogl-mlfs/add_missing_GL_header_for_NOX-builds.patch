@@ -1,0 +1,118 @@
+diff -uNr cogl-1.22.8.orig/cogl/cogl-context.c cogl-1.22.8/cogl/cogl-context.c
+--- cogl-1.22.8.orig/cogl/cogl-context.c	2020-06-04 06:57:11.000000000 -0500
++++ cogl-1.22.8/cogl/cogl-context.c	2021-08-31 02:02:57.334100895 -0500
+@@ -27,7 +27,7 @@
+  *
+  *
+  */
+-
++#include <GL/gl.h>
+ #ifdef HAVE_CONFIG_H
+ #include "config.h"
+ #endif
+diff -uNr cogl-1.22.8.orig/cogl/cogl-matrix-stack.c cogl-1.22.8/cogl/cogl-matrix-stack.c
+--- cogl-1.22.8.orig/cogl/cogl-matrix-stack.c	2020-06-04 06:57:11.000000000 -0500
++++ cogl-1.22.8/cogl/cogl-matrix-stack.c	2021-08-31 02:04:58.742095622 -0500
+@@ -30,7 +30,7 @@
+  *   Robert Bragg <robert@linux.intel.com>
+  *   Neil Roberts <neil@linux.intel.com>
+  */
+-
++#include <GL/gl.h>
+ #ifdef HAVE_CONFIG_H
+ #include "config.h"
+ #endif
+diff -uNr cogl-1.22.8.orig/cogl/cogl-pipeline.c cogl-1.22.8/cogl/cogl-pipeline.c
+--- cogl-1.22.8.orig/cogl/cogl-pipeline.c	2020-06-04 07:47:52.000000000 -0500
++++ cogl-1.22.8/cogl/cogl-pipeline.c	2021-08-31 02:15:14.684068869 -0500
+@@ -30,7 +30,7 @@
+  * Authors:
+  *   Robert Bragg <robert@linux.intel.com>
+  */
+-
++#include <GL/gl.h>
+ #ifdef HAVE_CONFIG_H
+ #include "config.h"
+ #endif
+@@ -136,8 +136,8 @@
+     &_cogl_pipeline_fixed_fragend;
+ #endif
+ #ifdef COGL_PIPELINE_PROGEND_FIXED
+-  _cogl_pipeline_progends[COGL_PIPELINE_PROGEND_FIXED_ARBFP] =
+-    &_cogl_pipeline_fixed_arbfp_progend;
++  _cogl_pipeline_progends[COGL_PIPELINE_PROGEND_FIXED] =
++    &_cogl_pipeline_fixed_progend;
+ #endif
+ #ifdef COGL_PIPELINE_PROGEND_FIXED
+   _cogl_pipeline_progends[COGL_PIPELINE_PROGEND_FIXED] =
+diff -uNr cogl-1.22.8.orig/cogl/cogl-texture-3d.c cogl-1.22.8/cogl/cogl-texture-3d.c
+--- cogl-1.22.8.orig/cogl/cogl-texture-3d.c	2020-06-04 06:57:11.000000000 -0500
++++ cogl-1.22.8/cogl/cogl-texture-3d.c	2021-08-31 02:16:49.109064767 -0500
+@@ -28,7 +28,7 @@
+  * Authors:
+  *  Neil Roberts   <neil@linux.intel.com>
+  */
+-
++#include <GL/gl.h>
+ #ifdef HAVE_CONFIG_H
+ #include "config.h"
+ #endif
+diff -uNr cogl-1.22.8.orig/cogl/driver/gl/cogl-attribute-gl.c cogl-1.22.8/cogl/driver/gl/cogl-attribute-gl.c
+--- cogl-1.22.8.orig/cogl/driver/gl/cogl-attribute-gl.c	2020-06-04 06:58:21.000000000 -0500
++++ cogl-1.22.8/cogl/driver/gl/cogl-attribute-gl.c	2021-08-31 02:01:02.649105876 -0500
+@@ -31,7 +31,7 @@
+  *  Neil Roberts   <neil@linux.intel.com>
+  *  Robert Bragg   <robert@linux.intel.com>
+  */
+-
++#include <GL/gl.h>
+ #ifdef HAVE_CONFIG_H
+ #include "config.h"
+ #endif
+diff -uNr cogl-1.22.8.orig/cogl/driver/gl/cogl-pipeline-fragend-fixed.c cogl-1.22.8/cogl/driver/gl/cogl-pipeline-fragend-fixed.c
+--- cogl-1.22.8.orig/cogl/driver/gl/cogl-pipeline-fragend-fixed.c	2020-06-04 06:58:21.000000000 -0500
++++ cogl-1.22.8/cogl/driver/gl/cogl-pipeline-fragend-fixed.c	2021-08-31 01:59:11.913110686 -0500
+@@ -30,6 +30,7 @@
+  * Authors:
+  *   Robert Bragg <robert@linux.intel.com>
+  */
++#include <GL/gl.h>
+ 
+ #ifdef HAVE_CONFIG_H
+ #include "config.h"
+diff -uNr cogl-1.22.8.orig/cogl/driver/gl/cogl-pipeline-opengl.c cogl-1.22.8/cogl/driver/gl/cogl-pipeline-opengl.c
+--- cogl-1.22.8.orig/cogl/driver/gl/cogl-pipeline-opengl.c	2020-06-04 06:57:11.000000000 -0500
++++ cogl-1.22.8/cogl/driver/gl/cogl-pipeline-opengl.c	2021-08-31 02:01:50.760103787 -0500
+@@ -30,7 +30,7 @@
+  * Authors:
+  *   Robert Bragg <robert@linux.intel.com>
+  */
+-
++#include <GL/gl.h>
+ #include "config.h"
+ 
+ #include "cogl-debug.h"
+diff -uNr cogl-1.22.8.orig/cogl/driver/gl/cogl-texture-2d-gl.c cogl-1.22.8/cogl/driver/gl/cogl-texture-2d-gl.c
+--- cogl-1.22.8.orig/cogl/driver/gl/cogl-texture-2d-gl.c	2020-06-04 06:57:11.000000000 -0500
++++ cogl-1.22.8/cogl/driver/gl/cogl-texture-2d-gl.c	2021-08-31 02:00:15.188107938 -0500
+@@ -31,7 +31,7 @@
+  *  Neil Roberts   <neil@linux.intel.com>
+  *  Robert Bragg   <robert@linux.intel.com>
+  */
+-
++#include <GL/gl.h>
+ #include <config.h>
+ 
+ #include <string.h>
+diff -uNr cogl-1.22.8.orig/cogl/driver/gl/gles/cogl-driver-gles.c cogl-1.22.8/cogl/driver/gl/gles/cogl-driver-gles.c
+--- cogl-1.22.8.orig/cogl/driver/gl/gles/cogl-driver-gles.c	2020-06-04 06:57:11.000000000 -0500
++++ cogl-1.22.8/cogl/driver/gl/gles/cogl-driver-gles.c	2021-08-31 02:03:52.621098494 -0500
+@@ -27,7 +27,7 @@
+  *
+  *
+  */
+-
++#include <GL/gl.h>
+ #ifdef HAVE_CONFIG_H
+ #include "config.h"
+ #endif
