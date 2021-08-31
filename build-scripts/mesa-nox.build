@@ -47,24 +47,27 @@ meson --prefix=/usr                  \
       -Dxlib-lease="disabled"        \
       -Ddri3="enabled"                    \
       -Dplatforms="wayland"      \
+      -Degl-native-platform="wayland" \
       -Dglx-read-only-text=true      \
       -Dasm=false                    \
       -Dshared-glapi="enabled"         \
       -Dopengl=true                  \
       -Degl="enabled"                     \
       -Dgallium-va="enabled"              \
-      -Dgallium-xa=true              \
+      -Dgallium-xa=false              \
+      -Dgallium-xvmc=false \
       -Dosmesa=true               \
       -Dvalgrind=false               \
       -Dgallium-nine=false           \
       -Dgallium-vdpau="disabled"     \
       -Dgles2="enabled"              \
+      -Dgles1="enabled" \
       -Dvulkan-device-select-layer=false \
       -Dvulkan-drivers="${V_DRIVERS}"            \
       -Dvulkan-overlay-layer=false   \
       -Dtools="" \
       -Ddri-drivers="${DRI_DRIVERS}"   \
-      -Dgallium-drivers="${GLL_DRV}"  OUT  
+      -Dgallium-drivers="${GLL_DRV}" -Dtools="drm-shim,intel,nouveau"  OUT  
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
