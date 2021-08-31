@@ -1,16 +1,23 @@
 #! /bin/bash
 
 # wlroots
-# Source: https://github.com/swaywm/wlroots/releases/download/0.13.0/wlroots-0.13.0.tar.gz
+# Source: https://github.com/swaywm/wlroots/releases/download/0.14.1/wlroots-0.14.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     wayland-protocols, wayland, mesa, elogind, libinput, libxcb,
-# Required:     libxkbcommon, pixman, xcb-util-image, xcb-util-wm, xkeyboard-config
-# Recommended:  NONE
+# Required:     wayland-protocols, wayland, mesa, libinput, libxcb, libseat
+# Required:     libxkbcommon, pixman, xkeyboard-config
+# Recommended:  xcb-util-renderutil, xcb-util-wm, xcb-util-image
 # Optional:     xcb-errors
+
+# As of 0.14.x, logind support was dropped in favor of libseat
+
+# If optimizing, use flags with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 mkdir build && cd build &&
 
@@ -18,8 +25,6 @@ mkdir build && cd build &&
 # -Dx11-backend="disabled" -Dxwayland="disabled"
 
 meson --prefix=/usr     \
-      -Dlogind=enabled  \
-      -Dlogind-provider=elogind  \
       -Dexamples=false ..
 
 read -p "Compile?" && ninja -j2 &&
@@ -48,5 +53,5 @@ wlroots:
 wlroots: Homepage: https://github.com/swaywm/wlroots
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wlroots-0.13.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wlroots-0.14.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
