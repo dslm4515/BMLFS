@@ -11,7 +11,7 @@
 # Recommended:  dejavu-fonts-ttf
 # Optional:     fcft
 
-meson --prefix=/usr OUT && \
+meson --prefix=/usr -Ddefault-terminfo="xterm+256color" OUT && \
 
 ninja -j2 -C OUT && \
 
@@ -37,5 +37,5 @@ foot:
 foot:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/foot-1.6.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/foot-1.9.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
