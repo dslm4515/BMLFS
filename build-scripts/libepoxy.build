@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libepoxy
-# Source: https://github.com/anholt/libepoxy/releases/download/1.5.5/libepoxy-1.5.5.tar.xz
+# Source: https://github.com/anholt/libepoxy/releases/download/1.5.9/libepoxy-1.5.9.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,6 +11,13 @@
 # Recommended:  NONE
 # Optional:     Doxygen
 
+# If optimizing, use flags with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -Ofast -falign-functions=32 "
+export CFLAGS+="-ffat-lto-objects -flto=auto -fno-semantic-interposition "
+export CFLAGS+="-mprefer-vector-width=256 "
+export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+
 mkdir build &&
 cd    build &&
 
@@ -18,7 +25,7 @@ cd    build &&
 meson --prefix=/usr \
       -Ddocs=false  \
       -Degl=yes     \
-      -Dx11=true    \
+      -Dx11=false    \
       -Dtests=true  \
       -Dglx=no .. &&
 read -p "Compile?" && ninja -j2 &&
@@ -48,5 +55,5 @@ libepoxy:
 libepoxy:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libepoxy-1.5.5-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libepoxy-1.5.9-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
