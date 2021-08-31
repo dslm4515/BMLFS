@@ -71,6 +71,9 @@ read -p "Compile?" && ninja -C OUT -j2 &&
 sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 unset CFLAGS GLL_DRV DRI_DRIVERS MESA_GIT_SHA1_OVERRIDE V_DRIVERS &&
 
+# Compatibility link for libGL, as libGL was not built (requires Xorg libraries)
+ sudo ln -sv libOSMesa.so.8.0.0 ${BUILD}/usr/lib/libGL.so
+
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
