@@ -10,6 +10,10 @@
 # Recommended: NONE
 # Optional:    NONE
 
+# If optimizing, use flags with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=auto "
+export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
 make PREFIX=/usr
 
