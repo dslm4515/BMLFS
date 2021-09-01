@@ -11,6 +11,9 @@
 # Recommended:  NONE
 # Optional:     xmlto, fop, and libxslt (for documentation) 
 
+# If optimzing with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-Os -ffunction-sections -fno-semantic-interposition "
 
 ./configure $XORG_CONFIG &&
 read -p "Compile?" && make -j2 && 
