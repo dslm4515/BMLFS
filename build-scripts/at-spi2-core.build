@@ -1,15 +1,21 @@
 #! /bin/bash
 
 # at-spi2-core
-# Source: https://download.gnome.org/sources/at-spi2-core/2.38/at-spi2-core-2.38.0.tar.xz
+# Source: https://download.gnome.org/sources/at-spi2-core/2.40/at-spi2-core-2.40.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     DBus, GLib, Xorg-libraries
-# Recommended:  NONE
+# Recommended:  libXtst(for X11)
 # Optional:     gobject-introspection, GTK-Doc
+
+# if optimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -Os -fdata-sections -ffat-lto-objects "
+export CFLAGS+="-ffunction-sections -flto=4 -fno-semantic-interposition "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 mkdir build &&
 cd    build &&
@@ -45,5 +51,5 @@ at-spi2-core:
 at-spi2-core:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/at-spi2-core-2.38.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/at-spi2-core-2.40.3-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
