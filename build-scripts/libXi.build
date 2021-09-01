@@ -7,9 +7,13 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     xorgproto, xtrans, libXext, libX11
+# Required:     xorgproto, xtrans, libXext, libX11, libXfixes
 # Recommended:  libxcb
 # Optional:     NONE
+
+# if optimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-Os -fdata-sections -ffunction-sections -fno-semantic-interposition "
 
 ./configure --prefix=/usr        --sysconfdir=/etc \
 	    --localstatedir=/var --disable-static $BUILDTRUPLE && \
