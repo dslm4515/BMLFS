@@ -7,9 +7,15 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     xorgproto, xtrans, libXext, libX11
+# Required:     xorgproto, xtrans, libXext
 # Recommended:  libxcb
 # Optional:     NONE
+
+# if optimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -Os -fdata-sections -ffat-lto-objects "
+export CFLAGS+="-ffunction-sections -flto=4 -fno-semantic-interposition "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 CFLAGS_FOR_BUILD="-fPIC" \
 ./configure $XORG_CONFIG &&
