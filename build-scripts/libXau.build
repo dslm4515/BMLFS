@@ -11,6 +11,11 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# If optimizing with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-Os -fdata-sections -ffunction-sections "
+export CFLAGS+="-fno-semantic-interposition "
+
 ./configure --prefix=/usr --sysconfdir=/etc \
 	    --localstatedir=/var --disable-static  &&
 make -j2 && 
