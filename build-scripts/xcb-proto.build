@@ -11,6 +11,11 @@
 # Recommended:  NONE
 # Optional:     libxml2
 
+# if optimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 NOCONFIGURE=1 ./autogen.sh &&
 ./configure $XORG_CONFIG &&
 read -p "Compile?" && make -j2 && 
