@@ -10,12 +10,9 @@
 # Required:     LLVM, libdrm, Mako
 # Recommended:  Libva, libvdpau(for Xorg), wayland-protocols
 # Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind,
-# Optional:     libxcb(for Xorg), libX11(for Xorg), libxshmfence(for Xorg), libXxf86vm(for Xorg), 
-# Optional:     libXrandr(for Xorg)
 
 # Apply patches from Alpine Linux
-patch -Np1 -i ../patches/mesa-alpine-21.2.1/0001-radeonsi-On-Aarch64-force-persistent-buffers-to-
-GTT.patch
+patch -Np1 -i ../patches/mesa-alpine-21.2.1/0001-radeonsi-On-Aarch64-force-persistent-buffers-to-GTT.patch
 patch -Np1 -i ../patches/mesa-alpine-21.2.1/add-use-elf-tls.patch
 patch -Np1 -i ../patches/mesa-alpine-21.2.1/disable-rgb10-by-default.patch
 patch -Np1 -i ../patches/mesa-alpine-21.2.1/musl-fix-includes.patch
@@ -43,6 +40,7 @@ meson --prefix=/usr                  \
       -Dbuildtype=release            \
       -Dllvm="enabled"               \
       -Dshared-llvm="enabled"        \
+      -Dosmesa="true"                \
       -Dglx="disabled"               \
       -Dxlib-lease="disabled"        \
       -Ddri3="enabled"                    \
@@ -56,7 +54,6 @@ meson --prefix=/usr                  \
       -Dgallium-va="enabled"              \
       -Dgallium-xa=false              \
       -Dgallium-xvmc=false \
-      -Dosmesa=true               \
       -Dvalgrind=false               \
       -Dgallium-nine=false           \
       -Dgallium-vdpau="disabled"     \
@@ -67,15 +64,12 @@ meson --prefix=/usr                  \
       -Dvulkan-overlay-layer=false   \
       -Dtools="" \
       -Ddri-drivers="${DRI_DRIVERS}"   \
-      -Dgallium-drivers="${GLL_DRV}" -Dtools="drm-shim,intel,nouveau"  OUT  
+      -Dgallium-drivers="${GLL_DRV}"  OUT  
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 unset CFLAGS GLL_DRV DRI_DRIVERS MESA_GIT_SHA1_OVERRIDE V_DRIVERS &&
-
-# Compatibility link for libGL, as libGL was not built (requires Xorg libraries)
- sudo ln -sv libOSMesa.so.8.0.0 ${BUILD}/usr/lib/libGL.so
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -97,8 +91,8 @@ mesa: Mesa was written by Brian Paul.
 mesa:
 mesa: Homepage: https://www.mesa3d.org
 mesa:
-mesa: Tailored for a Wayland-only system with reduced Xorg support/features
+mesa: Tailored without Xorg Libraries
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mesa-21.2.1-$(uname -m)-noxml.txz &&
+sudo -S makepkg -l y -c n $PKGS/mesa-21.2.1_nox-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
