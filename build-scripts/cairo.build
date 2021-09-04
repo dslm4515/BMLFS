@@ -64,6 +64,8 @@ meson --prefix=/usr \
 	-Dtee="enabled" \
 	-Dxcb="enabled" \
 	-Dxlib="enabled" \
+	-Dxlib-xcb="enabled" \
+	-Dcogl="enabled" \
 	-Dtests="disabled" OUT && \
 
 # For building without Xorg
