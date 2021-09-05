@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # patchelf
-# Source: https://nixos.org/releases/patchelf/patchelf-0.10/patchelf-0.10.tar.bz2
+# Source: https://github.com/NixOS/patchelf/releases/download/0.13/patchelf-0.13.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -40,5 +40,5 @@ patchelf: Homepage: http://nixos.org/patchelf.html
 patchelf:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/patchelf-0.10-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/patchelf-0.13-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
