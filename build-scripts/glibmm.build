@@ -1,22 +1,29 @@
 #! /bin/bash
 
 # GLibmm
-# Source: https://download.gnome.org/sources/glibmm/2.64/glibmm-2.64.2.tar.xz
+# Source: https://download-fallback.gnome.org/sources/glibmm/2.68/glibmm-2.68.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     GLib, libsigc++
+# Required:     GLib, libsigc++3
 # Recommended:  NONE
 # Optional:     Doxygen, glib-networking (for tests), GnuTLS(for tests), and libxslt
 
-sed -e '/^libdocdir =/ s/$(book_name)/glibmm-2.64.2/' \
+sed -e '/^libdocdir =/ s/$(book_name)/glibmm-2.68.1/' \
     -i docs/Makefile.in &&
-./configure --prefix=/usr $BUILDTRUPLE &&
-read -p "Compile?" && make -j2 &&
+#./configure --prefix=/usr $BUILDTRUPLE &&
+#read -p "Compile?" && make -j2 &&
 
-sudo -S make DESTDIR=$BUILD install &&
+# If optimizing with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
+meson --prefix=/usr -Dbuild-documentation=false  BUILD
+
+sudo -S  DESTDIR=$BUILD ninja -C BUILD install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -41,5 +48,5 @@ glibmm:
 glibmm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/glibmm-2.64.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/glibmm-2.68.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
