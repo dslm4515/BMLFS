@@ -1,15 +1,20 @@
 #! /bin/bash
 
 # cairomm
-# Source: https://www.cairographics.org/releases/cairomm-1.14.0.tar.xz
+# Source: https://www.cairographics.org/releases/cairomm-1.16.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Cairo, libsigc++
+# Required:     Cairo, libsigc++3
 # Recommended:  Boost
 # Optional:     Doxygen
+
+# If optimizing with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 mkdir bld &&
 cd    bld &&
@@ -45,5 +50,5 @@ cairomm: cairomm home: http://cairographics.org/cairomm/
 cairomm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cairomm-1.14.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/cairomm-1.16.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
