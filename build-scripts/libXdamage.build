@@ -11,6 +11,10 @@
 # Recommended:  libxcb
 # Optional:     NONE
 
+# If optimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-Os -ffunction-sections -fno-semantic-interposition "
+
 CFLAGS_FOR_BUILD="-fPIC" \
 ./configure $XORG_CONFIG &&
 
