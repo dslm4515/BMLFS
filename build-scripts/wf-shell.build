@@ -13,7 +13,7 @@
 
 meson --prefix=/usr OUT && \
 ninja -C OUT -j2 && \
-sudo -S DESTDIR=${BULD} ninja -C OUT install && \
+sudo -S DESTDIR=${BUILD} ninja -C OUT install && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
