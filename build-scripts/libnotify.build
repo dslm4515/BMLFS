@@ -11,6 +11,12 @@
 # Recommended:  NONE
 # Optional:     gobject-introspection, GTK-Doc, Xmlto, notification-daemon or  xfce4-notify
 
+# If optimizing with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -Os -fdata-sections -ffat-lto-objects "
+export CFLAGS+="-ffunction-sections -flto=auto -fno-semantic-interposition "
+export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+
 mkdir build &&
 cd    build &&
 meson --prefix=/usr -Dgtk_doc=false -Dman=false .. &&
