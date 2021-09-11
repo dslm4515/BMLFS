@@ -1,20 +1,25 @@
 #! /bin/bash
 
 # Pulseaudio
-# Source: https://www.freedesktop.org/software/pulseaudio/releases/pulseaudio-14.2.tar.xz
+# Source: https://www.freedesktop.org/software/pulseaudio/releases/pulseaudio-15.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     libsndfile
-# Recommended:  alsa-lib, dbus, elogind, Glib, libcap-pam, speex, Xorg-libraries
+# Recommended:  alsa-lib, dbus, elogind, Glib, libcap-pam, speex, Xorg-libraries(xcb,ice,sm)
 # Optional:     Avahi, Bluez, fftw, GConf, GTK+-3, libsamplerate, SBC, Valgrind, JACK, 
 # Optional      libasyncns, LIRC, ORC, soxr, TDB, WebRTC AudioProcessing and XEN
 
 #patch -Np1 -i ../patches/pulseaudio-alpine/define-tunnel_sink-for-module-tunnel-sink.patch
 #patch -Np1 -i ../patches/pulseaudio-alpine/link-libintl.patch
 #patch -Np1 -i ../patches/pulseaudio-alpine/python3.patch
+
+# If optimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -falign-functions=32 -fno-lto "
+export CFLAGS+="-fno-math-errno -fno-semantic-interposition -fno-trapping-math "
 
 # If GTK3 has no X11 support, it must be disabled -Dgtk=disabled 
 
@@ -27,7 +32,7 @@ meson --prefix=/usr \
 	-Dsystem_user=pulse \
 	-Dsystem_group=pulse \
 	-Dalsa=enabled \
-	-Dbluez5=true \
+	-Dbluez5=enabled \
 	-Ddbus=enabled \
 	-Dfftw=enabled \
 	-Dglib=enabled \
@@ -42,6 +47,7 @@ meson --prefix=/usr \
 	-Dudev=enabled \
 	-Dx11=enabled \
 	-Ddatabase=gdbm \
+	-Ddoxygen=false \
 	-Dudevrulesdir=/usr/lib/udev/rules.d .. &&
 read -p "Compile?" && ninja -j2 &&
 
@@ -75,5 +81,5 @@ sudo -S sed -e 's|/usr/bin/pactl load-module module-x11-cork-request|#&|'  \
             -i usr/bin/start-pulseaudio-x11                                &&
 sudo -S sed -e '/Load several protocols/aload-module module-dbus-protocol' \
             -i etc/pulse/default.pa                                        &&
-sudo -S makepkg -l y -c n $PKGS/pulseaudio-13.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/pulseaudio-15.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
