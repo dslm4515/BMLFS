@@ -7,9 +7,9 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     gtkmm3
+# Required:     gtkmm3, wayland, wayland-protocols, gobject-introspection
 # Recommended:  NONE
-# Optional:     NONE
+# Optional:     nlohmann, gtk-layer-shell
 
 meson --prefix=/usr BUILD && \
 
@@ -34,5 +34,5 @@ nwg-launchers:
 nwg-launchers:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/nwg-launchers-version-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/nwg-launchers-0.5.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
