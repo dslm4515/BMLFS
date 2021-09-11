@@ -11,6 +11,11 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# if optimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+
 autoreconf -fiv &&
 sed -i '/<linux\/if_bridge.h>/i#define _LINUX_IN6_H' lib/route/link/bridge.c &&
 ./configure --prefix=/usr     \
