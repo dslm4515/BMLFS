@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # JasPer
-# Source: http://www.ece.uvic.ca/~frodo/jasper/software/jasper-2.0.14.tar.gz
+# Source: https://github.com/jasper-software/jasper/releases/download/version-2.0.33/jasper-2.0.33.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -18,7 +18,7 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr    \
       -DCMAKE_BUILD_TYPE=Release     \
       -DCMAKE_SKIP_INSTALL_RPATH=YES \
       -DJAS_ENABLE_DOC=NO            \
-      -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/jasper-2.0.14 \
+      -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/jasper-2.0.33 \
       ..  &&
 read -p "Compile?" && make -j2 &&
 
@@ -47,5 +47,5 @@ jasper:
 jasper:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/jasper-2.0.14-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/jasper-2.0.33-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
