@@ -10,6 +10,12 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     Doxygen, Lynx
+
+# If optimizing with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 cp -vf ../files/config.sub-musl   config.sub    &&
 cp -vf ../files/config.guess-musl config.guess  &&
 
