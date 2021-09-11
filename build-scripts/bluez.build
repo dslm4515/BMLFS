@@ -1,15 +1,19 @@
 #! /bin/bash
 
 # BlueZ
-# Source: https://www.kernel.org/pub/linux/bluetooth/bluez-5.58.tar.xz
+# Source: https://www.kernel.org/pub/linux/bluetooth/bluez-5.61.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     dbus, GLib, and libical
+# Required:     dbus, GLib, json-c and libical
 # Recommended:  NONE
-# Optional:     NONE
+# Optional:     docutils
+
+# if optimizing with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
 
 patch -Np1 -i ../patches/bluez-alpine/001-bcm43xx-Add-bcm43xx-3wire-variant.patch
 patch -Np1 -i ../patches/bluez-alpine/002-bcm43xx-The-UART-speed-must-be-reset-after-the-firmw.patch
@@ -18,6 +22,7 @@ patch -Np1 -i ../patches/bluez-alpine/004-Move-the-43xx-firmware-into-lib-firmwa
 patch -Np1 -i ../patches/bluez-alpine/disable-lock-test.patch
 patch -Np1 -i ../patches/bluez-alpine/fix-endianness.patch
 patch -Np1 -i ../patches/bluez-alpine/musl.patch
+patch -Np1 -i ../patches/bluez-alpine/fix-musl.patch 
 
 ./configure --prefix=/usr         \
             --sysconfdir=/etc     \
@@ -33,6 +38,7 @@ sudo -S make DESTDIR=$BUILD install &&
 sudo -S install -D -m644 src/main.conf ${BUILD}/etc/bluetooth/main.conf      &&
 sed 's|^#!/usr/bin/python$|#!/usr/bin/env python3|g' -i test/simple-agent    &&
 sudo -S install -Dm755 test/simple-agent ${BUILD}/usr/bin/bluez-simple-agent &&
+
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -56,5 +62,5 @@ bluez:
 bluez:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/bluez-5.58-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/bluez-5.61-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
