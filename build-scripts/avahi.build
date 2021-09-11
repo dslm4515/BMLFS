@@ -11,6 +11,13 @@
 # Recommended:  Gobject-introspection, GTK+2, GTK+3, libdaemon, libglade, Qt5
 # Optional:     D-Bus-Python, libevent, pyGobject, pycairo, Doxygen, xmltoman
 
+
+# If optimizing with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export CFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 patch -Np1 -i ../patches/avahi-lfs/avahi-0.8-ipv6_race_condition_fix-1.patch &&
 
 cp -v ../files/avahi-adelie/build-db service-type-database/
