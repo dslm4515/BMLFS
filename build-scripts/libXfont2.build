@@ -1,18 +1,23 @@
 #! /bin/bash
 
-# libXfont2
-# Source: ftp://ftp.x.org/pub/individual/lib/libXfont2-2.0.4.tar.bz2
+# LibXfont2
+# Source: ftp://ftp.x.org/pub/individual/lib/libXfont2-2.0.4.tar.bz2 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     xorgproto, xtrans, libXext, libX11
-# Recommended:  libxcb
+# Required:     xorgproto, xtrans, freetype, libfontenc
+# Recommended:  NONE
 # Optional:     NONE
 
+# if optimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+
 CFLAGS_FOR_BUILD="-fPIC" \
-./configure $XORG_CONFIG --disable-devel-docs &&
+./configure $XORG_CONFIG &&
 
 read -p "Compile?" && make -j2 &&
 
