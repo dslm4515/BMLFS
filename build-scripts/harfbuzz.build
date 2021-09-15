@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # HarfBuzz
-# Source: https://github.com/harfbuzz/harfbuzz/releases/download/2.8.2/harfbuzz-2.8.2.tar.xz
+# Source:  https://github.com/harfbuzz/harfbuzz/releases/download/2.9.1/harfbuzz-2.9.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -46,5 +46,5 @@ harfbuzz:
 harfbuzz:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/harfbuzz-2.8.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/harfbuzz-2.9.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
