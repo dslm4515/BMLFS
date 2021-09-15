@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Mako
-# Source: https://files.pythonhosted.org/packages/source/M/Mako/Mako-1.1.3.tar.gz
+# Source: https://files.pythonhosted.org/packages/source/M/Mako/Mako-1.1.5.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -38,5 +38,5 @@ Mako: models available, while also maintaining close ties to Python.
 Mako: Homepage: http://www.makotemplates.org/
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/Mako-1.1.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/Mako-1.1.5-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
