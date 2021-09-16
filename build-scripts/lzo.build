@@ -12,6 +12,12 @@
 # Optional:     NONE
 # LTO:          Tested with LLVM
 
+# If optimizing, use these flags
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-O3 -falign-functions=32 -ffat-lto-objects -flto=4 "
+export CFLAGS+="-fno-math-errno -fno-semantic-interposition -fno-trapping-math "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 ./configure --prefix=/usr                    \
             --enable-shared                  \
             --disable-static                 \

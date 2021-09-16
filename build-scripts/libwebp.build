@@ -1,15 +1,23 @@
 #! /bin/bash
 
 # libwebp
-# Source: http://downloads.webmproject.org/releases/webp/libwebp-1.1.0.tar.gz
+# Source: http://downloads.webmproject.org/releases/webp/libwebp-1.2.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     NONE
-# Recommended:  libjpeg-turbo-, libpng-, LibTIFF, and SDL
+# Recommended:  libjpeg-turbo, libpng, LibTIFF, and SDL
 # Optional:     Freeglut and giflib
+
+# If optimizing, use these flags with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -Ofast -falign-functions=32 "
+export CFLAGS+="-ffat-lto-objects -flto=auto "
+export CFLAGS+="-fno-semantic-interposition -fstack-protector-strong "
+export CFLAGS+="-fzero-call-used-regs=used -mprefer-vector-width=256 "
+export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
 ./autogen.sh &&
 ./configure --prefix=/usr           \
@@ -46,5 +54,5 @@ libwebp:
 libwebp:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libwebp-1.1.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libwebp-1.2.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*

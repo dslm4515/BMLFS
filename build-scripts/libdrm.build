@@ -11,6 +11,13 @@
 # Recommended:  NONE
 # Optional:     Cairo, CMake, docbook-xml, docbook-xsl, libxslt, libatomic_ops, valgrind, CUNIT 
 
+# If optimizing:
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-O3 -Ofast -falign-functions=32 "
+export CFLAGS+="-ffat-lto-objects -flto=4 "
+export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 patch -Np0 -i ../patches/libdrm-void/dont-build-noveau-tests.patch &&
 mkdir build &&
 cd    build &&
