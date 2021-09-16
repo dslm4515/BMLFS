@@ -1,0 +1,11 @@
+--- iwd-1.18.orig/src/netconfig.c	2021-09-14 15:01:22.000000000 -0500
++++ iwd-1.18/src/netconfig.c	2021-09-16 13:35:25.664108439 -0500
+@@ -185,7 +185,7 @@
+ 	struct in6_addr in6_addr;
+ 	char *addr_str = l_malloc(INET6_ADDRSTRLEN);
+ 
+-	memcpy(in6_addr.__in6_u.__u6_addr8, addr, 16);
++	memcpy(in6_addr.__in6_union.__s6_addr, addr, 16);
+ 
+ 	if (L_WARN_ON(unlikely(!inet_ntop(AF_INET6, &in6_addr, addr_str,
+ 						INET6_ADDRSTRLEN)))) {
