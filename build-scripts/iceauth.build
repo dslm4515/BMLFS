@@ -11,6 +11,11 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# If optimizing with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-fno-lto"
+unset LDFLAGS
+
 ./configure --prefix=/usr --sysconfdir=/etc \
             --localstatedir=/var \
             --disable-static $BUILDTRUPLE && \
