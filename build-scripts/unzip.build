@@ -46,7 +46,11 @@ export CFLAGS=" -D_FILE_OFFSET_BITS=64 -DWILD_STOP_AT_DIR \
 	        -DLARGE_FILE_SUPPORT   -DUNICODE_SUPPORT  \
 		-DUNICODE_WCHAR        -DUTF8_MAYBE_NATIVE \
 		-DNO_LCHMOD            -LDDATE_FORMAT=DF_YMD \
-		-DUSE_BZIP2            -DNATIVE"
+		-DUSE_BZIP2            -DNATIVE "
+
+# If optimizing:
+export CFLAGS+="-march=native -mtune=native -pipe "
+export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
 
 make -j4 -f unix/Makefile LOCAL_UNZIP="$CFLAGS" \
 	prefix=/usr LF2="" CC=cc CFLAGS="$CFLAGS" LFLAGS1="$LDFLAGS" \
