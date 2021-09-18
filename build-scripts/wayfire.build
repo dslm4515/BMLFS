@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # WayFire
-# Source: https://github.com/WayfireWM/wayfire/archive/v0.7.0.tar.gz 
+# Source: https://github.com/WayfireWM/wayfire/releases/download/v0.7.2/wayfire-0.7.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -12,7 +12,8 @@
 # Recommended:  libappindicator, libdbusmenu
 # Optional:     NONE
 
-meson --prefix=/usr -Denable_gles32=true -Duse_system_wfconfig="disabled" -Duse_system_wlroots="enabled" BUILD && \
+meson --prefix=/usr -Denable_gles32=true \
+       -Duse_system_wfconfig="disabled" -Duse_system_wlroots="enabled" BUILD && \
 
 ninja -C BUILD -j2 && \
 
@@ -39,5 +40,5 @@ wayfire:
 wayfire:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wayfire-0.7.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wayfire-0.7.2-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
