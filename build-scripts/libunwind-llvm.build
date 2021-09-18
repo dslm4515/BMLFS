@@ -1,24 +1,42 @@
 #! /bin/bash
 
 # libunwind-llvm 
-# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-11.0.0/libunwind-11.0.0.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/libunwind-12.0.0.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/libcxx-12.0.0.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-12.0.0/llvm-12.0.0.src.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     llvm, cmake
+# Required:     CMake
 # Recommended:  NONE
 # Optional:     NONE
 
-patch -Np0 -i ../patches/libunwind-llvm-void/fix-unsigned-long-long-shift.patch  &&
+
+# if optimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
+# libunwind from LLVM requires main mono LLVM source tree
+# with libcxx extracted in projects directory.
+tar xf pkgs/llvm-12.0.0.src.tar.xz      && \
+tar xf pkgs/libunwind-12.0.0.src.tar.xz && \
+tar xf pkgs/libcxx-12.0.0.src.tar.xz    && \
+cd llvm-12.0.0.src && export LLVMSRC=$PWD && cd projects && \
+mv -v ../../libunwind-12.0.0.src libunwind && \
+mv -v ../../libcxx-12.0.0.src    libcxx    && \
+cd libunwind && \
+
 sed -i 's,^# Setup flags.$,add_library_flags(ssp_nonshared),' src/CMakeLists.txt &&
 
 cmake -B BUILD \
       -DCMAKE_INSTALL_PREFIX=/usr \
-      -DCMAKE_BUILD_TYPE=Release  &&
+      -DCMAKE_BUILD_TYPE=Release \
+      -DLLVM_PATH=$LLVMSRC  && \
 
-read -p "Compile?" && make -C BUILD -j2 &&
+read -p "Compile?" && make -C BUILD -j2 && \
 
 sudo -S make DESTDIR=$BUILD -C BUILD install &&
 
@@ -44,5 +62,5 @@ libunwind-llvm:
 libunwind-llvm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libunwind-llvm-11.0.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libunwind-llvm-12.0.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
