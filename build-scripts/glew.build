@@ -20,7 +20,7 @@ sed -i 's%lib64%lib%g' config/Makefile.linux &&
 sed -i -e '/glew.lib.static:/d' \
        -e '/0644 .*STATIC/d'    \
        -e 's/glew.lib.static//' Makefile     &&
-make -j2 &&
+make SYSTEM=linux-egl -j2 &&
 
 # If building without Xlib/Xorg:
 make SYSTEM=linux-osmesa -j2
