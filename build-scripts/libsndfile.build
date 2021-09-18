@@ -12,8 +12,9 @@
 # Optional:     NONE
 
 # If optimizing, use these flags
-export  CFLAGS="-march=native -mtune=native -pipe "
-export CFLAGS+="-O3 -ffat-lto-objects -flto=4 -fstack-protector-strong -fzero-call-used-regs=used "
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 -fstack-protector-strong "
+export CFLAGS+="-fzero-call-used-regs=used "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 ac_cv_sys_largefile_CFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" \
