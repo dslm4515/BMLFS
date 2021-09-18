@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Graphene
-# Source: https://github.com/ebassi/graphene/releases/download/1.10.2/graphene-1.10.2.tar.xz
+# Source:  https://github.com/ebassi/graphene/releases/download/1.10.6/graphene-1.10.6.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,6 +10,12 @@
 # Required:     GLib, gobject-introspection
 # Recommended:  NONE
 # Optional:     NONE
+
+
+# If optimizing with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 mkdir build &&
 cd    build &&
@@ -41,5 +47,5 @@ graphene: Homepage: https://github.com/ebassi/graphene
 graphene:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/graphene-1.10.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/graphene-1.10.6-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
