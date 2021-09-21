@@ -9,7 +9,7 @@
 # DEPS
 # Required:     gtkmm3
 # Recommended:  libnotify, pulseaudio, gobject-introspectopn, 
-# Optional:     NONE
+# Optional:     gtk-layer-shell
 
 meson --prefix=/usr OUT && \
 ninja -C OUT -j2 && \
@@ -35,5 +35,5 @@ wf-shell: Source: https://github.com/WayfireWM/wf-shell
 wf-shell:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wf-shell-0.7.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wf-shell-0.8.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
