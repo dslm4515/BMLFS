@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libassuan
-# Source: ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-2.5.4.tar.bz2
+# Source: ftp://ftp.gnupg.org/gcrypt/libassuan/libassuan-2.5.5.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -39,5 +39,5 @@ libassuan:
 libassuan:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libassuan-2.5.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libassuan-2.5.5-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
