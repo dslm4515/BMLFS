@@ -1,0 +1,40 @@
+#! /bin/bash
+
+# XCB Errors
+# Source: https://gitlab.freedesktop.org/xorg/lib/libxcb-errors
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     xcb-util
+# Recommended:  NONE
+# Optional:     Doxygen
+
+# Generate configure script & configure
+./autogen.sh $XORG_CONFIG  $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+             |-----handy-ruler------------------------------------------------------|
+libxcb-errors: libxcb-errors 
+libxcb-errors:
+libxcb-errors: XCB utility library that gives human readable names to error, event, 
+libxcb-errors: & request codes.
+libxcb-errors:
+libxcb-errors: https://gitlab.freedesktop.org/xorg/lib/libxcb-errors
+libxcb-errors:
+libxcb-errors:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libxcb-errors-1.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
