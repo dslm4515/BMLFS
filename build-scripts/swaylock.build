@@ -37,5 +37,5 @@ swaylock: https://github.com/swaywm/swaylock
 swaylock:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/swaylock-1.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/swaylock-1.5-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
