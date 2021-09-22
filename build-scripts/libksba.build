@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Libksba
-# Source: ftp://ftp.gnupg.org/gcrypt/libksba/libksba-1.4.0.tar.bz2
+# Source: ftp://ftp.gnupg.org/gcrypt/libksba/libksba-1.6.0.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -39,5 +39,5 @@ libksba:
 libksba:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libksba-1.4.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libksba-1.6.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
