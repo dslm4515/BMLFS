@@ -1,15 +1,20 @@
 #! /bin/bash
 
 # GnuPG
-# Source: ftp://ftp.gnupg.org/gcrypt/gnupg/gnupg-2.2.23.tar.bz2
+# Source: ftp://ftp.gnupg.org/gcrypt/gnupg/gnupg-2.2.29.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     NONE
-# Recommended:  NONE
-# Optional:     NONE
+# Required:     Libassuan, libgcrypt, Libksba, and npth
+# Recommended:  gnutls, pinentry
+# Optional:     cURL, Fuse, ImageMagick, libusb, SQLite, 
+
+# If coptimizing:
+export  CFLAGS="-march=native -mtune=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=auto "
+export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
 patch -Np1 -i ../patches/gnupg-alpine/0001-Include-sys-select.h-for-FD_SETSIZE.patch
 patch -Np1 -i ../patches/gnupg-alpine/fix-i18n.patch
@@ -19,7 +24,7 @@ sed -e '/noinst_SCRIPTS = gpg-zip/c sbin_SCRIPTS += gpg-zip' \
 ./configure --prefix=/usr            \
             --enable-symcryptrun     \
             --localstatedir=/var     \
-            --docdir=/usr/share/doc/gnupg-2.2.23 \
+            --docdir=/usr/share/doc/gnupg-2.2.29 \
             --disable-nls --enable-bzip2 $BUILDTRUPLE &&
 
 read -p "Compile?" && make -j2 &&
@@ -52,5 +57,5 @@ EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S ln -sv gpg  usr/bin/gpg2 &&
 sudo -S ln -sv gpg  usr/bin/gpgv2 
-sudo -S makepkg -l y -c n $PKGS/gnupg-2.2.23-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/gnupg-2.2.29-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
