@@ -10,6 +10,12 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     NONE
+
+# if optimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+
 patch -Np1 -i ../patches/autoconf-2.13-lfs/consolidated_fixes-1.patch &&
 mv -v autoconf.texi autoconf213.texi                      &&
 rm -v autoconf.info                                       &&
