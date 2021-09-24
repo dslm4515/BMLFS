@@ -8,11 +8,11 @@
 #
 # DEPS
 # Required:     Wayland, Wayland-protocols, libxkbcommon, xkeyboard-config
-# Required:     libinput,libunwind, mtdev, libxcursor, glu, lcms2, gstreamer
-# Required: 	pango, colord, libwebp, libva, dbus, freerdp, gst-plugins-base
-# Required: 	linux-pam, libevdev, libjpeg-turbo, meson, elogind
-# Recommended:  NONE
-# Optional:     pipwire
+# Required:     libinput,libunwind, mtdev, libxcursor, glu, lcms2, pango
+# Required: 	libwebp, libva, dbus, linux-pam, libevdev, libjpeg-turbo
+# Required: 	elogind
+# Recommended:  gstreamer, colord, freerdp, gst-plugins-base
+# Optional:     pipewire
 
 patch -Np1 -i ../patches/weston-alpine/missing-fnctl_h.patch
 patch -Np1 -i ../patches/weston-alpine/timespec.patch
