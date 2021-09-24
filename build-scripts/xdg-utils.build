@@ -11,6 +11,11 @@
 # Recommended:  NONE
 # Optional:     DBus
 
+# If coptimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 patch -Np1 -i ../patches/xdg-utils-alpine/xdg-screensaver-mv-T.patch &&
 
 ./configure --prefix=/usr --mandir=/usr/share/man $BUILDTRUPLE &&
