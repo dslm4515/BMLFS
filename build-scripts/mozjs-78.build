@@ -7,9 +7,13 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Autoconf-2.13, ICU, rustc, Which
+# Required:     Autoconf-2.13, ICU, rustc, Which, nspr
 # Recommended:  NONE
 # Optional:     NONE
+
+# NOTE: Rust will no longer build on musl-1.2.x, which means mozjs will not build.
+# Workaround is by installing and patching Alpine Linux's build of mozjs.
+# Alpine's mozjs 78.14.0 will require libffi-3.3 and ICU 67(libicudata,libicui18n,libicuuc)
 
 # If you compiling this package in chroot then ensure that /dev/shm is mounted.
 # As root:
