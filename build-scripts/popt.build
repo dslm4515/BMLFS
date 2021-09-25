@@ -11,6 +11,13 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# If coptimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-Os -fdata-sections -ffunction-sections "
+export CFLAGS+="-fno-lto -fno-semantic-interposition "
+export CXXFLAGS=$CFLAGS
+unset LDFLAGS
+
 cp -v ../files/config.sub-musl config.sub     &&
 cp -v ../files/config.guess-musl config.guess &&
 
