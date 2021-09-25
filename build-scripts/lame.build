@@ -11,7 +11,16 @@
 # Recommended:  NONE
 # Optional:     Dmalloc, Electric Fence, libsndfile and NASM 
 
-./configure --prefix=/usr    --enable-mp3rtp \
+# fix for parallel builds
+mkdir -pv libmp3lame/i386/.libs
+
+# fix for pic build with new nasm
+sed -i -e '/define sp/s/+/ + /g' libmp3lame/i386/nasm.h
+
+aclocal && automake --force --add-missing
+
+LDFLAGS="-Wl,--as-needed -ltinfo " \
+./configure --prefix=/usr    --enable-mp3rtp --with-pic \
             --disable-static --enable-nasm   $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
