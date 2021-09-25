@@ -11,6 +11,14 @@
 # Recommended:  NONE
 # Optional:     mdadm,  reiserfsprogs, valgrind, xfsprogs, thin-provisioning-tools
 
+# If optimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -Os -fdata-sections -ffat-lto-objects "
+export CFLAGS+="-ffunction-sections -flto=4 -fno-semantic-interposition "
+export CFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
+export CXXFLAGS=$CFLAGS
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 patch -Np1 -i ../patches/LVM2-alpine/fix-stdio-usage.patch             &&
 patch -Np1 -i ../patches/LVM2-alpine/library_dir-default-config.patch  &&
 patch -Np1 -i ../patches/LVM2-alpine/mlockall-default-config.patch     &&
