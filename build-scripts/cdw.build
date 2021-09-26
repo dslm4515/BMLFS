@@ -11,6 +11,7 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+LDFLAGS="-Wl,-ltinfow " \
 ./configure --prefix=/usr $BUILDTRUPLE \
      --sysconfdir=/etc &&
 read -p "Compile?" && make -j2 &&
