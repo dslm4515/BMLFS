@@ -1,0 +1,42 @@
+#! /bin/bash
+
+# libcpuid 
+# Source: https://github.com/anrieff/libcpuid/releases/download/v0.5.1/libcpuid-0.5.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr  $BUILDTRUPLE &&
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+libcpuid: libCPUID
+libcpuid:
+libcpuid: This provides CPU identification for the x86 (and x86_64). It can:
+libcpuid: o Get the processor vendor, model, brand string, code name, ...
+libcpuid: o Get information about CPU features such as: number of cores or 
+libcpuid:   logical CPUs, cache sizes, CPU clock
+libcpuid: o check if the processor implements a specific instruction set
+libcpuid: 
+libcpuid: https://github.com/anrieff/libcpuid/
+libcpuid:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libcpuid-0.5.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
