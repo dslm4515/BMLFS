@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Ntfs-3g 
-# Source: https://tuxera.com/opensource/ntfs-3g_ntfsprogs-2017.3.23.tgz
+# Source: https://tuxera.com/opensource/ntfs-3g_ntfsprogs-2021.8.22.tgz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,12 +11,18 @@
 # Recommended:  NONE
 # Optional:     libfuse (disables user mounts)
 
-patch -Np1 -i ../patches/ntfs-3g-adelie/CVE-2019-9755.patch &&
+#patch -Np1 -i ../patches/ntfs-3g-adelie/CVE-2019-9755.patch &&
+
+# If optimizing with GCC:
+export  CFLAGS="-march=native -O2 "
+export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
+export CXXFLAGS=$CFLAGS
+unset LDFLAGS
 
 ./configure --prefix=/usr        \
             --disable-static     \
             --with-fuse=internal \
-            --docdir=/usr/share/doc/ntfs-3g-2017.3.23 $BUILDTRUPLE &&
+            --docdir=/usr/share/doc/ntfs-3g-2021.8.22 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S mkdir -pv ${BUILD}/lib &&
@@ -46,5 +52,5 @@ ntfs-3g:
 EOF
 sudo -S mv -v /tmp/slack-desc install/    &&
 sudo -S ln -s bin/ntfs-3g sbin/mount.ntfs &&
-sudo -S makepkg -l y -c n $PKGS/ntfs-3g-2017.3.23-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/ntfs-3g-2021.8.22-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
