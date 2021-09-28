@@ -11,6 +11,11 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# If coptimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 export CFLAGS="$CFLAGS -DHAVE_EXPLICIT_BZERO=1" &&
 
 read -p "Compile?" && make OPTTARGET=none -j2 &&
