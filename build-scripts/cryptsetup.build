@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # cryptsetup
-# Source: https://www.kernel.org/pub/linux/utils/cryptsetup/v2.3/cryptsetup-2.3.4.tar.xz
+# Source: https://www.kernel.org/pub/linux/utils/cryptsetup/v2.3/cryptsetup-2.3.6.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,6 +10,13 @@
 # Required:     JSON-C, LVM2, popt
 # Recommended:  argon2
 # Optional:     libpwquality, Python2, passwdqc
+
+# If coptimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-Ofast -falign-functions=32 -fno-lto "
+export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
+export CXXFLAGS=$CFLAGS
+unset LDFLAGS
 
 ./configure --prefix=/usr --with-crypto_backend=openssl --enable-libargon2 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
@@ -39,5 +46,5 @@ cryptsetup: cryptsetup home: http://luks.endorphin.org/dm-crypt
 cryptsetup:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cryptsetup-2.3.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/cryptsetup-2.3.6-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
