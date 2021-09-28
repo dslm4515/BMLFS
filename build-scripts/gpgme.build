@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GPGME
-# Source: ftp://ftp.gnupg.org/gcrypt/gpgme/gpgme-1.15.1.tar.bz2
+# Source: ftp://ftp.gnupg.org/gcrypt/gpgme/gpgme-1.16.0.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -38,5 +38,5 @@ gpgme:
 gpgme:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gpgme-1.15.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/gpgme-1.16.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
