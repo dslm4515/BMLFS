@@ -1,0 +1,50 @@
+#! /bin/bash
+
+# CPU-X 
+# Source: https://github.com/X0rg/CPU-X/archive/refs/tags/v4.2.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:    CMake,  libcpuid, glew, pciutils, 
+# Recommended:  gtk+3
+# Optional:     OpenCL
+
+# Add missing header to define CTRL
+patch -Np1 -i ../patches/cpu-x-mlfs/dd_missing_header_for_CTRL.patch
+
+cmake -B BUILD -DCMAKE_INSTALL_PREFIX=/usr \
+	-DCMAKE_BUILD_TYPE=Release \
+	-DWITH_GTK=1 -DWITH_NCURSES=1 \
+	-DWITH_LIBPCI=1 -DWITH_LIBPROCPS=1 \
+	-DWITH_LIBGLFW=1 
+
+read -p "Compile?" && make -C BUILD -j2 &&
+
+sudo -S make DESTDIR=$BUILD -C BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+CPU-X: CPU-X
+CPU-X:
+CPU-X: A Free software that gathers information on CPU, motherboard and 
+CPU-X: more. Thisis a system profiling and monitoring application (similar 
+CPU-X: to CPU-Z for Windows).
+CPU-X:
+CPU-X: It can be used in graphical mode by using GTK or in text-based mode 
+CPU-X: by using NCurses. 
+CPU-X: 
+CPU-X: https://github.com/X0rg/CPU-X
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/CPU-X-4.2.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
