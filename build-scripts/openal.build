@@ -1,15 +1,15 @@
 #! /bin/bash
 
 # OpenAL
-# Source: https://github.com/kcat/openal-soft/archive/openal-soft-1.20.1.tar.gz
+# Source: https://github.com/kcat/openal-soft/archive/openal-soft-1.21.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     alsa-lib
-# Recommended:  NONE
-# Optional:     NONE
+# Recommended:  libsndfile
+# Optional:     SDL2, git, ffmpeg, pulseaudio
 
 mkdir BUILD && cd BUILD &&
 cmake   -DCMAKE_BUILD_TYPE=None \
@@ -42,5 +42,5 @@ OpenAL:
 OpenAL:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/OpenAL-1.20.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/OpenAL-1.21.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
