@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # AOM
-# Source: https://aomedia.googlesource.com/aom/+archive/v1.0.0-errata1-avif.tar.gz
+# Source: https://aomedia.googlesource.com/aom/+archive/v3.1.2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,6 +13,8 @@
 #
 # Source does not unpack into a directory
 
+patch -Np1 -i ../patches/aom-alpine/fix-stack-size-e53da0b.patch
+
 case $(uname -m) in
      arm*)  export ECONF="-DENABLE_NEON=OFF" ;;
 esac &&
@@ -20,7 +22,9 @@ mkdir BUILD && cd BUILD &&
 cmake  -DCMAKE_INSTALL_PREFIX=/usr \
        -DCMAKE_INSTALL_LIBDIR=lib  \
        -DBUILD_SHARED_LIBS=True    \
-       -DCMAKE_BUILD_TYPE=None $ECONF .. &&
+       -DCMAKE_BUILD_TYPE=None $ECONF \
+       -DCMAKE_CXX_FLAGS="$CXXFLAGS"  \
+       -DCMAKE_C_FLAGS="$CFLAGS" .. &&
 read -p "Compile?" && make -j2 &&
 unset ECONF &&
 sudo -S make DESTDIR=$BUILD install &&
@@ -48,5 +52,5 @@ aom:
 aom:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/aom-1.0.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/aom-3.1.2-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
