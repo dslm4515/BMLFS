@@ -2,6 +2,7 @@
 
 # Bubblewrap
 # Source: https://github.com/projectatomic/bubblewrap/releases/download/v0.4.1/bubblewrap-0.4.1.tar.xz
+# Source: https://github.com/projectatomic/bubblewrap/releases/download/v0.5.0/bubblewrap-0.5.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,6 +11,12 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     NONE
+
+# If optimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
+export CXXFLAGS=$CFLAGS
+unset LDFLAGS
 
 NOCONFIGURE=1 ./autogen.sh
 ./configure --prefix=/usr --with-priv-mode=setuid $BUILDTRUPLE &&
@@ -40,5 +47,5 @@ bubblewrap:
 bubblewrap:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/bubblewrap-0.4.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/bubblewrap-0.5.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
