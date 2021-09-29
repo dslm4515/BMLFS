@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # CUPS
-# Source: https://github.com/apple/cups/releases/download/v2.3.3/cups-2.3.3-source.tar.gz
+# Source: https://github.com/OpenPrinting/cups/releases/download/v2.3.3op2/cups-2.3.3op2-source.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -14,6 +14,7 @@
 
 patch -Np1 -i ../patches/cups-alpine/cups-no-export-ssllibs.patch
 patch -Np1 -i ../patches/cups-alpine/default-config-no-gssapi.patch 
+patch -Np1 -i ../patches/cups-alpine/cups-nostrip.patch 
 
 sudo -S useradd -c "Print Service User" -d /var/spool/cups -g lp -s /bin/false -u 9 lp &&
 sudo -S groupadd -g 19 lpadmin                                      &&
@@ -24,7 +25,7 @@ CC=gcc CXX=g++ \
             --disable-systemd            \
             --with-rcdir=/tmp/cupsinit   \
             --with-system-groups=lpadmin \
-            --with-docdir=/usr/share/cups/doc-2.3.3 $BUILDTRUPLE &&
+            --with-docdir=/usr/share/cups/doc-2.3.3op2 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -60,12 +61,12 @@ EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S rm -rvf usr/share/cups/banners/* \
                usr/share/cups/data/testprint &&
-sudo -S makepkg -l y -c n $PKGS/cups-2.3.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/cups-2.3.3op2-$(uname -m)-mlfs.txz &&
 cp -v install/doinst.sh /tmp/ &&
 cat >> /tmp/doinst.sh << "EOF"
 useradd -c "Print Service User" -d /var/spool/cups -g lp -s /bin/false -u 9 lp
 groupadd -g 19 lpadmin
 EOF
 sudo -S mv -v /tmp/doinst.sh install/ &&
-sudo -S makepkg -l y -c n $PKGS/cups-2.3.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/cups-2.3.3op2-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
