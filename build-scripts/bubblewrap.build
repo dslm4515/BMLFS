@@ -1,7 +1,6 @@
 #! /bin/bash
 
 # Bubblewrap
-# Source: https://github.com/projectatomic/bubblewrap/releases/download/v0.4.1/bubblewrap-0.4.1.tar.xz
 # Source: https://github.com/projectatomic/bubblewrap/releases/download/v0.5.0/bubblewrap-0.5.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
