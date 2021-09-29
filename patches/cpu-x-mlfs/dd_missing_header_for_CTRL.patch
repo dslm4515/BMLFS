@@ -1,0 +1,10 @@
+--- CPU-X-4.2.0.orig/src/tui_ncurses.c  2021-03-28 10:37:36.000000000 -0500
++++ CPU-X-4.2.0/src/tui_ncurses.c       2021-09-28 22:27:21.142622306 -0500
+@@ -30,6 +30,7 @@
+ #include <libintl.h>
+ #include "cpu-x.h"
+ #include "tui_ncurses.h"
++#include <sys/ttydefaults.h>
+ 
+ static void (*func_ptr[])(WINDOW*, const SizeInfo, Labels*) =
+ {
