@@ -9,7 +9,7 @@
 # DEPS
 # Required:     nettle, mesa, libdrm, libepoxy, libxfont2, pixman
 # Required:     xorgproto, xtrans, libxkbfile, dbus, font-util, libtirpc,
-# Required:     fontutil
+# Required:     fontutil, xkbutils
 # Recommended:  NONE
 # Optional:     NONE 
 

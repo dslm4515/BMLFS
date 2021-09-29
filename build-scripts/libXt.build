@@ -7,7 +7,7 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     xorgproto, xtrans, libXext, libX11
+# Required:     xorgproto, xtrans, libXext, libX11, libSM, libICE
 # Recommended:  libxcb
 # Optional:     Glib
 

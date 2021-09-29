@@ -7,7 +7,7 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     xorgproto
+# Required:     xorgproto, libXaw, libXt
 # Recommended:  NONE
 # Optional:     NONE
 
