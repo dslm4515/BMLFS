@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libwpebackend-fdo
-# Source: https://github.com/Igalia/WPEBackend-fdo/releases/download/1.8.0/wpebackend-fdo-1.8.0.tar.xz
+# Source: https://github.com/Igalia/WPEBackend-fdo/releases/download/1.10.0/wpebackend-fdo-1.10.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -12,14 +12,12 @@
 # Optional:     NONE
 
 mkdir BUILD && cd BUILD &&
-cmake -DCMAKE_INSTALL_PREFIX=/usr \
-      -DCMAKE_INSTALL_LIBDIR=lib \
-      -DBUILD_SHARED_LIBS=True \
-      -DCMAKE_BUILD_TYPE=None .. &&
 
-read -p "Compile?" && make -j2 &&
+meson --prefix=/usr --buildtype=release .. && \
 
-sudo -S make DESTDIR=$BUILD install &&
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja  install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -44,5 +42,5 @@ wpebackend-fdo:
 wpebackend-fdo:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wpebackend-fdo-1.8.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wpebackend-fdo-1.10.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
