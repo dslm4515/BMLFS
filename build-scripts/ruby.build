@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Ruby 
-# Source: http://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.xz
+# Source: https://cache.ruby-lang.org/pub/ruby/3.0/ruby-3.0.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,6 +10,12 @@
 # Required:     libucontext
 # Recommended:  NONE
 # Optional:     Berkeley DB, Doxygen, Graphviz, libyaml, Tk, Valgrind, and DTrace 
+
+# If optimizing with GCC:
+unset LDFLAGS
+export  CFLAGS="-march=native -O2 "
+export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
+export CXXFLAGS=$CFLAGS
 
 autoconf -v &&
 export CFLAGS="$CFLAGS -fno-omit-frame-pointer -fno-strict-aliasing"     &&
@@ -25,7 +31,7 @@ patch -Np1 -i ../patches/ruby-alpine/test_insns-lower-recursion-depth.patch
 
 ./configure --prefix=/usr   \
             --enable-shared \
-            --docdir=/usr/share/doc/ruby-2.7.2 \
+            --docdir=/usr/share/doc/ruby-3.0.2 \
             --enable-pthread \
             --disable-rpath  \
             --enable-shared $BUILDTURPLE &&
@@ -34,8 +40,8 @@ read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
 unset CFLAGS CPPFLAGS LIBS INSTALL ac_cv_func_isnan ac_cv_func_isinf     &&
-sudo -S rm -v    ${BUILD}/usr/lib/ruby/2.7.0/rubygems/ssl_certs/*/*.pem  &&
-sudo -S rmdir -v ${BUILD}/usr/lib/ruby/2.7.0/rubygems/ssl_certs/*        &&
+sudo -S rm -v    ${BUILD}/usr/lib/ruby/3.0.0/rubygems/ssl_certs/*/*.pem  &&
+sudo -S rmdir -v ${BUILD}/usr/lib/ruby/3.0.0/rubygems/ssl_certs/*        &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -60,5 +66,5 @@ ruby:
 ruby:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/ruby-2.7.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/ruby-3.0.2-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
