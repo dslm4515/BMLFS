@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libucontext
-# Source: https://github.com/kaniini/libucontext/archive/libucontext-0.11.tar.gz
+# Source: https://github.com/kaniini/libucontext/archive/refs/tags/libucontext-1.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,7 +13,6 @@
 
 case $(uname -m) in
 	i686)   export LIBUCONTEXT_ARCH="x86"
-	        sed -i arch/x86/startcontext.S -e "s;__i686.get_pc_thunk.bx;i686_get_pc_thunk_bx;g"
 	        ;;
 	arm*)	export LIBUCONTEXT_ARCH="arm" ;;
 esac &&
@@ -44,5 +43,5 @@ libucontext:
 libucontext:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libucontext-0.11-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libucontext-1.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
