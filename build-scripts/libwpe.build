@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libwpe
-# Source: https://github.com/WebPlatformForEmbedded/libwpe/releases/download/1.8.0/libwpe-1.8.0.tar.xz
+# Source: https://github.com/WebPlatformForEmbedded/libwpe/releases/download/1.10.1/libwpe-1.10.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -44,5 +44,5 @@ libwpe:
 libwpe:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libwpe-1.8.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libwpe-1.10.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
