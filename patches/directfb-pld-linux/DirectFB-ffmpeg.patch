@@ -1,0 +1,268 @@
+--- DirectFB-1.7.0/interfaces/IFusionSoundMusicProvider/ifusionsoundmusicprovider_ffmpeg.c.orig	2013-01-12 06:06:23.000000000 +0100
++++ DirectFB-1.7.0/interfaces/IFusionSoundMusicProvider/ifusionsoundmusicprovider_ffmpeg.c	2013-07-19 17:15:41.004724901 +0200
+@@ -55,6 +55,9 @@
+ 
+ #include <libavutil/avutil.h>
+ 
++#ifndef AVCODEC_MAX_AUDIO_FRAME_SIZE
++#  define	AVCODEC_MAX_AUDIO_FRAME_SIZE 192000
++#endif
+ 
+ static DirectResult
+ Probe( IFusionSoundMusicProvider_ProbeContext *ctx );
+@@ -79,7 +82,7 @@
+      DirectStream                 *stream;
+ 
+ #if (LIBAVFORMAT_VERSION_MAJOR >= 53)
+-     AVIOContext                   pb;
++     AVIOContext                   *pb;
+ #else
+      ByteIOContext                 pb;
+ #endif
+@@ -412,6 +415,11 @@
+           data->dest.buffer = NULL;
+      }
+ 
++     if (data->pb) {
++	  av_free( data->pb );
++	  data->pb = NULL;
++     }
++
+      /* release output buffer */
+      if (data->buf) {
+           D_FREE( data->buf );
+@@ -1279,16 +1287,26 @@
+           return D_OOM();
+      }
+ 
+-     if (init_put_byte( &data->pb, data->iobuf, 4096, 0,
++     if ((data->pb = avio_alloc_context( data->iobuf, 4096, 0,
+                         (void*)data, av_read_callback, NULL,
+-                        direct_stream_seekable( stream ) ? av_seek_callback : NULL ) < 0) {
+-          D_ERROR( "IFusionSoundMusicProvider_FFmpeg: init_put_byte() failed!\n" );
++                        direct_stream_seekable( stream ) ? av_seek_callback : NULL )) == NULL) {
++          D_ERROR( "IFusionSoundMusicProvider_FFmpeg: avio_alloc_context() failed!\n" );
+           IFusionSoundMusicProvider_FFmpeg_Destruct( thiz );
+           return DR_INIT;
+      }
+ 
+-     if (av_open_input_stream( &data->ctx, &data->pb, filename, fmt, NULL ) < 0) {
+-          D_ERROR( "IFusionSoundMusicProvider_FFmpeg: av_open_input_stream() failed!\n" );
++    if(data->ctx == NULL) {
++        data->ctx = avformat_alloc_context();
++        if (data->ctx == NULL) {
++              D_ERROR( "IFusionSoundMusicProvider_FFmpeg: avformat_alloc_context() failed!\n" );
++              IFusionSoundMusicProvider_FFmpeg_Destruct( thiz );
++              return DR_FAILURE;
++        }
++    }
++
++     data->ctx->pb = data->pb;
++     if (avformat_open_input( &data->ctx, filename, fmt, NULL ) < 0) {
++          D_ERROR( "IFusionSoundMusicProvider_FFmpeg: avformat_open_input() failed!\n" );
+           IFusionSoundMusicProvider_FFmpeg_Destruct( thiz );
+           return DR_FAILURE;
+      }
+@@ -1318,7 +1336,7 @@
+ 
+      data->codec = data->st->codec;
+      c = avcodec_find_decoder( data->codec->codec_id );
+-     if (!c || avcodec_open( data->codec, c ) < 0) {
++     if (!c || avcodec_open2( data->codec, c, NULL ) < 0) {
+           D_ERROR( "IFusionSoundMusicProvider_FFmpeg: couldn't find audio decoder!\n" );
+           IFusionSoundMusicProvider_FFmpeg_Destruct( thiz );
+           return DR_FAILURE;
+--- DirectFB-1.7.0/interfaces/IDirectFBVideoProvider/idirectfbvideoprovider_ffmpeg.c.orig	2013-01-12 06:06:23.000000000 +0100
++++ DirectFB-1.7.0/interfaces/IDirectFBVideoProvider/idirectfbvideoprovider_ffmpeg.c	2013-07-19 16:38:03.281486315 +0200
+@@ -128,7 +128,7 @@
+      bool                           seekable;
+      void                          *iobuf;
+ #if (LIBAVFORMAT_VERSION_MAJOR >= 53)
+-     AVIOContext                    pb;
++     AVIOContext                    *pb;
+ #else
+      ByteIOContext                  pb;
+ #endif
+@@ -479,7 +479,7 @@
+ {
+      IDirectFBVideoProvider_FFmpeg_data *data = arg;
+ 
+-     if (url_is_streamed( data->context->pb )) {
++     if (!data->context->pb->seekable) {
+           data->input.buffering = true;
+           pthread_mutex_lock( &data->video.queue.lock );
+           pthread_mutex_lock( &data->audio.queue.lock );
+@@ -506,7 +506,7 @@
+                     flush_packets( &data->audio.queue );
+ 
+                     if (!data->input.buffering &&
+-                        url_is_streamed( data->context->pb )) {
++                        !data->context->pb->seekable) {
+                          data->input.buffering = true;
+                          pthread_mutex_lock( &data->video.queue.lock );
+                          pthread_mutex_lock( &data->audio.queue.lock );
+@@ -541,7 +541,7 @@
+           else if (data->video.queue.size == 0 || 
+                    data->audio.queue.size == 0) {
+                if (!data->input.buffering &&
+-                   url_is_streamed( data->context->pb )) {
++                   !data->context->pb->seekable) {
+                     data->input.buffering = true;
+                     pthread_mutex_lock( &data->video.queue.lock );
+                     pthread_mutex_lock( &data->audio.queue.lock );
+@@ -798,14 +798,14 @@
+      IDirectFBVideoProvider_FFmpeg_data *data = arg;
+ 
+      AVStream *st = data->audio.st;   
+-     u8        buf[AVCODEC_MAX_AUDIO_FRAME_SIZE]; 
++     u8        buf[192000 /* AVCODEC_MAX_AUDIO_FRAME_SIZE */]; 
+ 
+      while (data->status != DVSTATE_STOP) {
+           AVPacket  pkt;
+           u8       *pkt_data;
+           int       pkt_size;
+           int       decoded = 0;
+-          int       len     = AVCODEC_MAX_AUDIO_FRAME_SIZE;
++          int       len     = 192000 /* AVCODEC_MAX_AUDIO_FRAME_SIZE */;
+           int       size    = 0;
+           
+           direct_thread_testcancel( self );
+@@ -939,6 +939,11 @@
+           }
+      }
+ 
++     if (data->pb) {
++	  av_free( data->pb );
++	  data->pb = NULL;
++     }
++
+      if (data->buffer)
+           data->buffer->Release( data->buffer );
+ 
+@@ -1778,23 +1783,32 @@
+           return D_OOM();
+      }
+           
+-     if (init_put_byte( &data->pb, data->iobuf, IO_BUFFER_SIZE * 1024, 0, 
++     if ((data->pb = avio_alloc_context( data->iobuf, IO_BUFFER_SIZE * 1024, 0, 
+                         (void*)data, av_read_callback, NULL,
+-                        data->seekable ? av_seek_callback : NULL ) < 0) {
++                        data->seekable ? av_seek_callback : NULL )) == NULL) {
+           D_ERROR( "IDirectFBVideoProvider_FFmpeg: "
+-                   "init_put_byte() failed!\n" );
++                   "avio_alloc_context() failed!\n" );
+           IDirectFBVideoProvider_FFmpeg_Destruct( thiz );
+           return DFB_INIT;
+      }
+      
+-     data->pb.is_streamed = (!data->seekable                       ||
++     data->pb->seekable = !(!data->seekable                       ||
+                              !strncmp( pd.filename, "http://", 7 ) || 
+                              !strncmp( pd.filename, "unsv://", 7 ) ||
+                              !strncmp( pd.filename, "ftp://",  6 ) || 
+                              !strncmp( pd.filename, "rtsp://", 7 ));
+      
+-     if (av_open_input_stream( &data->context, 
+-                               &data->pb, pd.filename, fmt, NULL ) < 0) {
++     if (data->context == NULL) {
++          if ((data->ctx = avformat_alloc_context()) == NULL) {
++                D_ERROR( "IDirectFBVideoProvider_FFmpeg: avformat_alloc_context() failed!\n" );
++                IDirectFBVideoProvider_FFmpeg_Destruct( thiz );
++                return DFB_FAILURE;
++          }
++     }
++
++     data->context->pb = data->pb;
++     if (avformat_open_input( &data->context, 
++                               pd.filename, fmt, NULL ) < 0) {
+           D_ERROR( "IDirectFBVideoProvider_FFmpeg: "
+                    "av_open_input_stream() failed!\n" );
+           IDirectFBVideoProvider_FFmpeg_Destruct( thiz );
+@@ -1845,7 +1859,7 @@
+      data->video.ctx   = data->video.st->codec;
+      data->video.codec = avcodec_find_decoder( data->video.ctx->codec_id );
+      if (!data->video.codec || 
+-          avcodec_open( data->video.ctx, data->video.codec ) < 0) 
++          avcodec_open2( data->video.ctx, data->video.codec, NULL ) < 0) 
+      {
+           D_ERROR( "IDirectFBVideoProvider_FFmpeg: "
+                    "error opening video codec!\n" );
+@@ -1870,7 +1884,7 @@
+           data->audio.ctx   = data->audio.st->codec;
+           data->audio.codec = avcodec_find_decoder( data->audio.ctx->codec_id );
+           if (!data->audio.codec ||
+-              avcodec_open( data->audio.ctx, data->audio.codec ) < 0) {
++              avcodec_open2( data->audio.ctx, data->audio.codec, NULL ) < 0) {
+                data->audio.st    = NULL;
+                data->audio.ctx   = NULL;
+                data->audio.codec = NULL;
+--- DirectFB-1.7.6/interfaces/IDirectFBVideoProvider/idirectfbvideoprovider_ffmpeg.c.org	2014-10-07 22:09:44.408929059 +0200
++++ DirectFB-1.7.6/interfaces/IDirectFBVideoProvider/idirectfbvideoprovider_ffmpeg.c	2014-10-07 22:13:49.765446586 +0200
+@@ -931,11 +931,19 @@
+           /* Ugly hack to fix a bug (segfault) in url_fclose() */
+           if (!(iformat->flags & AVFMT_NOFILE)) {
+                iformat->flags |= AVFMT_NOFILE;
++#if 0
+                av_close_input_file( data->context );
++#else
++	       avformat_close_input( &data->context);
++#endif
+                iformat->flags ^= AVFMT_NOFILE;
+           }
+           else {
++#if 0
+                av_close_input_file( data->context );
++#else
++	       avformat_close_input( &data->context);
++#endif
+           }
+      }
+ 
+@@ -1815,7 +1823,7 @@
+           return DFB_FAILURE;
+      }
+ 
+-     if (av_find_stream_info( data->context ) < 0) {
++     if (avformat_find_stream_info( data->context, NULL ) < 0) {
+           D_ERROR( "IDirectFBVideoProvider_FFmpeg: "
+                    "couldn't find stream info!\n" );
+           IDirectFBVideoProvider_FFmpeg_Destruct( thiz );
+@@ -1867,8 +1875,12 @@
+           IDirectFBVideoProvider_FFmpeg_Destruct( thiz );
+           return DFB_FAILURE;
+      }
+-     
++    
++#if 0
+      data->video.src_frame = avcodec_alloc_frame();
++#else
++     data->video.src_frame = av_frame_alloc();
++#endif
+      if (!data->video.src_frame) {
+           IDirectFBVideoProvider_FFmpeg_Destruct( thiz );
+           return D_OOM();
+--- DirectFB-1.7.6/interfaces/IFusionSoundMusicProvider/ifusionsoundmusicprovider_ffmpeg.c.org	2014-10-07 22:40:52.350475804 +0200
++++ DirectFB-1.7.6/interfaces/IFusionSoundMusicProvider/ifusionsoundmusicprovider_ffmpeg.c	2014-10-07 22:42:19.896406741 +0200
+@@ -444,11 +444,11 @@
+           /* Ugly hack to fix a bug (segfault) in url_fclose() */
+           if (!(iformat->flags & AVFMT_NOFILE)) {
+                iformat->flags |= AVFMT_NOFILE;
+-               av_close_input_file( data->ctx );
++	       avformat_close_input( &data->ctx );
+                iformat->flags ^= AVFMT_NOFILE;
+           }
+           else {
+-               av_close_input_file( data->ctx );
++	       avformat_close_input( &data->ctx );
+           }
+      }
+ 
+@@ -1311,7 +1311,7 @@
+           return DR_FAILURE;
+      }
+ 
+-     if (av_find_stream_info( data->ctx ) < 0) {
++     if (avformat_find_stream_info( data->ctx, NULL ) < 0) {
+           D_ERROR( "IFusionSoundMusicProvider_FFmpeg: couldn't find stream info!\n" );
+           IFusionSoundMusicProvider_FFmpeg_Destruct( thiz );
+           return DR_FAILURE;

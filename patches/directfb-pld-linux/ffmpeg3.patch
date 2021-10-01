@@ -1,0 +1,352 @@
+diff -ur -x .deps DirectFB-1.7.6.orig/interfaces/IDirectFBImageProvider/idirectfbimageprovider_ffmpeg.c DirectFB-1.7.6/interfaces/IDirectFBImageProvider/idirectfbimageprovider_ffmpeg.c
+--- DirectFB-1.7.6.orig/interfaces/IDirectFBImageProvider/idirectfbimageprovider_ffmpeg.c	2014-03-23 05:05:18.000000000 +0900
++++ DirectFB-1.7.6/interfaces/IDirectFBImageProvider/idirectfbimageprovider_ffmpeg.c	2016-04-02 01:07:55.515031522 +0900
+@@ -259,7 +259,7 @@
+ 
+      av_codec_ctx = data->av_fmt_ctx->streams[0]->codec;
+ 
+-     av_picture = avcodec_alloc_frame();
++     av_picture = av_frame_alloc();
+ 
+      if (av_picture == NULL)
+      {
+@@ -270,7 +270,7 @@
+ 
+      /*No scaling just colourspace conversion*/
+      sw_sca_ctx = sws_getCachedContext(sw_sca_ctx, av_codec_ctx->width, av_codec_ctx->height, av_codec_ctx->pix_fmt,
+-                                  av_codec_ctx->width, av_codec_ctx->height, PIX_FMT_BGRA,
++                                  av_codec_ctx->width, av_codec_ctx->height, AV_PIX_FMT_BGRA,
+                                   SWS_FAST_BILINEAR, NULL,
+                                   NULL, NULL);
+      if (sw_sca_ctx == NULL)
+diff -ur -x .deps DirectFB-1.7.6.orig/interfaces/IDirectFBVideoProvider/idirectfbvideoprovider_ffmpeg.c DirectFB-1.7.6/interfaces/IDirectFBVideoProvider/idirectfbvideoprovider_ffmpeg.c
+--- DirectFB-1.7.6.orig/interfaces/IDirectFBVideoProvider/idirectfbvideoprovider_ffmpeg.c	2016-04-02 00:59:25.978409428 +0900
++++ DirectFB-1.7.6/interfaces/IDirectFBVideoProvider/idirectfbvideoprovider_ffmpeg.c	2016-04-04 19:51:41.558286928 +0900
+@@ -601,42 +601,42 @@
+ ff2dvc_pixelformat( int pix_fmt )
+ {
+      switch (pix_fmt) {
+-          case PIX_FMT_YUV420P:
+-          case PIX_FMT_YUVJ420P:
++          case AV_PIX_FMT_YUV420P:
++          case AV_PIX_FMT_YUVJ420P:
+                return DVCPF_YUV420;
+-          case PIX_FMT_YUV422P:
+-          case PIX_FMT_YUVJ422P:
++          case AV_PIX_FMT_YUV422P:
++          case AV_PIX_FMT_YUVJ422P:
+                return DVCPF_YUV422;
+-          case PIX_FMT_YUV444P:
+-          case PIX_FMT_YUVJ444P:
++          case AV_PIX_FMT_YUV444P:
++          case AV_PIX_FMT_YUVJ444P:
+                return DVCPF_YUV444;
+-          case PIX_FMT_YUV411P:
++          case AV_PIX_FMT_YUV411P:
+                return DVCPF_YUV411;
+-          case PIX_FMT_YUV410P:
++          case AV_PIX_FMT_YUV410P:
+                return DVCPF_YUV410;
+-          case PIX_FMT_YUYV422:
++          case AV_PIX_FMT_YUYV422:
+                return DVCPF_YUYV_LE;
+-          case PIX_FMT_UYVY422:
++          case AV_PIX_FMT_UYVY422:
+                return DVCPF_YUYV_BE;
+-          case PIX_FMT_NV12:
++          case AV_PIX_FMT_NV12:
+                return DVCPF_NV12_LE;
+-          case PIX_FMT_NV21:
++          case AV_PIX_FMT_NV21:
+                return DVCPF_NV12_BE;
+-          case PIX_FMT_GRAY8:
++          case AV_PIX_FMT_GRAY8:
+                return DVCPF_Y8;
+-          case PIX_FMT_RGB8:
++          case AV_PIX_FMT_RGB8:
+                return DVCPF_RGB8;
+-          case PIX_FMT_RGB555:
++          case AV_PIX_FMT_RGB555:
+                return DVCPF_RGB15;
+-          case PIX_FMT_RGB565:
++          case AV_PIX_FMT_RGB565:
+                return DVCPF_RGB16;
+-          case PIX_FMT_RGB24:
++          case AV_PIX_FMT_RGB24:
+                return DVCPF_RGB24;
+-          case PIX_FMT_BGR24:
++          case AV_PIX_FMT_BGR24:
+                return DVCPF_BGR24;
+-          case PIX_FMT_RGB32:
++          case AV_PIX_FMT_RGB32:
+                return DVCPF_RGB32;
+-          case PIX_FMT_BGR32:
++          case AV_PIX_FMT_BGR32:
+                return DVCPF_BGR32;
+          default:
+                D_ONCE("unsupported picture format");
+@@ -798,15 +798,17 @@
+      IDirectFBVideoProvider_FFmpeg_data *data = arg;
+ 
+      AVStream *st = data->audio.st;   
+-     u8        buf[192000 /* AVCODEC_MAX_AUDIO_FRAME_SIZE */]; 
++     AVFrame *decoded_frame = NULL;
++
++     decoded_frame = av_frame_alloc();
+ 
+      while (data->status != DVSTATE_STOP) {
+           AVPacket  pkt;
+           u8       *pkt_data;
+           int       pkt_size;
+           int       decoded = 0;
+-          int       len     = 192000 /* AVCODEC_MAX_AUDIO_FRAME_SIZE */;
+           int       size    = 0;
++	  int got_frame = 0;
+           
+           direct_thread_testcancel( self );
+          
+@@ -830,23 +832,15 @@
+                avcodec_flush_buffers( data->audio.ctx );
+                data->audio.seeked = false;
+           }
+-          
++
+           for (pkt_data = pkt.data, pkt_size = pkt.size; pkt_size > 0;) {
+-#if (LIBAVFORMAT_VERSION_MAJOR >= 53)
+-               decoded = avcodec_decode_audio3( data->audio.ctx,
+-                                                (s16*)&buf[size], &len, &pkt );
+-#else
+-               decoded = avcodec_decode_audio2( data->audio.ctx,
+-                                                (s16*)&buf[size], &len,
+-                                                pkt_data, pkt_size );
+-#endif
+-               if (decoded < 0)
+-                    break;
+-                       
+-               pkt_data += decoded;
+-               pkt_size -= decoded;
+-               if (len > 0)
+-                    size += len;
++               decoded = avcodec_decode_audio4( data->audio.ctx, decoded_frame, &got_frame, &pkt);
++               if ((decoded >= 0) && got_frame) {
++                   pkt_data += decoded;
++                   pkt_size -= decoded;
++                   size += decoded;
++	       } else
++		       break;
+           }
+           
+           size /= data->audio.sample_size;
+@@ -863,12 +857,17 @@
+  
+           pthread_mutex_unlock( &data->audio.lock );
+           
+-          if (size)
+-               data->audio.stream->Write( data->audio.stream, buf, size ); 
+-          else
++          if (size) {
++		int data_size = av_samples_get_buffer_size(NULL, data->audio.ctx->channels,
++                                                         decoded_frame->nb_samples,
++                                                         data->audio.ctx->sample_fmt, 1);
++               data->audio.stream->Write( data->audio.stream, decoded_frame->data[0], data_size ); 
++	  } else
+                usleep( 1000 );
+      }
+ 
++     av_free(decoded_frame);
++
+      return (void*)0;
+ }
+ #endif
+@@ -1052,37 +1051,37 @@
+      }
+ 
+      switch (data->video.ctx->pix_fmt) {
+-          case PIX_FMT_RGB8:
++          case AV_PIX_FMT_RGB8:
+                desc->pixelformat = DSPF_RGB332;
+                break;
+-          case PIX_FMT_RGB555:
++          case AV_PIX_FMT_RGB555:
+                desc->pixelformat = DSPF_ARGB1555;
+                break;
+-          case PIX_FMT_RGB565:
++          case AV_PIX_FMT_RGB565:
+                desc->pixelformat = DSPF_RGB16;
+                break;
+-          case PIX_FMT_RGB24:
+-          case PIX_FMT_BGR24:
++          case AV_PIX_FMT_RGB24:
++          case AV_PIX_FMT_BGR24:
+                desc->pixelformat = DSPF_RGB24;
+                break;
+-          case PIX_FMT_RGB32:
+-          case PIX_FMT_BGR32:
++          case AV_PIX_FMT_RGB32:
++          case AV_PIX_FMT_BGR32:
+                desc->pixelformat = DSPF_RGB32;
+                break;
+-          case PIX_FMT_YUYV422:
++          case AV_PIX_FMT_YUYV422:
+                desc->pixelformat = DSPF_YUY2;
+                break;
+-          case PIX_FMT_UYVY422:
++          case AV_PIX_FMT_UYVY422:
+                desc->pixelformat = DSPF_UYVY;
+                break;
+-          case PIX_FMT_YUV444P:
+-          case PIX_FMT_YUV422P:
+-          case PIX_FMT_YUV420P:
+-          case PIX_FMT_YUV411P:
+-          case PIX_FMT_YUV410P:
+-          case PIX_FMT_YUVJ420P:
+-          case PIX_FMT_YUVJ422P:
+-          case PIX_FMT_YUVJ444P:
++          case AV_PIX_FMT_YUV444P:
++          case AV_PIX_FMT_YUV422P:
++          case AV_PIX_FMT_YUV420P:
++          case AV_PIX_FMT_YUV411P:
++          case AV_PIX_FMT_YUV410P:
++          case AV_PIX_FMT_YUVJ420P:
++          case AV_PIX_FMT_YUVJ422P:
++          case AV_PIX_FMT_YUVJ444P:
+                desc->pixelformat = DSPF_I420;
+                break;
+           default:
+diff -ur -x .deps DirectFB-1.7.6.orig/interfaces/IFusionSoundMusicProvider/ifusionsoundmusicprovider_ffmpeg.c DirectFB-1.7.6/interfaces/IFusionSoundMusicProvider/ifusionsoundmusicprovider_ffmpeg.c
+--- DirectFB-1.7.6.orig/interfaces/IFusionSoundMusicProvider/ifusionsoundmusicprovider_ffmpeg.c	2016-04-02 00:59:26.075077423 +0900
++++ DirectFB-1.7.6/interfaces/IFusionSoundMusicProvider/ifusionsoundmusicprovider_ffmpeg.c	2016-04-04 20:16:31.250776250 +0900
+@@ -604,9 +604,13 @@
+      u8       *pkt_data = NULL;
+      int       pkt_size = 0;
+      s64       pkt_pts  = AV_NOPTS_VALUE;
++     AVFrame *decoded_frame = NULL;
++
++     decoded_frame = av_frame_alloc();
+ 
+      while (data->status == FMSTATE_PLAY) {
+           int len, decoded, size = 0;
++	  int got_frame = 0;
+ 
+           pthread_mutex_lock( &data->lock );
+ 
+@@ -655,31 +659,22 @@
+                }
+           }
+ 
+-          len = AVCODEC_MAX_AUDIO_FRAME_SIZE;
+-
+-#if (LIBAVFORMAT_VERSION_MAJOR >= 52)
+-          decoded = avcodec_decode_audio3( data->codec,
+-                                          (s16*)data->buf, &len, &pkt);
+-
+-#else
+-          decoded = avcodec_decode_audio2( data->codec,
+-                                          (s16*)data->buf, &len, pkt_data, pkt_size );
+-
+-#endif
+-          if (decoded < 0) {
+-               av_free_packet( &pkt );
+-               pkt_size = 0;
+-          }
+-          else {
++          decoded = avcodec_decode_audio4( data->codec, decoded_frame, &got_frame, &pkt);
++          if ((decoded >= 0) && got_frame) {
+                pkt_data += decoded;
+                pkt_size -= decoded;
+                if (pkt_size <= 0)
+                     av_free_packet( &pkt );
+ 
+-               if (len > 0) {
+-                    size = len / (data->codec->channels * 2);
+-                    data->pts += (s64)size * AV_TIME_BASE / data->codec->sample_rate;
+-               }
++               size = decoded / (data->codec->channels * 2);
++               data->pts += (s64)size * AV_TIME_BASE / data->codec->sample_rate;
++	       int data_size = av_samples_get_buffer_size(NULL, data->codec->channels,
++			                                  decoded_frame->nb_samples,
++							  data->codec->sample_fmt, 1);
++	       memcpy(data->buf, decoded_frame->data[0], data_size);
++          } else {
++               av_free_packet( &pkt );
++               pkt_size = 0;
+           }
+ 
+           pthread_mutex_unlock( &data->lock );
+@@ -710,6 +705,8 @@
+      if (pkt_size > 0)
+           av_free_packet( &pkt );
+ 
++     av_free(decoded_frame);
++
+      return (void*)0;
+ }
+ 
+@@ -814,10 +811,14 @@
+      int       pkt_size = 0;
+      s64       pkt_pts  = AV_NOPTS_VALUE;
+      int       pos      = 0;
++     AVFrame *decoded_frame = NULL;
++
++     decoded_frame = av_frame_alloc();
+ 
+      while (data->status == FMSTATE_PLAY) {
+           s16 *buf;
+           int  len, decoded, size = 0;
++	  int got_frame = 0;
+ 
+           pthread_mutex_lock( &data->lock );
+ 
+@@ -870,32 +871,22 @@
+                }
+           }
+ 
+-          len = AVCODEC_MAX_AUDIO_FRAME_SIZE;
+-
+-#if (LIBAVFORMAT_VERSION_MAJOR >= 53)
+-          decoded = avcodec_decode_audio3( data->codec,
+-                                          (s16*)data->buf, &len, &pkt);
+-
+-#else
+-          decoded = avcodec_decode_audio2( data->codec,
+-                                          (s16*)data->buf, &len, pkt_data, pkt_size );
+-
+-#endif
+-
+-          if (decoded < 0) {
+-               av_free_packet( &pkt );
+-               pkt_size = 0;
+-          }
+-          else {
++          decoded = avcodec_decode_audio4( data->codec, decoded_frame, &got_frame, &pkt);
++          if ((decoded >= 0) && got_frame) {
+                pkt_data += decoded;
+                pkt_size -= decoded;
+                if (pkt_size <= 0)
+                     av_free_packet( &pkt );
+ 
+-               if (len > 0) {
+-                    size = len / (data->codec->channels * 2);
+-                    data->pts += (s64)size * AV_TIME_BASE / data->codec->sample_rate;
+-               }
++               size = decoded / (data->codec->channels * 2);
++               data->pts += (s64)size * AV_TIME_BASE / data->codec->sample_rate;
++	       int data_size = av_samples_get_buffer_size(NULL, data->codec->channels,
++			                                  decoded_frame->nb_samples,
++							  data->codec->sample_fmt, 1);
++	       memcpy(data->buf, decoded_frame->data[0], data_size);
++          } else {
++               av_free_packet( &pkt );
++               pkt_size = 0;
+           }
+ 
+           buf = (s16*)data->buf;
+@@ -937,6 +928,8 @@
+      if (pkt_size > 0)
+           av_free_packet( &pkt );
+ 
++     av_free(decoded_frame);
++
+      return (void*)0;
+ }
+ 

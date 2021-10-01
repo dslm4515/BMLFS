@@ -11,7 +11,8 @@
 # Recommended:  NONE
 # Optional:     Mesa
 #
-# Radeon driver will not compile
+# Additional patches found:
+# https://github.com/pld-linux/DirectFB
 
 patch -Np1 -i ../patches/directfb-alpine/0001-Fix-build-on-32bit-arches-with-64bit-time_t.patch
 patch -Np1 -i ../patches/directfb-alpine/0001-directfb-fix-musl-compile.patch
@@ -21,6 +22,12 @@ patch -Np1 -i ../patches/directfb-alpine/0004-disable-fusion_dispatch.patch
 patch -Np1 -i ../patches/directfb-alpine/0005-fix-tslib-configure.patch
 patch -Np1 -i ../patches/directfb-alpine/0006-fix-client-gfx_state-initialisation.patch
 patch -Np1 -i ../patches/directfb-alpine/0007-tslib-Automatically-detect-touchscreens-using-ts_setup.patch
+patch -Np1 -i ../patches/directfb-pld-linux/DirectFB-ffmpeg.patch
+patch -Np1 -i ../patches/directfb-pld-linux/ffmpeg4.patch
+patch -Np1 -i ../patches/directfb-pld-linux/ffmpeg3.patch
+
+# Update radeon driver
+patch -Np1 -i ../patches/directfb-pld-linux/DirectFB-update.patch 
 
 autoreconf -fvi &&
 ./configure \
@@ -28,15 +35,17 @@ autoreconf -fvi &&
 		--sysconfdir=/etc \
 		--enable-static \
 		--disable-zlib \
-		--disable-x11 \
 		--enable-fbdev \
 		--disable-vnc \
 		--disable-osx \
-		--disable-mesa \
 		--enable-drmkms \
+		--enable-svg \
+		--enable-idirectfbgl-egl  \
 		--enable-freetype \
+		--enable-sdl \
+		--enable-ffmpeg \
 		--with-inputdrivers=input_hub,keyboard,linuxinput,ps2mouse,serialmouse,tslib \
-		--with-gfxdrivers=gl,gles2,i810,i830,nvidia,vdpau $BUILDTRUPLE &&
+		--with-gfxdrivers=gl,gles2,i810,i830,nvidia,vdpau,radeon $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&

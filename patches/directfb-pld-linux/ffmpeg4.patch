@@ -1,0 +1,22 @@
+--- DirectFB-1.7.7/interfaces/IDirectFBImageProvider/idirectfbimageprovider_ffmpeg.c~
++++ DirectFB-1.7.7/interfaces/IDirectFBImageProvider/idirectfbimageprovider_ffmpeg.c
+@@ -300,7 +300,7 @@ IDirectFBImageProvider_FFMPEG_RenderTo( IDirectFBImageProvider *thiz,
+      av_pkt.data = comp_data_buffer;
+ 
+      /*We don't pass complete frames*/
+-     av_codec_ctx->flags |= CODEC_FLAG_TRUNCATED;
++     av_codec_ctx->flags |= AV_CODEC_FLAG_TRUNCATED;
+ 
+      do
+      {
+--- DirectFB-1.7.7/interfaces/IDirectFBVideoProvider/idirectfbvideoprovider_ffmpeg.c~	2018-04-29 01:34:51.000000000 +0200
++++ DirectFB-1.7.7/interfaces/IDirectFBVideoProvider/idirectfbvideoprovider_ffmpeg.c	2018-04-29 01:44:29.654235050 +0200
+@@ -549,7 +549,7 @@
+           }
+           
+           if (av_read_frame( data->context, &packet ) < 0) {
+-               if (url_feof( data->context->pb )) {
++               if (avio_feof( data->context->pb )) {
+                     if (data->input.buffering) {
+                          pthread_mutex_unlock( &data->audio.queue.lock ); 
+                          pthread_mutex_unlock( &data->video.queue.lock );
