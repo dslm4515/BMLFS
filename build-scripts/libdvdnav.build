@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Libdvdnav
-# Source: https://get.videolan.org/libdvdnav/6.1.0/libdvdnav-6.1.0.tar.bz2
+# Source: https://get.videolan.org/libdvdnav/6.1.1/libdvdnav-6.1.1.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,7 +13,7 @@
 
 ./configure --prefix=/usr    \
             --disable-static \
-            --docdir=/usr/share/doc/libdvdnav-6.1.0 $BUILDTRUPLE &&
+            --docdir=/usr/share/doc/libdvdnav-6.1.1 $BUILDTRUPLE &&
             
 read -p "Compile?" && make -j2 &&
 
@@ -42,5 +42,5 @@ libdvdnav:
 libdvdnav:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libdvdnav-6.1.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libdvdnav-6.1.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
