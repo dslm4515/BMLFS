@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Libdvdread
-# Source: https://get.videolan.org/libdvdread/6.1.1/libdvdread-6.1.1.tar.bz2
+# Source: https://get.videolan.org/libdvdread/6.1.2/libdvdread-6.1.2.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,7 +13,7 @@
 
 ./configure --prefix=/usr    \
             --disable-static \
-            --docdir=/usr/share/doc/libdvdread-6.1.1 $BUILDTRUPLE &&
+            --docdir=/usr/share/doc/libdvdread-6.1.2 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -41,5 +41,5 @@ libdvdread:
 libdvdread: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libdvdread-6.1.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libdvdread-6.1.2-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
