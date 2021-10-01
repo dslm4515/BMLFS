@@ -11,6 +11,12 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# If coptimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export CXXFLAGS=$CFLAGS
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 mkdir out                           &&
 cd    out                           &&
 cmake -DCMAKE_INSTALL_PREFIX=/usr \
