@@ -11,6 +11,12 @@
 # Recommended:  alsa-lib, GLU, libjpeg-turbo, and Qt
 # Optional:     Doxygen, SDL2
 
+# If optimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export CXXFLAGS=$CFLAGS
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 patch -Np1 -i ../patches/v4l-utils-alpine/getsubopt.patch
 patch -Np1 -i ../patches/v4l-utils-alpine/types.patch
 export CFLAGS="$CFLAGS -D__off_t=off_t" &&
