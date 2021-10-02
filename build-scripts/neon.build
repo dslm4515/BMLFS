@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # neon
-# Source: https://notroj.github.io/neon/neon-0.31.2.tar.gz
+# Source: https://notroj.github.io/neon/neon-0.32.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -45,5 +45,5 @@ neon:
 neon:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/neon-0.31.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/neon-0.32.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
