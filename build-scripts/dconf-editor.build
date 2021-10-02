@@ -1,8 +1,7 @@
 #! /bin/bash
 
 # DConf Editor
-# Source: ftp://ftp.gnome.org/pub/gnome/sources/dconf-editor/3.38/dconf-editor-3.38.0.tar.xz
-# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/dconf-editor/3.38/dconf-editor-3.38.2.tar.xz
+# Source: https://download.gnome.org/sources/dconf-editor/3.38/dconf-editor-3.38.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -12,9 +11,18 @@
 # Recommended:  libxslt, Vala
 # Optional:     GTK-Doc
 
+# If coptimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export CXXFLAGS=$CFLAGS
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
 mkdir build &&
 cd    build &&
 meson --prefix=/usr --sysconfdir=/etc .. &&
+
+ninja -j2 && \
+
 sudo -S DESTDIR=$BUILD ninja install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
@@ -40,5 +48,5 @@ dconf-editor:
 dconf-editor:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/dconf-editor-3.38.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/dconf-editor-3.38.3-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
