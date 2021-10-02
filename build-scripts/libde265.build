@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libde265
-# Source: https://github.com/strukturag/libde265/releases/download/v1.0.4/libde265-1.0.4.tar.gz
+# Source: https://github.com/strukturag/libde265/releases/download/v1.0.8/libde265-1.0.8.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,9 +11,8 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-patch -Np1 -i ../patches/libde265-alpine/disable-tools.patch &&
+patch -Np1 -i ../patches/libde265-alpine/disable_tools.patch &&
 patch -Np1 -i ../patches/libde265-alpine/export-only-decoder-api.patch &&
-patch -Np1 -i ../patches/libde265-alpine/use-new-ffmpeg-enum-names.patch &&
 
 autoreconf -fvi
 
@@ -50,5 +49,5 @@ libde265:
 libde265:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libde265-1.0.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libde265-1.0.8-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
