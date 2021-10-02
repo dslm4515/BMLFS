@@ -20,6 +20,13 @@
 # Optional:     rtmpdump, spandsp, srt, svthevcenc, VO AAC, VO AMRWB, Vulkan, WildMidi, 
 # Optional:     WPE-WebKit, WPEBackend-fdo, ZBAR, ZVBI, and zxing
 
+# If optimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=auto -fstack-protector-strong "
+export CFLAGS+="-fzero-call-used-regs=used "
+export CXXFLAGS=$CFLAGS
+export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+
 mkdir build &&
 cd    build &&
 
