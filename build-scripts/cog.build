@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# COG 
+# Source: https://github.com/Igalia/cog/releases/download/v0.10.1/cog-0.10.1.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     CMake,  wpebackend-fdo, wayland, wpewebkit, libsoup
+# Required:     libinput, mesa
+# Recommended:  NONE
+# Optional:     NONE
+
+# To use cog:
+# cog $URL -P fdo --ignore-tls-errors
+
+export  CMARGS="-DCMAKE_INSTALL_PREFIX=/usr "
+export CMARGS+="-DCMAKE_INSTALL_LIBDIR=lib "
+export CMARGS+="-DBUILD_SHARED_LIBS=True "
+export CMARGS+="-DCMAKE_BUILD_TYPE=None "
+export CMARGS+="-GNinja "
+
+cmake -B build $CMARGS && \
+
+read -p "Compile?" && ninja -C build -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C build install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+   |-----handy-ruler------------------------------------------------------|
+cog: COG
+cog:
+cog: Cog is a small single “window” launcher for the WebKit WPE port. It 
+cog: is small, provides no user interface, and is suitable to be used as 
+cog: a Web application container. The “window” may be fullscreen depending
+cog:  on the WPE backend being used.
+cog:
+cog: https://github.com/Igalia/cog
+cog:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/cog-0.10.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
