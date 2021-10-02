@@ -1,29 +1,39 @@
 #! /bin/bash
 
 # GTK+ 4
-# Source: https://download.gnome.org/sources/gtk/4.0/gtk-4.0.2.tar.xz
+# Sources: https://download.gnome.org/sources/gtk/4.4/gtk-4.4.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     at-spi2-atk, FriBidi, gdk-pixbuf, libepoxy, Graphene and Pango
+# Required:     at-spi2-atk, FriBidi, gdk-pixbuf, libepoxy, Graphene , libXdamage (for X11),
+# Required:     libXinerama(for x11), libXcursor(for x11) and Pango
 # Recommended:  adwaita-icon-theme,  hicolor-icon-theme, ISO Codes, libxkbcommon, 
-# Recommended:  sassc, wayland, wayland-protocols, gobject-introspection
+# Recommended:  sassc, wayland, wayland-protocols, gobject-introspection, graphene
 # Optional:     Colord, CUPS, DocBook Utils, GTK-Doc, JSON-Glib, PyAtSpi, rest, PAPI
+
+# "ifunc" is not supported only by Glibc. Therefore, -Df16c=disabled
+
+# If coptimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export CXXFLAGS=$CFLAGS
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 meson   --prefix=/usr \
 	-Dman-pages=false \
 	-Dbuild-tests=false \
 	-Dmedia=all \
 	-Dbroadway-backend=true \
-	-Dx11-backend=false \
+	-Dx11-backend=true \
 	-Dwayland-backend=true \
 	-Dintrospection=enabled \
 	-Dprint-backends=file \
-	-Dcolord=disabled \
+	-Dcolord=enabled \
 	-Dcloudproviders=disabled \
 	-Dvulkan=disabled \
+	-Df16c=disabled \
 	BUILD &&
 
 ninja -C BUILD  -j2 && 
@@ -67,5 +77,5 @@ sudo -S mv -v /tmp/slack-desc install/ &&
 # pkgconf wont find gtk4. Fix:
 sudo ln -sv gtk4.pc usr/lib/pkgconfig/gtk+-4.0.pc && 
 	
-sudo -S makepkg -l y -c n $PKGS/gtk+4-4.0.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/gtk+4-4.4.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
