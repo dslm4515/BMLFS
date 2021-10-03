@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# cldr-emoji-annotation 
+# Source: https://github.com/unicode-org/cldr/archive/release-38/cldr-release-38.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+sudo -S mkdir -pv ${BUILD}/usr/share/unicode/cldr/common && \
+sudo -S cp -r common/annotations        ${BUILD}/usr/share/unicode/cldr/common/
+sudo -S cp -r common/annotationsDerived ${BUILD}/usr/share/unicode/cldr/common/
+sudo -S cp -r common/dtd                ${BUILD}/usr/share/unicode/cldr/common/
+
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                     |-----handy-ruler------------------------------------------------------|
+cldr-emoji-annotation: cldr-emoji-annotation
+cldr-emoji-annotation:
+cldr-emoji-annotation: The Unicode CLDR provides key building blocks for software to support
+cldr-emoji-annotation: the world's languages, with the largest and most extensive standard 
+cldr-emoji-annotation: repository of locale data available. 
+cldr-emoji-annotation:
+cldr-emoji-annotation: https://github.com/unicode-org/cldr
+cldr-emoji-annotation:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/cldr-emoji-annotation-38-noarch-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
