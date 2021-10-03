@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# QT5
-# Source: https://download.qt.io/archive/qt/5.15/5.15.1/single/qt-everywhere-src-5.15.1.tar.xz
+# Qt5
+# Source: https://void.johnnynator.dev/distfiles/qt5-5.15.3+20210924.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -15,65 +15,60 @@
 # Optional:     SDL2, unixODBC, assimp, Flite, Firebird, FreeTDS, libproxy, OpenAL, speech-dispatcher, 
 # Optional:     tslib, and Vulkan 
 
-patch -Np0 -i ../patches/qt5-5.15.1-void/0001-addlr.patch
-patch -Np0 -i ../patches/qt5-5.15.1-void/0002-gl-lib-dir.patch
-patch -Np0 -i ../patches/qt5-5.15.1-void/0007-musl-iconv-no-bom.patch
-patch -Np0 -i ../patches/qt5-5.15.1-void/0014-musl-set_thread_name_np.patch
-patch -Np0 -i ../patches/qt5-5.15.1-void/0016-musl-stackbottom.patch
-patch -Np0 -i ../patches/qt5-5.15.1-void/0018-musl-timeval.patch
-patch -Np0 -i ../patches/qt5-5.15.1-void/0048-big-endian-qtquick-software.patch
-patch -Np0 -i ../patches/qt5-5.15.1-void/0049-big-endian-scroll.patch
-patch -Np0 -i ../patches/qt5-5.15.1-void/0050-qmake-mkspecs.patch
-patch -Np0 -i ../patches/qt5-5.15.1-void/0060-upstream-65243ad7.patch
-patch -Np0 -i ../patches/qt5-5.15.1-void/qtnetwork-5.15.0-libressl.patch
+patch -Np1 -i ../patches/qt5-5.15.3+20210924-void/0001-addlr.patch 
+patch -Np1 -i ../patches/qt5-5.15.3+20210924-void/0002-gl-lib-dir.patch
+patch -Np1 -i ../patches/qt5-5.15.3+20210924-void/0007-musl-iconv-no-bom.patch
+patch -Np1 -i ../patches/qt5-5.15.3+20210924-void/0014-musl-set_thread_name_np.patch
+patch -Np1 -i ../patches/qt5-5.15.3+20210924-void/0016-musl-stackbottom.patch
+patch -Np1 -i ../patches/qt5-5.15.3+20210924-void/0018-musl-timeval.patch
+patch -Np1 -i ../patches/qt5-5.15.3+20210924-void/0048-big-endian-qtquick-software.patch
+patch -Np1 -i ../patches/qt5-5.15.3+20210924-void/0049-big-endian-scroll.patch
+patch -Np1 -i ../patches/qt5-5.15.3+20210924-void/0050-qmake-mkspecs.patch
 
-export CFLAGS="-DOPENSSL_NO_PSK -DOPENSSL_NO_NEXTPROTONEG"
-export CXXFLAGS="${CFLAGS} -Wno-deprecated-declarations -Wno-class-memaccess -Wno-packed-not-aligned"
-export LDFLAGS="-pthread -ldl -fPIE -Wl,-z,stack-size=2097152 -Wl,--no-keep-memory"
-export QT5PREFIX=/opt/qt5 &&
-export LD_LIBRARY_PATH=${PWD}/qtbase/lib:${PWD}/qttools/lib:${LD_LIBRARY_PATH} &&
-sudo -S mkdir -pv ${BUILD}/opt/qt-5.15.1    &&
-sudo -S ln -sfnv qt-5.15.1 ${BUILD}/opt/qt5 &&
+export  CXXFLAGS="${CFLAGS}-Wno-deprecated-declarations "
+export CXXFLAGS+="-Wno-class-memaccess -Wno-packed-not-aligned"
+export   LDFLAGS="-pthread -ldl -fPIE -Wl,-z,stack-size=2097152 -Wl,--no-keep-memory"
 
-# Allows using Python 3 instead of Python 2. This command destroys the build for QtWebEngine
-sed -i 's/python /python3 /' qtdeclarative/qtdeclarative.pro \
-                             qtdeclarative/src/3rdparty/masm/masm.pri &&
-# For GLX/Xorg systems:
-export CONFIG_ARGS="-opengl"
+find -maxdepth 1 -type d -exec mkdir -p {}/.git \;
+# just keep module_version at 5.15.2, since some external modules are still 5.15.2
+find -maxdepth 1 -type d -exec sed -e "/^MODULE_VERSION/s/5.*/5.15.2/" -i {}/.qmake.conf \;
+
+# Set the configure flags...
+export  CARGS="-confirm-license "
+export CARGS+="-opensource "
+export CARGS+="-prefix /opt/qt5 "
+export CARGS+="-sysconfdir /etc/xdg "
+export CARGS+="-dbus-linked "
+export CARGS+="-openssl-linked "
+export CARGS+="-system-harfbuzz "
+export CARGS+="-system-sqlite "
+export CARGS+="-nomake examples "
+export CARGS+="-no-rpath "
+export CARGS+="-optimized-qmake "
+export CARGS+="-fontconfig -no-pch -icu -no-feature-eglfs_brcm "
+export CARGS+="-no-strip -no-use-gold-linker -system-libjpeg -system-libpng "
+export CARGS+="-system-zlib -system-pcre -no-separate-debug-info "
+export CARGS+="-no-reduce-relocations -skip qtwebengine -opengl "
 
 # For Wayland-only systems
-export CONFIG_ARGS=" -opengles3 -directfb -no-xcb -linuxfb -no-xcb-xlib \
-	             -no-gtk"
+export CARGS+="-opengles3 -directfb -no-xcb -linuxfb -no-xcb-xlib -no-gtk "
 
-MAKE=/usr/bin/make \
+# Configure source
 CC="cc" CXX="c++" CPP="cpp" LD="c++" AR="ar" AS="as" NM="nm" \
 OBJDUMP="objdump" STRIP="strip" RANLIB="ranlib" \
-CFLAGS=$CFLAGS \
-CXXFLAGS=$CXXFLAGS \
-LDFLAGS=$LDFLAGS \
-./configure -prefix $QT5PREFIX                        \
-            -sysconfdir /etc/xdg                      \
-            -confirm-license                          \
-            -opensource                               \
-            -dbus-linked                              \
-            -openssl-linked                           \
-            -system-harfbuzz                          \
-            -system-sqlite                            \
-            -nomake examples                          \
-            -no-rpath                                 \
-            -fontconfig         -icu \
-            -no-pch             -no-strip \
-	    -optimized-qmake    -no-feature-eglfs_brcm  \
-            -no-use-gold-linker -system-libjpeg \
-            -system-libpng      -system-zlib \
-            -system-pcre        -no-separate-debug-info \
-            ${CONFIG_ARGS}      -no-reduce-relocations \
-            -skip qtwebengine &&
+CFLAGS=$CFLAGS CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS \
+./configure ${CARGS}
 
-read -p "Compile?" && make -j2 &&
+export LD_LIBRARY_PATH=${PWD}/qtbase/lib:${PWD}/qttools/lib:${LD_LIBRARY_PATH} 
+
+make -j2 && make -j2
+
+sudo -S mkdir -pv ${BUILD}/opt/qt-5.15.3    &&
+sudo -S ln -sfnv qt-5.15.3 ${BUILD}/opt/qt5
 
 sudo -S make INSTALL_ROOT=$BUILD install &&
 unset CFLAGS CXXFLAGS LDFLAGS LD_LIBRARY_PATH &&
+
 sudo -S -E find ${BUILD}/opt/qt5/ -name \*.prl \
    -exec sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \; &&
 sudo -S install -v -dm755 ${BUILD}/usr/share/pixmaps/ &&
@@ -124,5 +119,5 @@ qt5:
 qt5:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/qt5-5.15.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/qt5-5.15.3-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
