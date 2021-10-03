@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Geany
-# Source: https://download.geany.org/geany-1.37.tar.gz
+# Source: https://download.geany.org/geany-1.37.1.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -42,5 +42,5 @@ geany:
 geany:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/geany-1.37-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/geany-1.37.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
