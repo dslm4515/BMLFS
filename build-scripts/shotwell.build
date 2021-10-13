@@ -1,0 +1,37 @@
+#! /bin/bash
+
+# Shotwell 
+# Source: https://gitlab.gnome.org/GNOME/shotwell
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     GTK+3, GLib, libgee, webkit2gtk-4.0
+# Recommended:  None 
+# Optional:     CMake
+
+meson --prefix=/usr OUT && \
+
+ninja -C OUT -j2 && \
+
+sudo -S DESTDIR=$BUILD ninja -C OUT  install && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install && \
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+shotwell: Shotwell
+shotwell:
+shotwell: Shotwell is a personal photo manager.
+shotwell: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/shotwell-4.3.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
