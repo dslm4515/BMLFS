@@ -7,11 +7,18 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     GTK+2
+# Required:     GTK+3
 # Recommended:  NONE
-# Optional:     NONE
+# Optional:     GTK+2
 
-./configure --prefix=/usr $BUILDTRUPLE &&
+# gpicview builds fine without GTK+2 but segfaults when loading images
+
+# Per archlinux:
+# Fix displaying images with GTK3
+# https://sourceforge.net/p/lxde/patches/542/
+patch -Np1 -i ../patches/gpicview-archlinux/0001-Fix-displaying-images-with-GTK3.patch 
+
+./configure --prefix=/usr --enable-gtk3 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -32,7 +39,7 @@ gpicview: GPicView is a simple image viewer made for the lxde desktop,
 gpicview: but has minimal dependencies and low memory usage, depending
 gpicview: only on gtk+ system libraries
 gpicview:
-gpicview:
+gpicview: https://www.lxde.org
 gpicview:
 gpicview:
 gpicview:
