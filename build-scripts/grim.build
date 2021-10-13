@@ -1,0 +1,38 @@
+#! /bin/bash
+
+# Grim 
+# Source: https://github.com/emersion/grim/releases/download/v1.3.2/grim-1.3.2.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:    wayland, wayland-protocols, cairo, libjpeg-turbo, scdoc, meson
+# Recommended:  None
+# Optional:     fish, CMake
+
+meson --prefix=/usr build && \
+ninja -C build -j2 && \
+sudo -S DESTDIR=$BUILD ninja -C build install && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+grim: Grim
+grim:
+grim: Grab images from a Wayland compositor. Works great with slurp and 
+grim: with sway.
+grim:
+grim: https://github.com/emersion/grim
+grim:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/grim-1.3.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
