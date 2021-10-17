@@ -1,0 +1,39 @@
+#! /bin/bash
+
+# gThumb
+# Source: https://gitlab.gnome.org/GNOME/gthumb/-/archive/3.12.0/gthumb-3.12.0.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     meson, GLib, gtk+3, gsettings-schemas, Xorg Libraries (libX11)
+# Recommended:  exiv2, clutter, gstreamer-plugins-base, lcms2, colord, libjpeg-turbo,
+# Recommended:  libpng, librsvg, json-glib, webp
+# Optional:     CMake, libheif, libraw, webkit2gtk,libbrasero, licamplain
+
+LDFLAGS="-Wl,-lX11" \
+meson --prefix=/usr build && \
+ninja -C build -j2 && \
+sudo -S DESTDIR=$BUILD ninja -C build install && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+gthumb: gThumb
+gthumb:
+gthumb: An image viewer and browser utility for the GNOME environment.
+gthumb: 
+gthumb: https://gitlab.gnome.org/GNOME/gthumb
+gthumb:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gthumb-3.12.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
