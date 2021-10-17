@@ -1,0 +1,40 @@
+#! /bin/bash
+
+# libheif 
+# Source: https://github.com/strukturag/libheif/releases/download/v1.12.0/libheif-1.12.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     None
+# Recommended:  libjpeg-turbo, libpng, AOM, x265, libde265
+# Optional:     None
+
+./configure --prefix=/usr $BUILDTRUPLE && \
+make -j2 && \
+sudo -S make DESTDIR=$BUILD install && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+libheif: libheif
+libheif:
+libheif: libheif is an ISO/IEC 23008-12:2017 HEIF and AVIF (AV1 Image File 
+libheif: Format) file format decoder and encoder. HEIF and AVIF are new image 
+libheif: file formats employing HEVC (h.265) or AV1 image coding, respectively,
+libheif: for the best compression ratios currently possible.
+libheif: 
+libehif: https://github.com/strukturag/libheif
+libheif:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libheif-1.12.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
