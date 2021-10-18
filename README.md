@@ -1,7 +1,7 @@
 # BMLFS
 Beyond Musl Linux From Scratch - Build Recipes for  MLFS [Musl Linux From Source]
 
-This is based on the works of Beyound Linux Fom Scratch (https://www.linuxfromscratch.org/blfs), Void Linux (https://voidlinux.org), and Alpine Linux (https://alpinelinux.org).
+This is based on the works of Beyond Linux Fom Scratch (https://www.linuxfromscratch.org/blfs), Void Linux (https://voidlinux.org), and Alpine Linux (https://alpinelinux.org).
 
 These build recipes allow to build packages for a MLFS, a Musl [based] Linux from Scratch system. Such system uses Musl as libc, LibreSSL for SSL support, and S6+S6-rc for init system.
 
