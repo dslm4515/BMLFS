@@ -19,6 +19,10 @@ export CFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
+# If using dash as sh, temporarily change it to bash
+sudo rm -v /bin/sh
+sudo ln -sv bash /bin/sh
+
 patch -Np1 -i ../patches/LVM2-alpine/fix-stdio-usage.patch             &&
 patch -Np1 -i ../patches/LVM2-alpine/library_dir-default-config.patch  &&
 patch -Np1 -i ../patches/LVM2-alpine/mlockall-default-config.patch     &&
@@ -60,3 +64,7 @@ EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/lvm2-2.03.10-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
+
+# Restore sh as dash if dash is the desired sh interpreter 
+sudo rm -v /bin/sh
+sudo ln -sv dash /bin/sh
