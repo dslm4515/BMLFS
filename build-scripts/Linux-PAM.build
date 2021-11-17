@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# Linux-PAM-1.5.1 
-# Source: https://github.com/linux-pam/linux-pam/releases/download/v1.5.1/Linux-PAM-1.5.1.tar.xz
+# Linux-PAM-1.5.2 
+# Source: https://github.com/linux-pam/linux-pam/releases/download/v1.5.2/Linux-PAM-1.5.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -9,7 +9,7 @@
 # DEPS
 # Required: None
 # Optional:  Berkeley DB, libnsl, libtirpc, libaudit, and Prelude 
-# Optional for docs:  docbook-xml-4.5, docbook-xsl-1.79.2, fop-2.5, libxslt-1.1.34 and either Lynx-2.8.9rel.1 or W3m 
+# Optional for docs:  docbook-xml, docbook-xsl, fop, libxslt and either Lynx or W3m 
 
 # If optimizing, use these flags
 export  CFLAGS="-march=native -mtune=native -pipe "
@@ -30,7 +30,7 @@ ac_cv_search_crypt=no \
             --sysconfdir=/etc                \
             --libdir=/usr/lib                \
             --enable-securedir=/lib/security \
-            --docdir=/usr/share/doc/Linux-PAM-1.5.1 \
+            --docdir=/usr/share/doc/Linux-PAM-1.5.2 \
             --disable-nls                    \
             --disable-audit $BUILDTUPLE &&
 
@@ -73,21 +73,27 @@ linux-pam:
 EOF
 su -c "mv /tmp/slack-desc install/" &&
 
-for file in pam_misc pamc
-do
-  su -c "mv -v usr/lib/lib${file}.so.* lib/" &&
-  su -c "ln -sfv ../../lib/lib${file}.so.0.82.1 usr/lib/lib${file}.so"
-  su -c "rm -v usr/lib/lib${file}.so.0"
-  su -c "ln -sfv ../../lib/lib${file}.so.0.82.1 usr/lib/lib${file}.so.0"
-done
+# lib is now linked to /usr/lib
+#for file in pam_misc pamc
+#do
+#  su -c "mv -v usr/lib/lib${file}.so.* lib/" &&
+#  su -c "ln -sfv ../../lib/lib${file}.so.0.82.1 usr/lib/lib${file}.so"
+#  su -c "rm -v usr/lib/lib${file}.so.0"
+#  su -c "ln -sfv ../../lib/lib${file}.so.0.82.1 usr/lib/lib${file}.so.0"
+#done
 
-su -c "mv -v usr/lib/libpam.so.0.85.1 lib/"
-su -c "rm -v usr/lib/libpam.so usr/lib/libpam.so.0"
-su -c "ln -sfv ../../lib/libpam.so.0.85.1 usr/lib/libpam.so"
-su -c "ln -sfv ../../lib/libpam.so.0.85.1 usr/lib/libpam.so.0"
-su -c "ln -sfv libpam.so.0.85.1 lib/libpam.so.0"
+# lib is now linked to /usr/lib
+#su -c "mv -v usr/lib/libpam.so.0.85.1 lib/"
+#su -c "rm -v usr/lib/libpam.so usr/lib/libpam.so.0"
+#su -c "ln -sfv ../../lib/libpam.so.0.85.1 usr/lib/libpam.so"
+#su -c "ln -sfv ../../lib/libpam.so.0.85.1 usr/lib/libpam.so.0"
+#su -c "ln -sfv libpam.so.0.85.1 lib/libpam.so.0"
+
+# sbin is now linked to /usr/sbin
+su -c "mv -v sbin usr/"
+
 read -p "Enter to build package" &&                                                                                                                                                                                               
-su -c  "makepkg -l y -c n $PKGS/linux-pam-1.5.1-$(uname -m)-mlfs.txz" &&
+su -c  "makepkg -l y -c n $PKGS/linux-pam-1.5.2-$(uname -m)-mlfs.txz" &&
 
 cp -v install/doinst.sh /tmp/
 cat >> /tmp/doinst.sh << "EOF"
@@ -97,5 +103,5 @@ EOF
 
 su -c "mv -v /tmp/doinst.sh install/"
 
-su -c  "makepkg -l y -c n $PKGS/linux-pam-1.5.1-$(uname -m)-mlfs.txz" &&
+su -c  "makepkg -l y -c n $PKGS/linux-pam-1.5.2-$(uname -m)-mlfs.txz" &&
 su -c "rm -rf ${BUILD}/*"
