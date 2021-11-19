@@ -1,0 +1,42 @@
+#! /bin/bash
+
+# ALSA Use Case Manager topology configurations 
+# Source: https://github.com/alsa-project/alsa-ucm-conf/archive/refs/tags/v1.2.5.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     alsa-lib
+
+# No configure script, just install files
+sudo -S mkdir -pv ${BUILD)/usr/share/alsa
+sudo -S cp -vr ucm2 ${BUILD)/usr/share/alsa/
+
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+             |-----handy-ruler------------------------------------------------------|
+alsa-ucm-conf: ALSA Use Case Manager topology configurations
+alsa-ucm-conf: 
+alsa-ucm-conf: A mechanism for controlling complex audio hardware establishing a
+alsa-ucm-conf: relationship between hardware configurations and meaningful use cases
+alsa-ucm-conf: that the end-user can relate with.
+alsa-ucm-conf: On complex sound cards, setting up audio routes is not trivial and
+alsa-ucm-conf: mixer settings can conflict one another preventing the audio card to
+alsa-ucm-conf: work at all.
+alsa-ucm-conf:
+alsa-ucm-conf: https://github.com/alsa-project/alsa-ucm-conf
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/alsa-ucm-conf-1.2.5.1-noarch-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
