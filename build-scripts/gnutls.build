@@ -24,7 +24,8 @@ autoreconf -vfi &&
 export  CFLAGS="-march=native -mtune=native -pipe "
 export CFLAGS+="-O3 -falign-functions=32 -fno-lto "
 export CFLAGS+="-fno-math-errno -fno-semantic-interposition -fno-trapping-math "
-#export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+export CXXFLAGS=$CFLAGS
+unset LDFLAGS
 
 ./configure --prefix=/usr \
             --with-default-trust-store-pkcs11="pkcs11:" \
@@ -33,14 +34,13 @@ export CFLAGS+="-fno-math-errno -fno-semantic-interposition -fno-trapping-math "
 	    --disable-valgrind-tests --disable-rpath $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 && 
 
-read -p "Press Enter to install" &&
 # if not using a package manager:
 # make install
 
 # if using pkgtools from Slackware, then:
 sudo -S make DESTDIR=$BUILD install &&
 
-read -p "Press Enter to create package description." &&
+# Create the package
 cd $BUILD && sudo mkdir -v install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -66,6 +66,6 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS//gnutls-3.6.15-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS//gnutls-3.7.2-$(uname -m)-mlfs.txz &&
 sudo rm -rf $BUILD/*
 
