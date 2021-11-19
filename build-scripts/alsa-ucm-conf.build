@@ -12,8 +12,8 @@
 # Optional:     alsa-lib
 
 # No configure script, just install files
-sudo -S mkdir -pv ${BUILD)/usr/share/alsa
-sudo -S cp -vr ucm2 ${BUILD)/usr/share/alsa/
+sudo -S mkdir -pv ${BUILD}/usr/share/alsa
+sudo -S cp -vr ucm2 ${BUILD}/usr/share/alsa/
 
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
