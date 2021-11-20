@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# cURL 1.77.0
-# Source: https://curl.se/download/curl-7.77.0.tar.xz
+# cURL 7.80.0
+# Source: https://curl.se/download/curl-7.80.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,7 +13,7 @@
 # Optional:     libssh2, MIT Kerberos V5, nghttp2, 
 # Optional:     OpenLDAP, Samba, impacket, libmetalink, 
 # Optinal:      librtmp, ngtcp2, quiche, and SPNEGO 
-# LTO:          Tested with LLVM
+# LTO:          No
 
 autoreconf -vfi &&
 
@@ -23,7 +23,8 @@ export  CFLAGS="-march=native -mtune=native -pipe "
 export CFLAGS+="-Os -fdata-sections -ffunction-sections "
 export CFLAGS+="-fno-lto -fno-semantic-interposition "
 export CFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
-#export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+export CXXFLAGS=$CFLAGS
+unset LDFLAGS
 
 export CFLAGS+="-D_FORTIFY_SOURCE=2 -I/usr/include/"
 export CPPFLAGS="-D_FORTIFY_SOURCE=2"
@@ -49,7 +50,7 @@ read -p "Press Enter to install" &&
 # if using pkgtools from Slackware, then:
 sudo -S make DESTDIR=$BUILD install &&
 
-read -p "Press Enter to create package description."
+# Create package
 cd $BUILD && sudo mkdir -v install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -75,6 +76,6 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/curl-7.77.0-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS/curl-7.80.0-$(uname -m)-mlfs.txz &&
 sudo rm -rf $BUILD/*
 
