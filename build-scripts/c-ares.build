@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # c-ares
-# Source: https://c-ares.haxx.se/download/c-ares-1.16.1.tar.gz
+# Source: https://c-ares.haxx.se/download/c-ares-1.18.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -41,5 +41,5 @@ c-ares:
 c-ares:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/c-ares-1.16.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/c-ares-1.18.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
