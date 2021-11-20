@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Mesa without Xorg
-# Source: ftp://ftp.freedesktop.org/pub/mesa/mesa-21.2.1.tar.xz
+# Source: ftp://ftp.freedesktop.org/pub/mesa/mesa-21.3.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -22,6 +22,8 @@ patch -Np1 -i ../patches/mesa-alpine-21.2.1/musl-fix-includes.patch
 export  CFLAGS="-march=native -mtune=native "
 export CFLAGS+="-Ofast -falign-functions=32 -fno-lto "
 export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
+export CXXFLAGS=$CFLAGS
+unset LDFLAGS
 
 export CFLAGS="$CFLAGS -D_XOPEN_SOURCE=700" &&
 case $(uname -m) in
@@ -33,43 +35,50 @@ case $(uname -m) in
 		     export V_DRIVERS="" ;;
 esac
 
+# Set configure flags
+export  BUILDOPT="-Dbuildtype=release "
+export BUILDOPT+="-Dllvm=enabled "
+export BUILDOPT+="-Dshared-llvm=enabled "
+export BUILDOPT+="-Dosmesa=true "
+export BUILDOPT+="-Dtools= "
+export BUILDOPT+="-Dasm=false "
+export BUILDOPT+="-Dvalgrind=false "
+
+export  GFXOPT="-Dglx=disabled "
+export GFXOPT+="-Dglx-read-only-text=true "
+export GFXOPT+="-Dxlib-lease=disabled "
+export GFXOPT+="-Ddri3=enabled "
+export GFXOPT+="-Dopengl=true "
+export GFXOPT+="-Degl=enabled "
+export GFXOPT+="-Dgles2=enabled "
+export GFXOPT+="-Dgles1=enabled "
+export GFXOPT+="-Dshared-glapi=enabled "
+
+export  DRVROPT="-Dplatforms=wayland "
+export DRVROPT+="-Degl-native-platform=wayland "
+
+export  GALLIUMOPT="-Dgallium-va=enabled "
+export GALLIUMOPT+="-Dgallium-xa=false "
+export GALLIUMOPT+="-Dgallium-xvmc=false "
+export GALLIUMOPT+="-Dgallium-nine=false "
+export GALLIUMOPT+="-Dgallium-vdpau=disabled "
+
 export MESA_GIT_SHA1_OVERRIDE=53b2b224dc2de982c37915a0ad218e33365ff75e &&
 python3 bin/git_sha1_gen.py --output include/git_sha1.h &&
 
-meson --prefix=/usr                  \
-      -Dbuildtype=release            \
-      -Dllvm="enabled"               \
-      -Dshared-llvm="enabled"        \
-      -Dosmesa="true"                \
-      -Dglx="disabled"               \
-      -Dxlib-lease="disabled"        \
-      -Ddri3="enabled"                    \
-      -Dplatforms="wayland"      \
-      -Degl-native-platform="wayland" \
-      -Dglx-read-only-text=true      \
-      -Dasm=false                    \
-      -Dshared-glapi="enabled"         \
-      -Dopengl=true                  \
-      -Degl="enabled"                     \
-      -Dgallium-va="enabled"              \
-      -Dgallium-xa=false              \
-      -Dgallium-xvmc=false \
-      -Dvalgrind=false               \
-      -Dgallium-nine=false           \
-      -Dgallium-vdpau="disabled"     \
-      -Dgles2="enabled"              \
-      -Dgles1="enabled" \
+meson --prefix=/usr \
       -Dvulkan-device-select-layer=false \
-      -Dvulkan-drivers="${V_DRIVERS}"            \
-      -Dvulkan-overlay-layer=false   \
-      -Dtools="" \
-      -Ddri-drivers="${DRI_DRIVERS}"   \
-      -Dgallium-drivers="${GLL_DRV}"  OUT  
+      -Dvulkan-drivers="${V_DRIVERS}" \
+      -Dvulkan-overlay-layer=false \
+      -Ddri-drivers="${DRI_DRIVERS}" \
+      -Dgallium-drivers="${GLL_DRV}" \
+      $BUILDOPT $GFXOPT $DRVROPT $GALLIUMOPT OUT  
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 unset CFLAGS GLL_DRV DRI_DRIVERS MESA_GIT_SHA1_OVERRIDE V_DRIVERS &&
+unset BUILDOPT GFXOPT DRVROPT GALLIUMOPT
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -94,5 +103,5 @@ mesa:
 mesa: Tailored without Xorg Libraries
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mesa-21.2.1_nox-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/mesa-21.3.0_nox-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
