@@ -1,28 +1,30 @@
 #! /bin/bash
 
 # seatd
-# Source: https://git.sr.ht/~kennylevinsen/seatd/archive/0.5.0.tar.gz
+# Source: https://git.sr.ht/~kennylevinsen/seatd/archive/0.6.3.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required: scdoc, elogind    
-# Required:     
-# Recommended:  
-# Optional:     
+# Required:     scdoc    
+# Recommended:  NONE
+# Optional:     elogind
 
 # Cannot be built with clang. Use GCC+binutils
 
 # If optimizing, use flags with GCC
 export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 mkdir build && cd build &&
 
 meson --prefix=/usr     \
-      -Dlogind=enabled  \
+      -Dlibseat-builtin=enabled \
+      -Dlibseat-logind=disabled \
+      -Dserver=enabled \
       -Dman-pages=enabled ..
 
 read -p "Compile?" && ninja -j2 &&
@@ -51,5 +53,11 @@ seatd:
 seatd:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/seatd-0.5.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/seatd-0.6.3-$(uname -m)-mlfs.txz &&
+cp -v install/doinst.sh /tmp/ && \
+cat >> /tmp/doinst.sh << "EOF"
+groupadd -g 28 seat
+EOF
+sudo -S mv -v /tmp/doinst.sh install/doinst.sh && \
+sudo -S makepkg -l y -c n $PKGS/seatd-0.6.3-$(uname -m)-mlfs.txz && \
 sudo -S rm -rf ${BUILD}/*
