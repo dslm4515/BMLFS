@@ -24,14 +24,11 @@ sed -i -e '/glew.lib.static:/d' \
 
 # If building with Xorg Libraires:
 make SYSTEM=linux-egl -j2 &&
-
-# Otherwise, to build without Xorg Libraries:
-make SYSTEN=linux-osmesa -j2
+sudo -S make DESTDIR=$BUILD install.all
 
 # If building without Xlib/Xorg:
 make SYSTEM=linux-osmesa -j2
-
-sudo -S make DESTDIR=$BUILD install.all &&
+sudo -S make DESTDIR=$BUILD SYSTEM=linux-osmesa install.all &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
