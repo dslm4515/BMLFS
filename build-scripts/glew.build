@@ -14,13 +14,19 @@
 # If optimizing, use these flags with GCC
 export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 sed -i 's%lib64%lib%g' config/Makefile.linux &&
 sed -i -e '/glew.lib.static:/d' \
        -e '/0644 .*STATIC/d'    \
        -e 's/glew.lib.static//' Makefile     &&
+
+# If building with Xorg Libraires:
 make SYSTEM=linux-egl -j2 &&
+
+# Otherwise, to build without Xorg Libraries:
+make SYSTEN=linux-osmesa -j2
 
 # If building without Xlib/Xorg:
 make SYSTEM=linux-osmesa -j2
