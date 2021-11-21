@@ -7,8 +7,8 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Xorg-Libraries
-# Recommended:  NONE
+# Required:     NONE
+# Recommended:  Xorg-Libraries
 # Optional:     Doxygen
 
 # If optimizing, use flags with GCC
@@ -16,8 +16,17 @@ export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-./configure $XORG_CONFIG  $BUILDTRUPLE \
-            --with-xkb-rules-symlink=xorg &&
+# If building with Xorg Libraries:
+./configure $XORG_CONFIG \
+            --with-xkb-rules-symlink=xorg \
+            $BUILDTRUPLE &&
+            
+# Without Xorg:
+./configure $XORG_CONFIG \
+            --disable-runtime-deps \
+            --with-xkb-rules-symlink=xorg \
+            $BUILDTRUPLE
+
 read -p "Compile?" && make -j2 &&
 sudo -S make DESTDIR=$BUILD install &&
 
