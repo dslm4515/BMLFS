@@ -7,11 +7,22 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Fontconfig, pixman, scdoc
+# Required:     Fontconfig, pixman, scdoc, libxkbcommon
 # Recommended:  dejavu-fonts-ttf
 # Optional:     fcft
 
-meson --prefix=/usr -Ddefault-terminfo="xterm+256color" OUT && \
+# If building with ncurses:
+meson --prefix=/usr \
+      -Dbuildtype=release \
+      -Ddefault-terminfo="xterm+256color" OUT
+
+# If building with net-BSD's curses:
+# Do not build foot's terminfo as source expects tic
+# to behave like tic form ncurses
+meson --prefix=/usr \
+      -Dbuildtype=release \
+      -Dterminfo=disabled \
+      -Ddefault-terminfo="xterm+256color" OUT
 
 ninja -j2 -C OUT && \
 
@@ -37,5 +48,5 @@ foot:
 foot:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/foot-1.9.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/foot-1.10.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
