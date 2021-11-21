@@ -41,7 +41,6 @@ export BUILDOPT+="-Dllvm=enabled "
 export BUILDOPT+="-Dshared-llvm=enabled "
 export BUILDOPT+="-Dosmesa=true "
 export BUILDOPT+="-Dtools= "
-export BUILDOPT+="-Dasm=false "
 export BUILDOPT+="-Dvalgrind=false "
 
 export  GFXOPT="-Dglx=disabled "
@@ -57,19 +56,23 @@ export GFXOPT+="-Dshared-glapi=enabled "
 export  DRVROPT="-Dplatforms=wayland "
 export DRVROPT+="-Degl-native-platform=wayland "
 
-export  GALLIUMOPT="-Dgallium-va=enabled "
+export  GALLIUMOPT="-Dgallium-va=disabled "
 export GALLIUMOPT+="-Dgallium-xa=false "
 export GALLIUMOPT+="-Dgallium-xvmc=false "
 export GALLIUMOPT+="-Dgallium-nine=false "
 export GALLIUMOPT+="-Dgallium-vdpau=disabled "
 
+# For intel graphics only (i.e. intergrated graphics on some laptops)
+# then only enable these drivers:
+export DRI_DRIVERS="i965"
+export GLL_DRV="i915, svga, swrast"
+export V_DRIVERS="swrast"
+
 export MESA_GIT_SHA1_OVERRIDE=53b2b224dc2de982c37915a0ad218e33365ff75e &&
 python3 bin/git_sha1_gen.py --output include/git_sha1.h &&
 
 meson --prefix=/usr \
-      -Dvulkan-device-select-layer=false \
       -Dvulkan-drivers="${V_DRIVERS}" \
-      -Dvulkan-overlay-layer=false \
       -Ddri-drivers="${DRI_DRIVERS}" \
       -Dgallium-drivers="${GLL_DRV}" \
       $BUILDOPT $GFXOPT $DRVROPT $GALLIUMOPT OUT  
