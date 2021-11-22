@@ -19,7 +19,7 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 ./configure --prefix=/usr $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
-sudo -S  make DESTDIR=$BUILD -C BUILD install &&
+sudo -S  make DESTDIR=$BUILD install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
