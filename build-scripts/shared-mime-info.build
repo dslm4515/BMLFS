@@ -14,7 +14,11 @@
 # If optimizing, use these flags with GCC
 export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
+# Fix build broken by meson 0.60+
+patch -Np1 -i ../patches/shared-mime-info-lfs/shared-mime-info-2.1-meson_0.60_fix-1.patch
 
 mkdir build &&
 cd    build &&
