@@ -7,12 +7,18 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:    CMake,  libcpuid, glew, pciutils, 
+# Required:    CMake,  libcpuid, glfw, pciutils, 
 # Recommended:  gtk+3
 # Optional:     OpenCL
 
 # Add missing header to define CTRL
 patch -Np1 -i ../patches/cpu-x-mlfs/dd_missing_header_for_CTRL.patch
+
+# If building with netBSD's curses:
+export CFLAGS+="-lterminfo"
+
+# If building witout Xorg
+export CFLAGS+="-lGLESv2"
 
 cmake -B BUILD -DCMAKE_INSTALL_PREFIX=/usr \
 	-DCMAKE_BUILD_TYPE=Release \
