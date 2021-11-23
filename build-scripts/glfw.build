@@ -11,6 +11,9 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# For non-Xorg system, add:
+# -DGLFW_BUILD_X11=OFF
+
 cmake -B build \
 	-DCMAKE_BUILD_TYPE=None \
 	-DCMAKE_INSTALL_PREFIX=/usr \
