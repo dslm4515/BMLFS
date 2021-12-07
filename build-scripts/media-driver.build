@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# Intel Media Driver for VAAPI 
+# Source: https://github.com/intel/media-driver
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libdrm, gmmlib, libva
+# Recommended:  mesa
+# Optional:     NONE
+
+cmake -B BUILD -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release -Wno-dev
+
+read -p "Compile?" && make -C BUILD -j2 &&
+
+sudo -S make DESTDIR=$BUILD -C BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                  |-----handy-ruler------------------------------------------------------|
+intel-media-driver: Intel(R)  Media Driver for VAAPI
+intel-media-driver:
+intel-media-driver: A new VA-API (Video Acceleration API) user mode driver supporting 
+intel-media-driver: hardware accelerated decoding, encoding, and video post processing 
+intel-media-driver: for GEN based graphics hardware.
+intel-media-driver:
+intel-media-driver: https://github.com/intel/media-driver
+intel-media-driver:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/intel-media-driver-7.2.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
