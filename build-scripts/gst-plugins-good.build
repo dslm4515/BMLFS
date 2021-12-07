@@ -1,0 +1,57 @@
+#! /bin/bash
+
+# GStreamer Good Plug-ins
+# Source: https://gstreamer.freedesktop.org/src/gst-plugins-good/gst-plugins-good-1.18.5.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     gst-plugins-base
+# Recommended:  cairo flac gdk-pixbuf lame libsoup libvpx mpg123 nasm
+# Optional:     GTK+3 libdv pulseaudio speex v4l-utils wayland orc wavpak
+# Optional:     aalib alsa_oss qt5 taglib valgrind jack libcaca libavc1394 libiec61883 libraw1394 libshout twolame
+
+# If optimizing with GCC:
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=auto -fstack-protector-strong "
+export CFLAGS+="-fzero-call-used-regs=used "
+export CXXFLAGS=$CFLAGS
+export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+
+mkdir build &&
+cd    build &&
+
+meson  --prefix=/usr       \
+       -Dbuildtype=release \
+       -Dpackage-origin=https://github.com/dslm4515/BMLFS \
+       -Dpackage-name="GStreamer 1.18.5 BMLFS" && \
+       
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                |-----handy-ruler------------------------------------------------------|
+gst-plugins-good: gst-plugins-good (Good set of GStreamer plugins)
+gst-plugins-good:
+gst-plugins-good: A set of plug-ins considered by the GStreamer developers to have 
+gst-plugins-good: good quality code, correct functionality, and the preferred license
+gst-plugins-good: (LGPL for the plug-in code, LGPL or LGPL-compatible for the 
+gst-plugins-good: supporting library). A wide range of video and audio decoders, 
+gst-plugins-good: encoders, and filters are included.
+gst-plugins-good:
+gst-plugins-good: 
+gst-plugins-good:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gst-plugins-good-1.18.5-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
