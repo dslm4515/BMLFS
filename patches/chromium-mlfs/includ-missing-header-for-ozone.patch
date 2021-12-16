@@ -1,0 +1,10 @@
+--- chromium-96.0.4664.45.orig/ui/ozone/platform/wayland/gpu/wayland_gl_egl_utility.cc	2021-12-16 13:37:28.289506233 -0600
++++ chromium-96.0.4664.45/ui/ozone/platform/wayland/gpu/wayland_gl_egl_utility.cc	2021-12-15 13:24:50.921988436 -0600
+@@ -2,6 +2,7 @@
+ // Use of this source code is governed by a BSD-style license that can be
+ // found in the LICENSE file.
+ 
++#include <algorithm>
+ #include "ui/ozone/platform/wayland/gpu/wayland_gl_egl_utility.h"
+ 
+ // From ANGLE's egl/eglext.h. Follows the same approach as in

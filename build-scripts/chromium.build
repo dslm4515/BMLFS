@@ -1,0 +1,144 @@
+#! /bin/bash
+
+# Chromium 96.0.4664.45 
+# Source: https://commondatastorage.googleapis.com/chromium-browser-official/chromium-96.0.4664.45.tar.xz
+# Source: https://chromium-fonts.storage.googleapis.com/cd96fc55dc243f6c6f4cb63ad117cad6cd48dceb
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     LLVM openjdk freetype ffmpeg nodejs wayland wayland-protocols libpng libdrm
+# Required:     cups cairo curl dbus-glib flac gnutls gtk+3 harfbuzz krb5 jsoncpp lcms2
+# Required:     libevent libexif libgcrypt libusb mesa opus pciutils pulseaudio re2 snappy
+# Required:     speex sqlite
+# Recommended:  hunspell pipewire
+# Optional:     NONE
+
+# apply patches from Alpin Linux
+../patches/chromium-alpine/01-apply_patches.sh
+
+# Unpack test fonts outside of chromium source tree
+mv ../test_fonts/ ./third_party/test_fonts/
+
+# https://groups.google.com/a/chromium.org/d/topic/chromium-packagers/9JX1N2nf4PU/discussion
+touch chrome/test/data/webui/i18n_process_css_test.html
+
+# Use the file at run time instead of effectively compiling it in
+sed 's|//third_party/usb_ids/usb.ids|/usr/share/hwdata/usb.ids|g' \
+ -i services/device/public/cpp/usb/BUILD.gn
+
+mkdir -p third_party/node/linux/node-linux-x64/bin
+ln -s /usr/bin/node third_party/node/linux/node-linux-x64/bin/
+
+# make sure java is added to PATH
+export PATH=$PATH:/usr/lib/jvm/java-17-openjdk/bin
+
+# Force use of system installed libraries
+export use_system="ffmpeg flac fontconfig freetype harfbuzz-ng libdrm libevent libjpeg libpng libwebp libxslt libxml opus re2 snappy"
+
+for _lib in $use_system libjpeg_turbo; do
+echo "Removing buildscripts for system provided $_lib"
+ find -type f -path "*third_party/$_lib/*" \
+ \! -path "*third_party/$_lib/chromium/*" \
+ \! -path "*third_party/$_lib/google/*" \
+ \! -path './base/third_party/icu/*' \
+ \! -path './third_party/libxml/*' \
+ \! -path './third_party/pdfium/third_party/freetype/include/pstables.h' \
+ \! -path './third_party/harfbuzz-ng/utils/hb_scoped.h' \
+ \! -regex '.*\.\(gn\|gni\|isolate\|py\)' \
+ -delete
+done
+
+echo "Replacing gn files"
+python3 build/linux/unbundle/replace_gn_files.py --system-libraries \
+ $use_system
+python3 third_party/libaddressinput/chromium/tools/update-strings.py
+
+# prevent annoying errors when regenerating gni
+sed -i 's,^update_readme$,#update_readme,' \
+ third_party/libvpx/generate_gni.sh
+
+# allow system dependencies in "official builds"
+sed -i 's/OFFICIAL_BUILD/GOOGLE_CHROME_BUILD/' \
+ tools/generate_shim_headers/generate_shim_headers.py
+
+# Build GN to configure source
+CC="clang" CXX="clang++" LD="clang++" \
+python3 tools/gn/bootstrap/bootstrap.py -s -v --skip-generate-buildfiles
+
+echo "Configuring build"
+
+#case $CARCH in
+#x86*|aarch64) _export ARCGC="use_vaapi=true" ;;
+#  *) _export ARCGC="concurrent_links=1" ;;
+#esac
+
+unset CC CXX CFLAGS
+# For some reason, chromium will not build with LLVM... incompatible flags used in build
+# If not building for a pure wayland system, ommit: 
+# ozone_platform_wayland=true 
+# ozone_platform_x11=false 
+# ozone_platform=\"wayland\"
+
+CC=gcc CXX=g++  out/Release/gn gen out/Release --args="is_clang=false enable_nacl=false enable_nacl_nonsfi=false use_sysroot=false host_pkg_config=\"/usr/bin/pkg-config\" clang_use_chrome_plugins=false  use_custom_libcxx=false  is_debug=false blink_symbol_level=0 symbol_level=0 icu_use_data_file=true use_allocator=\"none\" use_allocator_shim=false enable_widevine=true enable_hangout_services_extension=true use_system_harfbuzz=true use_system_wayland_scanner=true use_cups=true use_vaapi=true enable_js_type_check=true use_pulseaudio=true link_pulseaudio=true proprietary_codecs=true ffmpeg_branding=\"Chrome\" treat_warnings_as_errors=false fatal_linker_warnings=false disable_fieldtrial_testing_config=true is_official_build=true is_cfi=false use_thin_lto=false use_cfi_icall=false chrome_pgo_phase=0 target_cpu=\"x64\" is_musl=true custom_toolchain=\"//build/toolchain/linux/unbundle:default\" host_toolchain=\"//build/toolchain/linux/unbundle:default\" use_gnome_keyring=false use_ozone=true ozone_platform_wayland=true ozone_platform_x11=false ozone_platform=\"wayland\" ozone_platform_drm=true "
+
+# Include needed header:
+patch -Np1- i ../patches/chromium-mlfs/includ-missing-header-for-ozone.patch
+
+# Restore missing header required by:
+# ui/ozone/platform/drm/gpu/hardware_display_controller.cc
+cp -v ../files/chromium-mlfs/drm_fourcc.h third_party/libdrm/src/include/drm/
+
+# build mksnapshot
+ninja -C out/$_buildtype mksnapshot
+ninja -C out/$_buildtype v8_context_snapshot_generator # Fails to build if not using latest freetype version 
+
+if [ "$CARCH" = "x86" ]; then
+# x86 only - dependency issues compiling obj/chrome/browser/devtools/devtools/cast_handler.o
+ninja -C out/$_buildtype obj/chrome/common/media_router/mojom/media_router__generator.stamp
+fi
+
+# final link needs lots of file descriptors
+ulimit -n 2048
+
+# finish rest of the build
+ninja -C out/$_buildtype chrome # Requires Java
+ninja -C out/Release chrome_sandbox 
+ninja -C out/Release chromedriver # Requires latest ffmpeg 4.4.1 
+ninja -C out/Release chrome_crashpad_handler
+
+# Install
+cd out/Release
+sudo install -Dm755  chrome         /BUILD/usr/lib/chromium/chrome
+sudo install -Dm4755 chrome_sandbox /BUILD/usr/lib/chromium/chrome-sandbox
+sudo install -Dm755 chrome_crashpad_handler /BUILD/usr/lib/chromium/chrome_crashpad_handler
+sudo install -Dm644 snapshot_blob.bin /BUILD/usr/lib/chromium/
+sudo install -Dm644 v8_context_snapshot.bin /BUILD/usr/lib/chromium/
+sudo install -m644 icudtl.dat /BUILD/usr/lib/chromium/icudtl.dat
+sudo install -Dm755 xdg-mime /BUILD/usr/lib/chromium/xdg-mime
+sudo install -Dm755 xdg-settings /BUILD/usr/lib/chromium/xdg-settings
+for pak in *.pak; do sudo install -Dvm644 $pak /BUILD/usr/lib/chromium/$pak; done
+sudo cp -a MEIPreload /BUILD/usr/lib/chromium/ -v
+sudo install -Dm644 locales/en-US.pak /BUILD/usr/lib/chromium/locales/en-US.pak
+sudo install -Dvm755 chromedriver /BUILD/usr/lib/chromium/chromedriver
+sudo install -Dvm755 swiftshader/libEGL.so  /BUILD/usr/lib/chromium/swiftshader/libEGL.so
+sudo install -Dvm755 swiftshader/libGLESv2.so /BUILD/usr/lib/chromium/swiftshader/libGLESv2.so
+sudo install -Dvm755 libEGL.so /BUILD/usr/lib/chromium/libEGL.so
+sudo install -Dm755 libGLESv2.so /BUILD/usr/lib/chromium/libGLESv2.so
+
+cd ../..
+sudo mkdir -pv /BUILD/usr/bin
+sudo install -Dm644 ../files/chromium-alpine/chromium-launcher.sh /BUILD//usr/lib/chromium/chromium-launcher.sh
+sudo chmod -v +x /BUILD//usr/lib/chromium/chromium-launcher.sh
+sudo install -Dm644 ../files/chromium-alpine/chromium.desktop /BUILD/usr/share/applications/chromium.desktop
+sudo install -Dm644 ../files/chromium-alpine/chromium.conf    /BUILD/etc/chromium/chromium.conf
+sudo ln -sf /usr/lib/chromium/chromium-launcher.sh /BUILD/usr/bin/chromium-browser
+sudo ln -sf /usr/lib/chromium/chromedriver /BUILD/usr/bin/
+for size in 24 48 64 128 256; 
+do 
+  sudo install -Dvm644 chrome/app/theme/chromium/product_logo_$size.png \
+               /BUILD/usr/share/icons/hicolor/${size}x${size}/apps/chromium.png 
+done
+for size in 16 32; do sudo install -Dm644 chrome/app/theme/default_100_percent/chromium/product_logo_$size.png /BUILD//usr/share/icons/hicolor/${size}x${size}/apps/chromium.png; done
+
