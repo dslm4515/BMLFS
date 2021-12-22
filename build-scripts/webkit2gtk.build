@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # WebKit2 GTK+
-# Source: https://webkitgtk.org/releases/webkitgtk-2.30.4.tar.xz
+# Source: https://webkitgtk.org/releases/webkitgtk-2.34.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -14,45 +14,36 @@
 # Optional:     bubblewrap, GTK-Doc, harfuzz, Wayland, WOFF2, ccache, Hyphen, MathML,
 # Optional:     WPEBackend-fdo, and xdg-dbus-proxy, libseccomp, xdg-dbus-proxy
 
-patch -Np1 -i ../patches/webkit2gtk-alpine/fix-fast-memory-disabled.patch
-patch -Np1 -i ../patches/webkit2gtk-alpine/fix-openjpeg.patch
-patch -Np1 -i ../patches/webkit2gtk-alpine/lower-stack-usage.patch
-patch -Np1 -i ../patches/webkit2gtk-alpine/musl-fixes.patch
-#patch -Np1 -i ../patches/webkit2gtk-alpine/use-versioned-libwpe.patch
+export CXXFLAGS="$CXXFLAGS -U_FORTIFY_SOURCE"
+export CXXFLAGS="$CXXFLAGS -g1"
 
-case $(uname -m) in
-   i686) export CXXFLAGS=" -U_FORTIFY_SOURCE -g1 -D__WORDSIZE=32"
-	 export CFLAGS=" -D__WORDSIZE=32"
-	 export LDFLAGS=" -Wl,-z,stack-size=2097152 -Wl,--no-keep-memory -fuse-ld=lld -rtlib=compiler-rt" 
-	 ;;
-   arm*) export ECONFIG="-DENABLE_JIT=OFF"
-         export CXXFLAGS="$CXXFLAGS -g1" ;;
-esac &&
-export CC=clang CXX=clang++
+# Enable/Disable features
+export  CARGS="-DPORT=GTK "
+export CARGS+="-DCMAKE_BUILD_TYPE=MinSizeRel "
+export CARGS+="-DCMAKE_SKIP_RPATH=ON "
+export CARGS+="-DCMAKE_INSTALL_PREFIX=/usr "
+export CARGS+="-DLIB_INSTALL_DIR=/usr/lib "
+export CARGS+="-DENABLE_GTKDOC=OFF "
+export CARGS+="-DENABLE_GEOLOCATION=ON "
+export CARGS+="-DENABLE_SAMPLING_PROFILER=OFF "
+export CARGS+="-DENABLE_MINIBROWSER=ON "
+export CARGS+="-DUSE_WPE_RENDERER=ON "
+export CARGS+="-DUSE_WOFF2=ON "
+export CARGS+= -DUSE_LD_GOLD=OFF "
+export CARGS+="-DUSE_SYSTEMD=OFF "
+export CARGS+="-DUSE_LIBHYPHEN=OFF "
+export CARGS+="-DENABLE_X11_TARGET=OFF "
+export CARGS+="-DENABLE_WAYLAND_TARGET=ON "
+export CARGS+="-DENABLE_GLES2=ON "
+export CARGS+="-DUSE_SOUP2=ON "
+export CARGS+="-DENABLE_GAMEPAD=OFF "
 
-mkdir build && cd build &&
-cmake -GNinja \
-      -DPort=GTK
-      -DCMAKE_BUILD_TYPE=MinSizeRel \
-      -DCMAKE_SKIP_RPATH=ON \
-      -DCMAKE_INSTALL_PREFIX=/usr \
-      -DLIB_INSTALL_DIR=/usr/lib \
-      -DENABLE_GTKDOC=OFF \
-      -DENABLE_GEOLOCATION=ON \
-      -DENABLE_SAMPLING_PROFILER=OFF \
-      -DENABLE_MINIBROWSER=ON \
-      -DUSE_WPE_RENDERER=ON \
-      -DUSE_WOFF2=ON \
-      -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
-      -DUSE_LD_GOLD=OFF \
-      -DUSE_SYSTEMD=OFF \
-      -DUSE_LIBHYPHEN=OFF \
-      -DENABLE_X11_TARGET=OFF \
-      -DENABLE_WAYLAND_TARGET=ON \
-      -DENABLE_GLES2=ON ..
+mkdi build && cd build &&
+cmake -GNinja -DCMAKE_CXX_FLAGS="$CXXFLAGS" $CARGS .. 
 
 # Multiple ninja jobs seems to cause internal compiler errors
-ninja JavaScriptCore-4-gir -j1  && ninja -j1 &&
+#ninja JavaScriptCore-4-gir -j1  && ninja -j1 &&
+ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
 unset CXXFLAGS ECONFIG CXXFLAGS LDFLAGS
@@ -80,5 +71,5 @@ webkit2gtk: https://www.webkitgtk.org/
 webkit2gtk:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/webkit2gtk-2.30.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/webkit2gtk-2.34.3-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
