@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # MIT Kerberos V5 
-# Source: https://kerberos.org/dist/krb5/1.18/krb5-1.18.2.tar.gz
+# Source: https://kerberos.org/dist/krb5/1.19/krb5-1.19.2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,8 +13,19 @@
 #
 # Does not support LibreSSL ...without a patch!
 
+# fix a denial-of-service security vulnerability
+sed -i '210a if (sprinc == NULL) {\
+       status = "NULL_SERVER";\
+       errcode = KRB5KDC_ERR_S_PRINCIPAL_UNKNOWN;\
+       goto cleanup;\
+       }' src/kdc/do_tgs_req.c
+
 cd src &&
 patch -Np1 -i ../../patches/krb5-void/libressl.patch
+
+sed -i -e 's@\^u}@^u cols 300}@' tests/dejagnu/config/default.exp     &&
+sed -i -e '/eq 0/{N;s/12 //}'    plugins/kdb/db2/libdb2/test/run.test &&
+sed -i '/t_iprop.py/d'           tests/Makefile.in  
 
 WARN_CFLAGS= ./configure  \
 	     --prefix=/usr       \
@@ -22,13 +33,11 @@ WARN_CFLAGS= ./configure  \
 	     --sbindir=/usr/bin  \
 	     --disable-rpath     \
 	     --with-system-et    \
-	     --with-ldap         \
 	     --with-system-ss    \
 	     --enable-shared     \
 	     --disable-nls       \
 	     --disable-pkinit    \
 	     --without-keyutils  \
-	     --with-system-verto \
 	     --without-tcl  $BUILDTRUPLE    \
 	     ac_cv_func_pthread_once=yes ac_cv_func_pthread_rwlock_init=yes \
 	     acx_pthread_ok=yes ac_cv_func_regcomp=yes ac_cv_printf_positional=yes \
@@ -37,6 +46,11 @@ WARN_CFLAGS= ./configure  \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+
+# If packing documentation and man pages in seperate package:
+sudo mkdir   -pv       /BMAN/install
+sudo install -v -dm755 /BMAN/usr/share/doc/krb5-1.19.2
+sudo cp -vfr ../doc/*  /BMAN/usr/share/doc/krb5-1.19.2
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -65,15 +79,40 @@ for f in gssapi_krb5 gssrpc k5crypto kadm5clnt kadm5srv \
          kdb5 kdb_ldap krad krb5 krb5support verto ; do
          sudo -S find usr/lib -type f -name "lib$f*.so*" -exec chmod -v 755 {} \;
 done &&
-sudo -S mkdir -v lib bin &&
-sudo -S mv -v usr/lib/libkrb5.so.3*        lib &&
-sudo -S mv -v usr/lib/libk5crypto.so.3*    lib &&
-sudo -S mv -v usr/lib/libkrb5support.so.0* lib &&
-sudo -S ln -v -sf ../../lib/libkrb5.so.3.3        usr/lib/libkrb5.so        &&
-sudo -S ln -v -sf ../../lib/libk5crypto.so.3.1    usr/lib/libk5crypto.so    &&
-sudo -S ln -v -sf ../../lib/libkrb5support.so.0.1 usr/lib/libkrb5support.so &&
-sudo -S mv -v usr/bin/ksu bin &&
-sudo -S chmod -v 755 bin/ksu  &&
+sudo -S chmod -v 755 usr/bin/ksu  &&
 
-sudo -S makepkg -l y -c n $PKGS/krb5-1.18.2-$(uname -m)-mlfs.txz &&
+# If packing documentation and man pages in seperate package:
+sudo mv usr/share/* /BMAN/usr/share/
+
+# Pack the main package
+sudo -S makepkg -l y -c n $PKGS/krb5-1.19.2-$(uname -m)-mlfs.txz &
+
+# Pack the doc package
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+krb5-doc: Manuals for krb5 (Network authentication protocol)
+krb5-doc:
+krb5-doc: Kerberos is a network authentication protocol. It is designed to
+krb5-doc: provide strong authentication for client/server applications by using
+krb5-doc: secret-key cryptography.
+krb5-doc:
+krb5-doc: Homepage: http://web.mit.edu/kerberos/
+krb5-doc:
+krb5-doc:
+krb5-doc:
+krb5-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/
+
+sudo -S makepkg -l y -c n $PKGS/krb5-doc-1.19.2-noarch-mlfs.txz
+
 sudo -S rm -rf ${BUILD}/*
+sudo -S rm -rf /BMAN/*
