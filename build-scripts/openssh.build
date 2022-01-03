@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # OpenSSH 8.0p1
-# Source: https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.6p1.tar.gz
+# Source: https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.8p1.tar.gz
 #
 # DEPS
 # Required:     NONE
@@ -53,6 +53,15 @@ read -p "Press Enter to install" &&
 
 # if using pkgtools from Slackware, then:
 sudo -S make DESTDIR=$BUILD install &&
+
+# If packing documentation and man pages in seperate package:
+sudo mkdir   -pv        /BMAN/install
+sudo mkdir   -pv         /BMAN/usr/share/man/man1 
+sudo install -v -m755 -d /BMAN/usr/share/doc/openssh-8.8p1 
+sudo install -v -m644    contrib/ssh-copy-id.1 \
+                    /BMAN/usr/share/man/man1
+sudo install -v -m644    INSTALL LICENCE OVERVIEW README* \
+                    /BMAN/usr/share/doc/openssh-8.8p1
 
 sudo -S mkdir -pv  ${BUILD}/usr/bin &&
 sudo -S install -v -m755    contrib/ssh-copy-id ${BUILD}/usr/bin && 
@@ -107,6 +116,37 @@ sudo -S sed 's@d/login@d/sshd@g' /etc/pam.d/login > etc/pam.d/sshd &&
 sudo -S chmod 644 etc/pam.d/sshd &&
 sudo -S echo "UsePAM yes" >> etc/ssh/sshd_config
 
+# If packing documentation and man pages in seperate package:
+sudo cp -rv  usr/share/man /BMAN/usr/share/
+sudo rm -rf  ust/share
+
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/openssh-8.6p1-$(uname -m)-mlfs.txz 
+sudo makepkg -l y -c n $PKGS/openssh-8.8p1-$(uname -m)-mlfs.txz 
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' on
+# the right side marks the last column you can put a character in.  You must make
+# exactly 11 lines for the formatting to be correct.  It's also customary to
+# leave one space after the ':'.
+
+           |-----handy-ruler------------------------------------------------------|
+openssh-doc: Manuals for openssh (Secure Shell daemon and clients)
+openssh-doc:
+openssh-doc: ssh (Secure Shell) is a program for logging into a remote machine and
+openssh-doc: for executing commands on a remote machine.  It is intended to replace
+openssh-doc: rlogin and rsh, and provide secure encrypted communications between
+openssh-doc: two untrusted hosts over an insecure network.  sshd (SSH Daemon) is
+openssh-doc: the daemon program for ssh.  OpenSSH is based on the last free version
+openssh-doc: of Tatu Ylonen's SSH, further enhanced and cleaned up by Aaron
+openssh-doc: Campbell, Bob Beck, Markus Friedl, Niels Provos, Theo de Raadt, and
+openssh-doc: Dug Song.  It has a homepage at http://www.openssh.com/
+openssh-doc:
+EOF
+sudo mv /tmp/slack-desc install/
+
+sudo makepkg -l y -c n $PKGS/openssh-doc-8.8p1-noarch-mlfs.txz
+sudo rm -rf /BMAN/*
 sudo rm -rf $BUILD/*                                                                                                                                                                                                              
