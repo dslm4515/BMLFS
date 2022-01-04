@@ -51,8 +51,40 @@ icu:
 icu:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
+
+sudo mkdir -pv /BMAN/install
+sudo mkdir -pv /BMAN/usr/share
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:                                                                                                                              
+# The "handy ruler" below makes it easier to edit a package description.  Line                                                                        
+# up the first '|' above the ':' following the base package name, and the '|'                                                                         
+# on the right side marks the last column you can put a character in.  You must                                                                       
+# make exactly 11 lines for the formatting to be correct.  It's also                                                                                  
+# customary to leave one space after the ':'.                                                                                                         
+                                                                                                                                                      
+       |-----handy-ruler------------------------------------------------------|                                                                           
+icu-doc: Manuals for icu (International Components for Unicode)                                                                                     
+icu-doc:                                                                                                                                             
+icu-doc: The International Components for Unicode (ICU) libraries provide                                                                            
+icu-doc: robust and full-featured Unicode services on a wide variety of                                                                               
+icu-doc: platforms.                                                                                                                                   
+icu-doc:                                                                                                                                              
+icu-doc: Homepage: http://www.icu-project.org/                                                                                                        
+icu-doc:                                                                                                                                              
+icu-doc:                                                                                                                                              
+icu-doc:                                                                                                                                              
+icu-doc:                                                                                                                                              
+EOF 
+sudo -S mv -v /tmp/slack-desc /BMAN/install/ 
+
+sudo mv usr/share/man /BMAN/usr/share/
+
 sudo -S makepkg -l y -c n $PKGS/icu-70.1-$(uname -m)-mlfs.txz &&
-cd - && sudo -S rm -rf $BUILD/*
+cd /BMAN
+sudo -S makepkg -l y -c n $PKGS/icu-doc-70.1-noarch-mlfs.txz
+
+sudo -S rm -rf $BUILD/*
+sudo -S rm -rf /BMAN
 
 # If not using nay package manager:
 #sudo -S make install

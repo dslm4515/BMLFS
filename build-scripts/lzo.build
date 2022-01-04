@@ -47,6 +47,28 @@ lzo:
 EOF
 sudo mv /tmp/slack-desc install/ &&
 
+sudo mkdir -pv /BMAN/install
+sudo mkdir -pv /BMAN/usr
+sudo mv -v     usr/share /BMAN/usr/
+
+cat > /tmp/slack-desc << "EOF"                                            
+lzo-doc: Manuals LZO Compression Library                                              
+lzo-doc:                                                                      
+lzo-doc: LZO is a portable lossless data compression library written in ANSI C.
+lzo-doc: It offers pretty fast compression and very fast decompression.       
+lzo-doc:                                                                      
+lzo-doc: Homepage: http://www.oberhumer.com/opensource/lzo/                   
+lzo-doc:                                                                      
+lzo-doc:                                                                      
+lzo-doc:                                                                      
+lzo-doc:                                                                      
+EOF   
+sudo mv /tmp/slack-desc /BMAN/install/
+
 read -p "Enter to build package" &&
 sudo makepkg -l y -c n $PKGS/lzo-2.10-$(uname -m)-mlfs.txz &&
+cd /BMAN
+sudo makepkg -l y -c n $PKGS/lzo-doc-2.10-noarch-mlfs.txz
+
 sudo rm -rf $BUILD/*
+sudo rm =rf /BMAN/*
