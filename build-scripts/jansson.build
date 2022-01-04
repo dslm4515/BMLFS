@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# Jansson 2.13.1
-# Source: http://www.digip.org/jansson/releases/jansson-2.13.1.tar.gz
+# Jansson 2.14
+# Source: https://github.com/akheron/jansson/releases/download/v2.14/jansson-2.14.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -53,5 +53,5 @@ EOF
 sudo -S mv /tmp/slack-desc ${BUILD}/install/ &&
 
 cd $BUILD &&
-sudo -S makepkg -l y -c n $PKGS/jansson-2.13.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/jansson-2.14-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
