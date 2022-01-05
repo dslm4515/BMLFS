@@ -7,11 +7,11 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     util-macros
-# Recommended:  NONE
+# Required:     NONE 
+# Recommended:  util-macros (required if building X11)
 # Optional:     NONE
 
-./configure $XORG_CONFIG $BUILDTRUPLE &&
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --disable-static $BUILDTUPLE
 
 make -j2 &&
 
