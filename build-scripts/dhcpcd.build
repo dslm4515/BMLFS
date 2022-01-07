@@ -30,20 +30,24 @@ useradd  -c 'dhcpcd PrivSep' \
 chown    -v dhcpcd:dhcpcd /var/lib/dhcpcd 
 
 # Configure
+CFLAGS="$CFLAGS -D_GNU_SOURCE -DHAVE_PRINTF_M"
 ./configure --prefix=/usr \
             --sysconfdir=/etc \
             --libexecdir=/usr/lib/dhcpcd \
             --dbdir=/var/lib/dhcpcd  \
-            --privsepuser=dhcpcd $BUILDTRUPLE
+            --privsepuser=dhcpcd \
+            --rundir=/run \
+            --enable-ipv6 \
+            --without-dev \
+            --without-udev $BUILDTRUPLE
 
 read -p "Compile? " && make -j2 && 
 
 read -p "Press Enter to install" &&
-# if not using a package manager:
-# make install
-
-# if using pkgtools from Slackware, then:
 sudo -S make DESTDIR=${BUILD} install
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 
 read -p "Press Enter to create pakage description." &&
 cd $BUILD && sudo mkdir -v install &&
@@ -68,7 +72,6 @@ dhcpcd:
 dhcpcd:
 dhcpcd: 
 EOF
-
 cat > /tmp/doinst.sh << "EOF"
 groupadd -g 52 dhcpcd        &&
 useradd  -c 'dhcpcd PrivSep' \
@@ -80,7 +83,20 @@ chown    -v dhcpcd:dhcpcd /var/lib/dhcpcd
 EOF
 sudo -S mv /tmp/doinst.sh  install/ &&
 sudo -S mv /tmp/slack-desc install/ &&
-
-read -p "Enter to build and install package" &&
 sudo makepkg -l y -c n $PKGS/dhcpcd-9.4.1-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+dhcpcd-doc: Manuals for dhcpcd (DHCP client daemon)
+dhcpcd-doc: 
+dhcpcd-doc: The DHCP client program dhcpcd is used to connect to a network by
+dhcpcd-doc: contacting a DHCP server.  dhcpcd gets an IP address and other
+dhcpcd-doc: information from a corresponding DHCP server, configures the network
+dhcpcd-doc: interface automatically, and tries to renew the lease time according
+dhcpcd-doc: to RFC2131 or RFC1541 depending on the command line option.
+dhcpcd-doc:
+EOF
+sudo -S mv /tmp/slack-desc install/
+sudo makepkg -l y -c n $PKGS/dhcpcd-doc-9.4.1-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo rm -rf $BUILD/*                                     

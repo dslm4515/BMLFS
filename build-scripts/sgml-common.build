@@ -30,6 +30,10 @@ read -p "Press Enter to install" &&
 
 # if using pkgtools from Slackware, then:
 sudo -S make DESTDIR=${BUILD} docdir=/usr/share/doc install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 
 read -p "Press Enter to create pakage description." &&
 cd $BUILD && sudo mkdir -v install &&
@@ -67,5 +71,19 @@ sudo -S mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build and install package" &&
 sudo makepkg -l y -c n $PKGS/sgml-common-0.6.3-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+sgml-common-doc: Manuals for sgml-common (SGML Common)
+sgml-common-doc: 
+sgml-common-doc: The SGML Common package contains install-catalog. This is useful
+sgml-common-doc: for creating and maintaining centralized SGML catalogs
+sgml-common-doc: 
+sgml-common-doc: Homepage: https://sourceware.org/ftp/docbook-tools/ 
+sgml-common-doc: 
+EOF
+sudo -S mv /tmp/slack-desc install/
+sudo makepkg -l y -c n $PKGS/sgml-common-doc-0.6.3-noarch-mlfs.txz
 sudo rm -rf $BUILD/*
+sudo rm -rf /BMAN/*
 

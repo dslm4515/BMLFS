@@ -28,6 +28,9 @@ meson --prefix=/usr ..
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -53,4 +56,21 @@ gobject-introspection:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/gobject-introspection-1.70.0-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+gobject-introspection-doc: Manuals for GObject interface introspection library
+gobject-introspection-doc: 
+gobject-introspection-doc: GObject Introspection is a project for providing machine readable
+gobject-introspection-doc: introspection data of the API of C libraries. This introspection data
+gobject-introspection-doc: can be used for automatic code generation for bindings, API
+gobject-introspection-doc: verification, and documentation generation.
+gobject-introspection-doc: 
+gobject-introspection-doc: For more information, check out:
+gobject-introspection-doc: http://live.gnome.org/GObjectIntrospection
+gobject-introspection-doc: 
+EOF
+udo -S mv -v /tmp/slack-desc install/ &&                                                                                                             
+sudo -S makepkg -l y -c n $PKGS/gobject-introspection-doc-1.70.0-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

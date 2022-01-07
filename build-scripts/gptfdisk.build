@@ -23,7 +23,10 @@ export LDFLAGS=" -Wl,--as-needed -ltinfow"
 
 read -p "Compile?" && make -j2 &&
 
-sudo -S make DESTDIR=$BUILD install &&
+sudo -S make DESTDIR=$BUILD install && 
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -49,4 +52,21 @@ gptfdisk:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/gptfdisk-1.0.8-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+gptfdisk-doc: Manuals for gptfdisk (GPT fdisk utilities)
+gptfdisk-doc: 
+gptfdisk-doc: GPT fdisk (consisting of the gdisk, cgdisk, sgdisk, and fixparts
+gptfdisk-doc: programs) is a set of text-mode partitioning tools for using a GPT 
+gptfdisk-doc: (GUID Partition Table), rather than the traditional MBR (Master Boot
+gptfdisk-doc: Record) partition tables.  It features several partitioning tools,
+gptfdisk-doc: recovery tools to help you deal with corrupt partition tables, and the
+gptfdisk-doc: ability to convert MBR disks to GPT format.
+gptfdisk-doc: 
+gptfdisk-doc: gptfdisk home: http://sourceforge.net/projects/gptfdisk/
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \                                                                                                           
+sudo -S makepkg -l y -c n $PKGS/gptfdisk-doc-1.0.8-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

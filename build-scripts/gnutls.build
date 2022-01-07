@@ -39,6 +39,11 @@ read -p "Compile?" && make -j2 &&
 
 # if using pkgtools from Slackware, then:
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/doc  /BMAN/usr/share/
+sudo -S mv $BUILD/usr/share/info /BMAN/usr/share/
+sudo -S mv $BUILD/usr/share/man  /BMAN/usr/share/
 
 # Create the package
 cd $BUILD && sudo mkdir -v install &&
@@ -67,5 +72,22 @@ sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
 sudo makepkg -l y -c n $PKGS//gnutls-3.7.2-$(uname -m)-mlfs.txz &&
-sudo rm -rf $BUILD/*
 
+cd /BMAN/
+cat > /tmp/slack-desc << "EOF" 
+          |-----handy-ruler------------------------------------------------------| 
+gnutls-doc: Manuals for gnutls (GNU TLS library)
+gnutls-doc:  
+gnutls-doc: This is a TLS (Transport Layer Security) 1.0 and SSL (Secure Sockets
+gnutls-doc: 
+gnutls-doc: 
+gnutls-doc: 
+gnutls-doc: 
+gnutls-doc: 
+gnutls-doc: 
+gnutls-doc: 
+EOF
+sudo mv /tmp/slack-desc install/
+sudo makepkg -l y -c n $PKGS//gnutls-doc-3.7.2-noarch-mlfs.txz
+sudo rm -rf $BUILD/*
+sudo rm -rf /BMAN/*

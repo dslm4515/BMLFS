@@ -21,6 +21,9 @@ patch -Np0 -i ../patches/freetype-void/enable-subpixel-rendering.patch          
 ./configure --prefix=/usr --enable-freetype-config --disable-static $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -44,5 +47,22 @@ freetype: Homepage:  http://www.freetype.org
 freetype:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/freetype-2.11.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/freetype-2.11.0-$(uname -m)-mlfs.txz && \
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+freetype-doc: Manuals for Freetype
+freetype-doc: 
+freetype-doc: FreeType is a free and portable font rendering engine.  It has been
+freetype-doc: developed to provide support for a number of font formats, including
+freetype-doc: TrueType, Type 1, and OpenType, and is designed to be small,
+freetype-doc: efficient, highly customizable, and portable while capable of
+freetype-doc: producing high-quality output.
+freetype-doc: 
+freetype-doc: Homepage:  http://www.freetype.org 
+freetype-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&                                                                                                             
+sudo -S makepkg -l y -c n $PKGS/freetype-doc-2.11.0-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

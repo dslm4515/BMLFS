@@ -35,6 +35,9 @@ read -p "Press Enter to install" &&
 
 # if using pkgtools from Slackware, then:
 sudo -S make DESTDIR=${BUILD} install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 read -p "Press Enter to create pakage description."  &&
 cd $BUILD && sudo -S mkdir -v install &&
@@ -59,15 +62,25 @@ pcre:
 pcre:
 pcre:
 EOF
-
 sudo -S mv /tmp/slack-desc install/ &&
-
-sudo -S mkdir -v lib &&
-sudo -S mv -v usr/lib/libpcre.so.* lib &&
-sudo -S rm -v usr/lib/libpcre.so &&
-sudo -S ln -sv ../../lib/libpcre.so.1.2.13 usr/lib/libpcre.so &&
-
 read -p "Enter to build and install package" &&
 sudo makepkg -l y -c n $PKGS/pcre-8.45-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+pcre-doc: Manuals for pcre (Perl Compatible Regular Expression Libraries)
+pcre-doc: 
+pcre-doc: The PCRE library is a set of functions that implement regular 
+pcre-doc: expression pattern matching using the same syntax and semantics as 
+pcre-doc: Perl 5, with just a few differences (documented in the man page).
+pcre-doc: 
+pcre-doc: 
+pcre-doc: 
+pcre-doc: 
+pcre-doc: 
+EOF
+sudo -S mv /tmp/slack-desc install/
+sudo makepkg -l y -c n $PKGS/pcre-doc-8.45-noarch-mlfs.txz
+sudo rm -rf /BMAN/*
 sudo rm -rf $BUILD/*
 

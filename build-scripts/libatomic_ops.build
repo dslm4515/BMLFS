@@ -25,6 +25,9 @@ unset LDFLAGS
             --docdir=/usr/share/doc/libatomic_ops-7.6.12 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -50,4 +53,22 @@ libatomic_ops:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libatomic_ops-7.6.12-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+libatomic_ops-doc: Manuals for libatomic_ops (Atomic memory update operations)
+libatomic_ops-doc: 
+libatomic_ops-doc: Provides implementations for atomic memory update operations
+libatomic_ops-doc: on a number of architectures. This allows direct use of these
+libatomic_ops-doc: in reasonably portable code. Unlike earlier similar packages,
+libatomic_ops-doc: this one explicitly considers memory barrier semantics, and
+libatomic_ops-doc: allows the construction of code that involves minimum overhead 
+libatomic_ops-doc: across a variety of architectures.
+libatomic_ops-doc: 
+libatomic_ops-doc: Homepage: http://www.hpl.hp.com/research/linux/atomic_ops/ 
+libatomic_ops-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ 
+sudo -S makepkg -l y -c n $PKGS/libatomic_ops-doc-7.6.12-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

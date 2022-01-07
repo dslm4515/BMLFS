@@ -31,6 +31,9 @@ read -p "Press Enter to install" &&
 
 # if using pkgtools from Slackware, then:
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 # Build Package
 
@@ -60,4 +63,23 @@ sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
 sudo makepkg -l y -c n $PKGS/libseccomp-2.5.3-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+              |-----handy-ruler------------------------------------------------------
+libseccomp-doc: Manuals for libseccomp (Enhanced Seccomp library)
+libseccomp-doc: 
+libseccomp-doc: The libseccomp library provides an easy to use, platform independent,
+libseccomp-doc: interface to the Linux Kernel's syscall filtering mechanism.
+libseccomp-doc: The libseccomp API is designed to abstract away the underlying BPF
+libseccomp-doc: based syscall filter language and present a more conventional 
+libseccomp-doc: function-call based filtering interface that should be familiar to,
+libseccomp-doc: and easily adopted by, application developers.
+libseccomp-doc: 
+libseccomp-doc: Project URL: https://github.com/seccomp/libseccomp 
+libseccomp-doc: 
+EOF
+sudo mv /tmp/slack-desc install/
+sudo makepkg -l y -c n $PKGS/libseccomp-doc-2.5.3-noarch-mlfs.txz
+sudo rm -rf /BMAN/*
 sudo rm -rf $BUILD/*

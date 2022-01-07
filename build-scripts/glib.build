@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Glib 2.70.0
-# Source: https://download.gnome.org/sources/glib/2.70/glib-2.70.0.tar.xz
+# Source: https://download.gnome.org/sources/glib/2.70/glib-2.70.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -42,6 +42,9 @@ sudo -S ln -sv ../../bin/true /usr/bin/otool
 
 # if using pkgtools from Slackware, then:
 sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 
 read -p "Press Enter to create pakage description."
 cd $BUILD && sudo mkdir -v install &&
@@ -59,7 +62,7 @@ glib:
 glib: GLib is a library which includes support routines for C such as lists,
 glib: trees, hashes, memory allocation, and many other things.
 glib:
-glib: GLib is required by nearly everything that uses GTK+ version 1.x.
+glib: GLib is required by nearly everything that uses GTK+ 1/2/3/4.x.
 glib:
 glib:
 glib:
@@ -69,5 +72,19 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build and install package" &&
-sudo makepkg -l y -c n $PKGS/glib-2.70.0-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS/glib-2.70.2-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+glib-doc: Manuals for glib (library of C routines, version 1.x)
+glib-doc: 
+glib-doc: GLib is a library which includes support routines for C such as lists,
+glib-doc: trees, hashes, memory allocation, and many other things. 
+glib-doc: 
+glib-doc:  GLib is required by nearly everything that uses GTK+ 1/2/3/4.x 
+glib-doc: 
+EOF
+sudo mv /tmp/slack-desc install/
+sudo makepkg -l y -c n $PKGS/glib-doc-2.70.2-noarch-mlfs.txz
+sudo rm -rf /BMAN/*
 sudo rm -rf $BUILD/*                                               

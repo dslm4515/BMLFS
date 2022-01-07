@@ -30,6 +30,10 @@ read -p "Press Enter to install" &&
 # if using pkgtools from Slackware, then:
 sudo -S make DESTDIR=$BUILD install &&
 
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv ${BUILD}/usr/share /BMAN/usr/
+
 read -p "Press Enter to create package description." &&
 cd $BUILD && sudo mkdir -v install &&
 cat > /tmp/slack-desc << "EOF"
@@ -57,5 +61,24 @@ sudo -S mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
 sudo -S makepkg -l y -c n $PKGS/libpsl-0.21.1-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+          |-----handy-ruler------------------------------------------------------|
+libpsl-doc: Manuals for libpsl (C library to handle the Public Suffix List)
+libpsl-doc: 
+libpsl-doc: A Public Suffix List is a collection of Top Level Domains (TLDs)
+libpsl-doc: suffixes. TLDs include Global Top Level Domains (gTLDs) like .com and
+libpsl-doc: .net; Country Top Level Domains (ccTLDs) like .de and .cn; and Brand
+libpsl-doc: Top Level Domains like .apple and .google. Brand TLDs allows users to
+libpsl-doc: register their own top level domain that exist at the same level as
+libpsl-doc: ICANN's gTLDs. Brand TLDs are sometimes referred to as Vanity Domains.
+libpsl-doc: 
+libpsl-doc: Homepage: https://github.com/rockdaboot/libpsl 
+libpsl-doc: 
+EOF
+
+sudo -S mv /tmp/slack-desc install/ 
+sudo -S makepkg -l y -c n $PKGS/libpsli-doc-0.21.1-noarch-mlfs.txz
 sudo -S rm -rf $BUILD/*
 

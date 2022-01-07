@@ -29,6 +29,9 @@ read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
 sudo -S rm -v ${BUILD}/usr/include/event.h &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -54,4 +57,21 @@ libev:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libev-4.33-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+libev-doc: Manuals for libev (a high-performance event loop/model)
+libev-doc:
+libev-doc: Libev is modelled (very loosely) after libevent and the Event perl
+libev-doc: module, but is faster, scales better and is more correct, and also
+libev-doc: more featureful. And also smaller. Yay.
+libev-doc:
+libev-doc: Website: <http://software.schmorp.de/pkg/libev.html> 
+libev-doc:
+libev-doc:
+libev-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ 
+sudo -S makepkg -l y -c n $PKGS/libev-doc-4.33-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

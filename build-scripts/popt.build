@@ -25,6 +25,9 @@ cp -v ../files/config.guess-musl config.guess &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -50,4 +53,21 @@ popt:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/popt-1.18-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+popt-doc: Manuals for popt (command line parsing library)
+popt-doc: 
+popt-doc: Popt is a C library for parsing command line parameters. Popt was 
+popt-doc: heavily influenced by the getopt() and getopt_long() functions, but it
+popt-doc: improves on them by allowing more powerful argument expansion.  Popt
+popt-doc: can parse arbitrary argv[] style arrays and automatically set
+popt-doc: variables based on command line arguments.  Popt allows command line 
+popt-doc: arguments to be aliased via configuration files and includes utility
+popt-doc: functions for parsing arbitrary strings into argv[] arrays using
+popt-doc: shell-like rules.
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&                                                                                                             
+sudo -S makepkg -l y -c n $PKGS/popt-doc-1.18-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

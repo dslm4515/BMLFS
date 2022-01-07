@@ -21,7 +21,10 @@ read -p "Compile?" && make PREFIX=/usr -j2 && \
 sudo -S make PREFIX=/usr DESTDIR=$BUILD install && \
 case $(uname -m) in
 	x86_64 | aarch64 sudo -S mv ${BUILD}/usr/lib64 ${BUILD}/usr/lib ;;
-esac &&\
+esac && \
+sudo -S mkdir -pv /BMAN/install        && \
+sudo -S mkdir -pv /BMAN/usr            && \
+sudo -S mv /BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -47,4 +50,18 @@ efivar:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/efivar-37-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+efivar-doc: Manuals for efivar (library and utilities to handle UEFI variables)
+efivar-doc: 
+efivar-doc: The efivar package contains a library and utilities for manipulating 
+efivar-doc: UEFI (Unified Extensible Firmware Interface) variables.
+efivar-doc: 
+efivar-doc: Homepage: https://github.com/rhboot/efivar 
+efivar-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&                                                                                                             
+sudo -S makepkg -l y -c n $PKGS/efivar-doc-37-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

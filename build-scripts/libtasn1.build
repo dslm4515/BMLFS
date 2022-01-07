@@ -28,6 +28,9 @@ read -p "Press Enter to install" &&
 
 # if using pkgtools from Slackware, then:
 sudo -S make DESTDIR=$BUILD install
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 # Create package
 cd $BUILD && sudo -S mkdir -v install &&
@@ -56,4 +59,32 @@ sudo -S mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
 sudo -S makepkg -l y -c n $PKGS/libtasn1-4.18.0-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"                                                                                                                        
+# HOW TO EDIT THIS FILE:                                                                                                                              
+# The "handy ruler" below makes it easier to edit a package description.  Line                                                                        
+# up the first '|' above the ':' following the base package name, and the '|'                                                                         
+# on the right side marks the last column you can put a character in.  You must                                                                       
+# make exactly 11 lines for the formatting to be correct.  It's also                                                                                  
+# customary to leave one space after the ':'.                                                                                                         
+                                                                                                                                                      
+            |-----handy-ruler-----------------------------------------------------|                                                                       
+libtasn1-doc: Manuals for libtasn1 (ASN.1 library)                                                                                                    
+libtasn1-doc:                                                                                                                                        
+libtasn1-doc: Libtasn1 is the GNU ASN.1 library.  Abstract Syntax Notation One                                                                       
+libtasn1-doc: (ASN.1) is a standard and flexible notation that describes rules and                                                                    
+libtasn1-doc: structures for representing, encoding, transmitting, and decoding                                                                       
+libtasn1-doc: data in telecommunications and computer networking.                                                                                     
+libtasn1-doc:                                                                                                                                         
+libtasn1-doc: Libtasn1 was written by Fabio Fiorina.                                                                                                  
+libtasn1-doc:                                                                                                                                         
+libtasn1-doc:                                                                                                                                         
+libtasn1-doc:                                                                                                                                         
+EOF                                                                                                                                                   
+sudo -S mv /tmp/slack-desc install/
+
+sudo -S makepkg -l y -c n $PKGS/libtasn1-doc-4.18.0-noarch-mlfs.txz
+
 sudo -S rm -rf $BUILD/*
+sudo -S rm -rf /BMAN/*

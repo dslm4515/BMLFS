@@ -30,6 +30,10 @@ read -p "Compile? " && make -j2 &&
 
 # if using pkgtools from Slackware, then:
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv /BUILD/usr/share/info /BMAN/usr/share/
+sudo -S mv /BUILD/usr/share/man  /BMAN/usr/share/
 
 # Build package
 cd $BUILD && sudo mkdir -v install &&
@@ -55,8 +59,22 @@ wget:
 wget:
 EOF
 sudo mv /tmp/slack-desc install/ &&
-
-read -p "Enter to build package" &&
 sudo makepkg -l y -c n $PKGS/wget-1.21.2-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+wget-doc: Manuals for wget (a non-interactive network retriever)
+wget-doc: 
+wget-doc: GNU Wget is a free network utility to retrieve files from the
+wget-doc: World Wide Web using HTTP and FTP, the two most widely used Internet
+wget-doc: protocols. It works non-interactively, thus enabling work in the
+wget-doc: background after having logged off.
+wget-doc: 
+wget-doc: The author of Wget is Hrvoje Niksic <hniksic@srce.hr>.
+wget-doc: 
+EOF
+sudo mv /tmp/slack-desc install/ &&
+sudo makepkg -l y -c n $PKGS/wget-doc-1.21.2-noarch-mlfs.txz
+sudo rm -rf /BMAN/*
 sudo rm -rf $BUILD/*
 

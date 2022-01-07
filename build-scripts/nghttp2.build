@@ -31,6 +31,11 @@ read -p "Compile?" && make -j2  &&
 
 sudo -S make DESTDIR=${BUILD} install &&
 sudo -S mkdir -pv ${BUILD}/install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/
+
 cd $BUILD &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -56,4 +61,21 @@ EOF
 
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/nghttp2-1.46.0-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+nghttp2-doc: Manuals for nghttp2
+nghttp2-doc:   
+nghttp2-doc: An implementation of HTTP/2 and its header compression algorithm,  
+nghttp2-doc: HPACK  
+nghttp2-doc:   
+nghttp2-doc: Homepage: https://github.com/nghttp2  
+nghttp2-doc:   
+nghttp2-doc:   
+nghttp2-doc:   
+nghttp2-doc:   
+EOF
+sudo -S mv -v /tmp/slack-desc install/ 
+sudo -S makepkg -l y -c n $PKGS/nghttp2-doc-1.46.0-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

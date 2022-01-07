@@ -32,6 +32,9 @@ read -p "Press Enter to install" &&
 
 # if using pkgtools from Slackware, then:
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 read -p "Press Enter to create package description." &&
 cd $BUILD && sudo mkdir -v install &&
@@ -59,5 +62,21 @@ sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
 sudo makepkg -l y -c n $PKGS/trousers-0.3.15-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+            |-----handy-ruler------------------------------------------------------|
+trousers-doc: Manuals for TrouSers
+trousers-doc:
+trousers-doc: The open-source TCG Software Stack.
+trousers-doc:
+trousers-doc: Provides tools and libraries to use a system's Trusted Platform 
+trousers-doc: Module(TPM).
+trousers-doc:
+trousers-doc: https://sourceforge.net/projects/trousers/
+trousers-doc:
+trousers-doc:
+EOF
+sudo mv /tmp/slack-desc install/ &&
+sudo makepkg -l y -c n $PKGS/trousers-doc-0.3.15-noarch-mlfs.txz
 sudo rm -rf $BUILD/*
-
+sudo rm -rf /BMAN/*

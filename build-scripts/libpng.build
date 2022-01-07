@@ -23,6 +23,9 @@ gzip -cd ../patches/libpng-lfs/apng.patch.gz | patch -p1 &&
 LIBS=-lpthread ./configure --prefix=/usr --disable-static $BUILDTRUMPLE &&
 read -p "Compile?" && make -j2 &&
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -46,5 +49,22 @@ libpng:
 libpng:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libpng-1.6.37-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libpng-1.6.37-$(uname -m)-mlfs.txz && \
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF" 
+libpng-doc: Manuals for libpng (Portable Network Graphics library)
+libpng-doc: 
+libpng-doc: PNG (Portable Network Graphics) is an extensible file format for the
+libpng-doc: lossless, portable, well-compressed storage of raster images.  PNG
+libpng-doc: provides a patent-free replacement for GIF and can also replace many
+libpng-doc: common uses of TIFF.  Indexed-color, grayscale, and truecolor images
+libpng-doc: are supported, plus an optional alpha channel.  Sample depths range
+libpng-doc: from 1 to 16 bits.
+libpng-doc: 
+libpng-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&                                                                                                             
+sudo -S makepkg -l y -c n $PKGS/libpng-doc-1.6.37-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

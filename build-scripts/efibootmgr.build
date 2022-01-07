@@ -11,7 +11,8 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-#patch -Np0 -i ../patches/efibootmgr-void/efivar-efi_set_verbose.patch && \
+# fix an outdated hotfix declaration causing compilation failure 
+sed -e '/extern int efi_set_verbose/d' -i src/efibootmgr.c
 
 case $(uname -m) in
 	x86_64)  export EFI_LOADER="grubx64.efi"  ;;
@@ -20,9 +21,12 @@ case $(uname -m) in
 	arm*)     export EFI_LOADER="grubarm.efi"  ;;
 esac
 
-read -p "Compile?" && make -j2 EXTRA_CFLAGS="$CFLAGS" EFIDIR="mlfs" EFI_LOADER="${EFI_LOADER}" &&
+read -p "Compile?" && make -j2 EXTRA_CFLAGS="$CFLAGS" EFIDIR="MLFS" EFI_LOADER="${EFI_LOADER}" &&
 
-sudo -S make DESTDIR=$BUILD EXTRA_CFLAGS="$CFLAGS" EFIDIR="mlfs" EFI_LOADER="${EFI_LOADER}" install &&
+sudo -S make DESTDIR=$BUILD EXTRA_CFLAGS="$CFLAGS" EFIDIR="MLFS" EFI_LOADER="${EFI_LOADER}" install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -48,4 +52,21 @@ efibootmgr:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/efibootmgr-17-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+efibootmgr-doc: Manuals for efibootmgr (tool to modify UEFI boot entries)
+efibootmgr-doc: 
+efibootmgr-doc: efibootmgr is a Linux userspace application to modify the Intel
+efibootmgr-doc: Extensible Firmware Interface (EFI) Boot Manager.  This application
+efibootmgr-doc: can create and destroy boot entries, change the boot order, change
+efibootmgr-doc: the next running boot option, and more. 
+efibootmgr-doc: 
+efibootmgr-doc: Homepage:  http://linux.dell.com/efibootmgr
+efibootmgr-doc: 
+efibootmgr-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&                                                                                                             
+sudo -S makepkg -l y -c n $PKGS/efibootmgr-doc-17-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

@@ -28,6 +28,10 @@ read -p "Install?" &&
 #sudo -S make install
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv ${BUILD}/usr/share /BMAN/usr/
+
 sudo -S mkdir -v  $BUILD/install && cd $BUILD &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -51,6 +55,31 @@ libunistring:
 libunistring:
 EOF
 sudo -S mv /tmp/slack-desc install/ &&
+
 sudo -S makepkg -l y -c n $PKGS/libunistring-0.9.10-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE: 
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|' 
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+                |-----handy-ruler------------------------------------------------------| 
+libunistring-doc: Manuals for libunistring (GNU Unicode string library) 
+libunistring-doc:
+libunistring-doc: This library provides functions for manipulating Unicode strings and 
+libunistring-doc: for manipulating C strings according to the Unicode standard. 
+libunistring-doc: 
+libunistring-doc: Homepage:  http://www.gnu.org/s/libunistring
+libunistring-doc:
+libunistring-doc:
+EOF
+sudo -S mv /tmp/slack-desc install/
+sudo -S makepkg -l y -c n $PKGS/libunistring-doc-0.9.10-noarch-mlfs.txz
+
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
 

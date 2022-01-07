@@ -67,6 +67,10 @@ read -p "Press Enter to install" &&
 sudo -S make -f unix/Makefile prefix=${BUILD}/usr \
         INSTALL_PROGRAM="install" MANDIR=${BUILD}/usr/share/man/man1 install
 
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
+
 read -p "Press Enter to create pakage description."  &&
 cd $BUILD && sudo mkdir -v install &&
 cat > /tmp/slack-desc << "EOF"
@@ -92,11 +96,20 @@ unzip:
 EOF
 
 sudo -S mv /tmp/slack-desc install/ &&
-
-#sudo -S mkdir -pv usr/share/man  &&
-#sudo -S mv -v usr/man usr/share/man/man1 &&
-
 read -p "Enter to build and install package" &&
 sudo makepkg -l y -c n $PKGS/unzip-6.0-$(uname -m)-mlfs.txz &&
+
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+unzip-doc: Manuals for unzip  (ZIP Archive Decompressor)
+unzip-doc: 
+unzip-doc: The UnZip package contains ZIP extraction utilities. These are useful
+unzip-doc: for extracting files from ZIP archives. ZIP archives are created 
+unzip-doc: with PKZIP or Info-ZIP utilities, primarily in a DOS environment.
+unzip-doc: 
+EOF
+sudo -S mv /tmp/slack-desc install/ 
+sudo makepkg -l y -c n $PKGS/unzip-doc-6.0-noarch-mlfs.txz
+sudo rm -rf /BMAN/*
 sudo rm -rf $BUILD/*
 
