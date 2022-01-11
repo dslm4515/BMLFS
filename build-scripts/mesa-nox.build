@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Mesa without Xorg
-# Source: ftp://ftp.freedesktop.org/pub/mesa/mesa-21.3.0.tar.xz
+# Source: ftp://ftp.freedesktop.org/pub/mesa/mesa-21.3.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -9,12 +9,12 @@
 # DEPS
 # Required:     LLVM, libdrm, Mako
 # Recommended:  Libva, libvdpau(for Xorg), wayland-protocols
-# Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind,
+# Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind, glslang (for vulkan layers)
 
 # Apply patches from Alpine Linux
 patch -Np1 -i ../patches/mesa-alpine-21.2.1/0001-radeonsi-On-Aarch64-force-persistent-buffers-to-GTT.patch
 patch -Np1 -i ../patches/mesa-alpine-21.2.1/add-use-elf-tls.patch
-patch -Np1 -i ../patches/mesa-alpine-21.2.1/disable-rgb10-by-default.patch
+patch -Np1 -i ../patches/mesa-alpine/disable-rgb10-by-default.patch # patch needs update
 patch -Np1 -i ../patches/mesa-alpine-21.2.1/musl-fix-includes.patch
 
 # If optimizing, use these flags
@@ -27,9 +27,9 @@ unset LDFLAGS
 
 export CFLAGS="$CFLAGS -D_XOPEN_SOURCE=700" &&
 case $(uname -m) in
-	i686|x86_64) export GLL_DRV="i915,nouveau,radeonsi,svga,swrast,r600" 
+	i686|x86_64) export GLL_DRV="i915,nouveau,radeonsi,svga,swrast,r600,iris,crocus" 
                      export DRI_DRIVERS="i965,nouveau" 
-		     export V_DRIVERS="amd,swrast" ;;
+		     export V_DRIVERS="amd,swrast,intel" ;;
 	     arm*)   export GLL_DRV="vc4,panfrost,nouveau,tegra,swrast"
 		     export DRI_DRIVEiRS="nouveau" 
 		     export V_DRIVERS="" ;;
@@ -65,8 +65,11 @@ export GALLIUMOPT+="-Dgallium-vdpau=disabled "
 # For intel graphics only (i.e. intergrated graphics on some laptops)
 # then only enable these drivers:
 export DRI_DRIVERS="i965"
-export GLL_DRV="i915, svga, swrast"
-export V_DRIVERS="swrast"
+export GLL_DRV="i915,svga,swrast,iris,crocus"
+export V_DRIVERS="swrast,intel"
+
+# If glslang is installed, vulkan layers an be built
+export V_LAYERS="-Dvulkan-layers=device-select,overlay,intel-nullhw "
 
 export MESA_GIT_SHA1_OVERRIDE=53b2b224dc2de982c37915a0ad218e33365ff75e &&
 python3 bin/git_sha1_gen.py --output include/git_sha1.h &&
@@ -75,13 +78,13 @@ meson --prefix=/usr \
       -Dvulkan-drivers="${V_DRIVERS}" \
       -Ddri-drivers="${DRI_DRIVERS}" \
       -Dgallium-drivers="${GLL_DRV}" \
-      $BUILDOPT $GFXOPT $DRVROPT $GALLIUMOPT OUT  
+      $BUILDOPT $GFXOPT $DRVROPT $GALLIUMOPT $V_LAYERS OUT  
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 unset CFLAGS GLL_DRV DRI_DRIVERS MESA_GIT_SHA1_OVERRIDE V_DRIVERS &&
-unset BUILDOPT GFXOPT DRVROPT GALLIUMOPT
+unset BUILDOPT GFXOPT DRVROPT GALLIUMOPT V_LAYERS
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -106,5 +109,5 @@ mesa:
 mesa: Tailored without Xorg Libraries
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mesa-21.3.0_nox-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/mesa-21.3.3_nox-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
