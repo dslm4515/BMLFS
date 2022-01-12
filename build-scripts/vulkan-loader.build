@@ -1,0 +1,49 @@
+#! /bin/bash
+
+# Vulkan Loader 
+# Source: https://github.com/khronosgroup/vulkan-loader/archive/v1.2.196/vulkan-loader-v1.2.196.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     vulkan-headers,cmake,wayland,xcb(for X11)
+# Recommended:  NONE
+# Optional:     NONE
+
+# For pure Wayland systems, add these flags:
+export XARGS="-DBUILD_WSI_XCB_SUPPORT=OFF -DBUILD_WSI_XLIB_SUPPORT=OFF"
+
+cmake -B build -DCMAKE_BUILD_TYPE=None \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_INSTALL_LIBDIR=/usr/lib \
+      -DCMAKE_INSTALL_SYSCONFDIR=/etc \
+      -DCMAKE_INSTALL_DATADIR=share \
+      -DCMAKE_SKIP_RPATH=True \
+      -DVULKAN_HEADERS_INSTALL_DIR=/usr $XARGS
+
+read -p "Compile?" && make -C build -j2 &&
+
+sudo -S make DESTDIR=$BUILD -C build install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+             |-----handy-ruler------------------------------------------------------|
+vulkan-loader: vulkan-loader
+vulkan-loader:
+vulkan-loader: The Khronos official Vulkan ICD desktop loader for Windows, Linux, 
+vulkan-loader: and MacOS.
+vulkan-loader: 
+vulkan-loader: https://github.com/khronosgroup/vulkan-loader
+vulkan-loader: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/vulkan-loader-1.2.196-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

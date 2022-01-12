@@ -1,0 +1,40 @@
+#! /bin/bash
+
+# Vulkan-headers
+# Source: https://github.com/khronosgroup/vulkan-headers/archive/v1.2.196/vulkan-headers-v1.2.196.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     CMake
+# Recommended:  NONE
+# Optional:     NONE
+
+cmake -B build -DCMAKE_BUILD_TYPE=None -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_INSTALL_LIBDIR=/usr/lib 
+
+read -p "Compile?" && make -C build -j2 &&
+
+sudo -S make DESTDIR=$BUILD -C build install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+              |-----handy-ruler------------------------------------------------------|
+vulkan-headers: vulkan-headers
+vulkan-headers: 
+vulkan-headers: Vulkan header files and API registry.
+vulkan-headers: 
+vulkan-headers: https://github.com/khronosgroup/vulkan-headers
+vulkan-headers: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/vulkan-headers-1.2.196-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
