@@ -23,6 +23,9 @@ patch -Np1 -i ../patches/freeglut-lfs/gcc10_fix-1.patch
 # Rebuild with -DFREEGLUT_GLES=OFF to build freeglut library
 # the glut libraries and glut.pc can be added to glut-gles build
 
+# Add CFLAGS & CXXFLAGS if building on system with out X11
+export CFLAGS="-DEGL_NO_X11" CXXFLAGS="-DEGL_NO_X11"
+
 mkdir build &&
 cd    build &&
 cmake -DCMAKE_INSTALL_PREFIX=/usr       \
