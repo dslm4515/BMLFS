@@ -17,9 +17,15 @@ export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-./configure $XORG_CONFIG $BUILDTRUPLE &&
+./configure --prefix=/usr \
+	    --sysconfdir=/etc \
+	    --localstatedir=/var \
+	    --disable-static  $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -45,4 +51,20 @@ libevdev:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libevdev-1.12.0-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+libevdev-doc: Manuals for libevdev (wrapper library for evdev devices)
+libevdev-doc: 
+libevdev-doc: libevdev is a wrapper library for evdev devices.  It moves the common
+libevdev-doc: tasks when dealing with evdev devices into a library and provides a
+libevdev-doc: library interface to the callers, thus avoiding erroneous ioctls, etc.
+libevdev-doc: 
+libevdev-doc: http://www.freedesktop.org/wiki/Software/libevdev/
+libevdev-doc: 
+libevdev-doc: 
+libevdev-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libevdev-doc-1.12.0-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

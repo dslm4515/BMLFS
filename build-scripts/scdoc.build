@@ -18,6 +18,9 @@ export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 make PREFIX=/usr
 
 sudo -S make PREFIX=/usr DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -40,4 +43,17 @@ scdoc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/scdoc-1.11.1-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+scdoc-doc: Manuals for SCdoc
+scdoc-doc: 
+scdoc-doc: It is a simple man page generator for POSIX
+scdoc-doc: systems written in C99.
+scdoc-doc: 
+scdoc-doc: https://git.sr.ht/~sircmpwn/scdoc
+scdoc-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/scdoc-doc-1.11.1-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/* 

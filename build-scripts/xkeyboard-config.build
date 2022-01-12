@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Xkeyboard Config
-# Source: https://www.x.org/pub/individual/data/xkeyboard-config/xkeyboard-config-2.33.tar.bz2
+# Source: https://www.x.org/pub/individual/data/xkeyboard-config/xkeyboard-config-2.34.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -22,13 +22,19 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
             $BUILDTRUPLE &&
             
 # Without Xorg:
-./configure $XORG_CONFIG \
+./configure --prefix=/usr \
+	    --sysconfdir=/etc \
+	    --localstatedir=/var \
+	    --disable-static \
             --disable-runtime-deps \
             --with-xkb-rules-symlink=xorg \
             $BUILDTRUPLE
 
 read -p "Compile?" && make -j2 &&
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -53,5 +59,21 @@ xkeyboard-config:
 xkeyboard-config:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xkeyboard-config-2.33-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/xkeyboard-config-2.34-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+xkeyboard-config-doc: Manual for xkeyboard-config (X Keyboard Extension config files)
+xkeyboard-config-doc: 
+xkeyboard-config-doc: The X Keyboard Extension essentially replaces the core protocol
+xkeyboard-config-doc: definition of keyboard. The extension makes possible to clearly and
+xkeyboard-config-doc: explicitly specify most aspects of keyboard behaviour on per-key
+xkeyboard-config-doc: basis and to more closely track the logical and physical state of the
+xkeyboard-config-doc: keyboard. It also includes a number of keyboard controls designed to
+xkeyboard-config-doc: make keyboards more accessible to people with physical impairments.
+xkeyboard-config-doc: 
+xkeyboard-config-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/xkeyboard-config-doc-2.34-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/
 sudo -S rm -rf ${BUILD}/*

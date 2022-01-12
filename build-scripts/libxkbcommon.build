@@ -35,6 +35,9 @@ meson --prefix=/usr -Denable-docs=false \
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -60,4 +63,21 @@ libxkbcommon: testing purposes.
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libxkbcommon-1.3.1-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+libxkbcommon-doc: Manuals for libxkbcommon (library to handle keyboard descriptions)
+libxkbcommon-doc: 
+libxkbcommon-doc: libxkbcommon is a keymap compiler and support library which processes
+libxkbcommon-doc: a reduced subset of keymaps as defined by the XKB specification.
+libxkbcommon-doc: Primarily, a keymap is created from a set of
+libxkbcommon-doc: Rules/Model/Layout/Variant/Options names, processed through an
+libxkbcommon-doc: XKB ruleset, and compiled into a struct xkb_keymap, which is
+libxkbcommon-doc: the base type for all xkbcommon operations.
+libxkbcommon-doc: 
+libxkbcommon-doc: libxkbcommon does not distribute a dataset itself, other than for
+libxkbcommon-doc: testing purposes.
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libxkbcommon-doc-1.3.1-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

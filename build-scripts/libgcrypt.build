@@ -26,6 +26,10 @@ esac &&
 read -p "Compile?" && make -j2 &&
 unset ECONFIG &&
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/info /BMAN/usr/share/
+sudo -S mv $BUILD/usr/share/man  /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -51,4 +55,20 @@ libgcrypt: libgcrypt home: http://directory.fsf.org/security/libgcrypt.html
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libgcrypt-1.9.4-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+libgcrypt-doc: Manuals for libgcrypt (general purpose cryptographic library)
+libgcrypt-doc: 
+libgcrypt-doc: This is a general purpose cryptographic library based on the code
+libgcrypt-doc: from GnuPG. It provides functions for all cryptograhic building
+libgcrypt-doc: blocks: symmetric ciphers (AES, DES, Blowfish, CAST5, Twofish,
+libgcrypt-doc: Arcfour), hash algorithms (MD4, MD5, RIPE-MD160, SHA-1, TIGER-192),
+libgcrypt-doc: MACs (HMAC for all hash algorithms), public key algorithms
+libgcrypt-doc: (RSA, ElGamal, DSA), large integer functions, random numbers and a
+libgcrypt-doc: lot of supporting functions.
+libgcrypt-doc: libgcrypt home: http://directory.fsf.org/security/libgcrypt.html
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libgcrypt-doc-1.9.4-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

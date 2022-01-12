@@ -34,6 +34,9 @@ sudo -S make PREFIX=${BUILD}/usr \
 	     MANDIR=${BUILD}/usr/share/man      \
 	     install install-lib &&
 sudo -S chmod -v 755 ${BUILD}/usr/lib/libpci.so &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -59,4 +62,20 @@ pciutils: See the manual pages for more details.
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/pciutils-3.7.0-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+pciutils-doc: Manuals for pciutils (PCI utilities)
+pciutils-doc: 
+pciutils-doc: lspci displays detailed information about all PCI buses and devices
+pciutils-doc: in the system, replacing the original /proc/pci interface.
+pciutils-doc: 
+pciutils-doc: setpci allows reading from and writing to PCI device configuration
+pciutils-doc: registers. For example, you can adjust the latency timers with it.
+pciutils-doc: 
+pciutils-doc: pcimodules lists the kernel modules for all plugged in PCI devices.
+pciutils-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/pciutils-doc-3.7.0-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

@@ -30,6 +30,9 @@ meson --prefix=/usr     \
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
+sudo mkdir -pv /BMAN/install
+sudo mkdir -pv /BMAN/usr
+sudo mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -60,4 +63,19 @@ groupadd -g 28 seat
 EOF
 sudo -S mv -v /tmp/doinst.sh install/doinst.sh && \
 sudo -S makepkg -l y -c n $PKGS/seatd-0.6.3-$(uname -m)-mlfs.txz && \
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+seatd-doc: Manuals for seatd
+seatd-doc: 
+seatd-doc: A minimal seat management daemon, and a universal seat management
+seatd-doc: library. It can support elogind.
+seatd-doc: 
+seatd-doc: Currently supports Linux, FreeBSD, and Alpha
+seatd-doc: 
+seatd-doc: Homepage: https://git.sr.ht/~kennylevinsen/seatd 
+seatd-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/seatd-doc-0.6.3-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
