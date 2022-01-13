@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # sassc
-# Source: https://github.com/sass/sassc/archive/3.6.1/sassc-3.6.2.tar.gz
-# Source: https://github.com/sass/libsass/archive/3.6.4/libsass-3.6.5.tar.gz
+# Source: https://github.com/sass/sassc/archive/3.6.2/sassc-3.6.2.tar.gz
+# Source: https://github.com/sass/libsass/archive/3.6.5/libsass-3.6.5.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
