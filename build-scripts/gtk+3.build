@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GTK+ 3
-# Source: https://download.gnome.org/sources/gtk+/3.24/gtk+-3.24.30.tar.xz
+# Source: https://download.gnome.org/sources/gtk+/3.24/gtk+-3.24.31.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -38,6 +38,10 @@ make -j2 && sudo -S make DESTDIR=${BUILD} install &&
 
 #sudo -S DESTDIR=$BUILD ninja install &&
 
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
+
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -61,5 +65,18 @@ gtk+3:
 gtk+3:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gtk+3-3.24.30-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/gtk+3-3.24.31-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+gtk+3-doc: Manuals for GTK+ version 3 (multi-platform GUI toolkit)
+gtk+3-doc:
+gtk+3-doc: This is GTK+, a multi-platform toolkit for creating graphical user 
+gtk+3-doc: interfaces.  Offering a complete set of widgets, GTK+ is suitable for
+gtk+3-doc: projects ranging from small one-off projects to complete application
+gtk+3-doc: suites.
+gtk+3-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gtk+3-doc-3.24.31-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
