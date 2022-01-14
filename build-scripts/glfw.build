@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GLFW (GL for Wayland)
-# Source: https://github.com/glfw/glfw/archive/refs/tags/3.3.4.tar.gz
+# Source: https://github.com/glfw/glfw/archive/refs/tags/3.3.6.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -47,5 +47,5 @@ glfw: See also: http://www.glfw.org/
 glfw:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/glfw-3.3.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/glfw-3.3.6-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
