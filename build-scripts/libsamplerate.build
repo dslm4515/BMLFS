@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libsamplerate
-# Source: https://github.com/libsndfile/libsamplerate/releases/download/0.2.1/libsamplerate-0.2.1.tar.bz2
+# Source: https://github.com/libsndfile/libsamplerate/releases/download/0.2.2/libsamplerate-0.2.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -23,6 +23,9 @@ cp -v ../files/config.guess-musl build-aux/config.guess  &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -47,5 +50,16 @@ libsamplerate:
 libsamplerate:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libsamplerate-0.2.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libsamplerate-0.2.2-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+libsamplerate-doc: Manuals for libsamplerate (Sample Rate Converter for audio)
+libsamplerate-doc:
+libsamplerate-doc: Secret Rabbit Code (aka libsamplerate) is a Sample Rate
+libsamplerate-doc: Converter for audio.
+libsamplerate-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libsamplerate-doc-0.2.2-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
