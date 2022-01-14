@@ -32,6 +32,10 @@ sudo -S install -D -m755 pbmtools/pbmtojbg85    ${BUILD}/usr/bin/pbmtojbg85
 sudo -S install -m644 pbmtools/*.1*             ${BUILD}/usr/share/man/man1
 unset CFLAGS CPPFLAGS LDFLAGS       &&
 
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sduo -S mv $BUILD/usr/share /BMAN/usr/
+
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -56,4 +60,21 @@ jbigkit: simple command line interface.
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/jbigkit-2.1-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+jbigkit-doc: Manuals for JBIG-KIT
+jbigkit-doc: 
+jbigkit-doc: JBIG is a highly effective lossless compression algorithm for 
+jbigkit-doc: high-resolution bi-level images (one bit per pixel), which is
+jbigkit-doc: particularly suitable for scanned documents or fax pages.
+jbigkit-doc: 
+jbigkit-doc: JBIG-KIT provides a portable library of compression and decompression 
+jbigkit-doc: functions with a documented interface that you can easily include
+jbigkit-doc: into your image or document processing software. JBIG-KIT also 
+jbigkit-doc: provides ready-to-use compression and decompression programs with a
+jbigkit-doc: simple command line interface.
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/jbigkit-doc-2.1-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

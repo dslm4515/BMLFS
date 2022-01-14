@@ -7,9 +7,9 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     gtkmm3
+# Required:     gtkmm3, wayfire
 # Recommended:  libnotify, pulseaudio, gobject-introspectopn, 
-# Optional:     gtk-layer-shell
+# Optional:     gtk-layer-shell, wf-config
 
 meson --prefix=/usr OUT && \
 ninja -C OUT -j2 && \

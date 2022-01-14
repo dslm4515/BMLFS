@@ -21,6 +21,9 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -46,4 +49,16 @@ nasm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/nasm-2.15.05-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+nasm: Manuals for nasm (NASM assembler)
+nasm:
+nasm: NASM is the Netwide Assembler, a free portable assembler for the Intel
+nasm: 80x86 microprocessor series, using primarily the traditional Intel
+nasm: instruction mnemonics and syntax.
+nasm:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/nasm-doc-2.15.05-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

@@ -52,7 +52,9 @@ meson --prefix=/usr \
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
-
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -82,4 +84,18 @@ sudo -S sed -e 's|/usr/bin/pactl load-module module-x11-cork-request|#&|'  \
 sudo -S sed -e '/Load several protocols/aload-module module-dbus-protocol' \
             -i etc/pulse/default.pa                                        &&
 sudo -S makepkg -l y -c n $PKGS/pulseaudio-15.0-$(uname -m)-mlfs.txz &&
+cd  /BMAN
+cat > /tmp/slack-desc << "EOF"
+pulseaudio-doc: Manuals for pulseaudio (Sound Server)
+pulseaudio-doc:
+pulseaudio-doc: A networked sound server for Linux and other Unix like operating
+pulseaudio-doc: systems and Microsoft Windows. It is intended to be an improved
+pulseaudio-doc: drop-in replacement for the Enlightened Sound Daemon (ESOUND).
+pulseaudio-doc: 
+pulseaudio-doc:  http://pulseaudio.org
+pulseaudio-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/pulseaudio-doc-15.0-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

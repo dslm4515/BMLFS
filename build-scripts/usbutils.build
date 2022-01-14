@@ -22,6 +22,9 @@ read -p "Compile?" && make -j2 &&
 sudo -S make DESTDIR=$BUILD install &&
 sudo -S install -dm755 ${BUILD}/usr/share/hwdata/ &&
 sudo -S wget http://www.linux-usb.org/usb.ids -O ${BUILD}/usr/share/hwdata/usb.ids &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -47,4 +50,17 @@ usbutils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/usbutils-014-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+usbutils-doc: Manuals for usbutils (USB utilities)
+usbutils-doc:
+usbutils-doc: lsusb displays detailed information about all USB buses and devices
+usbutils-doc: in the system.
+usbutils-doc:
+usbutils-doc: usbmodules lists the kernel modules for a plugged in USB device.
+usbutils-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && 
+sudo -S makepkg -l y -c n $PKGS/usbutils-doc-014-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

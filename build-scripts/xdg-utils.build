@@ -22,6 +22,9 @@ patch -Np1 -i ../patches/xdg-utils-alpine/xdg-screensaver-mv-T.patch &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -47,4 +50,20 @@ xdg-utils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/xdg-utils-1.1.3-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+xdg-utils-doc: Manuals for xdg-utils (command line tools that assist applications)
+xdg-utils-doc:
+xdg-utils-doc: Xdg-utils is a set of command line tools that assist applications
+xdg-utils-doc: with a variety of desktop integration tasks. About half of the
+xdg-utils-doc: tools focus on tasks commonly required during the installation of
+xdg-utils-doc: a desktop application and the other half focuses on integration
+xdg-utils-doc: with the desktop environment while the application is running.
+xdg-utils-doc: 
+xdg-utils-doc: http://portland.freedesktop.org/wiki/
+xdg-utils-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/xdg-utils-doc-1.1.3-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

@@ -25,6 +25,9 @@ PYTHON=/usr/bin/python3 ./configure --prefix=/usr $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -50,4 +53,19 @@ itstool:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/itstool-2.0.7-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+itstool-doc: Manuals for itstool (Translate XML documents with PO files)
+itstool-doc: 
+itstool-doc: ITS Tool allows you to translate your XML documents with PO
+itstool-doc: files, using rules from the W3C Internationalization Tag Set
+itstool-doc: (ITS) to determine what to translate and how to separate it
+itstool-doc: into PO file messages.
+itstool-doc: 
+itstool-doc: Homepage: http://itstool.org/
+itstool-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/itstool-doc-2.0.7-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

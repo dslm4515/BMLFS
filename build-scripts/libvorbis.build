@@ -22,6 +22,9 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -47,4 +50,16 @@ libvorbis:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libvorbis-1.3.7-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+libvorbis-doc: Manuals for libvorbis (Ogg Vorbis library)
+libvorbis-doc: 
+libvorbis-doc: Ogg Vorbis is a fully open, non-proprietary,
+libvorbis-doc: patent-and-royalty-free, general-purpose compressed
+libvorbis-doc: audio format for audio and music at fixed and variable bitrates.
+libvorbis-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libvorbis-doc-1.3.7-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

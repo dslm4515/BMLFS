@@ -33,7 +33,9 @@ export CFLAGS="$CFLAGS -Wno-error" && \
 read -p "Compile?" && make -j2 && \
 
 sudo -S make DESTDIR=$BUILD install        && \
-sudo -S rm -rf ${BUILD}/usr/share/gtk-doc  && \
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv ${BUILD}/usr/share/gtk-doc /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -59,4 +61,17 @@ libappindicator:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libappindicator-12.10.0-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+libappindicator-doc: Manuals for libappindicator (menu bar indicator library)
+libappindicator-doc:
+libappindicator-doc: A library to allow applications to export a menu into the Unity Menu
+libappindicator-doc: bar.
+libappindicator-doc:
+libappindicator-doc: https://launchpad.net/libappindicator
+libappindicator-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libappindicator-doc-12.10.0-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

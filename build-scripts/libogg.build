@@ -22,6 +22,9 @@ export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -47,4 +50,15 @@ libogg:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libogg-1.3.5-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+libogg-doc: Manuals for libogg (Ogg Bitstream library)
+libogg-doc: 
+libogg-doc: A library for manipulating ogg bitstreams.  It handles both
+libogg-doc: making ogg bitstreams and getting packets from ogg bitstreams.
+libogg-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libogg-doc-1.3.5-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

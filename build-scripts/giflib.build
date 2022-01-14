@@ -20,6 +20,9 @@ patch -Np1 -i ../patches/giflib-alpine/giflib-restore-deprecated-functions.patch
 read -p "Compile?" && make PREFIX=/usr -j2 &&
 
 sudo -S make DESTDIR=$BUILD PREFIX=/usr install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -45,4 +48,16 @@ giflib:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/giflib-5.2.1-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+giflib-doc: Manuals for giflib (GIF image format library)
+giflib-doc: 
+giflib-doc: A library to load and save (uncompressed only) images using GIF,
+giflib-doc: or Graphics Interchange Format.  GIF was introduced by CompuServe
+giflib-doc: in 1987, but is still widely used today (especially on web pages.)
+giflib-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/giflib-doc-5.2.1-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

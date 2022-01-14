@@ -26,6 +26,9 @@ cmake -DCMAKE_INSTALL_DOCDIR=/usr/share/doc/libtiff-4.3.0 \
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -51,4 +54,17 @@ libtiff:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libtiff-4.3.0-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+libtiff-doc: Manuals for libtiff (a library for reading and writing TIFF files)
+libtiff-doc:
+libtiff-doc: This package provides support for the Tag Image File Format (TIFF),
+libtiff-doc: a widely used format for storing image data.  Included is the libtiff
+libtiff-doc: library (for reading and writing TIFF files), and a collection of
+libtiff-doc: tools for working with TIFF images.
+libtiff-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/
+sudo -S makepkg -l y -c n $PKGS/libtiff-doc-4.3.0-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

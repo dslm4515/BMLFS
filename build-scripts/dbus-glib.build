@@ -22,6 +22,9 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -47,4 +50,14 @@ dbus-glib:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/dbus-glib-0.112-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+dbus-glib-doc: Manuals for dbus-glib (Glib bindings for dbus)
+dbus-glib-doc:
+dbus-glib-doc: This package includes the glib bindings for the dbus IPC library.
+dbus-glib-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/dbus-glib-doc-0.112-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

@@ -29,6 +29,9 @@ read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install-full                                  &&
 sudo -S chgrp -v -R root ${BUILD}/usr/share/doc/lynx-2.8.9rel.1/lynx_doc  &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -54,4 +57,18 @@ lynx:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/lynx-2.8.9_rel1-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+lynx-doc: Manauls for Lynx (text mode browser)
+lynx-doc:
+lynx-doc: Lynx is a distributed hypertext browser with full World Wide Web 
+lynx-doc: capabilities.  Lynx can be used to access information on the World
+lynx-doc: Wide Web, or to build information systems intended primarily for local
+lynx-doc: access.  For example, Lynx has been used to build several Campus Wide
+lynx-doc: Information Systems (CWIS).
+lynx-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/lynx-doc-2.8.9_rel1-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

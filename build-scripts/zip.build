@@ -25,6 +25,9 @@ export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
 read -p "Compile?" && make -f unix/Makefile prefix=/usr generic -j2 &&
 
 sudo -S make -f unix/Makefile prefix=${BUILD}/usr MANDIR=${BUILD}/usr/share/man/man1 install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -50,4 +53,18 @@ zip:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/zip-3.0-$(uname -m)-mlfs.txz &&
+cd BMAN/
+cat > /tmp/slack-desc << "EOF"
+zip-doc: Manuals for Zip (Info-ZIP's zip utilities)
+zip-doc:
+zip-doc: zip is a compression and file packaging utility for Unix, VMS, MSDOS,
+zip-doc: OS/2, Windows NT, Minix, Atari and Macintosh, Amiga and Acorn RISC OS.
+zip-doc: It is analogous to a combination of the UNIX commands tar(1) and
+zip-doc: compress(1) and is compatible with PKZIP (Phil Katz's ZIP).  A
+zip-doc: companion program (unzip(1L)), unpacks zip archives.
+zip-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/zip-doc-3.0-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

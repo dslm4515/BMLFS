@@ -34,6 +34,10 @@ esac
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -59,4 +63,20 @@ flac: FLAC was developed by Josh Coalson.
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/flac-1.3.3-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+flac-doc: Manuals for flac (Free Lossless Audio Codec)
+flac-doc:
+flac-doc: FLAC stands for Free Lossless Audio Codec. Grossly oversimplified,
+flac-doc: FLAC is similar to MP3, but lossless.  "Free" means that the
+flac-doc: specification of the stream format is in the public domain, and that
+flac-doc: neither the FLAC format nor any of the implemented encoding/decoding
+flac-doc: methods are covered by any patent.
+flac-doc: 
+flac-doc: FLAC was developed by Josh Coalson.
+flac-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/flac-doc-1.3.3-noarch-mlfs.txz
+sudo -S rm -f /BMAN/*
 sudo -S rm -rf ${BUILD}/*

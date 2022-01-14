@@ -25,6 +25,9 @@ meson --prefix=/usr .. &&
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -50,4 +53,17 @@ fribidi:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/fribidi-1.0.11-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+fribidi-doc: Manuals for fribidi (Unicode BiDirectional algorithm library)
+fribidi-doc:
+fribidi-doc: This library implements the Unicode BiDirectional algorithm which is
+fribidi-doc: needed in order to support for left-to-right languages such as Arabic
+fribidi-doc: and Hebrew.  It is used in word processing and display software like
+fribidi-doc: AbiWord and KDE's SVG module.
+fribidi-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/fribidi-doc-1.0.11-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

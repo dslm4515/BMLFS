@@ -23,6 +23,9 @@ meson --prefix=/usr ..  &&
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -54,4 +57,15 @@ gdk-pixbuf-query-loaders > /usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
 EOF
 sudo -S mv /tmp/doinst.sh -v install/ &&
 sudo -S makepkg -l y -c n $PKGS/gdk-pixbuf-2.42.6-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+gdk-pixbuf-doc: Manuals for gdk-pixbuf (library for manipulating images)
+gdk-pixbuf-doc:
+gdk-pixbuf-doc: A toolkit for image loading and pixel buffer manipulation. 
+gdk-pixbuf-doc:
+gdk-pixbuf-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gdk-pixbuf-doc-2.42.6-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

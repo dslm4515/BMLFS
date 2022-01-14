@@ -27,9 +27,10 @@ export CFLAGS="$CFLAGS -Wno-error" && \
 read -p "Compile?" && make -j2 && \
 
 sudo -S make DESTDIR=$BUILD install && \
-#sudo -S ${BUILD}/usr/share/gtk-doc  && \
-#sudo -S ${BUILD}/usr/share/doc      && \
-#sudo -S ${BUILD}/usr/libexec        && \
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/doc     /BMAN/usr/share/
+sudo -S mv $BUILD/usr/share/gtk-doc /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -55,4 +56,18 @@ libdbusmenu:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libdbusmenu-16.04.0-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+libdbusmenu-doc: Manuals for libdbusmenu (library for passing menus over DBus)
+libdbusmenu-doc:
+libdbusmenu-doc: This passes a menu structure across DBus so that a program can
+libdbusmenu-doc: create a menu simply without worrying about how it is displayed on
+libdbusmenu-doc: the other side of the bus.
+libdbusmenu-doc:
+libdbusmenu-doc: https://launchpad.net/libdbusmenu/
+libdbusmenu-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libdbusmenu-doc-16.04.0-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

@@ -24,6 +24,10 @@ sudo -S cp -r doc        ${BUILD}/usr/share/doc/glm  && \
 sudo -S mkdir -p         ${BUILD}/usr/lib/pkgconfig  && \
 sudo -S cp -v ../files/glm-alpine/glm.pc ${BUILD}/usr/lib/pkgconfig/
 
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
+
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -48,4 +52,21 @@ glm: homepage: http://glm.g-truc.net/
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/glm-0.9.9.8-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+glm-doc: Manuals for glm (OpenGL Mathematics)
+glm-doc:
+glm-doc: OpenGL Mathematics (GLM) is a header only C++ mathematics library for 
+glm-doc: graphics software based on the OpenGL Shading Language (GLSL)
+glm-doc: specification.
+glm-doc: GLM provides classes and functions designed and implemented with the
+glm-doc: same naming conventions and functionalities than GLSL so that when a
+glm-doc: programmer knows GLSL, he knows GLM as well which makes it really easy
+glm-doc: to use.
+glm-doc:
+glm-doc: homepage: http://glm.g-truc.net/
+EOF
+sudo -S mv -v /tmp/slack-desc install  && \
+sudo -S makepkg -l y -c n $PKGS/glm-doc-0.9.9.8-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

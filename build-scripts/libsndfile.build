@@ -25,6 +25,9 @@ ac_cv_sys_largefile_CFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -50,4 +53,17 @@ libsndfile:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libsndfile-1.0.31-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+libsndfile-doc: Manuals for libsndfile (C library for reading and writing wav files)
+libsndfile-doc: 
+libsndfile-doc: Libsndfile is a C library for reading and writing files containing
+libsndfile-doc: sampled sound (such as MS Windows WAV and Apple/SGI AIFF format).
+libsndfile-doc: 
+libsndfile-doc: http://www.mega-nerd.com/libsndfile/
+libsndfile-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libsndfile-doc-1.0.31-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

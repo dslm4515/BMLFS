@@ -25,6 +25,9 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
             --docdir=/usr/share/doc/speex-1.2.0 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/
 
 cd ..                          &&
 tar -xf speexdsp-1.2.0.tar.gz &&
@@ -40,6 +43,8 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
             --docdir=/usr/share/doc/speexdsp-1.2.0 $BUILDTRUPLE  &&
 read -p "Compile?" && make -j2                     &&
 sudo -S make DESTDIR=$BUILD install                 &&
+sudo -S mv $BUILD/usr/share/doc/* /BMAN/usr/share/doc/
+sudo -S rm -rf $BUILD/usr/share/doc
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -51,7 +56,7 @@ cat > /tmp/slack-desc << "EOF"
 # customary to leave one space after the ':' except on otherwise blank lines.
 
      |-----handy-ruler------------------------------------------------------|
-sppex: Speex
+speex: Speex
 speex:
 speex: Speex is an audio compression format designed especially for speech. 
 speex: It is well-adapted to internet applications and provides useful 
@@ -64,4 +69,18 @@ speex:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/speex-1.2.0-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+speex-doc: Manuals for Speex
+speex-doc:
+speex-doc: Speex is an audio compression format designed especially for speech. 
+speex-doc: It is well-adapted to internet applications and provides useful
+speex-doc: features that are not present in most other CODECs.
+speex-doc: 
+speex-doc: https://www.speex.org/
+speex-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/speex-doc-1.2.0-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
