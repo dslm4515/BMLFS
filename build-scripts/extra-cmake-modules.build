@@ -1,15 +1,15 @@
 #! /bin/bash
 
 # Extra Cmake Modules
-# Source: https://download.kde.org/stable/frameworks/5.87/extra-cmake-modules-5.87.0.tar.xz
+# Source: https://download.kde.org/stable/frameworks/5.89/extra-cmake-modules-5.89.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     CMake, Qt5
+# Required:     CMake 
 # Recommended:  NONE
-# Optional:     NONE
+# Optional:     Qt5
 
 sed -i '/"lib64"/s/64//' kde-modules/KDEInstallDirs.cmake &&
 
@@ -48,5 +48,5 @@ extra-cmake-modules:
 extra-cmake-modules:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/extra-cmake-modules-5.87.0-noarch-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/extra-cmake-modules-5.89.0-noarch-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
