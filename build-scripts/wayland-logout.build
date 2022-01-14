@@ -1,0 +1,59 @@
+#! /bin/bash
+
+# Wayland-logout
+# Source: https://github.com/soreau/wayland-logout 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     wayland,wayland-protocols
+# Recommended:  NONE
+# Optional:     NONE
+
+meson --prefix=/usr --buildtype=release OUT
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+              |-----handy-ruler------------------------------------------------------|
+wayland-logout: Wayland Logout 
+wayland-logout: 
+wayland-logout: A utility designed to kill any wayland compositor that uses 
+wayland-logout: libwayland-server. It looks up the PID for the socket file by 
+wayland-logout: checking the socket path environment variables and sends a SIGTERM 
+wayland-logout: signal. This is useful as a way to logout of a wayland compositor, 
+wayland-logout: as the name implies.
+wayland-logout: 
+wayland-logout: https://github.com/soreau/wayland-logout
+wayland-logout: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/wayland-logout-1.0-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+wayland-logout-doc: Manual for Wayland Logout
+wayland-logout-doc: 
+wayland-logout-doc: A utility designed to kill any wayland compositor that uses 
+wayland-logout-doc: libwayland-server. 
+wayland-logout-doc: 
+wayland-logout-doc: https://github.com/soreau/wayland-logout
+wayland-logout-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/wayland-logout-doc-1.0-noarch-mlfs.txz
+sudo -S rm -rf ${BUILD}/*
+sudo -S rm -rf /BMAN/*
