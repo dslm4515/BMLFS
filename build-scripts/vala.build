@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Vala
-# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/vala/0.54/vala-0.54.1.tar.xz
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/vala/0.54/vala-0.54.6.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -21,6 +21,10 @@ export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/man     /BMAN/usr/share/
+sudo -S mv $BUILD/usr/share/devhelp /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -45,5 +49,18 @@ vala:
 vala:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/vala-0.54.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/vala-0.54.6-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+vala-doc: Manuals for Vala (Compiler for the GObject type system)
+vala-doc: 
+vala-doc: Vala is a new programming language that aims to bring modern
+vala-doc: programming language features to GNOME developers without imposing
+vala-doc: any additional runtime requirements and without using a different
+vala-doc: ABI compared to applications and libraries written in C.
+vala-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/vala-doc-0.54.6-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
