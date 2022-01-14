@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # fftw
-# Source: ftp://ftp.fftw.org/pub/fftw/fftw-3.3.9.tar.gz
+# Source: ftp://ftp.fftw.org/pub/fftw/fftw-3.3.10.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -49,6 +49,10 @@ for f in double long-double single; do
 	cd ..
 done &&
 
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr
+sudo -S mv $BUILD/usr/share /BMAN/usr/ 
+
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -72,5 +76,18 @@ fftw: Homepage: http://www.fftw.org/
 fftw:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/fftw-3.3.9-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/fftw-3.3.10-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+fftw-doc: Manuals for fftw (Fastest Fourier Transform in the West)
+fftw-doc:
+fftw-doc: A free collection of fast C routines for computing the Discrete
+fftw-doc: Fourier Transform in one or more dimensions.
+fftw-doc:
+fftw-doc: http://www.fftw.org/
+fftw-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/fftw-doc-3.3.10-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
