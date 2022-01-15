@@ -18,9 +18,9 @@ export CFLAGS+="-flto=auto -fno-semantic-interposition -mprefer-vector-width=256
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
-read -p "Compile?" && make PREFIX=/usr -j2 &&
+read -p "Compile?" && make prefix=/usr -j2 &&
 
-sudo -S make DESTDIR=$BUILD PREFIX=/usr install &&
+sudo -S make DESTDIR=$BUILD prefix=/usr install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -37,11 +37,6 @@ re2:
 re2: Fast, safe, thread-friendly regular expression engine.
 re2:
 re2: Homepage: https://github.com/google/re2
-re2:
-re2:
-re2:
-re2:
-re2:
 re2:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
