@@ -19,6 +19,7 @@ sed -i -e '/define sp/s/+/ + /g' libmp3lame/i386/nasm.h
 
 aclocal && automake --force --add-missing
 
+# If using netBSD curses instead of Ncurses, use "-lterminfo" instead of "-ltinfo"
 LDFLAGS="-Wl,--as-needed -ltinfo " \
 ./configure --prefix=/usr    --enable-mp3rtp --with-pic \
             --disable-static --enable-nasm   $BUILDTRUPLE &&
