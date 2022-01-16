@@ -29,6 +29,8 @@ pushd ..               &&
 python3 setup.py build &&
 popd &&
 sudo -S make DESTDIR=$BUILD install &&
+cd ..
+sudo -S python3 setup.py install --prefix=/usr --root=${BUILD} &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
