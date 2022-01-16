@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # v4l-utils
-# Source: https://www.linuxtv.org/downloads/v4l-utils/v4l-utils-1.20.0.tar.bz2
+# Source: https://www.linuxtv.org/downloads/v4l-utils/v4l-utils-1.22.1.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -17,7 +17,7 @@ export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-patch -Np1 -i ../patches/v4l-utils-alpine/getsubopt.patch
+#patch -Np1 -i ../patches/v4l-utils-alpine/getsubopt.patch
 patch -Np1 -i ../patches/v4l-utils-alpine/types.patch
 export CFLAGS="$CFLAGS -D__off_t=off_t" &&
 export LIBS="-largp -lintl" &&
@@ -29,6 +29,9 @@ read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
 unset CFLAGS LIBS &&
+sudo -S mkdir -vp /BMAN/install        && \
+sudo -S mkdir -pv /BMAN/usr/share      && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -53,5 +56,22 @@ v4l-utils: Homepage:  http://linuxtv.org
 v4l-utils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/v4l-utils-1.20.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/v4l-utils-1.22.1-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+v4l-utils-doc: Manuals for v4l-utils (libraries and utilities for video4linux)
+v4l-utils-doc:
+v4l-utils-doc: A collection of libraries which adds a thin abstraction layer on
+v4l-utils-doc: top of video4linux2 devices.  The purpose of this (thin) layer
+v4l-utils-doc: is to make it easy for application writers to support a wide 
+v4l-utils-doc: variety of devices without having to write separate code for
+v4l-utils-doc: different devices in the same class.  Linux V4L2 and DVB API
+v4l-utils-doc: utilities are also included.
+v4l-utils-doc:
+v4l-utils-doc: http://linuxtv.org 
+v4l-utils-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/v4l-utils-doc-1.22.1-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
