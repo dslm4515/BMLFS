@@ -24,6 +24,9 @@ cd    build &&
 meson --prefix=/usr -Dbash_completion=false .. &&
 read -p "Compile?" && ninja -j2 &&
 sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -49,4 +52,17 @@ dconf:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/dconf-0.40.0-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+dconf-doc: Manuals for dconf (low-level configuration system)
+dconf-doc:
+dconf-doc: A low-level configuration system. Its main purpose is to provide
+dconf-doc: a backend to the GSettings API in GLib.
+dconf-doc:
+dconf-doc: http://live.gnome.org/dconf
+dconf-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/dconf-doc-0.40.0-noarch-mlfs.txz
+sudo _s rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

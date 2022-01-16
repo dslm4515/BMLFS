@@ -17,6 +17,9 @@ cmake  -DCMAKE_INSTALL_PREFIX=/usr .. &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -42,4 +45,18 @@ c-ares:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/c-ares-1.18.1-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+c-ares-doc: Manuals for c-ares (C library for DNS requests)
+c-ares-doc:
+c-ares-doc: c-ares is a C library that performs DNS requests and name resolves
+c-ares-doc: asynchronously. c-ares is a fork of the original library named 'ares',
+c-ares-doc: written by Greg Hudson at MIT.
+c-ares-doc:
+c-ares-doc: http://c-ares.haxx.se/
+c-ares-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/c-ares-doc-1.18.1-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

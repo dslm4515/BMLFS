@@ -26,6 +26,9 @@ LDFLAGS="-Wl,--as-needed -ltinfo " \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -52,4 +55,16 @@ lame:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/lame-3.100-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+lame-doc: Manuals for Lame (LAME Ain't an Mp3 Encoder)
+lame-doc:
+lame-doc: An educational tool to be used for learning about MP3 encoding.
+lame-doc: The goal of the LAME project is to use the open source model to
+lame-doc: improve the psycho acoustics, noise shaping and speed of MP3. 
+lame-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/lame-doc-3.100-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*

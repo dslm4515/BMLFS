@@ -31,6 +31,9 @@ automake --force --add-missing   &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir /BMAN/install         && \
+sudo -S mkdir /BMAN/usr             && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -56,4 +59,15 @@ libtheora:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libtheora-1.1.1-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+libtheora-doc: Manuals for libtheora (Theora video codec library)
+libtheora-doc:
+libtheora-doc: Theora is Xiph.Org's first publicly released video codec, intended
+libtheora-doc: for use within the Foundation's Ogg multimedia streaming system.
+libtheora-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libtheora-doc-1.1.1-noarch-mlfs.txz && \
+sudo -S rm -rf /BMAN/* && \
 sudo -S rm -rf ${BUILD}/*

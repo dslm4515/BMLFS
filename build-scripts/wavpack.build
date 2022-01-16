@@ -16,6 +16,9 @@
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -41,4 +44,17 @@ wavpack:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/wavpack-3.5.0-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+wavpack-doc: Manuals for wavpack (Open audio compression codec)
+wavpack-doc:
+wavpack-doc: A completely open audio compression format providing lossless,
+wavpack-doc: high-quality lossy, and a unique hybrid compression mode.
+wavpack-doc:
+wavpack-doc: http://www.wavpack.com
+wavpack-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/wavpack-doc-3.5.0-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
