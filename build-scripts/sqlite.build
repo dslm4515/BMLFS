@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# SQLite 3.36.0
-# Source: https://sqlite.org/2021/sqlite-autoconf-3360000.tar.gz
+# SQLite 3.37.2
+# Source: https://sqlite.org/2022/sqlite-autoconf-3370200.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -38,9 +38,11 @@ read -p "Package build?" &&
 
 # If not using any package manager:
 #sudo -S make install &&
-#sudo -S chmod -v 755 /usr/lib/lib{hogweed,nettle}.so
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install
 cat > /tmp/slack-desc << "EOF"
@@ -66,7 +68,18 @@ sqlite:
 EOF
 
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/sqlite-3.36.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/sqlite-3.37.2-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+sqlite-doc: Manuals for SQLite (simple, self contained database engine)
+sqlite-doc:
+sqlite-doc: A small C library that implements a self-contained, embeddable,
+sqlite-doc: zero-configuration SQL database engine.
+sqlite-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/sqlite-doc-3.37.2-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
 
 
