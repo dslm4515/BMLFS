@@ -1,15 +1,15 @@
 #! /bin/bash
 
 # FreeCiv 
-# Source:  http://files.freeciv.org/stable/freeciv-2.6.2.tar.bz2
+# Source:  http://files.freeciv.org/stable/freeciv-2.6.6.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     libXaw, libcurl,
+# Required:     libcurl
 # Recommended:  SDL2_gfx, SDL_gfx, SDL2_image, SDL_image, SDL2_mixer, 
-# Recommended:  SDL_mixer, SDL2_ttf, SDL2_ttf, GTK+3, GTK+2, lua
+# Recommended:  SDL_mixer, SDL2_ttf, SDL2_ttf, GTK+3, GTK+2, lua, libXaw
 # Optional:     NONE
 
 # 3.0.92.2(Git) version has dropped SDL and GTK+2 in favor of SDL2 and GTK+3.x.
@@ -49,6 +49,10 @@ CFLAGS=" -Wno-error" \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr/share      && \
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/ && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -73,5 +77,19 @@ freeciv: Homepage: http://www.freeciv.org/
 freeciv:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/freeciv-2.6.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/freeciv-2.6.6-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+freeciv-doc: Manuals for freeciv (turn-based multiplayer strategy game)
+freeciv-doc:
+freeciv-doc: Freeciv is a free turn-based multiplayer strategy game, in which
+freeciv-doc: each player becomes the leader of a civilization, fighting to
+freeciv-doc: obtain the ultimate goal: To become the greatest civilization.
+freeciv-doc:
+freeciv-doc: http://www.freeciv.org/
+freeciv-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/freeciv-doc-2.6.6-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
