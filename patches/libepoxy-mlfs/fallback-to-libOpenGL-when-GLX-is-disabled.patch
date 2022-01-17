@@ -1,0 +1,25 @@
+diff -uNr libepoxy-1.5.9.orig/meson.build libepoxy-1.5.9/meson.build
+--- libepoxy-1.5.9.orig/meson.build	2021-08-14 08:55:37.833696000 -0500
++++ libepoxy-1.5.9/meson.build	2022-01-17 11:48:48.843360805 -0600
+@@ -164,6 +164,9 @@
+ # Dependencies
+ dl_dep = cc.find_library('dl', required: false)
+ gl_dep = dependency('gl', required: false)
++if not gl_dep.found() and not build_glx
++   gl_dep = dependency('opengl', required: false)
++endif
+ egl_dep = dependency('egl', required: false)
+ 
+ # Optional dependencies for tests
+diff -uNr libepoxy-1.5.9.orig/src/meson.build libepoxy-1.5.9/src/meson.build
+--- libepoxy-1.5.9.orig/src/meson.build	2021-08-14 08:55:37.852696000 -0500
++++ libepoxy-1.5.9/src/meson.build	2022-01-17 11:49:46.553361810 -0600
+@@ -93,7 +93,7 @@
+ # pkg-config file, for consumers of Epoxy
+ gl_reqs = []
+ if gl_dep.found() and gl_dep.type_name() == 'pkgconfig'
+-  gl_reqs += 'gl'
++  gl_reqs += gl_dep.name()
+ endif
+ if build_egl and egl_dep.found() and egl_dep.type_name() == 'pkgconfig'
+   gl_reqs += 'egl'

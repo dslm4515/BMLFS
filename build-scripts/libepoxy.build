@@ -26,6 +26,8 @@ cd    build &&
 # if building on a pure wayland system, add these flags:
 export   CFLAGS="-DEGL_NO_X11 -DMESA_EGL_NO_X11_HEADERS" 
 export CXXFLAGS="-DEGL_NO_X11 -DMESA_EGL_NO_X11_HEADERS"
+# ... and apply patch:
+patch -Np1 -i ../patches/libepoxy-mlfs/fallback-to-libOpenGL-when-GLX-is-disabled.patch
 
 meson --prefix=/usr \
       -Ddocs=false  \
