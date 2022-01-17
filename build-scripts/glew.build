@@ -27,8 +27,10 @@ make SYSTEM=linux-egl -j2 &&
 sudo -S make DESTDIR=$BUILD install.all
 
 # If building without Xlib/Xorg:
-make SYSTEM=linux-osmesa -j2
-sudo -S make DESTDIR=$BUILD SYSTEM=linux-osmesa install.all &&
+patch -Np1 -i ../patches/glew-mlfs/extend_glew_api_without_GLX.patch 
+sed -i 's/-lGL/-lOpenGl/' config/Makefile.linux-egl 
+make POPT="-DEGL_NO_X11 -DMESA_EGL_NO_X11_HEADERS -D__native_client__ " SYSTEM=linux-osmesa -j2
+sudo -S make POPT="-DEGL_NO_X11 -DMESA_EGL_NO_X11_HEADERS -D__native_client__ " DESTDIR=$BUILD SYSTEM=linux-osmesa install.all &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"

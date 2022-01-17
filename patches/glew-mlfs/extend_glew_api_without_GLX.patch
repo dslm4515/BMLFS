@@ -1,0 +1,23 @@
+diff -uNr glew-2.2.0.orig/auto/src/glew_init_gl.c glew-2.2.0/auto/src/glew_init_gl.c
+--- glew-2.2.0.orig/auto/src/glew_init_gl.c	2020-03-15 06:53:59.000000000 -0500
++++ glew-2.2.0/auto/src/glew_init_gl.c	2022-01-17 12:40:45.395415078 -0600
+@@ -73,7 +73,7 @@
+ typedef const GLubyte* (GLAPIENTRY * PFNGLGETSTRINGPROC) (GLenum name);
+ typedef void (GLAPIENTRY * PFNGLGETINTEGERVPROC) (GLenum pname, GLint *params);
+ 
+-static GLenum GLEWAPIENTRY glewContextInit ()
++GLenum GLEWAPIENTRY glewContextInit (void)
+ {
+   PFNGLGETSTRINGPROC getString;
+   const GLubyte* s;
+diff -uNr glew-2.2.0.orig/auto/src/glew_tail.h glew-2.2.0/auto/src/glew_tail.h
+--- glew-2.2.0.orig/auto/src/glew_tail.h	2020-03-15 06:53:59.000000000 -0500
++++ glew-2.2.0/auto/src/glew_tail.h	2022-01-17 12:43:55.274418385 -0600
+@@ -27,6 +27,7 @@
+ 
+ /* API */
+ GLEWAPI GLenum GLEWAPIENTRY glewInit (void);
++GLEWAPI GLenum GLEWAPIENTRY glewContextInit (void);
+ GLEWAPI GLboolean GLEWAPIENTRY glewIsSupported (const char *name);
+ #define glewIsExtensionSupported(x) glewIsSupported(x)
+ 
