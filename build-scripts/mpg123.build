@@ -11,6 +11,7 @@
 # Recommended:  alsa-lib
 # Optional:     PulseAudio, SDL, JACK, OpenAL, PortAudio
 
+CFLAGS="-D_FILE_OFFSET_BITS=64" \
 ./configure --prefix=/usr \
             --disable-lfs-alias \
             --enable-ipv6=yes \
