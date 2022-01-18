@@ -1,0 +1,119 @@
+#! /bin/bash
+
+# openJDK
+# Source: https://github.com/openjdk/jdk17u/archive/jdk-17.0.1-ga.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     prebuilt-jre, lcms,libjpeg-turbo,libpng,giflib,libX11,libXrender
+# Recommended:  NONE
+# Optional:     NONE
+
+# For non-GLX/non-X11 system:
+# build openjdk as headless by adding :
+# --enable-headless-only 
+# --without-x 
+# --with-extra-cflags="-DEGL_NO_X11 -DMESA_EGL_NO_X11_HEADERS " 
+# --with-extra-cxxflags="-DEGL_NO_X11 -DMESA_EGL_NO_X11_HEADERS "
+# Still requires X11 headers
+
+bash configure --prefix=/opt/jdk \
+	       --enable-unlimited-crypto    \
+               --disable-warnings-as-errors \
+	       --with-stdc++lib=dynamic     \
+	       --with-giflib=system \
+	       --with-lcms=system \
+	       --with-libjpeg=system \
+	       --with-libpng=system \
+	       --with-zlib=system \
+	       --with-debug-level=release \
+	       --with-native-debug-symbols=none \
+	       --with-jvm-variants=server \
+	       --enable-dtrace=no \
+	       --with-version-build="12" \
+	       --with-version-pre="" \
+	       --with-version-opt="MLFS-10.0.0-r0" \
+	       --with-vendor-url="https://github.com/dslm4515/BMLFS" \
+	       --with-vendor-bug-url="https://github.com/dslm4515/BMLFS/issues" \
+	       --with-vendor-vm-bug-url="https://github.com/dslm4515/BMLFS/issues" \
+	       --disable-precompiled-headers \
+	       --with-jobs=4 
+
+read -p "Compile?" && make images JOBS=2 &&
+
+sudo -S mkdir -pv $BUILD/opt/jdk
+sudo -S cp -r build/linux-*-server-release/images/jdk/* $BUILD/opt/jdk
+for s in 16 24 32 48; do
+	sudo -S install -vDm644 src/java.desktop/unix/classes/sun/awt/X11/java-icon${s}.png \
+		$BUILD/usr/share/icons/hicolor/${s}x${s}/apps/java.png
+done
+
+sudo -S ln -vs jdk $BUILD/opt/jdk-17.0.1+12
+sudo -S mkdir -pv $BUILD/usr/share/applications
+cat > /tmp/openjdk-java.desktop << "EOF"
+[Desktop Entry]
+Name=OpenJDK Java 17.0.1 Runtime
+Comment=OpenJDK Java 17.0.1 Runtime
+Exec=/opt/jdk/bin/java -jar
+Terminal=false
+Type=Application
+Icon=java
+MimeType=application/x-java-archive;application/java-archive;application/x-jar;
+NoDisplay=true
+EOF
+sudo -S mv /tmp/openjdk-java.desktop $BUILD/usr/share/applications/
+cat > /tmp/openjdk-jconsole.desktop << "EOF"
+[Desktop Entry]
+Name=OpenJDK Java 17.0.1 Console
+Comment=OpenJDK Java 17.0.1 Console
+Keywords=java;console;monitoring
+Exec=/opt/jdk/bin/jconsole
+Terminal=false
+Type=Application
+Icon=java
+Categories=Application;System;
+EOF
+sudo -S mv /tmp/openjdk-jconsole.desktop $BUILD/usr/share/applications/
+
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/opt/jdk
+sudo -S mv $BUILD/opt/jdk/man /BMAN/opt/jdk/
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+openjdk: openJDK
+openjdk:
+openjdk: An open-source implementation of Oracle's Java Standard Edition 
+openjdk: platform. OpenJDK is useful for developing Java programs, and 
+openjdk: provides a complete runtime environment to run Java programs. 
+openjdk:
+openjdk: https://github.com/openjdk
+openjdk:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/openjdk-17.0.1-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+openjdk-doc: Manuals for openJDK
+openjdk-doc:
+openjdk-doc: An open-source implementation of Oracle's Java Standard Edition
+openjdk-doc: platform. OpenJDK is useful for developing Java programs, and 
+openjdk-doc: provides a complete runtime environment to run Java programs.
+openjdk-doc:
+openjdk-doc: https://github.com/openjdk
+openjdk-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/
+sudo -S makepkg -l y -c n $PKGS/openjdk-doc-17.0.1-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
+sudo -S rm -rf ${BUILD}/*
