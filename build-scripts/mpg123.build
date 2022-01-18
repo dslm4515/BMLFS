@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # mpg123
-# Source: https://downloads.sourceforge.net/mpg123/mpg123-1.29.2.tar.bz2
+# Source: https://downloads.sourceforge.net/mpg123/mpg123-1.29.3.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -21,6 +21,9 @@
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -45,5 +48,18 @@ mpg123:
 mpg123:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mpg123-1.29.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/mpg123-1.29.3-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+mpg123-doc: Manuals for mpg123 (a command-line mp3 player)
+mpg123-doc:
+mpg123-doc: A real time MPEG 1.0/2.0/2.5 audio player/decoder for layers 1, 2,
+mpg123-doc: 3 (MPEG 1.0 layer 3 aka MP3 most commonly tested).
+mpg123-doc:
+mpg123-doc: http://mpg123.org/
+mpg123-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/mpg123-doc-1.29.3-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
