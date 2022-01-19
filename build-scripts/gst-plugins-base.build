@@ -11,7 +11,7 @@
 # Recommended:  alsa-lib, CDParanoia-III (for building the CDDA plugin), gobject-introspection,
 # Recommended:  ISO Codes, libgudev, libogg, libtheora, libvorbis, wayland-protocols, 
 # Recommended:  orc, and Xorg Libraries 
-# Optional:     NONE
+# Optional:     gl-headers
 
 # if optimizing with GCC:
 export  CFLAGS="-march=native -pipe "
@@ -36,6 +36,9 @@ meson  --prefix=/usr       \
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr/share      && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ 
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -61,4 +64,18 @@ gst-plugins-base:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/gst-plugins-base-1.18.5-$(uname -m)-mlfs.txz &&
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+gst-plugins-base-doc: Manuals for gst-plugins-base (a set of GStreamer plugins)
+gst-plugins-base-doc:
+gst-plugins-base-doc: A well-groomed and well-maintained collection of GStreamer plug-ins
+gst-plugins-base-doc: and elements, spanning the range of possible types of elements
+gst-plugins-base-doc: one would want to write for GStreamer.
+gst-plugins-base-doc:
+gst-plugins-base-doc: gst-plugins-base is a an essential exemplary set of plugins
+gst-plugins-base-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gst-plugins-base-doc-1.18.5-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
