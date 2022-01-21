@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libexif
-# Source: https://github.com/libexif/libexif/releases/download/v0.6.23/libexif-0.6.23.tar.xz
+# Source: https://github.com/libexif/libexif/releases/download/v0.6.24/libexif-0.6.24.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -18,10 +18,13 @@ unset LDFLAGS
 
 ./configure --prefix=/usr    \
             --disable-static \
-            --with-doc-dir=/usr/share/doc/libexif-0.6.23 $BUILDTRUPLE &&
+            --with-doc-dir=/usr/share/doc/libexif-0.6.24 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr/share      && \
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/ 
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -46,5 +49,16 @@ libexif:
 libexif:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libexif-0.6.23-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/libexif-0.6.24-$(uname -m)-mlfs.txz &&
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libexif-doc: Manuals for libexif (Exchangeable Image File Format library)
+libexif-doc:
+libexif-doc: A format used to store extra information in images such as the JPEG
+libexif-doc: files produced by digital cameras.  The libexif library allows 
+libexif-doc: programs such as gthumb to parse, edit, and save EXIF data.
+libexif-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libexif-doc-0.6.24-noarch--mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
