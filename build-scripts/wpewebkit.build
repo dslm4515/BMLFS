@@ -1,14 +1,14 @@
 #! /bin/bash
 
 # WPE WebKit 
-# Source: https://wpewebkit.org/releases/wpewebkit-2.33.2.tar.xz
+# Source: https://wpewebkit.org/releases/wpewebkit-2.34.4.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     CMake, libwpe, wpebackend-fdo, bubblewrap, woff2, wayland,
-# Required:     ruby, ciaro, GLib, fontconfig, freetype, harfBuzz, ICU,
+# Required:     ruby, cairo, GLib, fontconfig, freetype, harfBuzz, ICU,
 # Required:     libjpeg-turbo, libepoxy, libgcrypt, libxml2, mesa, libpng,
 # Required:     SQLite3, libwebp, libsoup, atk, openjpeg, libtasn1, libxslt,
 # Required:     LCM2, libseccomp, xdg-dbus-proxy
@@ -55,5 +55,5 @@ wpewebkit: https://wpewebkit.org/
 wpewebkit:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wpewebkit-2.33.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wpewebkit-2.34.4-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
