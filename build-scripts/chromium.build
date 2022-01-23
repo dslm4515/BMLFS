@@ -11,7 +11,7 @@
 # Required:     LLVM openjdk freetype ffmpeg nodejs wayland wayland-protocols libpng libdrm
 # Required:     cups cairo curl dbus-glib flac gnutls gtk+3 harfbuzz krb5 jsoncpp lcms2
 # Required:     libevent libexif libgcrypt libusb mesa opus pciutils pulseaudio re2 snappy
-# Required:     speex sqlite
+# Required:     speex sqlite nss
 # Recommended:  hunspell pipewire
 # Optional:     NONE
 
@@ -32,7 +32,7 @@ mkdir -p third_party/node/linux/node-linux-x64/bin
 ln -s /usr/bin/node third_party/node/linux/node-linux-x64/bin/
 
 # make sure java is added to PATH
-export PATH=$PATH:/usr/lib/jvm/java-17-openjdk/bin
+export PATH=$PATH:/opt/jdk/bin
 
 # Force use of system installed libraries
 export use_system="ffmpeg flac fontconfig freetype harfbuzz-ng libdrm libevent libjpeg libpng libwebp libxslt libxml opus re2 snappy"
@@ -91,19 +91,19 @@ patch -Np1- i ../patches/chromium-mlfs/includ-missing-header-for-ozone.patch
 cp -v ../files/chromium-mlfs/drm_fourcc.h third_party/libdrm/src/include/drm/
 
 # build mksnapshot
-ninja -C out/$_buildtype mksnapshot
-ninja -C out/$_buildtype v8_context_snapshot_generator # Fails to build if not using latest freetype version 
+ninja -C out/Release mksnapshot
+ninja -C out/Release v8_context_snapshot_generator # Fails to build if not using latest freetype version 
 
 if [ "$CARCH" = "x86" ]; then
 # x86 only - dependency issues compiling obj/chrome/browser/devtools/devtools/cast_handler.o
-ninja -C out/$_buildtype obj/chrome/common/media_router/mojom/media_router__generator.stamp
+ninja -C out/Release obj/chrome/common/media_router/mojom/media_router__generator.stamp
 fi
 
 # final link needs lots of file descriptors
 ulimit -n 2048
 
 # finish rest of the build
-ninja -C out/$_buildtype chrome # Requires Java
+ninja -C out/Release chrome # Requires Java
 ninja -C out/Release chrome_sandbox 
 ninja -C out/Release chromedriver # Requires latest ffmpeg 4.4.1 
 ninja -C out/Release chrome_crashpad_handler

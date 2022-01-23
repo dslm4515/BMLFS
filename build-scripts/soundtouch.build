@@ -24,6 +24,9 @@ read -p "Compile?" && make -j2 &&
 export ACLOCAL=$OLD_ACLOCAL && unset OLD_ACLOCAL
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr/share      && \
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/ 
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -49,4 +52,16 @@ soundtouch:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/soundtouch-2.3.1-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+soundtouch-doc: Manuals for soundtouch (sound processing library)
+soundtouch-doc:
+soundtouch-doc: A library for changing tempo, pitch and playback rate of digital
+soundtouch-doc: sound.
+soundtouch-doc:
+soundtouch-doc: http://www.surina.net/soundtouch/
+soundtouch-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/soundtouch-doc-2.3.1-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

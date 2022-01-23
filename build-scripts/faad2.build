@@ -16,6 +16,9 @@
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -40,4 +43,16 @@ faad2:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/faad2-2.10.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+faad2-doc: Manuals for Faad2 (MPEG2 and MPEG-4 AAC decoder)
+faad2-doc:
+faad2-doc: A HE, LC, MAIN and LTP profile, MPEG2 and MPEG-4 AAC decoder.
+faad2-doc:
+faad2-doc: http://www.audiocoding.com/
+faad2-doc: http://sourceforge.net/projects/faac/
+faad2-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/faad2-doc-2.10.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

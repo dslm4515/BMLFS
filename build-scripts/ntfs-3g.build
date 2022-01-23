@@ -27,6 +27,9 @@ read -p "Compile?" && make -j2 &&
 
 sudo -S mkdir -pv ${BUILD}/lib &&
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ 
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -53,4 +56,18 @@ EOF
 sudo -S mv -v /tmp/slack-desc install/    &&
 sudo -S ln -s bin/ntfs-3g sbin/mount.ntfs &&
 sudo -S makepkg -l y -c n $PKGS/ntfs-3g-2021.8.22-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+ntfs-3g-doc: Manuals for ntfs-3g (NTFS read-write filesystem driver)
+ntfs-3g-doc:
+ntfs-3g-doc: This driver is an open source, freely available NTFS driver for
+ntfs-3g-doc: Linux with read and write support. It provides safe and fast
+ntfs-3g-doc: handling of the Windows XP, Windows Server 2003, Windows 2000 and
+ntfs-3g-doc: Windows Vista file systems.
+ntfs-3g-doc:
+ntfs-3g-doc: http://www.tuxera.com/community/open-source-ntfs-3g/
+ntfs-3g-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/    &&
+sudo -S makepkg -l y -c n $PKGS/ntfs-3g-doc-2021.8.22-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

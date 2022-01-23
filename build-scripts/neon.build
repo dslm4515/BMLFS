@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # neon
-# Source: https://notroj.github.io/neon/neon-0.32.1.tar.gz
+# Source: https://notroj.github.io/neon/neon-0.32.2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -21,6 +21,10 @@
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr/share      && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share && \
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -45,5 +49,15 @@ neon:
 neon:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/neon-0.32.1-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/neon-0.32.2-$(uname -m)-mlfs.txz &&
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+neon-doc: Manuals for neon (HTTP and WebDAV client library)
+neon-doc:
+neon-doc: An HTTP and WebDAV client library, with a C language API.
+neon-doc:
+neon-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/neon-doc-0.32.2-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

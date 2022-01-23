@@ -18,6 +18,9 @@
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -43,4 +46,17 @@ libdvdnav:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libdvdnav-6.1.1-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN
+cat > /tmp/slack-desc << "EOF"
+libdvdnav-doc: Manuals for libdvdnav (DVD Navigation Library)
+libdvdnav-doc:
+libdvdnav-doc: This is mplayer's fork of libdvdnav. libdvdnav is a library that
+libdvdnav-doc: allows easy use of sophisticated DVD navigation features such as
+libdvdnav-doc: DVD menus, multiangle playback, and even interactive DVD games.
+libdvdnav-doc:
+libdvdnav-doc: https://www.videolan.org/developers/libdvdnav.html
+libdvdnav-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libdvdnav-doc-6.1.1-noarch-mlfs.txz
+sudo -S rm -rf ${BUILD}/* /BMAN/*

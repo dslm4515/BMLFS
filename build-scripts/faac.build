@@ -16,6 +16,9 @@
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -40,4 +43,15 @@ faac:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/faac-1.30-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+faac-doc: Manuals for faac (Freeware Advanced Audio Coder)
+faac-doc:
+faac-doc: An Advanced Audio Coder (MPEG2-AAC, MPEG4-AAC).
+faac-doc:
+faac-doc: http://sourceforge.net/projects/faac
+faac-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/faac-doc-1.30-noarch-mlfs.txz
+sudo -S rm -rf ${BUILD}/* /BAMN/*

@@ -20,6 +20,10 @@
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
+export OPWD=$PWD && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -45,9 +49,18 @@ libcdio:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libcdio-2.1.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/* && 
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libcdio-doc: Manuals for libcdio (GNU CD access library)
+libcdio-doc:
+libcdio-doc: This package contains a library for CD-ROM and CD image access.
+libcdio-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+udo -S makepkg -l y -c n $PKGS/libcdio-doc-2.1.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/* && 
 sudo -S installpkg $PKGS/libcdio-2.1.0-$(uname -m)-mlfs.txz &&
-cd - &&
+cd $OPWD && cd .. && \
 
 tar -xf ../libcdio-paranoia-10.2+2.0.1.tar.bz2 &&
 cd libcdio-paranoia-10.2+2.0.1 &&
@@ -57,6 +70,9 @@ cd libcdio-paranoia-10.2+2.0.1 &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ 
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -82,4 +98,16 @@ libcdio-paranoia:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libcdio-paranoia-10.2.2.1.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/* 
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libcdio-paranoia-doc: Manuals for libcdio-paranoia (CD paranoia libraries from libcdio)
+libcdio-paranoia-doc:
+libcdio-paranoia-doc: This CDDA reader distribution ('libcdio-cdparanoia') reads audio from
+libcdio-paranoia-doc: the CDROM directly as data, with no analog step between, and writes
+libcdio-paranoia-doc: the data to a file or pipe as .wav, .aifc or as raw 16 bit linear
+libcdio-paranoia-doc: PCM.
+libcdio-paranoia-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libcdio-paranoia-doc-10.2.2.1.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

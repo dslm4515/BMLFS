@@ -7,7 +7,7 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     GLib, docbook-xsl, libxslt
+# Required:     GLib, docbook-xsl, libxslt, dbus
 # Recommended:  NONE
 # Optional:     NONE
 
@@ -26,6 +26,9 @@ patch -Np1 -i ../patches/xdg-dbus-proxy-alpine/musl-fix.patch
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -51,4 +54,15 @@ xdg-dbus-proxy:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/xdg-dbus-proxy-0.1.2-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN  && \
+cat > /tmp/slack-desc << "EOF"
+xdg-dbus-proxy-doc: Manuals for xdg-dbus-proxy (D-Bus proxy)
+xdg-dbus-proxy-doc:
+xdg-dbus-proxy-doc: A filtering proxy for D-Bus connections.
+xdg-dbus-proxy-doc:
+xdg-dbus-proxy-doc: https://github.com/flatpak/xdg-dbus-proxy
+xdg-dbus-proxy-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/xdg-dbus-proxy-doc-0.1.2-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

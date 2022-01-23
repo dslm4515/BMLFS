@@ -17,6 +17,9 @@
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -42,4 +45,16 @@ libdvdread:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libdvdread-6.1.2-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libdvdread-doc: Manuals for libdvdread (library for reading DVD video disks)
+libdvdread-doc:
+libdvdread-doc: This provides a simple foundation for reading DVD video disks. It
+libdvdread-doc: provides the functionality that is required to access many DVDs.
+libdvdread-doc:
+libdvdread-doc: http://www.dtek.chalmers.se/~dvd/downloads.shtml
+libdvdread-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libdvdread-doc-6.1.2-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

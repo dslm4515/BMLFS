@@ -23,6 +23,9 @@ cp -v ../files/config.guess-musl autotools/config.guess       &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -48,4 +51,17 @@ a52dec:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/a52dec-0.7.4-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+a52dec-doc: Manuals for a52dec (library for decoding ATSC A/52 streams - aka AC3)
+a52dec-doc:
+a52dec-doc: A free library for decoding ATSC A/52 streams. The A/52 standard is
+a52dec-doc: used in a variety of applications, including digital television
+a52dec-doc: and DVD.
+a52dec-doc:
+a52dec-doc: http://liba52.sourceforge.net/
+a52dec-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/a52dec-doc-0.7.4-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

@@ -20,6 +20,9 @@ cp -v ../files/config.guess-musl .auto/config.guess
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -45,4 +48,15 @@ libmpeg2:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libmpeg2-0.5.1-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libmpeg2-doc: Manuals for libmpeg2 (mpeg-video decoding library)
+libmpeg2-doc:
+libmpeg2-doc: A free library for decoding mpeg-2 and mpeg-1 video streams
+libmpeg2-doc:
+libmpeg2-doc:  http://libmpeg2.sourceforge.net
+libmpeg2-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libmpeg2-doc-0.5.1-noarch-mlfs.txz
+sudo -S rm -rf ${BUILD}/* /BMAN/*

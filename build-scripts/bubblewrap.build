@@ -22,6 +22,9 @@ NOCONFIGURE=1 ./autogen.sh
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -47,4 +50,17 @@ bubblewrap:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/bubblewrap-0.5.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+bubblewrap-doc: Manuals for (unprivileged sandboxing tool)
+bubblewrap-doc:
+bubblewrap-doc: Many container runtimes focus on providing infrastructure for
+bubblewrap-doc: system administrators and orchestration tools to run containers.
+bubblewrap-doc:
+bubblewrap-doc: Bubblewrap provides container runtime for unprivileged users, which
+bubblewrap-doc: reduces the surface area for privilege escalation.
+bubblewrap-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/bubblewrap-doc-0.5.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
