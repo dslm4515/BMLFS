@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libpeas 
-# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/libpeas/1.28/libpeas-1.28.0.tar.xz 
+# Source: https://download.gnome.org/sources/libpeas/1.30/libpeas-1.30.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,9 +10,6 @@
 # Required:     gobject-inspection, GTK+3
 # Recommended:  libxml2, PyGobject
 # Optional:     Glade, embed, LGI, GTK-Doc
-
-# Adapt the tests to changes in meson-0.55
-sed -i 's/test_exe,/test_exe, depends: [libintrospection_gir],/' tests/libpeas/meson.build
 
 meson --prefix=/usr BUILD 
 
@@ -43,5 +40,5 @@ libpeas: homepage: https://wiki.gnome.org/Projects/Libpeas
 libpeas:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libpeas-1.28.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libpeas-1.30.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
