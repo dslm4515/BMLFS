@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GnuPG
-# Source: ftp://ftp.gnupg.org/gcrypt/gnupg/gnupg-2.2.29.tar.bz2
+# Source: ftp://ftp.gnupg.org/gcrypt/gnupg/gnupg-2.2.33.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -24,13 +24,18 @@ sed -e '/noinst_SCRIPTS = gpg-zip/c sbin_SCRIPTS += gpg-zip' \
 ./configure --prefix=/usr            \
             --enable-symcryptrun     \
             --localstatedir=/var     \
-            --docdir=/usr/share/doc/gnupg-2.2.29 \
+            --docdir=/usr/share/doc/gnupg-2.2.33 \
             --disable-nls --enable-bzip2 $BUILDTRUPLE &&
 
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
 sudo -S install -m755 tools/gpg-zip ${BUILD}/usr/bin/gpg-zip &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr/share      && \
+sudo -S mv $BUILD/usr/share/info /BMAN/usr/share/  && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/  && \
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/  && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -57,5 +62,15 @@ EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S ln -sv gpg  usr/bin/gpg2 &&
 sudo -S ln -sv gpg  usr/bin/gpgv2 
-sudo -S makepkg -l y -c n $PKGS/gnupg-2.2.29-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/gnupg-2.2.33-$(uname -m)-mlfs.txz &&
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+gnupg-doc: Manuals for  gnupg (The GNU Privacy Guard)
+gnupg-doc:
+gnupg-doc: A GNU's tool for secure communication and data storage.  It can be
+gnupg-doc: used to encrypt data and to create digital signatures.
+gnupg-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/gnupg-doc-2.2.33-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
