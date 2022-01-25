@@ -1,27 +1,23 @@
 #! /bin/bash
 
-# libva-utils
-# Source: https://github.com/intel/libva-utils/archive/2.9.1.tar.gz
+# VAA-API Utilities 
+# Source: https://github.com/01org/libva-utils
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     libva, libdrm, wayland
-# Recommended:  NONE
+# Required:     libva libdrm cmake
+# Recommended:  Xorg-Lbraries wayland
 # Optional:     NONE
 
-mkdir BUILD && cd BUILD &&
-meson --prefix=/usr \
-      -Ddrm=true \
-      -Dwayland=true \
-      -Dtests=false .. &&
+meson --prefix=/usr BUILD && \
 
-read -p "Compile?" && ninja -j2 &&
+read -p "Compile?" && ninja -C BUILD  -j2 && \
 
-sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S DESTDIR=$BUILD ninja -C BUILD install && \
 
-cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install && \
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
 # The "handy ruler" below makes it easier to edit a package description.  Line
@@ -30,19 +26,15 @@ cat > /tmp/slack-desc << "EOF"
 # make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-      |-----handy-ruler------------------------------------------------------|
-libva-utils: libva-utils (VA-API utilities)
+           |-----handy-ruler------------------------------------------------------|
+libva-utils: libva-utils (VA-API Utilities)
 libva-utils:
-libva-utils: Libva-utils is a collection of utilities for VA-API (VIdeo
-libva-utils: Acceleration API).
-libva-utils:
-libva-utils: Homepage: https://01.org/linuxmedia/vaapi
-libva-utils:
-libva-utils:
-libva-utils:
-libva-utils:
+libva-utils: A collection of utilities and examples to exercise VA-API in
+libva-utils: accordance with the libva project. --enable-tests (default = no) provides
+libva-utils: a suite of unit-tests based on Google Test Framework. A driver implementation
+libva-utils: is necessary to properly operate.
 libva-utils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libva-utils-2.9.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libva-utils-2.13.0.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
