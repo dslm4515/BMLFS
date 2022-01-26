@@ -1,0 +1,55 @@
+#! /bin/bash
+
+# Vulkan Tools
+# Source: https://github.com/KhronosGroup/Vulkan-Tools/archive/v1.2.196/vulkan-tools-v1.2.196.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cmake vulkan-loader vulkan-headers
+# Recommended:  glslang wayland
+# Optional:     libxcb directfb libX11 libXrandr
+
+export  CARGS="-DCMAKE_BUILD_TYPE=Release "
+export CARGS+="-DCMAKE_INSTALL_PREFIX=/usr "
+export CARGS+="-DCMAKE_INSTALL_LIBDIR=lib "
+export CARGS+="-DCMAKE_INSTALL_SYSCONFDIR=/etc "
+export CARGS+="-DCMAKE_INSTALL_DATADIR=/usr/share "
+export CARGS+="-DCMAKE_SKIP_RPATH=True "
+export CARGS+="-DBUILD_CUBE=OFF " #requires libxcb
+export CARGS+="-DBUILD_VULKANINFO=ON "
+export CARGS+="-DGLSLANG_INSTALL_DIR=/usr "
+export CARGS+="-DBUILD_WSI_WAYLAND_SUPPORT=ON "
+export CARGS+="-DBUILD_WSI_XCB_SUPPORT=OFF "
+export CARGS+="-DBUILD_WSI_XLIB_SUPPORT=OFF "
+export CARGS+="-DVULKAN_HEADERS_INSTALL_DIR=/usr/include/vulkan "
+export CARGS+="-DVULKAN_LOADER_INSTALL_DIR=/usr/lib "
+
+cmake -B build $CARGS -Wno-dev
+
+read -p "Compile?" && make -C build -j2 &&
+
+sudo -S make DESTDIR=$BUILD -C build install &&
+unset CARGS
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+            |-----handy-ruler------------------------------------------------------|
+vulkan-tools: Vulkan Tools
+vulkan-tools:
+vulkan-tools: Khronos official Vulkan Utilities and Tools
+vulkan-tools: 
+vulkan-tools: https://www.khronos.org/vulkan
+vulkan-tools:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/vulkan-tools-1.2.196-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
