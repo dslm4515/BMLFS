@@ -1,0 +1,55 @@
+#! /bin/bash
+
+# URI 
+# Source: https://www.cpan.org/authors/id/O/OA/OALDERS/URI-5.10.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     Test-Needs Business-ISBN
+
+perl Makefile.PL && \
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+   |-----handy-ruler------------------------------------------------------|
+uri: URI (Perl Module)
+uri:
+uri: A that module implements the URI class. Objects of this class 
+uri: represent "Uniform Resource Identifier references" as specified in
+uri: RFC 2396 (and updated by RFC 2732). 
+uri:
+uri:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/uri-5.10-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+uri-doc: Manuals for URI (Perl Module)
+uri-doc:
+uri-doc: A module that implements the URI class. Objects of this class
+uri-doc: represent "Uniform Resource Identifier references" as specified in
+uri-doc: RFC 2396 (and updated by RFC 2732).
+uri-doc: 
+uri-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/uri-doc-5.10-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/* 

@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# HTML::Parser (Perl Module)
+# Source: https://cpan.metacpan.org/authors/id/O/OA/OALDERS/HTML-Parser-3.76.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     HTML::Tagset 
+# Recommended:  HTTP::Message
+# Optional:     NONE
+
+perl Makefile.PL
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr      && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+HTML-Parser: HTML::Parser (Perl Module)
+HTML-Parser:
+HTML-Parser: A distribution is a collection of modules that parse and extract 
+HTML-Parser: information from HTML documents. 
+HTML-Parser:
+HTML-Parser:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/HTML-Parser-3.76-$(uname -m)-mlfs.txz &&
+cd /BMAN &&
+cat > /tmp/slack-desc << "EOF"
+HTML-Parser-doc: Manuals for HTML::Parser (Perl Module)
+HTML-Parser-doc:
+HTML-Parser-doc: A distribution is a collection of modules that parse and extract 
+HTML-Parser-doc: information from HTML documents.
+HTML-Parser-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/HTML-Parser-doc-3.76-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
