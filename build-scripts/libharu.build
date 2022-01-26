@@ -1,0 +1,50 @@
+#! /bin/bash
+
+# libharu 
+# Source: https://github.com/libharu/libharu/archive/RELEASE_2_3_0.zip 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     cmake
+
+cmake -B BUILD -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=Release \
+	-DCMAKE_INSTALL_BINDIR=/usr/bin -DCMAKE_INSTALL_LIBDIR=/usr/lib \
+	-DCMAKE_INSTALL_INCLUDEDIR=/usr/include
+
+read -p "Compile?" && make -C BUILD -j2 &&
+
+sudo -S make DESTDIR=$BUILD -C BUILD install &&
+
+# Install adds extra files. Remove:
+sudo -S rm -vrf $BUILD/usr/{CHANGES,INSTALL,README}
+# If pyharu is desired:
+sudo -S mkdir -pv $BUILD/usr/lib/python3.9/site-packages
+sudo -S mv $BUILD/usr/if/python $BUILD/usr/lib/python3.9/site-packages/pyharu
+# Remove extra files:
+sudo -S rm -vrf $BUILD/usr/if
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+libharu: libharu (Haru Free PDF Library)
+libharu:
+libharu: A free, cross platform, open-sourced software library for generating
+libharu: PDF.
+libharu:
+libharu: https://github.com/libharu
+libharu:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libharu-2.3.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

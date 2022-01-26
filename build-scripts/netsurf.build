@@ -1,0 +1,108 @@
+#! /bin/bash
+
+# 
+# Source: http://download.netsurf-browser.org/netsurf/releases/source-full/netsurf-all-3.10.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     curl libwebp lcms2 libmng gtk3 libpng HTML::Parser
+# Recommended:  libidn librsvg libjpeg-turbo SDL
+# Optional:     libharu
+
+export $SRCDIR=$PWD
+
+patch -Np1 -i ../patches/netsurf-alpine/non-coreutils-install-compatibility.patch && \
+
+export CFLAGS="$CFLAGS -fcommon"          && \
+sed 's:-Werror::' -i libsvgtiny/Makefile  && \
+
+make TARGET=gtk3        LIBDIR=lib INCLUDEDIR=include PREFIX=/usr -j2 && \
+make TARGET=framebuffer LIBDIR=lib INCLUDEDIR=include PREFIX=/usr -j2 && \
+
+sudo -S make TARGET=gtk3 LIBDIR=lib INCLUDEDIR=include PREFIX=/usr DESTDIR=$BUILD install && \
+
+sudo -S mv -v $BUILD/usr/bin/netsurf-gtk3 $BUILD/usr/bin/netsurf
+sudo -S mkdir -pv /BMAN/install
+sudo -S mkdir -pv /BMAN/usr/share/man/man1
+sudo -S mkdir -pv $BUILD/usr/share/pixmaps
+sudo -S mkdir -pv $BUILD/usr/share/applications
+sudo -S install -Dm644 netsurf/docs/netsurf-gtk.1 -t /BMAN/usr/share/man/man1/
+sudo -S install -Dm644 netsurf/frontends/gtk/res/netsurf.xpm $BUILD/usr/share/pixmaps/netsurf.xpm 
+sudo -S install -Dm644 netsurf/frontends/gtk/res/netsurf-gtk.desktop \
+	$BUILD/usr/share/applications/netsurf.desktop
+unset CFLAGS
+sudo -S sed -e 's:netsurf-gtk:netsurf:g' -e 's:netsurf.png:netsurf:g' \
+	-i $BUILD/usr/share/applications/netsurf.desktop
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+netsurf: NetSurf (Web Browser)
+netsurf:
+netsurf: A free open source browser, written in C and released under the GNU
+netsurf: Public Licence version 2.
+netsurf: 
+netsurf: This is the GTK3 build.
+netsurf:
+netsurf: http://www.netsurf-browser.org
+netsurf:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/netsurf-3.10-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+netsurf-doc: Manuals for NetSurf (Web Browser)
+netsurf-doc:
+netsurf-doc: A free open source browser, written in C and released under the GNU
+netsurf-doc: Public Licence version 2.
+netsurf-doc:
+netsurf-doc: This is the GTK3 build.
+netsurf-doc: http://www.netsurf-browser.org
+netsurf-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/netsurf-doc-3.10-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/* && \
+
+# Netsurf-framebuffer segfaults in Wayland.
+cd $SRCDIR && \
+sudo -S make TARGET=framebuffer LIBDIR=lib INCLUDEDIR=include PREFIX=/usr DESTDIR=$BUILD install && \
+sudo -S mkdir -pv /BMAN/install && \
+sudo -S mkdir -pv /BMAN/usr/share/man/man1 && \
+sudo -S install -Dm644 netsurf/docs/netsurf-fb.1 -t /BMAN/usr/share/man/man1 && \
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+netsurf-fb: NetSurf (Web Browser)
+netsurf-fb:
+netsurf-fb: A free open source browser, written in C and released under the GNU
+netsurf-fb: Public Licence version 2.
+netsurf-fb:
+netsurf-fb: This is the framebuffer build.
+netsurf-fb: http://www.netsurf-browser.org
+netsurf-fb:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/netsurf-fb-3.10-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+netsurf-fb-doc: Manuals for NetSurf (Web Browser)
+netsurf-fb-doc:
+netsurf-fb-doc: A free open source browser, written in C and released under the GNU
+netsurf-fb-doc: Public Licence version 2.
+netsurf-fb-doc:
+netsurf-fb-doc: This is the framebuffer build.
+netsurf-fb-doc: http://www.netsurf-browser.org
+netsurf-fb-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/netsurf-fb-doc-3.10-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
