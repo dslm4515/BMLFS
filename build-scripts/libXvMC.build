@@ -7,7 +7,7 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     xorgproto, xtrans, libXext, libX11
+# Required:     xorgproto, xtrans, libXext, libX11, libXv
 # Recommended:  libxcb
 # Optional:     NONE
 
@@ -18,7 +18,8 @@ export CFLAGS+="-fzero-call-used-regs=used "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 CFLAGS_FOR_BUILD="-fPIC" \
-./configure $XORG_CONFIG &&
+./configure --prefix=/usr --sysconfdir=/etc \
+     --localstatedir=/var --disable-static &&
 
 read -p "Compile?" && make -j2 &&
 
