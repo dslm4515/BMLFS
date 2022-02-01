@@ -18,6 +18,9 @@
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install && \
+sudo -S mkdir -pv /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -42,5 +45,17 @@ openresolv: https://roy.marples.name/projects/openresolv
 openresolv:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/openresolv-3.12.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/openresolv-3.12.0-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+openresolv-doc: Manuals for openresolv (management framework for resolv.conf) 
+openresolv-doc:
+openresolv-doc: Allows multiple daemons to manage resolv.conf and configures local 
+openresolv-doc: resolvers such as dnsmasq and unbound.
+openresolv-doc:
+openresolv-doc: ttps://roy.marples.name/projects/openresolv 
+openresolv-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/openresolv-doc-3.12.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

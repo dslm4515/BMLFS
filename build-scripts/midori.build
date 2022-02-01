@@ -24,6 +24,9 @@ cmake -B BUILDOUT \
 ninja -C BUILDOUT -j2 
 
 sudo -S DESTDIR=$BUILD ninja -C BUILDOUT install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr/share      && \
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -49,4 +52,15 @@ midori:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/midori-9.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+midori-doc: Manuals for midori (simple web-browser)
+midori-doc: 
+midori-doc: A simple web-browser, based on the webkit framework.
+midori-doc:
+midori-doc: http://midori-browser.org/
+midori-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/midori-doc-9.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

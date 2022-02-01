@@ -15,6 +15,9 @@
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install        && \
+sudo -S mkdir -pv /BMAN/usr/share      && \
+sudo -S mv $BUILD/usr/share/info /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -40,4 +43,15 @@ libksba:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libksba-1.6.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libksba-doc: Manuals for libksba (X.509 & CMS library for S/MIME and TLS)
+libksba-doc:
+libksba-doc: KSBA (pronounced Kasbah) is a library to make X.509 certificates as
+libksba-doc: well as the CMS easily accessible by other applications.
+libksba-doc: Both specifications are building blocks of S/MIME and TLS.
+libksba-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libksba-doc-1.6.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

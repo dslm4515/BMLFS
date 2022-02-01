@@ -28,6 +28,10 @@ read -p "Compile? " && make -j2 &&
 
 read -p "Install?" &&
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/ && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
+
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -51,5 +55,18 @@ smartmontools:
 smartmontools:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/smartmontools-7.1-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/smartmontools-7.1-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+smartmontools-docs: Manuals for smartmontools (hard drive monitoring utilities)
+smartmontools-docs:
+smartmontools-docs: Utilities that control and monitor storage  devices using the 
+smartmontools-docs: Self-Monitoring, Analysis, and Reporting Technology (S.M.A.R.T.) 
+smartmontools-docs: system build into ATA and SCSI Hard Drives. This is used to 
+smartmontools-docs: check the reliability of the hard drive and to predict drive
+smartmontools-docs: failures.
+smartmontools-docs:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/smartmontools-doc-7.2-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

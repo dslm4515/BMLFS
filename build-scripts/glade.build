@@ -12,14 +12,18 @@
 # Optional:     webkit2gtk, pygobject3
 
 # For python 3.9:
-sed -i meson.build -e "/python_dep/s/3.8/3.9/g"
+sed -i meson.build -e "/python_deqp/s/3.8/3.9/g"
 
 mkdir BUILD && cd BUILD &&
 meson --prefix=/usr -Dgladeui=true -Dman=false -Dgtk_doc=true .. &&
 read -p "Compile?" && ninja -j2 &&
 
 #sudo -S DESTDIR=$BUILD ninja install -no-rebuild &&
-sudo DESTDIR=${BUILD} meson install --no-rebuild 
+sudo DESTDIR=${BUILD} meson install --no-rebuild  && \
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr/share      && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
+sudo -S mv $BUILD/usr/share/help /BMAN/usr/share/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -45,7 +49,20 @@ glade:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/glade-3.38.2-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+glade-doc: Manuals for glade (GTK+ User Interface Builder)
+glade-doc:
+glade-doc: A RAD tool to enable quick & easy development of user interfaces for
+glade-doc: the Gtk+ toolkit and the GNOME desktop environment.
+glade-doc:
+glade-doc: This version of Glade (Glade-3) is a complete rewrite of the original
+glade-doc: Glade codebase.
+glade-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/glade-doc-3.38.2-noarch-mlfs.txz
+sudo -S rm -rf ${BUILD}/* /BMAN/*
 
 # Build  succeeds, but install fails:
 
@@ -71,3 +88,8 @@ FAILED: install script '/usr/bin/meson --internal yelphelper install --subdir=he
 FAILED: meson-install
 /usr/bin/meson install --no-rebuild
 ninja: build stopped: subcommand failed.
+
+# To force install, just replace directory:
+sudo rm -rf BUILD/help/hi
+sudo cp -r  BUILD/help/hu BUILD/help/hi
+sudo mv BUILD/help/hi/hu.gmo BUILD/help/hi/hi.gmo

@@ -15,6 +15,9 @@
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr/share      && \
+sudo -S mv $BUILD/usr/share/info /BMAN/usr/share && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -40,4 +43,13 @@ libassuan:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libassuan-2.5.5-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libassuan-doc: Manuals for libassuan (Interprocess Communication Library for GPG)
+libassuan-doc:
+libassuan-doc: The IPC library used by GnuPG 2.x, GPGME and a few others.
+libassuan-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libassuan-doc-2.5.5-noarch-mlfs.txz
+sudo -S rm -rf ${BUILD}/* /BMAN/*

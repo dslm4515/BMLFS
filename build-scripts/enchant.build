@@ -20,6 +20,9 @@ sudo -S ln -sfv enchant-2       ${BUILD}/usr/include/enchant   &&
 sudo -S ln -sfv enchant-2        ${BUILD}/usr/bin/enchant       &&
 sudo -S ln -sfv libenchant-2.so ${BUILD}/usr/lib/libenchant.so &&
 sudo -S ln -sfv enchant-2.pc    ${BUILD}/usr/lib/pkgconfig/enchant.pc &&
+sudo -S mkdir -pv /BMAN/install  && \
+sudo -S mkdir -pv /BMAN/usr/share      && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -45,4 +48,17 @@ enchant:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/enchant-2.2.13-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+enchant-doc: Manuals for enchant (a wrapper for spellcheck libraries)
+enchant-doc:
+enchant-doc: Enchant supports: Aspell/Pspell, Ispell, MySpell/HunSpell, 
+enchant-doc: Uspell (Yiddish, Hebrew and Eastern European languages),
+enchant-doc: Hspell (Hebrew) and others
+enchant-doc: 
+enchant-doc: https://abiword.github.io/enchant/
+enchant-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/enchant-doc-2.2.13-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
