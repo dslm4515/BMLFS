@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libXft
-# Source: ftp://ftp.x.org/pub/individual/lib/libXft-2.3.3.tar.bz2
+# Source: ftp://ftp.x.org/pub/individual/lib/libXft-2.3.4.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -17,6 +17,13 @@ CFLAGS_FOR_BUILD="-fPIC" \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+# if primarily using X11:
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/    && \
+
+# if X11 as auxillary:
+sudo -S mkdir -pv /BMAN/install /BMAN/${XORG_PREFIX}             && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share /BMAN/${XORG_PREFIX}/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -41,5 +48,16 @@ libXft:
 libXft:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libXft-2.3.3-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/libXft-2.3.4-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libXft-doc: Manuals for libXft
+libXft-doc:
+libXft-doc: X FreeType library
+libXft-doc:
+libXft-doc: http://www.x.org
+libXft-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libXft-doc-2.3.4-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/* 
