@@ -43,5 +43,5 @@ spirv-tools: https://github.com/KhronosGroup/spirv-tools
 spirv-tools: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/spirv-tools-2021.5.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/spirv-tools-2022.2.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
