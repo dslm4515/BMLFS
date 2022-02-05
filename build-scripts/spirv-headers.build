@@ -11,13 +11,13 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-cmake -DCMAKE_INSTALL_PREFIX=/usr \
+cmake -B OUT -DCMAKE_INSTALL_PREFIX=/usr \
       -DBUILD_SHARED_LIBS=True \
-      -DCMAKE_BUILD_TYPE=Release .
+      -DCMAKE_BUILD_TYPE=Release 
 
-read -p "Compile?" && make -j2 &&
+read -p "Compile?" && make -C OUT -j2 &&
 
-sudo -S make DESTDIR=$BUILD install &&
+sudo -S make DESTDIR=$BUILD -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
