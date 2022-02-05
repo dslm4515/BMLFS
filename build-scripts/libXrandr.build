@@ -17,6 +17,13 @@ CFLAGS_FOR_BUILD="-fPIC" \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+# if primarily using X11:
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/    && \
+
+# if X11 as auxillary:
+sudo -S mkdir -pv /BMAN/install /BMAN/${XORG_PREFIX}             && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share /BMAN/${XORG_PREFIX}/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -42,4 +49,15 @@ libXrandr:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libXrandr-1.5.2-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libXrandr-doc: Manuals for libXrandr
+libXrandr-doc:
+libXrandr-doc: X Resize, Rotate and Reflection extension library
+libXrandr-doc:
+libXrandr-doc: http://www.x.org
+libXrandr-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libXrandr-doc-1.5.2-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

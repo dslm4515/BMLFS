@@ -23,6 +23,13 @@ CFLAGS_FOR_BUILD="-fPIC" \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+# if primarily using X11:
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/    && \
+
+# if X11 as auxillary:
+sudo -S mkdir -pv /BMAN/install /BMAN/${XORG_PREFIX}             && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share /BMAN/${XORG_PREFIX}/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -47,5 +54,16 @@ libXtst:
 libXtst:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libXtst-1.2.3-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/libXtst-1.2.3-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libXtst-doc: Manuals for libXtst 
+libXtst-doc: 
+libXtst-doc: client library for the XTEST & RECORD extensions
+libXtst-doc:
+libXtst-doc: http://www.x.org
+libXtst-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libXtst-doc-1.2.3-noarch-mlfs.txz && /
+sudo -S rm -rf ${BUILD}/* /BMAN/*

@@ -17,6 +17,13 @@ CFLAGS_FOR_BUILD="-fPIC" \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+# if primarily using X11:
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/    && \
+
+# if X11 as auxillary:
+sudo -S mkdir -pv /BMAN/install /BMAN/${XORG_PREFIX}             && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share /BMAN/${XORG_PREFIX}/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -40,6 +47,17 @@ libFS:
 libFS:
 libFS:
 EOF
-sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libFS-1.0.8-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libFS-1.0.8-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libFS-doc: Manuals for libFS
+libFS-doc:
+libFS-doc: X Font Service client library
+libFS-doc:
+libFS-doc: http://www.x.org
+libFS-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libFS-doc-1.0.8-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

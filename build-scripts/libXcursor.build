@@ -17,6 +17,13 @@ CFLAGS_FOR_BUILD="-fPIC" \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+# if primarily using X11:
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/    && \
+
+# if X11 as auxillary:
+sudo -S mkdir -pv /BMAN/install /BMAN/${XORG_PREFIX}             && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share /BMAN/${XORG_PREFIX}/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -41,5 +48,16 @@ libXcursor:
 libXcursor:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libXcursor-1.2.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/libXcursor-1.2.0-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libXcursor-doc: Manuals for libXcursor
+libXcursor-doc:
+libXcursor-doc: X Window System Cursor management library
+libXcursor-doc:
+libXcursor-doc:  http://www.x.org
+libXcursor-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libXcursor-doc-1.2.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

@@ -22,6 +22,15 @@ CFLAGS_FOR_BUILD="-fPIC" \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+# if primarily using X11:
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/    && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/  && \
+
+# if X11 as auxillary:
+sudo -S mkdir -pv /BMAN/install /BMAN/${XORG_PREFIX}/share     && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share/doc /BMAN/${XORG_PREFIX}/share/ && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share/man /BMAN/${XORG_PREFIX}/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -46,5 +55,16 @@ libXext:
 libXext:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libXext-1.3.4-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/libXext-1.3.4-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libXext-doc: Manuals for libXext
+libXext-doc:
+libXext-doc: A library for common extensions to the X11 protocol.
+libXext-doc: 
+libXext-doc: http://www.x.org
+libXext-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libXext-doc-1.3.4-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

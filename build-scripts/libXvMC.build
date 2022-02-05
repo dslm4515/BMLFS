@@ -18,12 +18,19 @@ export CFLAGS+="-fzero-call-used-regs=used "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 CFLAGS_FOR_BUILD="-fPIC" \
-./configure --prefix=/usr --sysconfdir=/etc \
+./configure --prefix=$XORG_PREFIX --sysconfdir=/etc \
      --localstatedir=/var --disable-static &&
 
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+# if primarily using X11:
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/    && \
+
+# if X11 as auxillary:
+sudo -S mkdir -pv /BMAN/install /BMAN/${XORG_PREFIX}             && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share /BMAN/${XORG_PREFIX}/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -48,5 +55,16 @@ libXvMC:
 libXvMC:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libXvMC-1.0.12-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/libXvMC-1.0.12-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libXvMC-doc: libXvMC
+libXvMC-doc: 
+libXvMC-doc: X.Org X11 libXvMC runtime library
+libXvMC-doc:
+libXvMC-doc: http://www.x.org
+libXvMC-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libXvMC-doc-1.0.12-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

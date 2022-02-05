@@ -24,6 +24,13 @@ CFLAGS="$CFLAGS -Wno-error=format-extra-args"                \
             --docdir='${datadir}'/doc/libxcb-1.14 && 
 read -p "Compile?" && make -j2 &&
 sudo -S make DESTDIR=$BUILD install &&
+# if primarily using X11:
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/    && \
+
+# if X11 as auxillary:
+sudo -S mkdir -pv /BMAN/install /BMAN/${XORG_PREFIX}             && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share /BMAN/${XORG_PREFIX}/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -48,5 +55,19 @@ libxcb:
 libxcb:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libxcb-1.14-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/libxcb-1.14-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libxcb-doc: Manuals for libxcb (XCB Libraries)
+libxcb-doc:
+libxcb-doc: An interface to the X Window System protocol, which replaces the 
+libxcb-doc: Xlib interface. Xlib can also use XCB as a transport layer,
+libxcb-doc: allowing software to make requests and receive responses with 
+libxcb-doc: both.
+libxcb-doc:
+libxcb-doc: https://xcb.freedesktop.org
+libxcb-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libxcb-doc-1.14-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
