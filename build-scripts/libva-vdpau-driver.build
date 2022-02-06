@@ -52,5 +52,5 @@ libva-vdpau-driver: Home: http://www.freedesktop.org/wiki/Software/vaapi/
 libva-vdpau-driver:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/package-version-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libva-vdpau-driver-0.7.4-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
