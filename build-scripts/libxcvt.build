@@ -1,0 +1,62 @@
+#! /bin/bash
+
+# libxcvt
+# Source: https://www.x.org/pub/individual/lib/libxcvt-0.1.1.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+meson --prefix=$XORG_PREFIX BUILD && \
+
+read -p "Compile?" && ninja -j2 -C BUILD  &&
+
+sudo -S DESTDIR=$BUILD ninja -C BUILD install &&
+
+#if primarily using X11:
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/    && \
+
+# if X11 as auxillary:
+sudo -S mkdir -pv /BMAN/install /BMAN/${XORG_PREFIX}             && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share /BMAN/${XORG_PREFIX}/ && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+libxcvt: libxcvt
+libxcvt:
+libxcvt: A library providing a standalone version of the X server 
+libxcvt: implementation of the VESA CVT standard timing modelines generator. 
+libxcvt: It is meant to be a direct replacement to the version formerly 
+libxcvt: provided by the Xorg server. 
+libxcvt:
+libxcvt: https://www.x.org
+libxcvt:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libxcvt-0.1.1-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libxcvt-doc: Manuals for libxcvt
+libxcvt-doc:
+libxcvt-doc: A library providing a VESA CVT standard timing modelines 
+libxcvt-doc: generator.
+libxcvt-doc:
+libxcvt-doc: https://www.x.org
+libxcvt-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libxcvt-doc-0.1.1-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
