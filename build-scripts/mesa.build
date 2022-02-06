@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Mesa with Xorg
-# Source: ftp://ftp.freedesktop.org/pub/mesa/mesa-21.2.1.tar.xz
+# Source: ftp://ftp.freedesktop.org/pub/mesa/mesa-21.3.5.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -27,9 +27,9 @@ export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
 
 export CFLAGS="$CFLAGS -D_XOPEN_SOURCE=700" &&
 case $(uname -m) in
-	i686|x86_64) export GLL_DRV="i915,nouveau,radeonsi,svga,swrast,r600" 
+	i686|x86_64) export GLL_DRV="i915,nouveau,radeonsi,svga,swrast,r600,iris,crocus" 
                      export DRI_DRIVERS="i965,nouveau" 
-		     export V_DRIVERS="amd,swrast" ;;
+		     export V_DRIVERS="amd,swrast,intel" ;;
 	     arm*)   export GLL_DRV="vc4,panfrost,nouveau,tegra,swrast"
 		     export DRI_DRIVEiRS="nouveau" 
 		     export V_DRIVERS="" ;;
@@ -38,35 +38,45 @@ esac
 export MESA_GIT_SHA1_OVERRIDE=53b2b224dc2de982c37915a0ad218e33365ff75e &&
 python3 bin/git_sha1_gen.py --output include/git_sha1.h &&
 
-meson --prefix=/usr                  \
-      -Dbuildtype=release            \
-      -Dllvm="enabled"               \
-      -Dshared-llvm="enabled"        \
-      -Dosmesa="true"                \
-      -Dglx="dri"               \
-      -Dxlib-lease="enabled"        \
-      -Ddri3="enabled"                    \
-      -Dplatforms="wayland,x11"      \
-      -Degl-native-platform="wayland" \
-      -Dglx-read-only-text=true      \
-      -Dasm=false                    \
-      -Dshared-glapi="enabled"         \
-      -Dopengl=true                  \
-      -Degl="enabled"                     \
-      -Dgallium-va="enabled"              \
-      -Dgallium-xa=true              \
-      -Dgallium-xvmc=true \
-      -Dvalgrind=false               \
-      -Dgallium-nine=false           \
-      -Dgallium-vdpau="enabled"     \
-      -Dgles2="enabled"              \
-      -Dgles1="enabled" \
-      -Dvulkan-device-select-layer=false \
-      -Dvulkan-drivers="${V_DRIVERS}"            \
-      -Dvulkan-overlay-layer=false   \
-      -Dtools="" \
-      -Ddri-drivers="${DRI_DRIVERS}"   \
-      -Dgallium-drivers="${GLL_DRV}"  OUT  
+# Set configure flags
+export  BUILDOPT="-Dbuildtype=release "
+export BUILDOPT+="-Dllvm=enabled "
+export BUILDOPT+="-Dshared-llvm=enabled "
+export BUILDOPT+="-Dosmesa=true "
+export BUILDOPT+="-Dvalgrind=false "
+
+export  GFXOPT="-Dglx=dri "
+export GFXOPT+="-Dglx-read-only-text=true "
+export GFXOPT+="-Dxlib-lease=enabled "
+export GFXOPT+="-Ddri3=enabled "
+export GFXOPT+="-Dopengl=true "
+export GFXOPT+="-Degl=enabled "
+export GFXOPT+="-Dgles2=enabled "
+export GFXOPT+="-Dgles1=enabled "
+export GFXOPT+="-Dshared-glapi=enabled "
+
+export DRVROPT="-Degl-native-platform=wayland "
+
+export  GALLIUMOPT="-Dgallium-va=enabled "
+export GALLIUMOPT+="-Dgallium-xa=true "
+export GALLIUMOPT+="-Dgallium-xvmc=true "
+export GALLIUMOPT+="-Dgallium-nine=true "
+export GALLIUMOPT+="-Dgallium-vdpau=true "
+
+# For intel graphics only (i.e. intergrated graphics on some laptops)
+# then only enable these drivers:
+export DRI_DRIVERS="i965"
+export GLL_DRV="i915,svga,swrast,iris,crocus"
+export V_DRIVERS="swrast,intel"
+
+# If glslang is installed, vulkan layers an be built
+export V_LAYERS="-Dvulkan-layers=device-select,overlay,intel-nullhw "
+
+meson --prefix=/usr \
+      -Dvulkan-drivers="${V_DRIVERS}" \
+      -Ddri-drivers="${DRI_DRIVERS}"  \
+      -Dgallium-drivers="${GLL_DRV}"  $BUILDOPT $GFXOPT $DRVROPT $GALLIUMOPT $V_LAYERS \
+      -Dplatforms=wayland,x11 -Dprefer-crocus=true -Dtools=xvmc,glsl OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
@@ -96,5 +106,5 @@ mesa:
 mesa:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mesa-21.2.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/mesa-21.3.5-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
