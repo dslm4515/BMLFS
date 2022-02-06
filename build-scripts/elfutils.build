@@ -1,0 +1,81 @@
+#! /bin/bash
+
+# elfutils 
+# Source: https://sourceware.org/elfutils/ftp/0.186/elfutils-0.186.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/elfutils-alpine/fix-aarch64_fregs.patch
+patch -Np1 -i ../patches/elfutils-alpine/fix-uninitialized.patch 
+patch -Np1 -i ../patches/elfutils-alpine/musl-asm-ptrace-h.patch
+patch -Np1 -i ../patches/elfutils-alpine/musl-macros.patch
+patch -Np1 -i ../patches/elfutils-alpine/musl-strndupa.patch
+cp -v ../files/elfutils-alpine/error.h src/
+cp -v ../files/elfutils-alpine/error.h lib/
+cat > lib/libintl.h <<-EOF
+  #ifndef LIBINTL_H
+  #define LIBINTL_H
+  #define _(x) (x)
+  #endif
+EOF
+
+CFLAGS="$CFLAGS -Wno-error -Wno-null-dereference" \
+./configure --prefix=/usr \
+            --sysconfdir=/etc \
+	    --mandir=/usr/share/man \
+	    --localstatedir=/var \
+	    --disable-werror \
+	    --program-prefix=eu- \
+	    --enable-deterministic-archives \
+	    --disable-nls \
+	    --disable-libdebuginfod \
+	    --disable-debuginfo \
+	    --disable-debuginfod
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+elfutils: Elfutils
+elfutils:
+elfutils: A collection of utilities, including stack (to show backtraces), nm
+elfutils: (for listing symbols from object files), size (for listing the section
+elfutils: sizes of an object or archive file), strip (for discarding symbols),
+elfutils: readelf (to see the raw ELF file structures), and elflint (to check
+elfutils: for well-formed ELF files).
+elfutils:
+elfutils: ftp://sourceware.org/pub/elfutils/
+elfutils:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/elfutils-0.186-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+elfutils-doc: Manuals for Elfutils
+elfutils-doc:
+elfutils-doc: A collection of utilities for checking and testing ELF files
+elfutils-doc:
+elfutils-doc: ftp://sourceware.org/pub/elfutils/
+elfutils-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/elfutils-doc-0.186-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
