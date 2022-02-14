@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # wlroots
-# Source: https://github.com/swaywm/wlroots/releases/download/0.14.1/wlroots-0.14.1.tar.gz
+# Source: https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/0.15.1/wlroots-0.15.1.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -53,5 +53,5 @@ wlroots:
 wlroots: Homepage: https://github.com/swaywm/wlroots
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wlroots-0.14.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wlroots-0.15.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
