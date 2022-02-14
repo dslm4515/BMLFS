@@ -11,6 +11,9 @@
 # Recommended:  NONE
 # Optional:     Doxygen
 
+# If cloning from repo:
+git submodule update --init
+
 # Generate configure script & configure
 ./autogen.sh $XORG_CONFIG  $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
