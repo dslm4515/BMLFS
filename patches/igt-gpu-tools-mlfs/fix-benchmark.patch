@@ -1,0 +1,24 @@
+--- igt-gpu-tools-igt-gpu-tools-1.26.orig/benchmarks/gem_exec_tracer.c	2021-04-23 05:38:04.000000000 -0500
++++ igt-gpu-tools-igt-gpu-tools-1.26/benchmarks/gem_exec_tracer.c	2022-02-14 12:37:24.086979537 -0600
+@@ -266,11 +266,8 @@
+ 	return strcmp(name, "i915") == 0;
+ }
+ 
+-#define LOCAL_IOCTL_I915_GEM_EXECBUFFER2_WR \
+-    DRM_IOWR(DRM_COMMAND_BASE + DRM_I915_GEM_EXECBUFFER2, struct drm_i915_gem_execbuffer2)
+-
+ int
+-ioctl(int fd, unsigned long request, ...)
++ioctl(int fd, int request, ...)
+ {
+ 	struct trace *t, **p;
+ 	va_list args;
+@@ -327,7 +324,7 @@
+ 
+ 	switch (request) {
+ 	case DRM_IOCTL_I915_GEM_EXECBUFFER2:
+-	case LOCAL_IOCTL_I915_GEM_EXECBUFFER2_WR:
++	case DRM_IOCTL_I915_GEM_EXECBUFFER2_WR:
+ 		trace_exec(t, argp);
+ 		break;
+ 

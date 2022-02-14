@@ -1,0 +1,11 @@
+--- igt-gpu-tools-igt-gpu-tools-1.26.orig/tests/kms_atomic.c	2021-04-23 05:38:04.000000000 -0500
++++ igt-gpu-tools-igt-gpu-tools-1.26/tests/kms_atomic.c	2022-02-14 12:40:10.199982430 -0600
+@@ -54,6 +54,8 @@
+ #define DRM_CAP_CURSOR_HEIGHT 0x9
+ #endif
+ 
++#define PAGE_SIZE 4096
++
+ IGT_TEST_DESCRIPTION("Test atomic modesetting API");
+ 
+ enum kms_atomic_check_relax {

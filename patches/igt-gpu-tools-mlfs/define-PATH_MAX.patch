@@ -1,0 +1,22 @@
+--- igt-gpu-tools-igt-gpu-tools-1.26.orig/tests/i915/i915_pm_rpm.c	2021-04-23 05:38:04.000000000 -0500
++++ igt-gpu-tools-igt-gpu-tools-1.26/tests/i915/i915_pm_rpm.c	2022-02-14 12:38:22.924980562 -0600
+@@ -61,6 +61,8 @@
+ #define MAX_ENCODERS	32
+ #define MAX_CRTCS	16
+ 
++#define PATH_MAX 1024
++
+ enum pc8_status {
+ 	PC8_ENABLED,
+ 	PC8_DISABLED
+--- igt-gpu-tools-igt-gpu-tools-1.26.orig/lib/igt_eld.c	2021-04-23 05:38:04.000000000 -0500
++++ igt-gpu-tools-igt-gpu-tools-1.26/lib/igt_eld.c	2022-02-14 12:41:16.467983584 -0600
+@@ -38,6 +38,8 @@
+ #define ELD_PREFIX "eld#"
+ #define ELD_DELIM " \t"
+ 
++#define PATH_MAX 1024
++
+ /**
+  * EDID-Like Data (ELD) is metadata parsed and exposed by ALSA for HDMI and
+  * DisplayPort connectors supporting audio. This includes the monitor name and
