@@ -11,12 +11,12 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-./configure --prefix=/usr --sysconfdir=/etc \
-	    --localstatedir=/var \
-	    --disable-static $BUILDTRUPLE && \
+./configure $XORG_CONFIG  $BUILDTRUPLE && \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/$XORG_PREFIX && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share /BMAN/${XORG_PREFIX}/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -41,5 +41,16 @@ xdpyinfo:
 xdpyinfo:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xdpyinfo-1.3.2-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/xdpyinfo-1.3.2-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+xdpyinfo-doc: Manuals for xdpyinfo
+xdpyinfo-doc:
+xdpyinfo-doc: A utility for displaying information about an X server
+xdpyinfo-doc:
+xdpyinfo-doc: http://www.x.org
+xdpyinfo-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/xdpyinfo-doc-1.3.2-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

@@ -16,12 +16,12 @@ export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-./configure --prefix=/usr --sysconfdir=/etc \
-	    --localstatedir=/var \
-	    --disable-static $BUILDTRUPLE && \
+./configure $XORG_CONFIG  $BUILDTRUPLE && \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/$XORG_PREFIX && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share /BMAN/${XORG_PREFIX}/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -38,13 +38,17 @@ xset:
 xset: xset is a command line utility to get and set various preferences
 xset: and properties for the current session.
 xset:
-xset:
-xset:
-xset:
-xset:
-xset:
-xset:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xset-1.2.4-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/xset-1.2.4-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+xset-doc: Manuals for xset
+xset-doc:
+xset-doc: A command line utility to get and set various preferences
+xset-doc: and properties for the current session.
+xset-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/xset-doc-1.2.4-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

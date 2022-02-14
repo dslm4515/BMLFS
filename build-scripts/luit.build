@@ -14,12 +14,17 @@
 cp -v ../files/config.guess-musl config.guess  && \
 cp -v ../files/config.sub-musl config.sub    && \
 sed -i -e "/D_XOPEN/s/5/6/" configure && \
-./configure --prefix=/usr --sysconfdir=/etc \
-	    --localstatedir=/var \
-	    --disable-static $BUILDTRUPLE && \
+./configure $XORG_CONFIG $BUILDTRUPLE && \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+# if primarily using X11:
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/    && \
+
+# if X11 as auxillary:
+sudo -S mkdir -pv /BMAN/install /BMAN/${XORG_PREFIX}             && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share /BMAN/${XORG_PREFIX}/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -44,5 +49,15 @@ luit:
 luit:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/luit-1.1.1-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/luit-1.1.1-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+luit-doc: Manual for luit
+luit-doc:
+luit-doc: A filter that can be run between an arbitrary application and
+luit-doc: a UTF-8 terminal emulator such as xterm.
+luit-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/luit-doc-1.1.1-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

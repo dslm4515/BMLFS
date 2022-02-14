@@ -11,12 +11,12 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-./configure --prefix=/usr --sysconfdir=/etc \
-	    --localstatedir=/var \
-	    --disable-static $BUILDTRUPLE && \
+./configure $XORG_CONFIG  $BUILDTRUPLE && \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/$XORG_PREFIX && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share /BMAN/${XORG_PREFIX}/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -41,5 +41,17 @@ xcmsdb:
 xcmsdb:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xcmsdb-1.0.5-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/xcmsdb-1.0.5-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+xcmsdb-doc: Manuals for xcmsdb
+xcmsdb-doc:
+xcmsdb-doc: It is used to load, query, or remove Device Color Characterization
+xcmsdb-doc: data stored in properties on the root window of a screen as specified
+xcmsdb-doc: in section 7, Device Color Characterization, of the X11 Inter-Client
+xcmsdb-doc: Communication Conventions Manual (ICCCM).
+xcmsdb-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/xcmsdb-doc-1.0.5-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

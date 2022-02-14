@@ -11,12 +11,12 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-./configure --prefix=/usr --sysconfdir=/etc \
-	    --localstatedir=/var \
-	    --disable-static $BUILDTRUPLE && \
+./configure $XORG_CONFIG  $BUILDTRUPLE && \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/$XORG_PREFIX && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share /BMAN/${XORG_PREFIX}/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -33,13 +33,16 @@ xwud:
 xwud: xwud allows X users to display in a window an image saved in a
 xwud: specially formatted dump file, such as produced by xwd.
 xwud:
-xwud:
-xwud:
-xwud:
-xwud:
-xwud:
-xwud:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xwud-1.0.5-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/xwud-1.0.5-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+xwud-doc: Manuals for xwud
+xwud-doc:
+xwud-doc: X screen dump viewer
+xwud-doc;
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/xwud-doc-1.0.5-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

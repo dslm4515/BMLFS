@@ -11,12 +11,12 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-./configure --prefix=/usr --sysconfdir=/etc \
-	    --localstatedir=/var \
-	    --disable-static $BUILDTRUPLE && \
+./configure $XORG_CONFIG  $BUILDTRUPLE && \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/$XORG_PREFIX && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share /BMAN/${XORG_PREFIX}/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -34,12 +34,16 @@ xkill: xkill is a utility for forcing the X server to close connections to
 xkill: clients.  This program is very dangerous, but is useful for aborting
 xkill: programs that have displayed undesired windows on a user's screen.
 xkill:
-xkill:
-xkill:
-xkill:
-xkill:
-xkill:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xkill-1.0.5-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/xkill-1.0.5-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+xkill-doc: Manuals for xkill
+xkill-doc:
+xkill-doc: A utility for forcing the X server to close connections to clients.
+xkill-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/xkill-doc-1.0.5-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

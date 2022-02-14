@@ -16,12 +16,12 @@ export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
-./configure --prefix=/usr --sysconfdir=/etc \
-	    --localstatedir=/var \
-	    --disable-static $BUILDTRUPLE && \
+./configure $XORG_CONFIG  $BUILDTRUPLE && \
 read -p "Compile?" && make -j2 &&
 
-sudo -S make DESTDIR=$BUILD install &&
+sudo -S make DESTDIR=$BUILD install && \
+sudo -S mkdir -pv /BMAN/install /BMAN/$XORG_PREFIX && \
+sudo -S mv $BUILD/${XORG_PREFIX}/share /BMAN/${XORG_PREFIX}/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -46,5 +46,15 @@ mkfontscale:
 mkfontscale:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mkfontscale-1.2.1-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/mkfontscale-1.2.1-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+mkfontscale-doc: Manuals for mkfontscale
+mkfontscale-doc:
+mkfontscale-doc: mkfontscale creates the fonts.scale and fonts.dir index files used
+mkfontscale-doc: by the legacy X11 font system.
+mkfontscale-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/mkfontscale-doc-1.2.1-noarch-mlfs.txz && /
+sudo -S rm -rf ${BUILD}/* /BMAN/*
