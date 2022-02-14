@@ -30,6 +30,8 @@ read -p "Install?" &&
 #sudo -S make install
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir install &&
 cat > /tmp/slack-desc << "EOF"
@@ -52,7 +54,18 @@ libssh2:
 libssh2:
 libssh2:
 EOF
-
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libssh2-1.9.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libssh2-doc: Manuals for libssh2 (SSH2 library)
+libssh2-doc:
+libssh2-doc: A library implementing the SSH2 protocol, available under the revised
+libssh2-doc: BSD license.
+libssh2-doc:
+libssh2-doc: http://www.libssh2.org/
+libssh2-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libssh2-doc-1.9.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
