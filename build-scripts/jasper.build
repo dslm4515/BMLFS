@@ -23,6 +23,8 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr    \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr &&\
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -47,5 +49,18 @@ jasper:
 jasper:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/jasper-2.0.33-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/jasper-2.0.33-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+jasper-doc: Manuals for jasper
+jasper-doc:
+jasper-doc: A free implementation of the JPEG-2000 standard. It provides
+jasper-doc: a free software-based reference implementation of the codec
+jasper-doc: specified in the PEG-2000 Part-1 standard.
+jasper-doc:
+jasper-doc: http://www.ece.uvic.ca/~mdadams/jasper/
+jasper-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/jasper-doc-2.0.33-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
