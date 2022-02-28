@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# SPIRV-LLVM Translator 
+# Source: https://github.com/KhronosGroup/SPIRV-LLVM-Translator/archive/refs/tags/v12.0.0.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     LLVM-12, CMake, spirv-headers, spirv-tools
+# Recommended:  NONE
+# Optional:     NONE
+
+mkdir -v build && \
+cd       build && \
+
+cmake -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_SHARED_LIBS=ON \
+      -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+      -DCMAKE_SKIP_RPATH=ON \
+      -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR=/usr/include/spirv \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DLLVM_ENABLE_RTTI=ON \
+      -Wno-dev -G Ninja .. && \
+
+read -p "Compile?" && ninja -j2 && ninja llvm-spirv && \
+
+sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S mkdir -pv $BUILD/usr/bin && \
+sudo -S cp -v tools/llvm-spirv/llvm-spirv $BUILD/usr/bin/ && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                     |-----handy-ruler------------------------------------------------------|
+spirv-llvm-translator: SPIRV-LLVM Translator
+spirv-llvm-translator:
+spirv-llvm-translator: The LLVM/SPIR-V Bi-Directional Translator, a library and tool for 
+spirv-llvm-translator: translation between LLVM IR and SPIR-V.
+spirv-llvm-translator:
+spirv-llvm-translator: https://github.com/KhronosGroup/SPIRV-LLVM-Translator
+spirv-llvm-translator: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/spirv-llvm-translator-12.0.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

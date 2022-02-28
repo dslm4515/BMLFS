@@ -8,10 +8,10 @@
 #
 # DEPS
 # Required:     LLVM, libdrm, Mako
-# Recommended:  Libva, libvdpau(for Xorg), wayland-protocols
-# Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind,
+# Recommended:  Libva, libvdpau(for Xorg), wayland-protocols, libglvnd, spirv-headers, 
+# Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind, vulkan-headers (vulkan support/drive)r
 # Optional:     libxcb(for Xorg), libX11(for Xorg), libxshmfence(for Xorg), libXxf86vm(for Xorg), 
-# Optional:     libXrandr(for Xorg)
+# Optional:     libXrandr(for Xorg), libclc(vulkan-support)
 
 # Apply patches from Alpine Linux
 patch -Np1 -i ../patches/mesa-alpine-21.2.1/0001-radeonsi-On-Aarch64-force-persistent-buffers-to-GTT.patch
@@ -63,6 +63,13 @@ export GALLIUMOPT+="-Dgallium-xvmc=true "
 export GALLIUMOPT+="-Dgallium-nine=true "
 export GALLIUMOPT+="-Dgallium-vdpau=true "
 
+# if libclc is installed:
+export  XTRA_OPTS="-Dgallium-opencl=icd " 
+# if libglvnd is installed
+export XTRA_OPTS+="-Dglvnd=true "
+
+export XTRA_OPTS+="-Dswr-arches=avx,avx2 "
+
 # For intel graphics only (i.e. intergrated graphics on some laptops)
 # then only enable these drivers:
 export DRI_DRIVERS="i965"
@@ -76,7 +83,7 @@ meson --prefix=/usr \
       -Dvulkan-drivers="${V_DRIVERS}" \
       -Ddri-drivers="${DRI_DRIVERS}"  \
       -Dgallium-drivers="${GLL_DRV}"  $BUILDOPT $GFXOPT $DRVROPT $GALLIUMOPT $V_LAYERS \
-      -Dplatforms=wayland,x11 -Dprefer-crocus=true -Dtools=xvmc,glsl OUT
+      -Dplatforms=wayland,x11 -Dprefer-crocus=true -Dtools=xvmc,glsl $XTRA_OPTS OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
