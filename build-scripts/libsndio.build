@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# sndio 
+# Source: https://sndio.org/sndio-1.8.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     alsa-lib
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr && \
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/    && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+sndio: sndio
+sndio:
+sndio: Small audio and MIDI framework part of the OpenBSD project
+sndio:
+sndio: https://sndio.org/
+sndio:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/sndio-1.8.1-$(uname -m)-mlfs.txz &&
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+sndio-doc: Manuals for sndio
+sndio-doc:
+sndio-doc: Small audio and MIDI framework part of the OpenBSD project
+sndio-doc:
+sndio-doc: https://sndio.org/
+sndio-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/sndio-doc-1.8.1-noarch.mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
