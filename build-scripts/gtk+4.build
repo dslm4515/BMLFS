@@ -24,17 +24,15 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 meson   --prefix=/usr \
 	-Dman-pages=false \
 	-Dbuild-tests=false \
-	-Dmedia=all \
 	-Dbroadway-backend=true \
 	-Dx11-backend=true \
 	-Dwayland-backend=true \
 	-Dintrospection=enabled \
-	-Dprint-backends=file \
 	-Dcolord=enabled \
 	-Dcloudproviders=disabled \
-	-Dvulkan=disabled \
+	-Dvulkan=enabled \
 	-Df16c=disabled \
-	BUILD &&
+	-Dmedia-ffmpeg=enabled -Ddemos=false BUILD &&
 
 ninja -C BUILD  -j2 && 
 sudo -S DESTDIR=${BUILD} ninja -C BUILD  install &&
