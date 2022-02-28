@@ -1,0 +1,113 @@
+#! /bin/bash
+
+# Qt5 qtbase 5.15.3_git20220217 
+# Source:  https://invent.kde.org/qt/qt/qtbase/-/archive/f36c2233fad0bfddf9350305a6bdc6de022d3635/qtbase-f36c2233fad0bfddf9350305a6bdc6de022d3635.tar.gz
+#
+# Method = Alpine Linux
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Xorg-Libs openssl
+# Recommended:  alsa-lib, ca-certificates, Cups, GLib, gst-plugins-base, HarfBuzz, ICU, JasPer, 
+# Recommended:  libjpeg-turbo, libmng, libpng, LibTIFF, libwebp, libxkbcommon, Mesa, MIT Kerberos, 
+# Recommended:  mtdev, pcre2, SQLite, Wayland, xcb-util-image, xcb-util-keysyms, xcb-util, xcb-util-wm
+# Optional:     BlueZ, ibus, libinput, MariaDB or MySQL, pciutils, PostgreSQL, Python 2, PulseAudio, 
+# Optional:     SDL2, unixODBC, assimp, Flite, Firebird, FreeTDS, libproxy, OpenAL, speech-dispatcher, 
+# Optional:     tslib, and Vulkan 
+
+# Patch source
+patch -Np1 -i ../patches/qt5-5.15.3-alpine/qt-musl-iconv-no-bom.patch 
+patch -Np1 -i ../patches/qt5-5.15.3-alpine/qt5-base-cflags.patch 
+patch -Np1 -i ../patches/qt5-5.15.3-alpine/qt5-base-nostrip.patch 
+
+# Fix flags
+sed -i -e "s|-O2|$CXXFLAGS|" \
+       -e "/^QMAKE_RPATH/s| -Wl,-rpath,||g" \
+       -e "/^QMAKE_LFLAGS\s/s|+=|+= $LDFLAGS|g" mkspecs/common/*.conf
+
+# Per Alpine:
+# Make configure think we are running in a git directory
+# This makes it symlink the include files to the right directory
+mkdir .git
+
+# Set configure flags
+export  CARGS="-confirm-license -opensource "
+
+export CPATHS+="-prefix /opt/qt5 -bindir /opt/qt5/bin "
+export CPATHS+="-datadir /opt/qt5/share "
+export CPATHS+="-docdir /opt/qt5/share/doc/qt5 "
+export CPATHS+="-examplesdir /opt/qt5/share/doc/examples "
+export CPATHS+="-headerdir /opt/qt5/include/ "
+export CPATHS+="-importdir /opt/qt5/imports "
+export CPATHS+="-libexecdir /opt/qt5/libexec "
+export CPATHS+="-plugindir /opt/qt5/plugins "
+export CPATHS+="-sysconfdir /etc/xdg "
+export CPATHS+="-translationdir /opt/qt5/share/translations "
+
+export  COPTS="-dbus-linked -glib -icu -no-pch "
+export COPTS+="-no-rpath -no-separate-debug-info "
+export COPTS+="-nomake examples -opengl -openssl-linked "
+export COPTS+="-optimized-qmake -plugin-sql-sqlite "
+export COPTS+="-system-libjpeg -system-libpng -system-pcre "
+export COPTS+="-system-sqlite -system-zlib -no-reduce-relocations "
+
+export CFLAGS="-I/opt/X11/include -L/opt/X11/lib -I/opt/openssl/include -L/opt/openssl/lib "
+export CXXFLAGS=$CFLAGS
+export LDFLAGS="-Wl,-lexecinfo "
+
+OPENSSL_LIBS="-L/opt/openssl/lib -lssl -lcrypto" \
+CFLAGS=$CFLAGS CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS \
+./configure $CARGS $CPATHS $COPTS && \
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make INSTALL_ROOT=$BUILD install && \
+sudo -S mkdir -pv $BUILD/usr/bin && \
+for b in moc qdbuscpp2xml qdbusxml2cpp qlalr \
+	 qmake qvkgen rcc tracegen uic \
+	 fixqt4headers.pl syncqt.pl ; do
+      sudo -E ln -sv ../../opt/qt5/bin/$b $BUILD/usr/bin/$b-qt5
+done
+
+# Drop QMAKE_PRL_BUILD_DIR because reference the build dir
+find "$BUILD/opt/qt5/lib" -type f -name '*.prl' \
+	-exec sudo sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+
+sudo -S mkdir -pv /BMAN/install /BMAN/opt/qt5  && \
+sudo -S mv $BUILD/opt/qt5/share /BMAN/opt/qt5/ && \
+unset CFLAGS CXXFLAGS LDFLAGS CARGS CPATHS COPTS && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+          |-----handy-ruler------------------------------------------------------|
+qt5-qtbase: Qt5 - QtBase components
+qt5-qtbase:
+qt5-qtbase: A cross-platform C++ application framework. Qt's primary feature
+qt5-qtbase: is its rich set of widgets that provide standard GUI functionality.
+qt5-qtbase:
+qt5-qtbase: http://qt-project.org
+qt5-qtbase:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/qt5-qtbase-5.15.3_git20220217-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+qt5-qtbase-doc: Manuals for Qt5 - QtBase components
+qt5-qtbase-doc:
+qt5-qtbase-doc: A cross-platform C++ application framework. Qt's primary feature
+qt5-qtbase-doc: is its rich set of widgets that provide standard GUI functionality.
+qt5-qtbase-doc:
+qt5-qtbase-doc: http://qt-project.org
+qt5-qtbase-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/qt5-qtbase-doc-5.15.3_git20220217-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

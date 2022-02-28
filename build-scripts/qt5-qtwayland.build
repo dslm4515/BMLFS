@@ -1,0 +1,53 @@
+#! /bin/bash
+
+# Qt5 QtWayland 5.15.3_git20220214
+# Source: https://invent.kde.org/qt/qt/qtwayland/-/archive/d6a6b727832819d118199f7016c2c401663ee370/qtwayland-d6a6b727832819d118199f7016c2c401663ee370.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# Required:     wayland qt5-qtbase qt5-qtdeclarative qt5-qtquickcontrols2
+# Recommended:  NONE
+# Optional:     NONE
+
+# Per Alpine:
+# Make configure think we are running in a git directory
+# This makes it symlink the include files to the right directory
+mkdir .git
+
+export CFLAGS="-I/opt/X11/include -L/opt/X11/lib "
+export CXXFLAGS=$CFLAGS
+export LDFLAGS="-Wl,-lexecinfo "
+export PATH="$(pwd):$PATH"
+qmake-qt5
+
+read -p "Compile?" && LD_LIBRARY_PATH=/opt/X11/lib:/opt/openssl/lib make -j2 &&
+
+sudo -S make INSTALL_ROOT=$BUILD install &&
+unset CFLAGS CXXFLAGS LDFLAGS && \
+
+# Drop QMAKE_PRL_BUILD_DIR because reference the build dir
+find "$BUILD/opt/qt5/lib" -type f -name '*.prl' \
+	-exec sudo sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+             |-----handy-ruler------------------------------------------------------|
+qt5-qtwayland: Qt5 - QtWayland
+qt5-qtwayland:
+qt5-qtwayland: A cross-platform C++ application framework. Qt's primary feature 
+qt5-qtwayland: is its rich set of widgets that provide standard GUI functionality. 
+qt5-qtwayland:
+qt5-qtwayland: http://qt-project.org
+qt5-qtwayland:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/qt5-qtwayland-5.15.3_git20220214-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
