@@ -8,15 +8,16 @@
 #
 # DEPS
 # Required:     DBus, GLib
-# Recommended:  Python 2
-# Optional:     PyGobject 3
+# Recommended:  PyGobject 3
+# Optional:     Python 2
 
-mkdir python2 &&
-pushd python2 &&
-PYTHON=/usr/bin/python2     \
-../configure --prefix=/usr --disable-documentation &&
-make -j2 &&
-popd &&
+# BLFS has been build enough times withut python2.
+#mkdir python2 &&
+#pushd python2 &&
+#PYTHON=/usr/bin/python2     \
+#../configure --prefix=/usr --disable-documentation &&
+#make -j2 &&
+#popd &&
 mkdir python3 &&
 pushd python3 &&
 PYTHON=/usr/bin/python3    \
@@ -24,7 +25,7 @@ PYTHON=/usr/bin/python3    \
 make -j2 &&
 popd &&
 
-sudo -S make DESTDIR=$BUILD -C python2 install &&
+#sudo -S make DESTDIR=$BUILD -C python2 install &&
 sudo -S make DESTDIR=$BUILD -C python3 install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
@@ -36,18 +37,12 @@ cat > /tmp/slack-desc << "EOF"
 # make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-         |-----handy-ruler------------------------------------------------------|
-dbus-glib: dbus-glib (Glib bindings for dbus)
-dbus-glib:
-dbus-glib: This package includes the glib bindings for the dbus IPC library.
-dbus-glib:
-dbus-glib:
-dbus-glib:
-dbus-glib:
-dbus-glib:
-dbus-glib:
-dbus-glib:
-dbus-glib:
+           |-----handy-ruler------------------------------------------------------|
+dbus-python: dbus-python (Python bindings for dbus)
+dbus-python: 
+dbus-python: This package includes the glib bindings for the dbus IPC library.
+dbus-python:
+dbus-python:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/dbus-python-1.2.16-$(uname -m)-mlfs.txz &&
