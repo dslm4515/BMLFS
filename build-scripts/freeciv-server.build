@@ -1,32 +1,21 @@
 #! /bin/bash
 
 # FreeCiv Server
-# Source:  http://files.freeciv.org/stable/freeciv-2.6.2.tar.bz2
+# Source:  http://files.freeciv.org/stable/freeciv-3.0.0.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     libXaw, libcurl,
-# Recommended:  lua53
-# Optional:     NONE
+# Required:     libcurl sqlite
+# Recommended:  NONE
+# Optional:     lua53
 
-CFLAGS=" -Wno-error" \
-./configure --prefix=/usr \
-            --disable-static \
-            --enable-shared \
-            --sysconfdir=/etc \
-            --localstatedir=/var \
-            --enable-ipv6=yes  \
-            --enable-aimodules=yes \
-            --disable-rpath \
-            --disable-nls \
-            --enable-debug=yes \
-            --enable-sdl-mixer=no \
-            --enable-fcmp=all  \
-            --with-readline \
-            --enable-fcdb=sqlite3 \
-            --enable-client=no $BUiLDTRUPLE
+./configure --prefix=/usr --sysconfdir=/etc \
+	    --enable-debug=no --enable-fcmp=cli \
+	    --enable-fcdb=sqlite3 --enable-ipv6=yes \
+	    --with-readline --enable-shared --enable-client=no \
+	    --enable-sdl-mixer=no $BT
 
 read -p "Compile?" && make -j2 &&
 
@@ -55,5 +44,5 @@ freeciv-server: Homepage: http://www.freeciv.org/
 freeciv-server:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/freeciv-server-2.6.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/freeciv-server-3.0.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*

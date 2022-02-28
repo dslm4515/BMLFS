@@ -1,51 +1,36 @@
 #! /bin/bash
 
 # FreeCiv 
-# Source:  http://files.freeciv.org/stable/freeciv-2.6.6.tar.bz2
+# Source:  http://files.freeciv.org/stable/freeciv-3.0.0.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     libcurl
-# Recommended:  SDL2_gfx, SDL_gfx, SDL2_image, SDL_image, SDL2_mixer, 
-# Recommended:  SDL_mixer, SDL2_ttf, SDL2_ttf, GTK+3, GTK+2, lua, libXaw
-# Optional:     NONE
+# Required:     libcurl sqlite
+# Recommended:  SDL2_gfx SDL2_image SDL2_mixer 
+# Recommended:  SDL2_ttf SDL2_ttf   GTK+3
+# Optional:     qt5-qtwayland lua gtk+2
 
-# 3.0.92.2(Git) version has dropped SDL and GTK+2 in favor of SDL2 and GTK+3.x.
-# Now requires Lua 5.4.x+
+# Version 3.x: Dropped Xaw & SDL clients. GTK+2 client is now depreciated.
+
 # For Qt Client, make sure /opt/qt5/bin is in $PATH
-# Game server segfaults. Disable and use server from 2.6.2
-#export BUILD_CLIENTS=" --enable-client=gtk3,gtk3.22,sdl2,qt,stub"
-#export EXTRA_CONFIG=" --with-zoom --with-3d --enable-json --with-qt5x --disable-server"
+# If building the Qt5 Client
+export BUILD_CLIENTS=" --enable-client=gtk3.22,gtk3,sdl2,qt "
+export  QCONFIG="--with-qt5-libs=/opt/qt5/lib "
+export QCONFIG+="--with-qt5-includes=/opt/qt5/include "
+export QCONFIG+="--with-qt5-framework-bin "
 
-# Released source has SDL and GTK+2 Clients.
-# Uses Lua 5.3.x
-# For SDL, cannot build both: Either SDL2 or SDL
-patch -Np1 -i ../patches/freeciv-mlfs/qt5-client-fixes.patch
-export BUILD_CLIENTS=" --enable-client=gtk2,gtk3,gtk3.22,sdl2,xaw,qt,stub"
-export EXTRA_CONFIG=""
+# If NOT building the Qt5 Client:
+export BUILD_CLIENTS=" --enable-client=gtk3.22,gtk3,sdl2 "
+export QCONFIG=""
 
 PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/qt5/lib/pkgconfig \
-CFLAGS=" -Wno-error" \
-./configure --prefix=/usr \
-            --disable-static \
-            --enable-shared \
-            --sysconfdir=/etc \
-            --localstatedir=/var \
-            --enable-ipv6=yes  \
-            --enable-aimodules=yes \
-            --disable-rpath \
-            --disable-nls \
-            --enable-debug=yes \
-            --enable-sdl-mixer=sdl2 \
-            --enable-fcmp=all  \
-            --with-readline \
-            --enable-fcdb=sqlite3 \
-            --with-qt5-libs=/opt/qt5/lib \
-            --with-qt5-includes=/opt/qt5/include \
-            --with-qt5-framework-bin \
-            $BUILD_CLIENTS $EXTRA_CONFIG $BUiLDTRUPLE &&
+./configure --prefix=/usr --sysconfdir=/etc $BUILD_CLIENTS $QCONFIG  \
+	    --enable-debug=no --enable-fcmp=gtk3,gtk4,cli --enable-fcdb=sqlite3 \
+            --enable-ipv6=yes --with-readline --enable-shared $BT
+
+
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -70,14 +55,14 @@ freeciv: Freeciv is a free turn-based multiplayer strategy game, in which
 freeciv: each player becomes the leader of a civilization, fighting to
 freeciv: obtain the ultimate goal: To become the greatest civilization.
 freeciv: 
-freeciv: Includes SDL2/GTK+2/GTK+4/Xaw/Qt clients and server.
+freeciv: Includes SDL2/GTK+3/GTK+3.22 clients and server.
 freeciv: 
 freeciv: 
 freeciv: Homepage: http://www.freeciv.org/
 freeciv:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/freeciv-2.6.6-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/freeciv-3.0.0-$(uname -m)-mlfs.txz &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 freeciv-doc: Manuals for freeciv (turn-based multiplayer strategy game)
@@ -90,6 +75,6 @@ freeciv-doc: http://www.freeciv.org/
 freeciv-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/freeciv-doc-2.6.6-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/freeciv-doc-3.0.0-noarch-mlfs.txz
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
