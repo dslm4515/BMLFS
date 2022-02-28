@@ -1,8 +1,0 @@
-#! /bin/bash
-
-# gnome-icon-theme-3.12.0 
-# http://ftp.gnome.org/pub/gnome/sources/gnome-icon-theme/3.12/gnome-icon-theme-3.12.0.tar.xz
-
-./configure --prefix=/usr &&
-read -p "Compile? " && make -j2 &&
-read -p "Install? " && sudo -S porg -lD "make install"
