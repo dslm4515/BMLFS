@@ -1,0 +1,38 @@
+#! /bin/bash
+
+# BTOP++
+# Source: https://github.com/aristocratos/btop/archive/refs/tags/v1.2.4.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+read -p "Compile?" && make STRIP=true -j2 &&
+
+sudo -S make DESTDIR=$BUILD PREFIX=/usr install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+btop: BTOP++
+btop:
+btop: Resource monitor that shows usage and stats for 
+btop: processor, memory, disks, network, and processes.
+btop:
+btop: https://github.com/aristocratos/btop
+btop:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/btop-1.2.4-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
