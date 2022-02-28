@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # PAVUcontrol
-# Source: http://freedesktop.org/software/pulseaudio/pavucontrol/pavucontrol-4.0.tar.gz
+# Source: http://freedesktop.org/software/pulseaudio/pavucontrol/pavucontrol-5.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     GTKmm, Glademm, libcanberra
+# Required:     GTKmm3, libcanberra
 # Recommended:  NONE
 # Optional:     NONE
 
@@ -21,6 +21,8 @@ export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -45,5 +47,17 @@ pavucontrol:
 pavucontrol:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pavucontrol-4.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/pavucontrol-5.0-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+pavucontrol-doc: Manuals for pavucontrol
+pavucontrol-doc: 
+pavucontrol-doc: It is a simple GTK3 based volume control tool("mixer") for
+pavucontrol-doc: PulseAudio sound server.
+pavucontrol-doc:
+pavucontrol-doc: http://0pointer.de/lennart/projects/pavucontrol/
+pavucontrol-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/pavucontrol-doc-5.0-$(uname -m)-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
