@@ -16,12 +16,17 @@ export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
+# If building against netbsd's curses, add missing constants:
+patch -Np1 -i ../patches/alsa-utils-mlfs/missing_defines_for_alsamixer.patch
+
 ./configure --disable-alsaconf \
             --disable-xmlto \
             --with-curses=ncursesw $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -46,5 +51,18 @@ alsa-utils:
 alsa-utils: For more information, see http://alsa-project.org
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/alsa-utils-1.2.5.1-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/alsa-utils-1.2.5.1-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+alsa-utils-doc: Manuals for Advanced Linux Sound Architecture utilities
+alsa-utils-doc:
+alsa-utils-doc: This provides audio and MIDI functionality to the Linux operating
+alsa-utils-doc: system. This package contains command line audio utilities for 
+alsa-utils-doc: use with ALSA
+alsa-utils-doc:
+alsa-utils-doc: http://alsa-project.org
+alsa-utils-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ 
+sudo -S makepkg -l y -c n $PKGS/alsa-utils-doc-1.2.5.1-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

@@ -1,0 +1,12 @@
+--- alsa-utils-1.2.5.1.orig/alsamixer/bindings.h	2021-06-14 05:28:46.000000000 -0500
++++ alsa-utils-1.2.5.1/alsamixer/bindings.h	2022-02-21 16:16:28.501807065 -0600
+@@ -5,6 +5,9 @@
+ #include <menu.h>
+ #include <stdint.h>
+ 
++#define MIN_MENU_COMMAND        (KEY_MAX + 1)
++#define MAX_MENU_COMMAND        (KEY_MAX + 17)
++
+ /* Commands are stored in an uint16_t and may take an unsigned numeric argument.
+  * The command itself is stored in the lower 7 bits, the argument is stored
+  * in the higher 9 bits.
