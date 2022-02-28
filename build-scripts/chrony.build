@@ -1,0 +1,85 @@
+#! /bin/bash
+
+# Chrony
+# Source: https://download.tuxfamily.org/chrony/chrony-4.2.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     gnutls nettle
+# Recommended:  NONE
+# Optional:     NONE
+
+# Add chrony user with ID 87 (NTP)
+groupadd -g 87 chrony &&
+useradd  -c "chrony user" -d /var/lib/chrony \
+	 -u 87 -g chrony -s /usr/bin/false chrony
+
+# Per ALpine: 
+# We copy timepps.h to the local build directory instead of
+# creating a pps-tools-dev package for ppstime.h
+# (See https://github.com/ago/pps-tools)
+mkdir -p pps-tools/sys
+cp -v ../files/chrony-alpine/timepps.h pps-tools/sys/
+
+patch -Np1 -i ../patches/chrony-alpine/fix-tests.patch
+patch -Np1 -i ../patches/chrony-alpine/max_resolve_interval.patch 
+
+CPPFLAGS="$CPPFLAGS -I./pps-tools/" ./configure \
+	--prefix=/usr  -mandir=/usr/share/man \
+	--sysconfdir=/etc/chrony -with-user=chrony \
+	--enable-ntp-signd
+
+read -p "Compile?" && make all -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
+sudo -S mkdir -pv $BUILD/etc/logrotate.d && \
+sudo -S install -Dm644 examples/chrony.logrotate $BUILD/etc/logrotate.d/chrony
+sudo -S install -dm775 -g s6log $BUILD/var/log/chrony && \
+#sudo -S mkdir -p $BUILD/var/lib/chrony $BUILD/etc/chrony && \
+#chown $pkgusers:$pkggroups $BUILD/etc/chrony
+sudo -S install -m644  ../files/chrony-alpine/chrony.conf $BUILD/etc/chrony/chrony.conf
+#sudo -S chown root:root $BUILD/etc/chrony/*
+#chown $pkgusers:$pkggroups $BUILD/var/lib/chrony
+sudo touch $BUILD/var/lib/chrony/chrony.drift
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+chrony: Chrony
+chrony:
+chrony: A versatile implementation of the Network Time Protocol (NTP)
+chrony:
+chrony: https://chrony.tuxfamily.org
+chrony:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+cat > /tmp/doinst.sh << "EOF"
+groupadd -g 87 chrony &&
+useradd  -c "chrony user" -d /var/lib/chrony \
+         -u 87 -g chrony -s /usr/bin/false chrony
+EOF
+sudo -S mv -v /tmp/doinst.sh install/  && \
+sudo -S makepkg -l y -c n $PKGS/chrony-4.2-$(uname -m)-mlfs.txz &&
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+chrony-doc: Manuals for chrony
+chrony-doc:
+chrony-doc: A versatile implementation of the Network Time Protocol (NTP)
+chrony-doc:
+chrony-doc: https://chrony.tuxfamily.org
+chrony-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/chrony-doc-4.2-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/*

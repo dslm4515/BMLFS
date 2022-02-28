@@ -1,8 +1,0 @@
-#! /bin/bash
-
-# icon-naming-utils-0.8.90
-# Source: http://tango.freedesktop.org/releases/icon-naming-utils-0.8.90.tar.bz2
-
-./configure --prefix=/usr &&
-read -p "Compile? " && make -j2 &&
-read -p "Install? " && sudo -S porg -lD "make  install"
