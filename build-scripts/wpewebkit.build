@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # WPE WebKit 
-# Source: https://wpewebkit.org/releases/wpewebkit-2.34.4.tar.xz
+# Source: https://wpewebkit.org/releases/wpewebkit-2.34.5.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -55,5 +55,5 @@ wpewebkit: https://wpewebkit.org/
 wpewebkit:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wpewebkit-2.34.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wpewebkit-2.34.5-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
