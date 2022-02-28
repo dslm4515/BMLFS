@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libsigc++
-# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/libsigc++/2.10/libsigc++-2.10.7.tar.xz
+# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/libsigc++/2.10/libsigc++-2.10.8.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -48,5 +48,5 @@ libsigc++: Public License, LGPL.
 libsigc++: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libsigc++-2.10.7-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libsigc++-2.10.8-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
