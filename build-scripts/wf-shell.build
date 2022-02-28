@@ -8,7 +8,7 @@
 #
 # DEPS
 # Required:     gtkmm3, wayfire
-# Recommended:  libnotify, pulseaudio, gobject-introspectopn, 
+# Recommended:  libnotify, pulseaudio, gobject-introspection, upower 
 # Optional:     gtk-layer-shell, wf-config
 
 meson --prefix=/usr OUT && \
