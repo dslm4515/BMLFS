@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Vte3 (Virtual Terminal Emulator library)
-# Source: https://gitlab.gnome.org/GNOME/vte/-/archive/0.66.0/vte-0.66.0.tar.bz2
+# Source: https://gitlab.gnome.org/GNOME/vte/-/archive/0.66.2/vte-0.66.2.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -51,5 +51,5 @@ vte:
 vte:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/vte-0.66.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/vte-0.66.2-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
