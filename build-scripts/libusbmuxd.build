@@ -7,7 +7,7 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     libplist
+# Required:     libplist libimobiledevice-glue
 # Recommended:  NONE
 # Optional:     NONE
 
@@ -16,6 +16,8 @@ NOCONFIGURE=1 ./autogen.sh &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/    && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -40,5 +42,16 @@ libusbmuxd:
 libusbmuxd:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libusbmuxd-2.0.2-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/libusbmuxd-2.0.2-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libusbmuxd-doc: Manuals for libusbmuxd
+libusbmuxd-doc:
+libusbmuxd-doc: A client library to multiplex connections from and to iOS devices.
+libusbmuxd-doc:
+libusbmuxd-doc: http://www.libimobiledevice.org/
+libusbmuxd-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libusbmuxd-doc-2.0.2-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

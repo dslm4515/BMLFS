@@ -1,0 +1,40 @@
+#! /bin/bash
+
+# libimobiledevice-glue 
+# Source: https://github.com/libimobiledevice/libimobiledevice-glue
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libplist
+# Recommended:  NONE
+# Optional:     NONE
+
+./autogen.sh --prefix=/usr && \
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                     |-----handy-ruler------------------------------------------------------|
+libimobiledevice-glue: libimobiledevice-glue
+libimobiledevice-glue:
+libimobiledevice-glue: A lbrary with common code used by the libraries and tools around the 
+libimobiledevice-glue: libimobiledevice project
+libimobiledevice-glue:
+libimobiledevice-glue: https://github.com/libimobiledevice/libimobiledevice-glue
+libimobiledevice-glue:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libimobiledevice-glue-1.0.0_git-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
