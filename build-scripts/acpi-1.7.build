@@ -10,6 +10,9 @@ autoreconf -vfi
 read -p "Compile? " && make  -j2 && 
 read -p "Install? " &&
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr   && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/share && \
+
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -33,6 +36,19 @@ acpi:
 acpi:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/acpi-1.7-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/acpi-1.7-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+acpi-doc: Manual for acpi (an acpi client for linux)
+acpi-doc: 
+acpi-doc: Linux ACPI client is a command-line tool, similar to the "apm"
+acpi-doc: command, that provides information on battery status, AC power,
+acpi-doc: and thermal readings.
+acpi-doc:
+acpi-doc: http://sourceforge.net/projects/acpiclient/
+acpi-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+	sudo -S makepkg -l y -c n $PKGS/acpi-doc-1.7-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
 

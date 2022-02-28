@@ -7,9 +7,9 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Dconf, ISO Codes, Vala, unicode-character-database
-# Recommended:  gobject-introspection, GTK+2, libnotify
-# Optional:     DBus-Python, PyGObject, GTK-Doc, PyXDG, libxkbcommon, Wayland
+# Required:     Dconf, ISO Codes, Vala, unicode-character-database, cldr-emoji-annotation
+# Recommended:  gobject-introspection, libnotify, Wayland
+# Optional:     DBus-Python, PyGObject, GTK-Doc, PyXDG, libxkbcommon, GTK+2, GTK4
 
 # If optimizing with GCC:
 export  CFLAGS="-march=native -pipe "
@@ -27,11 +27,14 @@ sed -i 's@/desktop/ibus@/org/freedesktop/ibus@g' \
             --enable-python-library   \
             --enable-wayland          \
             --with-python=python3     \
-            --enable-dconf $BUILDTRUPLE &&
+            --enable-dconf --disable-gtk2 $BUILDTRUPLE &&
 rm -f tools/main.c &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install     /BMAN/usr/share  && \
+sudo -S mv $BUILD/usr/share/man     /BMAN/usr/share/ && \
+sudo -S mv $BUILD/usr/share/gtk-doc /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -56,5 +59,14 @@ ibus:
 ibus:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/ibus-1.5.25-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/ibus-1.5.25-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+ibus-doc: Manuals for iBus
+ibus-doc:
+ibus-doc: An Intelligent Input Bus.  It is a new input framework for Linux
+ibus-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/ibus-doc-1.5.25-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

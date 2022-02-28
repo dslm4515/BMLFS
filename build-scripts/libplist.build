@@ -19,6 +19,8 @@ sed -i "s#\$PYTHON-config#__DOES_NOT_EXIST__#" configure &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/    && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -43,5 +45,17 @@ libplist:
 libplist:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libplist-2.2.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/libplist-2.2.0-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libplist-doc: Manuals for libplist
+libplist-doc:
+libplist-doc: A library that attempts to support Apple Binary and XML Property
+libplist-doc: Lists. It is used by libgpod.
+libplist-doc:
+libplist-doc: http://www.libimobiledevice.org/
+libplist-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libplist-doc-2.2.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

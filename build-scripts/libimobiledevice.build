@@ -20,6 +20,8 @@ autoreconf -vfi &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/    && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -36,7 +38,7 @@ libimobiledevice:
 libimobiledevice: libimobiledevice is a library for connecting to Apple's iPhone 
 libimobiledevice: or iPod touch devices 
 libimobiledevice:
-libimobiledevice:
+libimobiledevice:  https://github.com/libimobiledevice
 libimobiledevice:
 libimobiledevice:
 libimobiledevice:
@@ -44,5 +46,16 @@ libimobiledevice:
 libimobiledevice:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libimobiledevice-1.3.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/libimobiledevice-1.3.0-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libimobiledevice-doc: Manuals for libimobiledevice
+libimobiledevice-doc:
+libimobiledevice-doc: A library for connecting to Apple's iPhone or iPod Touch.
+libimobiledevice-doc: 
+libimobiledevice-doc: https://github.com/libimobiledevice
+libimobiledevice-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libimobiledevice-1.3.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

@@ -44,6 +44,8 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
+sudo -S mv $BUILD/usr/share/gtk-doc /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -68,5 +70,15 @@ clutter:
 clutter:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/clutter-1.26.4-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/clutter-1.26.4-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+clutter-doc: Manuals for clutter
+clutter-doc:
+clutter-doc: An open source software library for creating fast, visually rich,
+clutter-doc: portable and animated graphical user interfaces.
+clutter-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/clutter-doc-1.26.4-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

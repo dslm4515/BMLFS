@@ -24,6 +24,8 @@ meson --prefix=/usr --sysconfdir=/etc .. &&
 ninja -j2 && \
 
 sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -41,12 +43,17 @@ dconf-editor: The dconf-editor program provides a graphical interface for editin
 dconf-editor: settings that are stored in the dconf database. The gsettings utility
 dconf-editor: provides similar functionality on the command line.
 dconf-editor:
-dconf-editor:
-dconf-editor:
-dconf-editor:
-dconf-editor:
-dconf-editor:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/dconf-editor-3.38.3-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/dconf-editor-3.38.3-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+dconf-editor-doc: Manuals for dconf-editor
+dconf-editor-doc:
+dconf-editor-doc: A program that provides a graphical interface for editing settings
+dconf-editor-doc: that are stored in the dconf database.
+dconf-editor-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/dconf-editor-doc-3.38.3-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

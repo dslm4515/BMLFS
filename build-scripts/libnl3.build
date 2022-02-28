@@ -24,7 +24,9 @@ sed -i '/<linux\/if_bridge.h>/i#define _LINUX_IN6_H' lib/route/link/bridge.c &&
 
 read -p "Compile?" && make -j2 &&
 
-sudo -S make DESTDIR=$BUILD install &&
+sudo -S make DESTDIR=$BUILD install && \
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -49,5 +51,17 @@ libnl3: Homepage: https://github.com/thom311/libnl
 libnl3:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libnl3-3.5.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/libnl3-3.5.0-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libnl3-doc: Manuals for libnl3 (Netlink Protocol Library Suite version 3)
+libnl3-doc:
+libnl3-doc: A collection of libraries providing APIs to netlink protocol
+libnl3-doc: based Linux kernel interfaces.
+libnl3-doc:
+libnl3-doc: https://github.com/thom311/libnl
+libnl3-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libnl3-doc-3.5.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
