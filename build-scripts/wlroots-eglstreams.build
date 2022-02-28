@@ -1,0 +1,53 @@
+#! /bin/bash
+
+# wlroots egl streams
+# Source: https://github.com/danvd/wlroots-eglstreams/archive/refs/tags/0.14.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     wayland-protocols, wayland, mesa, libinput, libxcb, libseat
+# Required:     libxkbcommon, pixman, xkeyboard-config
+# Recommended:  xcb-util-renderutil, xcb-util-wm, xcb-util-image
+# Optional:     xcb-errors
+
+# As of 0.14.x, logind support was dropped in favor of libseat
+
+# If optimizing, use flags with GCC
+export  CFLAGS="-march=native -pipe "
+export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
+export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
+mkdir build && cd build &&
+
+# For no-X11 support add to confiure:
+# -Dx11-backend="disabled" -Dxwayland="disabled"
+
+meson --prefix=/usr     \
+      -Dexamples=false ..
+
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                  |-----handy-ruler------------------------------------------------------|
+wlroots-eglstreams: wlroots-eglstreams
+wlroots-eglstreams:
+wlroots-eglstreams: A modular Wayland compositor library with EGLStreams support.
+wlroots-eglstreams:
+wlroots-eglstreams: www.github.com/danvd/wlroots-eglstreams
+wlroots-eglstreams:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/wlroots-eglstreams-0.14.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
