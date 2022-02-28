@@ -1,0 +1,40 @@
+#! /bin/bash
+
+# icon-naming-utils 
+# Source: http://tango.freedesktop.org/releases/icon-naming-utils-0.8.90.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     XML-Simple 
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr $BT && \
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                 |-----handy-ruler------------------------------------------------------|
+icon-naming-utils: icon-naming-utils
+icon-naming-utils:
+icon-naming-utils: This package contains a Perl script used for maintaining backwards 
+icon-naming-utils: compatibility with current desktop icon themes, while migrating to 
+icon-naming-utils: the names specified in the Icon Naming Specification. 
+icon-naming-utils:
+icon-naming-utils:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/icon-naming-utils-0.8.90-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
