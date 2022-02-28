@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Vulkan Loader 
-# Source: https://github.com/KhronosGroup/Vulkan-Loader/archive/refs/tags/v1.3.204.tar.gz
+# Source: https://github.com/khronosgroup/vulkan-loader/archive/v1.2.196/vulkan-loader-v1.2.196.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -45,5 +45,5 @@ vulkan-loader: https://github.com/khronosgroup/vulkan-loader
 vulkan-loader: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/vulkan-loader-1.3.204-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/vulkan-loader-1.2.196-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
