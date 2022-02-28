@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # pangomm
-# Source: https://download-fallback.gnome.org/sources/pangomm/2.49/pangomm-2.49.1.tar.xz
+# Source: https://download.gnome.org/sources/pangomm/2.50/pangomm-2.50.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,15 +10,6 @@
 # Required:     cairomm, GLibmm, Pango
 # Recommended:  NONE
 # Optional:     NONE
-
-#sed -e '/^libdocdir =/ s/$(book_name)/pangomm-2.49.1/' \
-#    -i docs/Makefile.in &&
-    
-#./configure --prefix=/usr $BUILDTRUPLE &&
-
-#read -p "Compile?" && make -j2 &&
-
-#sudo -S make DESTDIR=$BUILD install &&
 
 # If optimizing with GCC
 export  CFLAGS="-march=native -pipe "
@@ -57,5 +48,5 @@ pangomm: pangomm home: http://www.gtkmm.org/
 pangomm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pangomm-2.49.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/pangomm-2.50.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
