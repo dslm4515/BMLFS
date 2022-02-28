@@ -1,19 +1,17 @@
 #! /bin/bash
 
 # Node.js
-# Source: https://nodejs.org/dist/v16.13.2/node-v16.13.2.tar.gz
+# Source: https://nodejs.org/dist/v16.14.0/node-v16.14.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Python2, Which
-# Recommended:  c-ares, ICU, libuv, nghttp2
+# Required:     Which, c-ares
+# Recommended:  ICU, libuv, nghttp2
 # Optional:     http-parser, NPM
 #
 # Node.js does not compile with LibreSSL. Use the bundled openssl.
-
-#patch -Np0 -i ../patches/nodejs-void-14.15.4/shared-uv.patch
 
 case $(uname -m) in
       i686) export LDFLAGS="-Wl,--no-keep-memory"             ;;
@@ -31,7 +29,9 @@ export CXXFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"  &&
 
 make BUILDTYPE=Release -j2
 
-sudo -S make DESTDIR=$BUILD install &&
+sudo -S -E make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 unset CXXFLAGS CFLAGS LDFLAGS &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
@@ -57,5 +57,17 @@ nodejs:
 nodejs:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/nodejs-16.13.2-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/nodejs-16.14.0-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+nodejs-doc: Manuals for nodejs
+nodejs-doc:
+nodejs-doc: Node.js is a JavaScript runtime built on Chrome's V8 JavaScript
+nodejs-doc: engine.
+nodejs-doc:
+nodejs-doc: https://nodejs.org/
+nodejs-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/nodejs-doc-16.14.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
