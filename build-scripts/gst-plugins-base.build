@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GStreamer Base Plug-ins 
-# Source: https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.18.5.tar.xz
+# Source: https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.20.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -31,14 +31,14 @@ cd    build &&
 meson  --prefix=/usr       \
        -Dbuildtype=release \
        -Dpackage-origin=https://github.com/dslm4515/BMLFS \
-       -Dpackage-name="GStreamer 1.18.5 BMLFS"    \
+       -Dpackage-name="GStreamer 1.20.0 BMLFS"    \
        -Dexamples=disabled --wrap-mode=nodownload $NOX_CONFIG &&
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
 sudo -S mkdir -pv /BMAN/install  && \
 sudo -S mkdir -pv /BMAN/usr/share      && \
-sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ 
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \ 
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -63,7 +63,7 @@ gst-plugins-base: gst-plugins-base is a an essential exemplary set of plugins
 gst-plugins-base: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gst-plugins-base-1.18.5-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/gst-plugins-base-1.20.0-$(uname -m)-mlfs.txz &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 gst-plugins-base-doc: Manuals for gst-plugins-base (a set of GStreamer plugins)
@@ -76,6 +76,5 @@ gst-plugins-base-doc: gst-plugins-base is a an essential exemplary set of plugin
 gst-plugins-base-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gst-plugins-base-doc-1.18.5-noarch-mlfs.txz
-sudo -S rm -rf /BMAN/*
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/gst-plugins-base-doc-1.20.0-noarch-mlfs.txz
+sudo -S rm -rf /BMAN/* ${BUILD}/*
