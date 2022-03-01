@@ -1,0 +1,370 @@
+# Contributor: Rasmus Thomsen <oss@cogitri.dev>
+# Contributor: Jakub Jirutka <jakub@jirutka.cz>
+# Contributor: Shiz <hi@shiz.me>
+# Contributor: Jeizsm <jeizsm@gmail.com>
+# Contributor: Ariadne Conill <ariadne@dereferenced.org>
+# Maintainer: Rasmus Thomsen <oss@cogitri.dev>
+pkgname=rust
+pkgver=1.58.1
+_llvmver=12
+_bootver=1.57.0
+pkgrel=0
+pkgdesc="The Rust Programming Language"
+url="https://www.rust-lang.org/"
+arch="x86_64 armv7 armhf aarch64 x86 ppc64le"
+license="Apache-2.0 AND MIT"
+
+# gcc is needed at runtime just for linking. Someday rustc might invoke
+# the linker directly, and then we'll only need binutils.
+# See: https://github.com/rust-lang/rust/issues/11937
+depends="$pkgname-stdlib=$pkgver-r$pkgrel gcc musl-dev"
+
+_python=python3
+# * Rust is self-hosted, so you need rustc (and cargo) to build rustc...
+#   The last revision of this abuild that does not depend on itself (uses
+#   prebuilt rustc and cargo) is 2e6769eb39eaff3029d8298fc02856623c563cd8.
+# * Don't add libgit2-dev into make dependencies. There's no compatibility
+#   guarantees between libgit2-sys and arbitrary system libgit2 versions;
+#   when system libgit2 is upgraded to a new minor version, it may break
+#   cargo and since we need cargo to rebuild cargo... this already happened
+#   several times. For this reason we build cargo with vendored libgit2.
+makedepends_build="
+	$_python
+	!libgit2-dev
+	file
+	tar
+	coreutils
+	llvm$_llvmver-dev
+	llvm$_llvmver-test-utils
+	rust-bootstrap=>$_bootver
+	cargo-bootstrap=>$_bootver
+	curl-dev
+	libssh2-dev
+	openssl1.1-compat-dev
+	zlib-dev
+"
+makedepends_host="
+	curl-dev
+	libssh2-dev
+	openssl1.1-compat-dev
+	llvm$_llvmver-dev
+	zlib-dev
+"
+
+# XXX: This is a hack to allow this abuild to depend on itself. Adding "rust"
+# to makedepends would not work, because abuild implicitly removes $pkgname
+# and $subpackages from the abuild's dependencies.
+provides="rust-bootstrap=$pkgver-r$pkgrel"
+# This is needed for -src that contains some testing binaries.
+# Disable tests for now, while we use foreign triplets
+options="!archcheck !check"
+
+subpackages="
+	$pkgname-dbg
+	$pkgname-stdlib
+	$pkgname-analysis
+	$pkgname-gdb::noarch
+	$pkgname-lldb::noarch
+	$pkgname-doc
+	$pkgname-src::noarch
+	cargo
+	cargo-bash-completions:_cargo_bashcomp:noarch
+	cargo-zsh-completion:_cargo_zshcomp:noarch
+	cargo-doc:_cargo_doc:noarch
+	rustfmt
+	"
+source="https://static.rust-lang.org/dist/rustc-$pkgver-src.tar.xz
+	musl-fix-linux_musl_base.patch
+	need-rpath.patch
+	need-ssp_nonshared.patch
+	alpine-move-py-scripts-to-share.patch
+	alpine-target.patch
+	install-template-shebang.patch
+	check-rustc
+	link-musl-dynamically.patch
+	0006-Prefer-libgcc_eh-over-libunwind-for-musl.patch
+	0007-do-not-install-libunwind-source.patch
+	mips-softfloat.patch
+	"
+builddir="$srcdir/rustc-$pkgver-src"
+
+# secfixes:
+#   1.56.1-r0:
+#     - CVE-2021-42574
+#   1.52.1-r1:
+#     - CVE-2021-29922
+#   1.51.0-r2:
+#     - CVE-2020-36323
+#     - CVE-2021-31162
+#   1.34.2-r0:
+#     - CVE-2019-12083
+#   1.26.0-r0:
+#     - CVE-2019-16760
+
+# We have to add new arches in multiple steps:
+# 1. Compile with the upstream triplets, compiling alpine's triplets in
+# 2. Compile again, now with our triplets selected as build/target, now that
+#    rustc knows about them
+_build="$CBUILD"
+_target="$CTARGET"
+
+_rlibdir="usr/lib/rustlib/$_target/lib"
+_sharedir="usr/share/rust"
+
+ldpath="/$_rlibdir"
+
+export RUST_BACKTRACE=1
+
+# rust checksums files in vendor/, but we have to patch a few files...
+_clear_vendor_checksums() {
+	sed -i 's/\("files":{\)[^}]*/\1/' vendor/$1/.cargo-checksum.json
+}
+
+prepare() {
+	default_prepare
+
+	sed -i /LD_LIBRARY_PATH/d src/bootstrap/bootstrap.py
+
+	# to dynamically link against musl
+	_clear_vendor_checksums libc
+}
+
+build() {
+	# Fails to compile libbacktrace-sys otherwise
+	case "$CARCH" in
+		x86)
+			export CFLAGS="$CFLAGS -fno-stack-protector"
+			;;
+	esac
+	if [ "$_build" != "$_target" ]; then
+		export PKG_CONFIG_ALLOW_CROSS=1
+	fi
+
+	./configure \
+		--build="$_build" \
+		--host="$_target" \
+		--target="$_target" \
+		--prefix="/usr" \
+		--release-channel="stable" \
+		--enable-local-rust \
+		--local-rust-root="/usr" \
+		--llvm-root="/usr/lib/llvm$_llvmver" \
+		--disable-docs \
+		--enable-extended \
+		--tools="analysis,cargo,src,rustfmt" \
+		--enable-llvm-link-shared \
+		--enable-option-checking \
+		--enable-locked-deps \
+		--enable-vendor \
+		--python="$_python" \
+		--set="rust.musl-root=/usr" \
+		--set="rust.codegen-units=1" \
+		--set="rust.codegen-units-std=1" \
+		--set="rust.parallel-compiler=false" \
+		--set="target.$_target.llvm-config=/usr/lib/llvm$_llvmver/bin/llvm-config" \
+		--set="target.$_target.musl-root=/usr" \
+		--set="target.$_target.crt-static=false" \
+		--set="target.$_target.cc=${CROSS_COMPILE}gcc" \
+		--set="target.$_target.cxx=${CROSS_COMPILE}c++" \
+		--set="target.$_target.ar=${CROSS_COMPILE}ar" \
+		--set="target.$_target.linker=${CROSS_COMPILE}gcc" \
+		--set="target.$_build.musl-root=/usr" \
+		--set="target.$_build.crt-static=false" \
+		--set="target.$_build.cc=gcc" \
+		--set="target.$_build.cxx=c++" \
+		--set="target.$_build.ar=ar" \
+		--set="target.$_build.linker=gcc"
+
+	# Allow warnings instead of just aborting the build
+	sed 's/#deny-warnings = .*/deny-warnings = false/' -i config.toml
+	sed 's|deny(warnings,|deny(|' -i src/bootstrap/lib.rs
+
+	$_python ./x.py dist -v --jobs ${JOBS:-2}
+}
+
+check() {
+	# At this moment lib/rustlib/$CTARGET/lib does not contain a complete
+	# copy of the .so libs from lib (they will be copied there during
+	# 'x.py install'). Thus we must set LD_LIBRARY_PATH for tests to work.
+	# This is related to change-rpath-to-rustlib.patch.
+	export LD_LIBRARY_PATH="$builddir/build/$CTARGET/stage2/lib"
+
+	"$srcdir"/check-rustc "$builddir"/build/$CTARGET/stage2/bin/rustc
+
+# XXX: There's some problem with these tests, we will figure it out later.
+#	make check \
+#		LD_LIBRARY_PATH="$_stage0dir/lib" \
+#		VERBOSE=1
+
+	msg "Running tests for cargo..."
+	CFG_DISABLE_CROSS_TESTS=1 $_python ./x.py test --no-fail-fast src/tools/cargo
+
+	unset LD_LIBRARY_PATH
+}
+
+package() {
+	mkdir -p "$pkgdir/usr"
+
+	cd "$pkgdir"
+
+	tar xf "$builddir"/build/dist/rustc-$pkgver-$_target.tar.gz \
+		-C "$pkgdir/usr" --strip-components=2 --exclude=manifest.in --no-same-owner
+	tar xf "$builddir"/build/dist/rust-std-$pkgver-$_target.tar.gz \
+		-C "$pkgdir/usr" --strip-components=2 --exclude=manifest.in --no-same-owner
+	tar xf "$builddir"/build/dist/rustc-dev-$pkgver-$_target.tar.gz \
+		-C "$pkgdir/usr" --strip-components=2 --exclude=manifest.in --no-same-owner
+	tar xf "$builddir"/build/dist/rust-analysis-$pkgver-$_target.tar.gz \
+		-C "$pkgdir/usr" --strip-components=2 --exclude=manifest.in --no-same-owner
+#	tar xf "$builddir"/build/dist/rust-analyzer-$pkgver-$_target.tar.gz \
+#		-C "$pkgdir/usr" --strip-components=2 --exclude=manifest.in --no-same-owner
+	tar xf "$builddir"/build/dist/rust-src-$pkgver.tar.gz \
+		-C "$pkgdir/usr" --strip-components=2 --exclude=manifest.in --no-same-owner
+	tar xf "$builddir"/build/dist/cargo-$pkgver-$_target.tar.gz \
+		-C "$pkgdir/usr" --strip-components=2 --exclude=manifest.in --no-same-owner
+#	tar xf "$builddir"/build/dist/clippy-$pkgver-$_target.tar.gz \
+#		-C "$pkgdir/usr" --strip-components=2 --exclude=manifest.in --no-same-owner
+#	tar xf "$builddir"/build/dist/miri-$pkgver-$_target.tar.gz \
+#		-C "$pkgdir/usr" --strip-components=2 --exclude=manifest.in --no-same-owner
+#	tar xf "$builddir"/build/dist/rls-$pkgver-$_target.tar.gz \
+#		-C "$pkgdir/usr" --strip-components=2 --exclude=manifest.in --no-same-owner
+	tar xf "$builddir"/build/dist/rustfmt-$pkgver-$_target.tar.gz \
+		-C "$pkgdir/usr" --strip-components=2 --exclude=manifest.in --no-same-owner
+
+	# We don't want to include stuff like rust-llvm-* tools, as we will use the
+	# system tools.
+	rm -f usr/lib/rustlib/"$_target"/bin/rust-llvm-*
+
+	# Python scripts are noarch, so move them to /usr/share.
+	# Requires move-py-scripts-to-share.patch to be applied.
+	_mv usr/lib/rustlib/etc/*.py $_sharedir/etc/
+	rmdir -p usr/lib/rustlib/etc 2>/dev/null || true
+
+	# Remove some clutter.
+	cd "$pkgdir"/usr/lib/rustlib
+	rm -f components install.log manifest-* rust-installer-version uninstall.sh
+	if [ "$_build" != "$_target" ]; then
+		rm -rf "$pkgdir"/usr/lib/rustlib/$_build
+	fi
+}
+
+stdlib() {
+	pkgdesc="Standard library for Rust (static rlibs)"
+	depends=
+
+	_mv "$pkgdir"/$_rlibdir/*.rlib "$subpkgdir"/$_rlibdir/
+}
+
+analysis() {
+	pkgdesc="Compiler analysis data for the Rust standard library"
+	depends="$pkgname-stdlib=$pkgver-r$pkgrel"
+
+	_mv "$pkgdir"/$_rlibdir/../analysis "$subpkgdir"/${_rlibdir%/*}/
+}
+
+gdb() {
+	pkgdesc="GDB pretty printers for Rust"
+	depends="$pkgname=$pkgver-r$pkgrel gdb"
+
+	mkdir -p "$subpkgdir"
+	cd "$subpkgdir"
+
+	_mv "$pkgdir"/usr/bin/rust-gdb usr/bin/
+	_mv "$pkgdir"/$_sharedir/etc/gdb_*.py $_sharedir/etc/
+}
+
+lldb() {
+	local _pyver=${_python#python}
+	pkgdesc="LLDB pretty printers for Rust"
+	depends="$pkgname=$pkgver-r$pkgrel lldb py$_pyver-lldb"
+
+	mkdir -p "$subpkgdir"
+	cd "$subpkgdir"
+
+	_mv "$pkgdir"/usr/bin/rust-lldb usr/bin/
+	_mv "$pkgdir"/$_sharedir/etc/lldb_*.py $_sharedir/etc/
+}
+
+src() {
+	pkgdesc="$pkgdesc (source code)"
+	depends="$pkgname=$pkgver-r$pkgrel"
+	license="$license OFL-1.1 GPL-3.0-or-later GPL-3.0-with-GCC-exception CC-BY-SA-3.0 LGPL-3.0"
+
+	_mv "$pkgdir"/usr/lib/rustlib/src/rust "$subpkgdir"/usr/src/
+	rmdir -p "$pkgdir"/usr/lib/rustlib/src 2>/dev/null || true
+
+	mkdir -p "$subpkgdir"/usr/lib/rustlib/src
+	ln -s ../../../src/rust "$subpkgdir"/usr/lib/rustlib/src/rust
+}
+
+cargo() {
+	pkgdesc="The Rust package manager"
+	license="Apache-2.0 MIT UNLICENSE"
+	depends="$pkgname=$pkgver-r$pkgrel"
+	# XXX: See comment on top-level provides=.
+	provides="cargo-bootstrap=$pkgver-r$pkgrel"
+
+	_mv "$pkgdir"/usr/bin/cargo "$subpkgdir"/usr/bin/
+}
+
+rustfmt() {
+	pkgdesc="Rust Code Formatter"
+	license="Apache-2.0"
+	depends="cargo=$pkgver-r$pkgrel"
+
+	amove usr/bin/rustfmt usr/bin/cargo-fmt
+}
+
+_cargo_bashcomp() {
+	pkgdesc="Bash completions for cargo"
+	license="Apache-2.0 MIT"
+	depends=""
+	install_if="cargo=$pkgver-r$pkgrel bash-completion"
+
+	cd "$pkgdir"
+	_mv usr/etc/bash_completion.d/cargo \
+		"$subpkgdir"/usr/share/bash-completion/completions/
+	rmdir -p etc/bash_completion.d 2>/dev/null || true
+}
+
+_cargo_zshcomp() {
+	pkgdesc="ZSH completions for cargo"
+	license="Apache-2.0 MIT"
+	depends=""
+	install_if="cargo=$pkgver-r$pkgrel zsh"
+
+	cd "$pkgdir"
+	_mv usr/share/zsh/site-functions/_cargo \
+		"$subpkgdir"/usr/share/zsh/site-functions/
+	rmdir -p usr/share/zsh/site-functions 2>/dev/null || true
+}
+
+_cargo_doc() {
+	pkgdesc="The Rust package manager (documentation)"
+	license="Apache-2.0 MIT"
+	install_if="docs cargo=$pkgver-r$pkgrel"
+
+	# XXX: This is hackish!
+	cd "$pkgdir"/../$pkgname-doc
+	_mv usr/share/man/man1/cargo* "$subpkgdir"/usr/share/man/man1/
+}
+
+_mv() {
+	local dest; for dest; do true; done  # get last argument
+	mkdir -p "$dest"
+	mv "$@"
+}
+
+sha512sums="
+eff3279d2e519343cea542a9ae2daab592e44f35af344e33ff43ed55fc7c824511790d1991dd36a603d12465de8c3688e7194c2b9557f288c587ffa04738c2ce  rustc-1.58.1-src.tar.xz
+4accbdf546e9f82f38d56169f65fcfb53839e1df89978b9a434a59a1dcb80b4d57c0272c0ece65530ce09ad0f7a7e880b4b97e2b8dd8f2bccace02a5874e6733  musl-fix-linux_musl_base.patch
+2d401a01d2c2db92624d672018342907a41aa4a3842708c0a2ab694af0396d568aca4835d1075f244d77c0a4c45e67f893fd175fd97cd7f758090eba9972eba6  need-rpath.patch
+bc28e1edae88f48eb0368cd0905280c323d521c7e13b6fc2bb1fb6e57274fa418afdc9cb3342f4928842e309d0573b98e82976159541c88b35694dceaf7a82e4  need-ssp_nonshared.patch
+03a179e31c95f88a98fb1ba6b2fd0baaf9fe1a74ade76d3096fe45ddc5e453c25109355e667783d9be1bcc585445d07b7270cb3e6e403de971049714f2c6f91a  alpine-move-py-scripts-to-share.patch
+063469591de555f133339c8c9a3cf45bfc059a9b6bd57268068166bc065ef99fa1fb958a1bc42df4097eb59122d49d32e45bc31a44dc030ca3578d99fd39ff9e  alpine-target.patch
+7d59258d4462eba0207739a5c0c8baf1f19d9a396e5547bb4d59d700eb94d50ba6add2e523f3e94e29e993821018594625ea4ac86304fb58f7f8c82622a26ab0  install-template-shebang.patch
+c31fdfe8a9b3411576c75da46645cf0465b9053000a2ab49cf9b2f2733f679d6d33acbf236d67a20e14935d094a685453b7f1840180249f39d610fd0902c3125  check-rustc
+0bdcc06f1765f8f5655ac960ef8214018c31feacfcf407d836ff70e42b47be266e805e98e7e1a689d610d36d89086a7e56a345ac92c903714e65126fe2d83228  link-musl-dynamically.patch
+d368c955b058e7b57d91f53fbebf1030f2d2826b0ffb0a85db5aa54baee7bd44371491cc373101846232f91fd383dd15aa1cd245fb8f439d35813ac4017be419  0006-Prefer-libgcc_eh-over-libunwind-for-musl.patch
+7af23c34096f7a03c5a1b40aa07e00dd6193743c872881018a9baa900f240c6e44918e481ab5ed7787a70ef361e4aeec2a7719bcd695f52988262e23271b44e5  0007-do-not-install-libunwind-source.patch
+4cb2592d30cd1a776375522631aa284dd077eaa39b109921d6ee5906fd0130b048e07d3adef1d7221f5c001d1df5187feb3e3687e0aa5d19279099065a7d4cb7  mips-softfloat.patch
+"
