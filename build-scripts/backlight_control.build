@@ -1,0 +1,42 @@
+#! /bin/bash
+
+# backlight_control
+# Source: https://github.com/Hendrikto/backlight_control
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD prefix=/usr install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                 |-----handy-ruler------------------------------------------------------|
+backlight_control: backlight_control
+backlight_control:
+backlight_control: Simple comandline backlight brightness control 
+backlight_control:
+backlight_control: https://github.com/Hendrikto/backlight_control 
+backlight_control:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+cat > /tmp/doinst.sh << "EOF"
+chown -v root:root /usr/bin/backlight_control
+chmod -v u+s /usr/bin/backlight_control
+EOF
+sudo -S mv -v /tmp/doinst.sh  install/ && \
+sudo -S makepkg -l y -c n $PKGS/backlight_control-2022.03.1_git-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
