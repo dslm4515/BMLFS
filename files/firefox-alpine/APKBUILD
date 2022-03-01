@@ -1,0 +1,528 @@
+# Contributor: Natanael Copa <ncopa@alpinelinux.org>
+# Contributor: Sören Tempel <soeren+alpine@soeren-tempel.net>
+# Maintainer: Natanael Copa <ncopa@alpinelinux.org>
+pkgname=firefox-esr
+pkgver=91.6.0
+# Date of release, YY-MM-DD for metainfo file (see package())
+_releasedate=2022-02-08
+pkgrel=1
+pkgdesc="Firefox web browser - Extended Support Release"
+url="https://www.mozilla.org/en-US/firefox/organizations/"
+# s390x and riscv64: blocked by rust and cargo
+# armhf: build failure on armhf due to wasm
+arch="x86_64 armv7 aarch64 x86 ppc64le"
+license="GPL-3.0-only AND LGPL-2.1-only AND LGPL-3.0-only AND MPL-2.0"
+makedepends="
+	alsa-lib-dev
+	automake
+	bsd-compat-headers
+	cargo
+	cbindgen>=0.18.0
+	clang-dev
+	dbus-glib-dev
+	ffmpeg-dev
+	gtk+3.0-dev
+	hunspell-dev
+	icu-dev>=69.1
+	libevent-dev
+	libidl-dev
+	libjpeg-turbo-dev
+	libnotify-dev
+	libogg-dev
+	libtheora-dev
+	libtool
+	libvorbis-dev
+	libvpx-dev
+	libxt-dev
+	libxcomposite-dev
+	llvm-dev
+	m4
+	mesa-dev
+	nasm
+	nodejs
+	nspr-dev
+	nss-dev>=3.44.1
+	nss-static
+	python3
+	sed
+	wireless-tools-dev
+	yasm
+	zip
+	libffi-dev
+	libwebp-dev
+	pipewire-dev
+	gettext
+	pulseaudio-dev
+	"
+
+source="https://ftp.mozilla.org/pub/firefox/releases/${pkgver}esr/source/firefox-${pkgver}esr.source.tar.xz
+	stab.h
+
+	fix-fortify-system-wrappers.patch
+	fix-tools.patch
+	mallinfo.patch
+
+	disable-moz-stackwalk.patch
+	fix-rust-target.patch
+	fix-webrtc-glibcisms.patch
+	allow-custom-rust-vendor.patch
+
+	firefox.desktop
+	firefox-safe.desktop
+	disable-neon-in-aom.patch
+	sandbox-fork.patch
+	sandbox-sched_setscheduler.patch
+	sandbox-largefile.patch
+
+	avoid-redefinition.patch
+	"
+
+builddir="$srcdir/firefox-$pkgver"
+_mozappdir=/usr/lib/firefox
+
+# help our shared-object scanner to find the libs
+ldpath="$_mozappdir"
+
+# secfixes:
+#   91.6.0-r0:
+#     - CVE-2022-22754
+#     - CVE-2022-22756
+#     - CVE-2022-22759
+#     - CVE-2022-22760
+#     - CVE-2022-22761
+#     - CVE-2022-22763
+#     - CVE-2022-22764
+#   91.5.0-r0:
+#     - CVE-2021-4140
+#     - CVE-2022-22737
+#     - CVE-2022-22738
+#     - CVE-2022-22739
+#     - CVE-2022-22740
+#     - CVE-2022-22741
+#     - CVE-2022-22742
+#     - CVE-2022-22743
+#     - CVE-2022-22744
+#     - CVE-2022-22745
+#     - CVE-2022-22746
+#     - CVE-2022-22747
+#     - CVE-2022-22748
+#     - CVE-2022-22751
+#   91.4.0-r0:
+#     - CVE-2021-43536
+#     - CVE-2021-43537
+#     - CVE-2021-43538
+#     - CVE-2021-43539
+#     - CVE-2021-43541
+#     - CVE-2021-43542
+#     - CVE-2021-43543
+#     - CVE-2021-43545
+#     - CVE-2021-43546
+#   91.3.0-r0:
+#     - CVE-2021-38503
+#     - CVE-2021-38504
+#     - CVE-2021-38505
+#     - CVE-2021-38506
+#     - CVE-2021-38507
+#     - CVE-2021-38508
+#     - CVE-2021-38509
+#     - CVE-2021-38510
+#   91.2.0-r0:
+#     - CVE-2021-32810
+#     - CVE-2021-38492
+#     - CVE-2021-38493
+#     - CVE-2021-38495
+#     - CVE-2021-38496
+#     - CVE-2021-38497
+#     - CVE-2021-38498
+#     - CVE-2021-38500
+#     - CVE-2021-38501
+#   78.13.0-r0:
+#     - CVE-2021-29980
+#     - CVE-2021-29984
+#     - CVE-2021-29985
+#     - CVE-2021-29986
+#     - CVE-2021-29988
+#     - CVE-2021-29989
+#   78.12.0-r0:
+#     - CVE-2021-29970
+#     - CVE-2021-29976
+#     - CVE-2021-30547
+#   78.11.0-r0:
+#     - CVE-2021-29967
+#   78.10.0-r0:
+#     - CVE-2021-23961
+#     - CVE-2021-23994
+#     - CVE-2021-23995
+#     - CVE-2021-23998
+#     - CVE-2021-23999
+#     - CVE-2021-24002
+#     - CVE-2021-29945
+#     - CVE-2021-29946
+#   78.9.0-r0:
+#     - CVE-2021-23981
+#     - CVE-2021-23982
+#     - CVE-2021-23984
+#     - CVE-2021-23987
+#   78.8.0-r0:
+#     - CVE-2021-23968
+#     - CVE-2021-23969
+#     - CVE-2021-23973
+#     - CVE-2021-23978
+#   78.7.0-r0:
+#     - CVE-2020-26976
+#     - CVE-2021-23953
+#     - CVE-2021-23954
+#     - CVE-2021-23960
+#     - CVE-2021-23964
+#   78.6.1-r0:
+#     - CVE-2020-16044
+#   78.6.0-r0:
+#     - CVE-2020-16042
+#     - CVE-2020-26971
+#     - CVE-2020-26973
+#     - CVE-2020-26974
+#     - CVE-2020-26978
+#     - CVE-2020-35111
+#     - CVE-2020-35112
+#     - CVE-2020-35113
+#   78.5.0-r0:
+#     - CVE-2020-15683
+#     - CVE-2020-15969
+#     - CVE-2020-15999
+#     - CVE-2020-16012
+#     - CVE-2020-26950
+#     - CVE-2020-26951
+#     - CVE-2020-26953
+#     - CVE-2020-26956
+#     - CVE-2020-26958
+#     - CVE-2020-26959
+#     - CVE-2020-26960
+#     - CVE-2020-26961
+#     - CVE-2020-26965
+#     - CVE-2020-26966
+#     - CVE-2020-26968
+#   78.3.0-r0:
+#     - CVE-2020-15673
+#     - CVE-2020-15676
+#     - CVE-2020-15677
+#     - CVE-2020-15678
+#   78.2.0-r0:
+#     - CVE-2020-15663
+#     - CVE-2020-15664
+#     - CVE-2020-15670
+#   78.1.0-r0:
+#     - CVE-2020-15652
+#     - CVE-2020-15653
+#     - CVE-2020-15654
+#     - CVE-2020-15655
+#     - CVE-2020-15656
+#     - CVE-2020-15657
+#     - CVE-2020-15658
+#     - CVE-2020-15659
+#     - CVE-2020-6463
+#     - CVE-2020-6514
+#   68.10.0-r0:
+#     - CVE-2020-12417
+#     - CVE-2020-12418
+#     - CVE-2020-12419
+#     - CVE-2020-12420
+#     - CVE-2020-12421
+#   68.9.0-r0:
+#     - CVE-2020-12399
+#     - CVE-2020-12405
+#     - CVE-2020-12406
+#     - CVE-2020-12410
+#   68.8.0-r0:
+#     - CVE-2020-12387
+#     - CVE-2020-12388
+#     - CVE-2020-12389
+#     - CVE-2020-12392
+#     - CVE-2020-12393
+#     - CVE-2020-12395
+#     - CVE-2020-6831
+#   68.7.0-r0:
+#     - CVE-2020-6821
+#     - CVE-2020-6822
+#     - CVE-2020-6825
+#   68.6.1-r0:
+#     - CVE-2020-6819
+#     - CVE-2020-6820
+#   68.6.0-r0:
+#     - CVE-2019-20503
+#     - CVE-2020-6805
+#     - CVE-2020-6806
+#     - CVE-2020-6807
+#     - CVE-2020-6811
+#     - CVE-2020-6812
+#     - CVE-2020-6814
+#   68.5.0-r0:
+#     - CVE-2020-6796
+#     - CVE-2020-6797
+#     - CVE-2020-6798
+#     - CVE-2020-6799
+#     - CVE-2020-6800
+#   68.4.1-r0:
+#     - CVE-2019-17016
+#     - CVE-2019-17022
+#     - CVE-2019-17024
+#     - CVE-2019-17026
+#   68.3.0-r0:
+#     - CVE-2019-17005
+#     - CVE-2019-17008
+#     - CVE-2019-17009
+#     - CVE-2019-17010
+#     - CVE-2019-17011
+#     - CVE-2019-17012
+#   68.2.0-r0:
+#     - CVE-2019-11757
+#     - CVE-2019-11758
+#     - CVE-2019-11759
+#     - CVE-2019-11760
+#     - CVE-2019-11761
+#     - CVE-2019-11762
+#     - CVE-2019-11763
+#     - CVE-2019-11764
+#     - CVE-2019-15903
+#   68.1.0-r0:
+#     - CVE-2019-9812
+#     - CVE-2019-11740
+#     - CVE-2019-11742
+#     - CVE-2019-11743
+#     - CVE-2019-11744
+#     - CVE-2019-11746
+#     - CVE-2019-11752
+#   68.0.2-r0:
+#     - CVE-2019-11733
+#   68.0-r0:
+#     - CVE-2019-11709
+#     - CVE-2019-11711
+#     - CVE-2019-11712
+#     - CVE-2019-11713
+#     - CVE-2019-11715
+#     - CVE-2019-11717
+#     - CVE-2019-11719
+#     - CVE-2019-11729
+#     - CVE-2019-11730
+#     - CVE-2019-9811
+#   60.7.2-r0:
+#     - CVE-2019-11708
+#   60.7.1-r0:
+#     - CVE-2019-11707
+#   60.7.0-r0:
+#     - CVE-2019-9815
+#     - CVE-2019-9816
+#     - CVE-2019-9817
+#     - CVE-2019-9818
+#     - CVE-2019-9819
+#     - CVE-2019-9820
+#     - CVE-2019-11691
+#     - CVE-2019-11692
+#     - CVE-2019-11693
+#     - CVE-2019-7317
+#     - CVE-2019-9797
+#     - CVE-2018-18511
+#     - CVE-2019-11694
+#     - CVE-2019-11698
+#     - CVE-2019-5798
+#     - CVE-2019-9800
+#   60.6.1-r0:
+#     - CVE-2019-9810
+#     - CVE-2019-9813
+#     - CVE-2019-9790
+#     - CVE-2019-9791
+#     - CVE-2019-9792
+#     - CVE-2019-9793
+#     - CVE-2019-9794
+#     - CVE-2019-9795
+#     - CVE-2019-9796
+#     - CVE-2019-9801
+#     - CVE-2018-18506
+#     - CVE-2019-9788
+#   60.5.2-r0:
+#     - CVE-2019-5785
+#     - CVE-2018-18335
+#     - CVE-2018-18356
+#   60.5.0-r0:
+#     - CVE-2018-18500
+#     - CVE-2018-18505
+#     - CVE-2018-18501
+#   52.6.0-r0:
+#     - CVE-2018-5089
+#     - CVE-2018-5091
+#     - CVE-2018-5095
+#     - CVE-2018-5096
+#     - CVE-2018-5097
+#     - CVE-2018-5098
+#     - CVE-2018-5099
+#     - CVE-2018-5102
+#     - CVE-2018-5103
+#     - CVE-2018-5104
+#     - CVE-2018-5117
+#   52.5.2-r0:
+#     - CVE-2017-7843
+
+# we need this because cargo verifies checksums of all files in vendor
+# crates when it builds and gives us no way to override or update the
+# file sanely... so just clear out the file list
+_clear_vendor_checksums() {
+	sed -i 's/\("files":{\)[^}]*/\1/' third_party/rust/$1/.cargo-checksum.json
+}
+
+prepare() {
+	default_prepare
+	cp "$srcdir"/stab.h toolkit/crashreporter/google-breakpad/src/
+
+	_clear_vendor_checksums audio_thread_priority
+	_clear_vendor_checksums target-lexicon-0.9.0
+}
+
+build() {
+	mkdir -p "$builddir"/objdir
+	cd "$builddir"/objdir
+
+	export SHELL=/bin/sh
+	export BUILD_OFFICIAL=1
+	export MOZILLA_OFFICIAL=1
+	export USE_SHORT_LIBNAME=1
+	export MACH_USE_SYSTEM_PYTHON=1
+	# Find our triplet JSON
+	export RUST_TARGET="$CTARGET"
+	# Build with Clang, takes less RAM
+	export CC="clang"
+	export CXX="clang++"
+
+	# set rpath so linker finds the libs
+	export LDFLAGS="$LDFLAGS -Wl,-rpath,$_mozappdir"
+
+	case "$CARCH" in
+		arm*|x86*)
+			# disable-elf-hack: exists only on arm, x86, x86_64
+			_arch_config="--disable-elf-hack"
+			;;
+	esac
+
+	# FF doesn't have SIMD available on these arches.
+	case "$CARCH" in
+		armhf|armv7)
+			_rust_simd="--disable-rust-simd"
+			_low_mem_flags="--disable-debug-symbols --disable-debug"
+			export RUSTFLAGS="$RUSTFLAGS -C debuginfo=0"
+			;;
+		x86)
+			_low_mem_flags="--disable-debug-symbols --disable-debug"
+			export RUSTFLAGS="$RUSTFLAGS -C debuginfo=0"
+			;;
+		*) _rust_simd="--enable-rust-simd" ;;
+	esac
+
+	../mach configure \
+		--prefix=/usr \
+		$_arch_config \
+		$_low_mem_flags \
+		$_rust_simd \
+		\
+		--disable-crashreporter \
+		--disable-gold \
+		--disable-install-strip \
+		--disable-jemalloc \
+		--disable-profiling \
+		--disable-strip \
+		--disable-tests \
+		--disable-updater \
+		\
+		--enable-alsa \
+		--enable-dbus \
+		--enable-default-toolkit=cairo-gtk3-wayland \
+		--enable-ffmpeg \
+		--enable-hardening \
+		--enable-necko-wifi \
+		--enable-official-branding \
+		--enable-optimize="$CFLAGS -O2" \
+		--enable-pulseaudio \
+		--disable-smoosh \
+		--enable-system-ffi \
+		--enable-system-pixman \
+		\
+		--with-system-ffi \
+		--with-system-icu \
+		--with-system-jpeg \
+		--with-system-libevent \
+		--with-system-libvpx \
+		--with-system-nspr \
+		--with-system-nss \
+		--with-system-pixman \
+		--with-system-png \
+		--with-system-webp \
+		--with-system-zlib \
+		--with-clang-path=/usr/bin/clang \
+		--with-libclang-path=/usr/lib
+	../mach build
+}
+
+package() {
+	cd "$builddir"/objdir
+
+	DESTDIR="$pkgdir" MOZ_MAKE_FLAGS="$MAKEOPTS" ../mach install
+
+	install -m755 -d "$pkgdir"/usr/share/applications
+	install -m755 -d "$pkgdir"/usr/share/pixmaps
+
+	local _png
+	for _png in ../browser/branding/official/default*.png; do
+		local i=${_png%.png}
+		i=${i##*/default}
+		install -D -m644 "$_png" "$pkgdir"/usr/share/icons/hicolor/"$i"x"$i"/apps/firefox.png
+	done
+
+	install -m644 "$builddir"/browser/branding/official/default48.png \
+		"$pkgdir"/usr/share/pixmaps/firefox.png
+	install -m644 "$srcdir"/firefox.desktop "$pkgdir"/usr/share/applications/org.mozilla.firefox.desktop
+	install -m644 "$srcdir"/firefox-safe.desktop "$pkgdir"/usr/share/applications/org.mozilla.firefox-safe.desktop
+
+	# Add StartupWMClass=firefox on the .desktop files so Desktop Environments
+	# correctly associate the window with their icon, the correct fix is to have
+	# firefox sets its own AppID but this will work for the meantime
+	# See: https://bugzilla.mozilla.org/show_bug.cgi?id=1607399
+	echo "StartupWMClass=firefox" >> "$pkgdir"/usr/share/applications/org.mozilla.firefox.desktop
+	echo "StartupWMClass=firefox" >> "$pkgdir"/usr/share/applications/org.mozilla.firefox-safe.desktop
+
+	# install our vendor prefs
+	install -d "$pkgdir"/$_mozappdir/browser/defaults/preferences
+
+	cat >> "$pkgdir"/$_mozappdir/browser/defaults/preferences/firefox-branding.js <<- EOF
+	// Use LANG environment variable to choose locale
+	pref("intl.locale.requested", "");
+
+	// Disable default browser checking.
+	pref("browser.shell.checkDefaultBrowser", false);
+
+	// Don't disable our bundled extensions in the application directory
+	pref("extensions.autoDisableScopes", 11);
+	pref("extensions.shownSelectionUI", true);
+	EOF
+
+	# Generate appdata file
+	mkdir "$pkgdir"/usr/share/metainfo/
+	export VERSION="$pkgver"
+	export DATE="$_releasedate"
+	envsubst < "$builddir"/taskcluster/docker/firefox-flatpak/org.mozilla.firefox.appdata.xml.in > "$pkgdir"/usr/share/metainfo/org.mozilla.firefox.appdata.xml
+}
+
+sha512sums="
+3dd1929f93cdd087a93fc3597f32d9005c986b59832954e01a8c2472b179c92ad611eaa73d3fc000a08b838a0b70da73ff5ba82d6009160655ba6894cf04520e  firefox-91.6.0esr.source.tar.xz
+0b3f1e4b9fdc868e4738b5c81fd6c6128ce8885b260affcb9a65ff9d164d7232626ce1291aaea70132b3e3124f5e13fef4d39326b8e7173e362a823722a85127  stab.h
+2f4f15974d52de4bb273b62a332d13620945d284bbc6fe6bd0a1f58ff7388443bc1d3bf9c82cc31a8527aad92b0cd3a1bc41d0af5e1800e0dcbd7033e58ffd71  fix-fortify-system-wrappers.patch
+4510fb92653d0fdcfbc6d30e18087c0d22d4acd5eb53be7d0a333abe087a9e0bf9e58e56bafe96e1e1b28ebd1fd33b8926dbb70c221007e335b33d1468755c66  fix-tools.patch
+a4a3e062661bda64d502d426c480ac9645345860118de9df9ffe6e0597738c70c11e5cdef2d4fd12c5e2ee30a09310159230524655a419a4f7e4eeeb0f3c06b0  mallinfo.patch
+454ea3263cabce099accbdc47aaf83be26a19f8b5a4568c01a7ef0384601cf8315efd86cd917f9c8bf419c2c845db89a905f3ff9a8eb0c8e41042e93aa96a85c  disable-moz-stackwalk.patch
+cd68b89e29e5f6379fbd5679db27b9a5ef70ea65e51c0d0a8137e1f1fd210e35a8cfb047798e9549bc7275606d7ec5c8d8af1335d29da4699db7acd8bc7ff556  fix-rust-target.patch
+47c2c2428c3598a42f6241705179642b3378a86ace39c8c3cbef4954e6d220b42e6c76f3d71731d65f67ce2c8597259122ac44bbd45e20993bb8bc70c0c8a010  fix-webrtc-glibcisms.patch
+4e584621145cf8add069c6dac18e805b3274a1ee402d84e924df2341f7d3c5be261a93ef51283bacbd606f47fbdc628c4323ecc31efc5b403b8d224b18dc278f  allow-custom-rust-vendor.patch
+f3b7c3e804ce04731012a46cb9e9a6b0769e3772aef9c0a4a8c7520b030fdf6cd703d5e9ff49275f14b7d738fe82a0a4fde3bc3219dff7225d5db0e274987454  firefox.desktop
+5dcb6288d0444a8a471d669bbaf61cdb1433663eff38b72ee5e980843f5fc07d0d60c91627a2c1159215d0ad77ae3f115dcc5fdfe87e64ca704b641aceaa44ed  firefox-safe.desktop
+55eab1a02e19a19a1ee0e36b11097ab48a44200e07e543d91469967206854f39709c7c0bc31855559528e64642d610868140e9533f1c0e3bebc953353c142fa8  disable-neon-in-aom.patch
+2518f2fc75b5db30058e0735f47d60fdf1e7adfaeee4b33fb2afb1bd9a616ce943fd88f4404d0802d4083703f4acf1d5ad42377218d025bc768807fbaf7e1609  sandbox-fork.patch
+db26757b2ebf9f567962e32294b4ae48b3a5d0378a7589dfe650fe3a179ff58befbab5082981c68e1c25fb9e56b2db1e4e510d4bca17c3e3aedbf9a2f21806eb  sandbox-sched_setscheduler.patch
+b7d0a6126bdf6c0569f80aabf5b37ed2c7a35712eb8a0404a2d85381552f5555d4f97d213ea26cec6a45dc2785f22439376ed5f8e78b4fd664ef0223307b333e  sandbox-largefile.patch
+b1cb2db3122634f66d2bae7066e76f2dcd455c464e021db4de3b0a08314df95cb667846081682db549dd2af8a00831cabe44a2420c66cdfb5e3b5fa7e6bd21d3  avoid-redefinition.patch
+"

@@ -1,7 +1,7 @@
---- security/sandbox/linux/SandboxFilter.cpp	2020-11-23 22:41:14.556378950 +0100
-+++ security/sandbox/linux/SandboxFilter.cpp	2020-11-23 22:40:23.595806444 +0100
+--- a/security/sandbox/linux/SandboxFilter.cpp	2020-11-23 22:41:14.556378950 +0100
++++ b/security/sandbox/linux/SandboxFilter.cpp	2020-11-23 22:40:23.595806444 +0100
 @@ -68,7 +68,13 @@
- 
+
  // The headers define O_LARGEFILE as 0 on x86_64, but we need the
  // actual value because it shows up in file flags.
 -#define O_LARGEFILE_REAL 00100000
@@ -12,6 +12,6 @@
 +#else
 +#define O_LARGEFILE_REAL O_LARGEFILE
 +#endif
- 
+
  // Not part of UAPI, but userspace sees it in F_GETFL; see bug 1650751.
  #define FMODE_NONOTIFY 0x4000000
