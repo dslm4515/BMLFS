@@ -25,6 +25,8 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -49,5 +51,17 @@ exfat-utils: Current status of the project: beta.
 exfat-utils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/exfat-utils-1.3.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/exfat-utils-1.3.0-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+exfat-utils-doc: Manuals for exfat-utils
+exfat-utils-doc:
+exfat-utils-doc: A full-featured exFAT file system implementation for GNU/Linux 
+exfat-utils-doc: other Unix-like systems as a FUSE module
+exfat-utils-doc:
+exfat-utils-doc: https://github.com/relan/exfat
+exfat-utils-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/exfat-utils-doc-1.3.0-noarch-mlfs.txz && \
 sudo -S rm -rf ${BUILD}/*

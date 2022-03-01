@@ -21,6 +21,9 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
+sudo -S mv $BUILD/usr/share/gtk-doc /BMAN/usr/share/  && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -46,4 +49,14 @@ libbytesize:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S makepkg -l y -c n $PKGS/libbytesize-2.6-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libbytesize-doc: Manuals for libbytesize
+libbytesize-doc:
+libbytesize-doc: A tiny library providing a C "class" for working with arbitrary big
+libbytesize-doc: sizes in bytes.
+libbytesize-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libbytesize-doc-2.6-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

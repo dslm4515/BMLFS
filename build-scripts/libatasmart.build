@@ -25,6 +25,8 @@ cp -v ../files/config.guess-musl build-aux/config.guess &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
+sudo -S mv  $BUILD/usr/share/doc /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -49,5 +51,16 @@ libatasmart:
 libatasmart:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libatasmart-0.19-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/libatasmart-0.19-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libatasmart-doc: Manuals for libatasmart
+libatasmart-doc:
+libatasmart-doc: A lean, small and clean implementation of an ATA  S.M.A.R.T. 
+libatasmart-doc: (Self-Monitoring, Analysis and Reporting Technology) reading and 
+libatasmart-doc: parsing library.
+libatasmart-doc: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libatasmart-doc-0.19-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
