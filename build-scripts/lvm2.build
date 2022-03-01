@@ -34,10 +34,13 @@ PATH=$PATH:/sbin:/usr/sbin      &&
             --exec-prefix=      \
             --enable-cmdlib     \
             --enable-pkgconfig  \
-            --enable-udev_sync $BUILDTRUPLE &&
+            --enable-udev_sync  \
+	    --libdir=/usr/lib $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -62,8 +65,18 @@ lvm2:
 lvm2:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/lvm2-2.03.10-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/lvm2-2.03.10-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+lvm2-doc: Manuals for lvm2
+lvm2-doc:
+lvm2-doc: An additional layer between the physical peripherals and the 
+lvm2-doc: low-level I/O interface to get a logical view of disks.
+lvm2-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/lvm2-doc-2.03.10-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/* 
 
 # Restore sh as dash if dash is the desired sh interpreter 
 sudo rm -v /bin/sh
