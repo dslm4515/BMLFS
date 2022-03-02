@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GParted
-# Source: https://downloads.sourceforge.net/gparted/gparted-1.1.0.tar.gz
+# Source: https://sourceforge.net/projects/gparted/files/gparted/gparted-1.3.1/gparted-1.3.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -23,6 +23,8 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  /BMAN/usr/share  && \
+sudo -S mv $BUILD/usr/share/man  /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -47,5 +49,17 @@ gparted: http://gparted.sourceforge.net/
 gparted:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gparted-1.1.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/gparted-1.3.1-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+gparted-doc: Manuals for gparted
+gparted-doc:
+gparted-doc: With GParted you can resize, copy, and move partitions without data
+gparted-doc: loss.
+gparted-doc:
+gparted-doc: http://gparted.sourceforge.net/
+gparted-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/gparted-doc-1.3.1-narch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN*
