@@ -29,6 +29,9 @@ patch -Np1 -i ../patches/parted-adelie/tests-call-name-correctly.patch &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install  /BMAN/usr/share  && \
+sudo -S mv $BUILD/usr/share/man  /BMAN/usr/share/ && \
+sudo -S mv $BUILD/usr/share/info /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -53,5 +56,15 @@ parted:
 parted:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/parted-3.4-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/parted-3.4-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+parted-doc: Manuals for parted
+parted-doc:
+parted-doc: A program for creating, destroying, resizing, checking and copying
+parted-doc: partitions, and the filesystems on them. 
+parted-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/parted-doc-3.4-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
