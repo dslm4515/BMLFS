@@ -1,0 +1,56 @@
+#! /bin/bash
+
+# CDCD 
+# Source: https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/cdcd/0.6.6-13.1build2/cdcd_0.6.6.orig.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libcdaudio
+# Recommended:  NONE
+# Optional:     NONE
+
+cp -v ../files/config.sub-musl config.sub
+cp -v ../files/config.guess-musl config.guess
+
+LDFLAGS="-Wl,-lterminfo" ./configure --prefix=/usr $BT
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/info /BMAN/usr/ && \
+sudo -S mv $BUILD/usr/man  /BMAN/usr/ && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+cdcd: cdcd
+cdcd:
+cdcd: A command line or console based CD player
+cdcd:
+cdcd: 
+cdcd:
+cdcd:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/cdcd-0.6.6-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+cdcd-doc: Manuals for cdcd
+cdcd-doc:
+cdcd-doc: A command line or console based CD player
+cdcd-doc:
+cdcd-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/cdcd-doc-0.6.6-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
