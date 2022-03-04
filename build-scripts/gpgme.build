@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GPGME
-# Source: ftp://ftp.gnupg.org/gcrypt/gpgme/gpgme-1.16.0.tar.bz2
+# Source: ftp://ftp.gnupg.org/gcrypt/gpgme/gpgme-1.17.0.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,10 +11,17 @@
 # Recommended:  NONE
 # Optional:     Doxygen, Graphviz, GnuPG, Clisp, Python2, Qt5, SWIG 
 
-./configure --prefix=/usr --disable-gpg-test $BUILDTRUPLE &&
+# Python binding build  is broken.
+# Add qt if Qt5 is installed 
+export BLANG="cl,cpp"
+
+./configure --prefix=/usr --disable-gpg-test \
+	    --enable-languages=$BLANG $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share   && \
+sudo -S mv $BUILD/usr/share/info /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -38,5 +45,15 @@ gpgme:
 gpgme:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gpgme-1.16.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/gpgme-1.17.0-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+gpgme-doc: Manuals for  gpgme - GnuPG Made Easy
+gpgme-doc:
+gpgme-doc: A C language library that allows to add support for cryptography 
+gpgme-doc: to a program.
+gpgme-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/gpgme-doc-1.17.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
