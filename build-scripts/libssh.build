@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# LibSSH 
+# Source: https://www.libssh.org/files/0.9/libssh-0.9.6.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cmake
+# Recommended:  NONE
+# Optional:     NONE 
+
+cmake -B build -DCMAKE_BUILD_TYPE=None \
+	-DCMAKE_INSTALL_PREFIX=/usr \
+	-DCMAKE_INSTALL_LIBDIR=/usr/lib \
+        -DWITH_GSSAPI=OFF -DUNIT_TESTING=OFF \
+	-DWITH_EXAMPLES=OFF 
+
+read -p "Compile?" && make -C build -j2 && 
+
+read -p "Install?" && 
+
+# If not using package manager, skip the rest
+#sudo -S make install
+
+sudo -S make DESTDIR=$BUILD -C build install &&
+
+cd $BUILD && sudo -S mkdir install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+
+       |-----handy-ruler------------------------------------------------------|
+libssh: libssh (SSH library)
+libssh:
+libssh: libssh is a library implementing the SSH protocol, available under
+libssh: the revised BSD license.
+libssh:
+libssh: Homepage:  http://www.libssh.org/
+libssh:
+libssh:
+libssh:
+libssh:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libssh-0.9.6-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/* /BMAN/*

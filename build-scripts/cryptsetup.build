@@ -1,14 +1,14 @@
 #! /bin/bash
 
 # cryptsetup
-# Source: https://www.kernel.org/pub/linux/utils/cryptsetup/v2.3/cryptsetup-2.3.6.tar.xz
+# Source: https://www.kernel.org/pub/linux/utils/cryptsetup/v2.4/cryptsetup-2.4.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     JSON-C, LVM2, popt
-# Recommended:  argon2
+# Required:     JSON-C, LVM2, popt, libssh
+# Recommended:  argon2, 
 # Optional:     libpwquality, Python2, passwdqc
 
 # If coptimizing with GCC:
@@ -22,6 +22,8 @@ unset LDFLAGS
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -46,5 +48,16 @@ cryptsetup: cryptsetup home: http://luks.endorphin.org/dm-crypt
 cryptsetup:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cryptsetup-2.3.6-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/cryptsetup-2.4.3-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+cryptsetup-doc: Manuals for cryptsetup
+cryptsetup-doc: 
+cryptsetup-doc: A utility for setting up encrypted filesystems
+cryptsetup-doc:
+cryptsetup-doc: http://luks.endorphin.org/dm-crypt
+cryptsetup-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/cryptsetup-doc-2.4.3-noarch-mlfs.txz && \
 sudo -S rm -rf ${BUILD}/*
