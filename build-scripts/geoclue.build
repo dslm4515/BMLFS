@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GeoClue
-# Source: https://gitlab.freedesktop.org/geoclue/geoclue/-/archive/2.5.6/geoclue-2.5.6.tar.bz2
+# Source: https://gitlab.freedesktop.org/geoclue/geoclue/-/archive/2.5.6/geoclue-2.6.0.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -21,6 +21,8 @@ meson --prefix=/usr -Dgtk-doc=false \
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -45,5 +47,17 @@ geoclue:
 geoclue:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/geoclue-2.5.6-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/geoclue-2.6.0-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+geoclue-doc: Manuals for geoclue (geoinformation service)
+geoclue-doc:
+geoclue-doc: A modular geoinformation service built on top of the D-Bus messaging
+geoclue-doc: system.
+geoclue-doc:
+geoclue-doc: http://geoclue.freedesktop.org/
+geoclue-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/geoclue-doc-2.6.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
