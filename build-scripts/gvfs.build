@@ -8,10 +8,10 @@
 #
 # DEPS
 # Required:     D-Bus, GLib, libusb, libsecret, libsoup
-# Recommended:  Gcr, GTK+3, libcdio, libgdata, libgudev, elogind, UDisks2
+# Recommended:  Gcr, GTK+3, libcdio, libgdata, libgudev, UDisks2
 # Optional:     Avahi, Bluez, D-Bus-GLib, Fuse3, Gnome Online Accounts, GTK-Doc,
 # Optional:     libarchive, libgcrypt, libxml2, openSSH, libmtp, libimobiledevice,
-# Optional:     Samba, libblueray, libgphoto2, libnfs, Twisted
+# Optional:     Samba, libblueray, libgphoto2, libnfs, Twisted, elogind
 
 # If coptimizing with GCC:
 export  CFLAGS="-march=native -pipe "
@@ -37,6 +37,7 @@ meson --prefix=/usr     \
       -Dgoa=false       \
       -Dgoogle=false    \
       -Dcdda=true     \
+      -Dlogind=false \
       -Dsystemduserunitdir=no .. &&
 
 read -p "Compile?" && ninja -j2 &&
