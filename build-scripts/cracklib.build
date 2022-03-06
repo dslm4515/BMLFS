@@ -17,7 +17,7 @@ sed -i '/skipping/d' util/packer.c &&
 
 ./configure --prefix=/usr    \
             --disable-static \
-            --with-default-dict=/lib/cracklib/pw_dict $BUILDTRUPLE &&
+            --with-default-dict=/usr/lib/cracklib/pw_dict $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -47,12 +47,12 @@ cracklib:
 cracklib:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S mkdir -v lib &&
-sudo -S mv -v usr/lib/libcrack.so.* lib &&
-sudo -S ln -sfv ../../lib/libcrack.so.2.9.0 usr/lib/libcrack.so && 
+#sudo -S mkdir -v lib &&
+#sudo -S mv -v usr/lib/libcrack.so.* lib &&
+#sudo -S ln -sfv ../../lib/libcrack.so.2.9.0 usr/lib/libcrack.so && 
 sudo -S bunzip2 -v               usr/share/dict/cracklib-words.bz2 &&
 sudo -S ln -v -sf cracklib-words usr/share/dict/words &&
-sudo -S install -v -m755 -d lib/cracklib &&
+#sudo -S install -v -m755 -d lib/cracklib &&
 sudo -S makepkg -l y -c n $PKGS/cracklib-2.9.7-$(uname -m)-mlfs.txz &&
 cp -v install/doinst.sh /tmp/ &&
 cat >> /tmp/doinst.sh << "EOF"
