@@ -1,0 +1,51 @@
+#! /bin/bash
+
+# 
+# Source: https://github.com/LibVNC/libvncserver 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cmake gnutls libgcrypt
+# Recommended:  SDL2 ffmpeg libjpeg-turbo lbpng gtk3 Xorg-libs
+# Optional:     openssl libsasl
+
+# Use gnutls instead of openssl/libreSSL
+export  CARGS="-DWITH_OPENSSL=OFF -DWITH_GCRYPT=ON "
+
+# Disable systemd support
+export CARGS+="-DWITH_SYSTEMD=OFF "
+
+# If Xorg-libs are not installed in /usr:
+export LDFLAGS="-Wl,-rpath,/opt/X11/lib"
+
+cmake -B OUT -DCMAKE_INSTALL_PREFIX=/usr \
+	     -DCMAKE_BUILD_TYPE=Release \
+	     $CARGS -Wno-dev && \
+
+read -p "Compile?" && make -C OUT -j2 &&
+
+sudo -S make DESTDIR=$BUILD -C OUT install &&
+unset CARGS
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+            |-----handy-ruler------------------------------------------------------|
+libvncserver: libVNCServer
+libvncserver:
+libvncserver: A library for easy implementation of a VNC server.
+libvncserver:
+libvncserver: https://github.com/LibVNC/libvncserver
+libvncserver:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libvncserver-0.9.13-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

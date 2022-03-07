@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# AML (Andri's Main Loop)
+# Source: https://github.com/any1/aml 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+meson --prefix=/usr -Dexamples=false OUT
+
+read -p "Compile?" && ninja -j2 -C OUT  &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+   |-----handy-ruler------------------------------------------------------|
+aml: aml (Andri's Main Loop)
+aml:
+aml: Another Main Loop with Portability, Utility, & Simplicity in mind.
+aml:
+aml: Reguired by wayvnc and wlvncc
+aml:
+aml: https://github.com/any1/aml
+aml:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/aml-0.2.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

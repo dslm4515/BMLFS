@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# wayvnc
+# Source: https://github.com/any1/wayvnc
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     aml neatvnc wayland libxkbcommon
+# Recommended:  NONE
+# Optional:     NONE
+
+meson --prefix=/usr OUT
+
+read -p "Compile?" && ninja -j2 -C OUT &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+wayvnc: wayvnc
+wayvnc: 
+wayvnc: A VNC server for wlroots-based Wayland compositors.
+wayvnc: *Not compatible with Gnome or KDE*
+wayvnc: 
+wayvnc:
+wayvnc: https://github.com/any1/wayvnc
+wayvnc
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/wayvnc-0.4.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
