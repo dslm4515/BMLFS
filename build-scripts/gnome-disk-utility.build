@@ -1,16 +1,16 @@
 #! /bin/bash
 
 # gnome-disk-utility
-# Source: https://download.gnome.org/sources/gnome-disk-utility/3.38/gnome-disk-utility-3.38.0.tar.xz
+# Source: https://download.gnome.org/sources/gnome-disk-utility/42/gnome-disk-utility-42.rc.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     libcanberra, libdvdread, libnotify, libpwquality, libsecret, 
-# Required:     udisks2, libxslt, gnome-settings-daemon
+# Required:     udisks2, libxslt
 # Recommended:  NONE
-# Optional:     GTK-doc
+# Optional:     GTK-doc, libhandy
 
 mkdir BUILD && cd BUILD && \
 
@@ -18,7 +18,9 @@ meson --prefix=/usr -Dlogind=none .. && \
 
 read -p "Compile?" && ninja -j2 &&
 
-sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S DESTDIR=$BUILD ninja install && \
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -43,5 +45,14 @@ gnome-disk-utility:
 gnome-disk-utility:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gnome-disk-utility-3.38.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/gnome-disk-utility-42_rc-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+gnome-disk-utility-doc: Manuals for gnome-disk-utility
+gnome-disk-utility-doc:
+gnome-disk-utility-doc: Libraries and apps for storage device handling
+gnome-disk-utility-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/gnome-disk-utility-doc-42_rc-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
