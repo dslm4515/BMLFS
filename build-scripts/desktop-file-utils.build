@@ -19,6 +19,8 @@ meson --prefix=/usr .. &&
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -43,5 +45,14 @@ desktop-file-utils:  operations on them.
 desktop-file-utils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/desktop-file-utils-0.26-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/desktop-file-utils-0.26-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+desktop-file-utils-doc: Manuals for desktop-file-utils
+desktop-file-utils-doc:
+desktop-file-utils-doc: Some utilities from freedesktop.org for handling .desktop files
+desktop-file-utils-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/desktop-file-utils-doc-0.26-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
