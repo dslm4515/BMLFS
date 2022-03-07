@@ -1,27 +1,22 @@
 #! /bin/bash
 
-# 
-# Source: https://download.videolan.org/vlc/3.0.11.1/vlc-3.0.11.1.tar.xz
-# Source: http://get.videolan.org/vlc/3.0.12/vlc-3.0.12.tar.xz
+# VLC 
+# Source: https://download.videolan.org/vlc/3.0.16/vlc-3.0.16.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     lua
-# Recommended:  gst-plugins-ugly
-# Optional:     NONE
+# Required:     NONE
+# Recommended:  gst-plugins-ugly a52dec libgcrypt libmad alsa-lib 
+# Recommended:  desktop-file-utils ffmpeg lua52 qt5-qtsvg
+# Optional:     dbus libidn libssh2 gst-plugins-bad gst-plugins-good
 
-patch -Np0 -i ../patches/vlc-void/fix-waitpid-usage.patch
-patch -Np0 -i ../patches/vlc-void/fribidi_allow_deprecated.patch
-patch -Np0 -i ../patches/vlc-void/qt_5_15.patch
+patch -Np1 -i ../patches/vlc-alpine/check-headless.patch 
+patch -Np1 -i ../patches/vlc-alpine/disable-sub-autodetect-fuzzy-1-test.papatch -Np1 -i ../patches/vlc-alpine/fribidi_allow_deprecated.patch 
+patch -Np1 -i ../patches/vlc-alpine/test-s390x.patch 
 
 NOCONFIGURE=1 ./bootstrap &&
-sed -i -e 's;tar cvvzf;tar cvzf;' share/Makefile.am share/Makefile.in &&
-sed 's|pl_shader_alloc(tc->pl_ctx, NULL, 0, 0);|pl_shader_alloc(tc->pl_ctx, NULL, 0);|' -i modules/video_output/opengl/vout_helper.c && 
-sed -i '/vlc_demux.h/a #define LUA_COMPAT_APIINTCASTS' modules/lua/vlc.h 
-# Fix configure script to find lua-5.4
-patch -Np1 -i ../patches/vlc-mlfs/configure-lua.patch
 
 CFLAGS=" -fcommon -D_GNU_SOURCE" CXXFLAGS="-fcommon" \
 BUILDCC="gcc -std=c99" \
@@ -32,7 +27,10 @@ BUILDCC="gcc -std=c99" \
             --without-mpg123 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
-sudo -S make DESTDIR=$BUILD  docdir=/usr/share/doc/vlc-3.0.11.1 install &&
+sudo -S make DESTDIR=$BUILD  docdir=/usr/share/doc/vlc-3.0.16 install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/  && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -57,5 +55,5 @@ vlc: homepage: http://www.videolan.org/vlc/
 vlc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/vlc-3.0.11.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/vlc-3.0.16-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
