@@ -37,6 +37,8 @@ cp -v ../files/avahi-adelie/build-db service-type-database/
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -61,5 +63,16 @@ avahi:
 avahi:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/avahi-0.8-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/avahi-0.8-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+avahi-doc: Manuals for avahi (service discovery aka zeroconf)
+avahi-doc:
+avahi-doc: An implementation the DNS Service Discovery and Multicast DNS
+avahi-doc: specifications for Zeroconf Computing. It uses D-BUS for 
+avahi-doc: communication between user applications and a system daemon. 
+avahi-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/avahi-doc-0.8-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

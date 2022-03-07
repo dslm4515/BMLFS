@@ -24,6 +24,8 @@ meson --prefix=/usr \
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr  && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -48,11 +50,18 @@ fuse3:
 fuse3:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S mkdir -v lib bin sbin &&
-sudo -S mv -vf   usr/lib/libfuse3.so.3*     lib &&
-sudo -S ln -sfvn ../../lib/libfuse3.so.3.10.5 usr/lib/libfuse3.so &&
-sudo -S mv -vf usr/bin/fusermount3  bin/         &&
-sudo -S mv -vf usr/sbin/mount.fuse3 sbin/ &&
-sudo -S chmod -v u+s bin/fusermount3 &&
-sudo -S makepkg -l y -c n $PKGS/fuse3-3.10.5-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S chmod -v u+s usr/bin/fusermount3 &&
+sudo -S makepkg -l y -c n $PKGS/fuse3-3.10.5-$(uname -m)-mlfs.txz && \
+cd /BMAN &&
+cat > /tmp/slack-desc << "EOF"
+fuse3-doc: Manuals for fuse3 (Filesystem in Userspace)
+fuse3-doc:
+fuse3-doc: A simple interface for userspace programs to export a virtual 
+fuse3-doc: filesystem to the Linux kernel.
+fuse3-doc:
+fuse3-doc: https://github.com/libfuse/libfuse
+fuse3-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/fuse3-doc-3.10.5-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

@@ -11,11 +11,15 @@
 # Recommended:  NONE
 # Optional:     Python2
 
-./configure --prefix=/usr --sysconfdir=/etc $BUILDTRUPLE &&
+# Disable python 2 bindings, unless python2 is installed
+./configure --prefix=/usr --sysconfdir=/etc \
+	    --without-python  $BUILDTRUPLE &&
 
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -40,5 +44,18 @@ volume_key:
 volume_key:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/volume_key-0.3.12-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/volume_key-0.3.12-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+volume_key-doc: Manuals for volume_key 
+volume_key-doc:
+volume_key-doc: A library for manipulating storage volume encryption keys and 
+volume_key-doc: storing them separately from volumes, and an associated 
+volume_key-doc: command-line tool
+volume_key-doc:
+volume_key-doc: https://pagure.io/volume_key/
+volume_key-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/volume_key-doc-0.3.12-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

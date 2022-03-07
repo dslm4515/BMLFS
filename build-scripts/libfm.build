@@ -19,6 +19,8 @@
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -43,5 +45,17 @@ libfm:
 libfm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libfm-1.3.1-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/libfm-1.3.1-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libfm-doc: Manuals for libfm (pcmanfm library)
+libfm-doc:
+libfm-doc: This library provides file management functions built on top of 
+libfm-doc: Glib/GIO, giving a convenient higher-level API.
+libfm-doc:
+libfm-doc: http://pcmanfm.sourceforge.net/
+libfm-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libfm-doc-1.3.1-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

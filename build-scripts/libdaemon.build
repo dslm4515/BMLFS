@@ -27,7 +27,9 @@ cp -vf ../files/config.guess-musl config.guess  &&
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
-sudo -S make DESTDIR=$BUILD docdir=/usr/share/doc/libdaemon-0.14 install &&
+sudo -S make DESTDIR=$BUILD docdir=/usr/share/doc/libdaemon-0.14 install && \
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -52,5 +54,16 @@ libdaemon:
 libdaemon:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libdaemon-0.14-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/libdaemon-0.14-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libdaemon-doc: Manuals for libdaemon
+libdaemon-doc:
+libdaemon-doc: A lightweight C library that eases the writing of Unix daemons.
+libdaemon-doc:
+libdaemon-doc: http://0pointer.de/lennart/projects/libdaemon/
+libdaemon-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libdaemon-doc-0.14-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
