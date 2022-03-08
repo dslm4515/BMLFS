@@ -1,0 +1,54 @@
+#! /bin/bash
+
+# Bluez Tools
+# Source: https://github.com/khvzak/bluez-tools 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     bluez
+# Recommended:  NONE
+# Optional:     NONE
+
+export CFLAGS+=' -fcommon'
+./autogen.sh --prefix=/usr $BT && \
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install && \
+sudo -S mkdir /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
+unset CFLAGS && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+bluez-tools: Bluez Tools
+bluez-tools:
+bluez-tools: A set of tools to manage bluetooth devices for linux.
+bluez-tools:
+bluez-tools: https://github.com/khvzak/bluez-tools
+bluez-tools:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/bluez-tools-2022.3.8_git-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+bluez-tools-doc: Manuals for Bluez Tools
+bluez-tools-doc: 
+bluez-tools-doc: A set of tools to manage bluetooth devices for linux.
+bluez-tools-doc:
+bluez-tools-doc: https://github.com/khvzak/bluez-tools
+bluez-tools-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/bluez-tools-2022.3.8_git-$(uname -m)-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

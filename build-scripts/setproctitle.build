@@ -1,0 +1,40 @@
+#! /bin/bash
+
+# setproctitle (python module)
+# Source: https://files.pythonhosted.org/packages/a1/7f/a1d4f4c7b66f0fc02f35dc5c85f45a8b4e4a7988357a29e61c14e725ef86/setproctitle-1.2.2.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     Python3
+# Recommended:  NONE
+# Optional:     NONE
+
+# if optimizing with GCC
+export  CFLAGS="-march=native -pipe "
+
+read -p "Compile?" && python3 setup.py build &&
+
+sudo -S python3 setup.py install --optimize=1 --prefix=/usr --root=${BUILD} && 
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+            |-----handy-ruler------------------------------------------------------|
+setproctitle: Setproctitle (Python module)
+setproctitle:
+setproctitle: A Python module to customize the process title.
+setproctitle:
+setproctitle: https://github.com/dvarrazzo/py-setproctitle
+setproctitle:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/setproctitle-1.2.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

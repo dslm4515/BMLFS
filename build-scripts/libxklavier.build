@@ -1,0 +1,53 @@
+#! /bin/bash
+
+# libxklavier
+# Source: https://people.freedesktop.org/~svu/libxklavier-5.4.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     glib iso-codes libxml2 Xorg-libs
+# Recommended:  gobject-introspection 
+# Optional:     gtk-doc vala
+
+cp -v ../files/config.guess-musl build-aux/config.guess && \
+cp -v ../files/config.sub-musl   build-aux/config.sub   && \
+
+./configure --prefix=/usr --sysconfdir=/etc --disable-static $BT
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install     /BMAN/usr/share  && \
+sudo -S mv $BUILD/usr/share/gtk-doc /BMAN/usr/share/ && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+libxklavier: libxklavier
+libxklavier:
+libxklavier: The libxklavier package contains a utility library for X keyboard.
+libxklavier:
+libxklavier: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libxklavier-5.4-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libxklavier-doc: Manuals for libxklavier
+libxklavier-doc:
+libxklavier-doc: The libxklavier package contains a utility library for X keyboard.
+libxklavier-doc:
+libxklavier-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libxklavier-doc-5.4-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
