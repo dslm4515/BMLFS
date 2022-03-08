@@ -55,5 +55,17 @@ vlc: homepage: http://www.videolan.org/vlc/
 vlc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/vlc-3.0.16-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/vlc-3.0.16-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+vlc-doc: Manuals for vlc (VLC media player)
+vlc-doc:
+vlc-doc: A media player is a free and open source media player and multi-
+vlc-doc: media framework written by the VideoLAN project.
+vlc-doc:
+vlc-doc: http://www.videolan.org/vlc/
+vlc-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/vlc-doc-3.0.16-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
