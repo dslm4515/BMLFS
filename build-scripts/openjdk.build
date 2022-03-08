@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # openJDK
-# Source: https://github.com/openjdk/jdk17u/archive/jdk-17.0.1-ga.tar.gz 
+# Source: https://github.com/openjdk/jdk17u/archive/jdk-17.0.2-ga.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -32,7 +32,7 @@ bash configure --prefix=/opt/jdk \
 	       --with-native-debug-symbols=none \
 	       --with-jvm-variants=server \
 	       --enable-dtrace=no \
-	       --with-version-build="12" \
+	       --with-version-build="8" \
 	       --with-version-pre="" \
 	       --with-version-opt="MLFS-10.0.0-r0" \
 	       --with-vendor-url="https://github.com/dslm4515/BMLFS" \
@@ -50,12 +50,13 @@ for s in 16 24 32 48; do
 		$BUILD/usr/share/icons/hicolor/${s}x${s}/apps/java.png
 done
 
-sudo -S ln -vs jdk $BUILD/opt/jdk-17.0.1+12
-sudo -S mkdir -pv $BUILD/usr/share/applications
+sudo -S mkdir -pv $BUILD/opt/jdk-17.0.2  && \
+sudo -S ln -vs jdk-17.0.2 $BUILD/opt/jdk && \
+sudo -S mkdir -pv $BUILD/usr/share/applications && \
 cat > /tmp/openjdk-java.desktop << "EOF"
 [Desktop Entry]
-Name=OpenJDK Java 17.0.1 Runtime
-Comment=OpenJDK Java 17.0.1 Runtime
+Name=OpenJDK Java 17.0.2 Runtime
+Comment=OpenJDK Java 17.0.2 Runtime
 Exec=/opt/jdk/bin/java -jar
 Terminal=false
 Type=Application
@@ -66,8 +67,8 @@ EOF
 sudo -S mv /tmp/openjdk-java.desktop $BUILD/usr/share/applications/
 cat > /tmp/openjdk-jconsole.desktop << "EOF"
 [Desktop Entry]
-Name=OpenJDK Java 17.0.1 Console
-Comment=OpenJDK Java 17.0.1 Console
+Name=OpenJDK Java 17.0.2 Console
+Comment=OpenJDK Java 17.0.2 Console
 Keywords=java;console;monitoring
 Exec=/opt/jdk/bin/jconsole
 Terminal=false
@@ -101,7 +102,7 @@ openjdk: https://github.com/openjdk
 openjdk:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/openjdk-17.0.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/openjdk-17.0.2-$(uname -m)-mlfs.txz &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 openjdk-doc: Manuals for openJDK
@@ -114,6 +115,5 @@ openjdk-doc: https://github.com/openjdk
 openjdk-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/
-sudo -S makepkg -l y -c n $PKGS/openjdk-doc-17.0.1-noarch-mlfs.txz
-sudo -S rm -rf /BMAN/*
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/openjdk-doc-17.0.2-noarch-mlfs.txz
+sudo -S rm -rf ${BUILD}/* /BMAN/*
