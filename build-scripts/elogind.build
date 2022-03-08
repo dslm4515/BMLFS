@@ -37,6 +37,8 @@ sudo -S cp -v ../src/systemd/_sd-common.h ${BUILD}/usr/include/  &&
 sudo -S cp -v ../../files/elogind-void/elogind.wrapper ${BUILD}/usr/libexec/elogind &&
 sudo -S chmod -v 755 ${BUILD}/usr/libexec/elogind/elogind.wrapper &&
 sudo -S cp -v ../../files/elogind-lfs/elogind-user ${BUILD}/etc/pam.d/ &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/ && \
 unset LDFLAGS && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
@@ -61,11 +63,21 @@ elogind: /run/systemd layout.
 elogind:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/elogind-243.7-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/elogind-246.10-$(uname -m)-mlfs.txz &&
 cp -v install/doinst.sh /tmp/ &&
 cd - &&
 cat ../../files/elogind-lfs/system-session >> /tmp/doinst.sh &&
 cd - &&
 sudo -S mv -v /tmp/doinst.sh install/doinst.sh &&
-sudo -S makepkg -l y -c n $PKGS/elogind-246.10-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/elogind-246.10-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+elogind-doc: Manuals for elogind
+elogind-doc:
+elogind-doc: The systemd project's "logind", extracted out to be a standalone
+elogind-doc: daemon.
+elogind-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/elogind-doc-243.710-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
