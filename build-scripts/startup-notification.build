@@ -11,6 +11,10 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# Update config for configure script
+cp -v ../files/config.sub-musl   config.sub  && \
+cp -v ../files/config.guess-musl config.guess
+
 ./configure --prefix=/usr --disable-static $BUILTDRUPLE &&
 read -p "Compile?" && make -j2 &&
 
