@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# SLang 
+# Source: https://www.jedsoft.org/releases/slang/slang-2.3.2.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     libpng pcre Oniguruma
+
+./configure --prefix=/usr --sysconfdir=/etc  --with-readline=gnu
+
+read -p "Compile?" && make -j1 &&
+
+sudo -S make DESTDIR=$BUILD \
+             install_doc_dir=/usr/share/doc/slang-2.3.2 \
+	     SLSH_DOC_DIR=/usr/share/doc/slang-2.3.2/slsh install &&
+sudo -S chmod -v 755 $BUILD/usr/lib/slang/v2/modules/*.so && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+slang: SLang
+slang:
+slang: An interpreted language that may be embedded into an application to 
+slang: make the application extensible.
+slang:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/slang-2.3.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

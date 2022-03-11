@@ -1,0 +1,107 @@
+#! /bin/bash
+
+# NetworkManager 
+# Source: https://download.gnome.org/sources/NetworkManager/1.34/NetworkManager-1.34.0.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     jansson libndp mobile-broadband-provider-info
+# Recommended:  curl dhcpd gobject-introspection iptables newt nss polkit
+# Recommended:  pygobject3 upower vala iwd 
+# Optional:     bluez dbus-python gnutls nss libpsl Qt5 ModemManager 
+# Optional:     gtk-doc elogind wpa_supplicant
+
+# If Qt-5.15.2 is installed and the Qt based examples are desired, 
+# fix two meson.build files:
+sed -e 's/-qt4/-qt5/'              \
+    -e 's/moc_location/host_bins/' \
+    -i examples/C/qt/meson.build   && \
+
+sed -e 's/Qt/&5/' -i meson.build
+
+# Fix the python scripts so that they use Python 3
+grep -rl '^#!.*python$' | xargs sed -i '1s/python/&3/'
+
+# Configure the flags:
+export  CARGS="--buildtype=release "
+export CARGS+="-Dlibaudit=no "
+
+# enable if libpsl was installed
+export CARGS+="-Dlibpsl=true "
+
+# Enable if newt is installed
+export CARGS+="-Dnmtui=true "
+
+export CARGS+="-Dovs=false "
+export CARGS+="-Dppp=false "
+export CARGS+="-Dselinux=false "
+
+# set to elogind if installed
+export CARGS+="-Dsession_tracking=no "
+
+# enable if ModemManger was installed
+export CARGS+="-Dmodem_manager=true "
+
+# disable due to lack of systemd
+export CARGS+="-Dsystemdsystemunitdir=no "
+export CARGS+="-Dsystemd_journal=false "
+
+# enable if Qt5 installed
+export CARGS+="-Dqt=true "
+
+export CARGS+="-Dcrypto=gnutls "
+
+# Enable if wpa_supplicant is installed
+export CARGS+="-Dwext=false "
+
+# Enable for use with IWD
+export CARGS+="-Diwd=true "
+
+# Allow users to modify network connections
+export CARGS+="-Dmodify_system=true "
+
+
+CXXFLAGS+="-O2 -fPIC" \
+meson --prefix=/usr $CARGS OUT && \
+
+read -p "Compile?" && ninja -j2 -C OUT &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
+sudo -S mv $BUILD/usr/share/doc /BMAN/share/ && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+               |-----handy-ruler------------------------------------------------------|
+NewtworkManager: NetweokManager
+NewtworkManager:
+NewtworkManager: A set of co-operative tools that make networking simple and 
+NewtworkManager: straightforward. Whether you use WiFi, wired, 3G, or Bluetooth, 
+NewtworkManager: NetworkManager allows you to quickly move from one network to another:
+NewtworkManager: Once a network has been configured and joined once, it can be detected 
+NewtworkManager: and re-joined automatically the next time it's available. 
+NewtworkManager:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/NewtworkManager-1.34.0-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+NewtworkManager-doc: Manuals for NewtworkManager
+NewtworkManager-doc:
+NewtworkManager-doc: A set of co-operative tools that make networking simple and 
+NewtworkManager-doc: straightforward. whether you use WiFi, wired, 3G, or Bluetooth.
+NewtworkManager-doc:
+NewtworkManager-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+udo -S makepkg -l y -c n $PKGS/NewtworkManager-doc-1.34.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

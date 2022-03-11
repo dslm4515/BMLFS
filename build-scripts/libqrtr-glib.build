@@ -1,0 +1,49 @@
+#! /bin/bash
+
+# libqrtr-glib 
+# Source: https://www.freedesktop.org/software/libqmi/libqrtr-glib-1.0.0.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr --sysconfdir=/etc \
+	    --localstatedir=/var --disable-static $BT
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
+sudo -S mv $BUILD/usr/share/gtk-doc /BMAN/usr/share/ && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+            |-----handy-ruler------------------------------------------------------|
+libqrtr-glib: libqrtr-glib
+libqrtr-glib:
+libqrtr-glib: Qualcomm IPC Router protocol helper library
+libqrtr-glib:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libqrtr-glib-1.0.0-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+libqrtr-glib-doc: libqrtr-glib
+libqrtr-glib-doc:
+libqrtr-glib-doc: Qualcomm IPC Router protocol helper library
+libqrtr-glib-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/libqrtr-glib-doc-1.0.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

@@ -8,11 +8,12 @@
 #
 # DEPS
 # Required:     Glib
-# Recommended:  Goject-introspection, libmbim
+# Recommended:  Goject-introspection, libmbim, libqrtr-glib
 # Optional:     GTK-Doc
 
 ./configure --prefix=/usr --disable-static \
-	--with-udev-base-dir=/usr/lib/udev  $BUILDTRUPLE &&
+	--with-udev-base-dir=/usr/lib/udev \
+        --enable-mbim-qmux -enable-qrtr	$BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install && \

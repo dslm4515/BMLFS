@@ -18,7 +18,8 @@
             --with-systemd-journal=no     \
             --with-systemd-suspend-resume \
             --enable-vala=yes \
-	    --with-udev-base-dir=/usr/lib/udev $BUILDTRUPLE && \
+	    --with-udev-base-dir=/usr/lib/udev \
+	    --enable-plugin-qcom-soc $BUILDTRUPLE && \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install && \
