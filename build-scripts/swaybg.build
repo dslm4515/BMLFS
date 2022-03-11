@@ -1,27 +1,25 @@
 #! /bin/bash
 
-# Sway 
-# Source: https://github.com/swaywm/sway/releases/download/1.7/sway-1.7.tar.gz
+# Swaybg 
+# Source: https://github.com/swaywm/swaybg/releases/download/v1.1.1/swaybg-1.1.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     wlroots(0.15.1), json-c, wayland-protocols, libxkbcommon, cairo,
+# Required:     wlroots, json-c, wayland-protocols, libxkbcommon, cairo,
 # Required:     gdk-pixbuf, pixman, mesa, libevdev, libinput, elogind, pango,
 # Required:     libxcb, pcre
 # Recommended:  NONE
 # Optional:     fish, git
-
-# Sway 1.7 will not build with wlroots-0.16.0 at this time.
 
 meson --prefix=/usr -Dbuildtype=release OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja -C OUT install &&
-sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
-sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -32,28 +30,26 @@ cat > /tmp/slack-desc << "EOF"
 # make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-    |-----handy-ruler------------------------------------------------------|
-sway: Sway
-sway:
-sway: Sway (contracted from SirCmpwn's Wayland compositor) 
-sway: is an open-source Wayland compositor that is designed
-sway: to be compatible with the i3 window manager.
-sway:
-sway: https://swaywm.org/
-sway:
-sway:
+      |-----handy-ruler------------------------------------------------------|
+swaybg: Swaybg (Sway Wallpaper)
+swaybg:
+swaybg: A wallpaper utility for Wayland compositors. 
+swaybg:
+swaybg: https://swaywm.org/
+swaybg:
+swaybg:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/sway-1.7-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/swaybg-1.1.1-$(uname -m)-mlfs.txz && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
-sway-doc: Manuals for Sway
-sway-doc: An open-source Wayland compositor that is designed
-sway-doc: to be compatible with the i3 window manager.
-sway-doc:
-sway-doc: https://swaywm.org
-sway-doc:
+swaybg-doc: Manuals for Swaybg
+swaybg-doc:
+swaybg-doc: A wallpaper utility for Wayland compositors.
+swaybg-doc:
+swaybg-doc: https://swaywm.org
+swaybg-doc:
 EOF 
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/sway-doc-1.7-noarch.mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/swaybg-doc-1.1.1-noarch.mlfs.txz && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
