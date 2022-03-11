@@ -1,0 +1,19 @@
+--- gpm-1.20.7.orig/doc/doc.gpm	2022-03-11 10:22:59.083347473 -0600
++++ gpm-1.20.7/doc/doc.gpm	2022-03-11 10:20:13.778352203 -0600
+@@ -29,7 +29,7 @@
+ 
+ @comment %**start of header
+ @setfilename gpm.info
+-@settitle gpm @value{version}
++@settitle gpm 1.20.7
+ @iftex
+ @afourpaper
+ @end iftex
+@@ -92,7 +92,6 @@
+ 
+ @end titlepage
+ @setchapternewpage off
+-@headings single
+ 
+ @ifinfo
+ This file documents the @value{version} release of the "General Purpose

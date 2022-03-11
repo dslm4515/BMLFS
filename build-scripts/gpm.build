@@ -20,6 +20,10 @@ patch -Np0 -i ../patches/gpm-void/musl-sigaction.patch &&
 ./autogen.sh                                &&
 export CFLAGS="-fcommon" &&
 ./configure --prefix=/usr --sysconfdir=/etc $BUILDTRUPLE &&
+
+# fix generated man page source:
+patch -Np1 -i ../patches/gpm-mlfs/fix-doc.patch 
+
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -32,6 +36,8 @@ sudo -S install -v -m644    doc/support/*                     \
                     ${BUILD}/usr/share/doc/gpm-1.20.7/support &&
 sudo -S install -v -m644    doc/{FAQ,HACK_GPM,README*}        \
                     ${BUILD}/usr/share/doc/gpm-1.20.7 &&
+sudo -S mkdir /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \
 unset CFLAGS
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
@@ -51,11 +57,18 @@ gpm: to cut and paste text from the screen. It also acts as a mouse
 gpm: server for applications running on the Linux console, such as the
 gpm: Midnight Commander file manager. 
 gpm:
-gpm:
-gpm:
-gpm:
-gpm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gpm-1.20.7-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/gpm-1.20.7-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+gpm-doc: Documentation for GPM
+gpm-doc:
+gpm-doc: The general purpose mouse server, or gpm, allows you to use the mouse
+gpm=doc: to cut and paste text from the screen. It also acts as a mouse 
+gpm-doc: server for applications running on the Linux console.
+gpm-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/gpm-doc-1.20.7-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
