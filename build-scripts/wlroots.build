@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # wlroots 0.16.0(git)
-# Source: https://gitlab.freedesktop.org/wlroots
+# Source: https://gitlab.freedesktop.org/wlroots/wlroots
 # Commit: 2c59435e8223339070f963263f2caebf07620078
 #
 # $BUILD = Directory to temporarily install
@@ -19,8 +19,8 @@
 # headers used by wayfire. But reveting to specific commit 
 # allows wayfire to build with wlroots 0.16.0
 
-git clone     https://gitlab.freedesktop.org/wlroots   && \
-git checkout  2c59435e8223339070f963263f2caebf07620078 && \
+git clone     https://gitlab.freedesktop.org/wlroots/wlroots   && \
+git checkout  2c59435e8223339070f963263f2caebf07620078         && \
 
 # If optimizing, use flags with GCC
 export  CFLAGS="-march=native -pipe "
