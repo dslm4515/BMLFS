@@ -1,7 +1,8 @@
 #! /bin/bash
 
-# WayFire
-# Source: https://github.com/WayfireWM/wayfire/releases/download/v0.7.2/wayfire-0.7.2.tar.xz
+# WayFire 0.8.0
+# Source: https://github.com/WayfireWM/wayfire/
+# Commit: 9458f58959512222f3f154b40b0a48584033ca24
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,7 +11,11 @@
 # Required:     wlroots, wayland-protocol, GLM, libjpeg, libexecinfo
 # Required:     libpng, mesa, pixman, libinput, libxkbcommon, cairo
 # Recommended:  libappindicator, libdbusmenu
-# Optional:     NONE
+# Optional:     wfconfig
+
+# Latest release is 0.7.2
+# Version 0.8.0 not released yet. Can be built from master branch.
+# Last known working with posted commit.
 
 meson --prefix=/usr -Denable_gles32=true \
        -Duse_system_wfconfig="disabled" -Duse_system_wlroots="enabled" BUILD && \
@@ -40,5 +45,5 @@ wayfire:
 wayfire:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wayfire-0.7.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wayfire-0.8.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
