@@ -1,7 +1,8 @@
 #! /bin/bash
 
-# wlroots
-# Source: https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/0.15.1/wlroots-0.15.1.tar.bz2
+# wlroots 0.16.0(git)
+# Source: https://gitlab.freedesktop.org/wlroots
+# Commit: 2c59435e8223339070f963263f2caebf07620078
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,6 +14,13 @@
 # Optional:     xcb-errors
 
 # As of 0.14.x, logind support was dropped in favor of libseat
+
+# version 0.16.0 and master branch from gitlab has missing 
+# headers used by wayfire. But reveting to specific commit 
+# allows wayfire to build with wlroots 0.16.0
+
+git clone     https://gitlab.freedesktop.org/wlroots   && \
+git checkout  2c59435e8223339070f963263f2caebf07620078 && \
 
 # If optimizing, use flags with GCC
 export  CFLAGS="-march=native -pipe "
@@ -53,5 +61,5 @@ wlroots:
 wlroots: Homepage: https://github.com/swaywm/wlroots
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wlroots-0.15.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wlroots-0.16.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
