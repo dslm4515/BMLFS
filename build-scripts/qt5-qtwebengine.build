@@ -1,0 +1,96 @@
+#! /bin/bash
+
+# Qt5 QtWebEngine 5.15.3_git20220304 
+# Source: https://invent.kde.org/qt/qt/qtwebengine/-/archive/f206c05a9dc6c2391b10762b6038f65fdb6818b6.tar.gz
+# Source: https://invent.kde.org/qt/qt/qtwebengine-chromium/-/archive/ab3a3447aa59c946fec6877d748bb8a72a8b34be.tar.gz
+# Source: https://dev.alpinelinux.org/archive/qt5-qtwebengine/catapult-5eedfe23148a234211ba477f76fc2ea2e8529189.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     qt5-qtbase qt5-qtdeclarative qt5-qtwebchannel ffmpeg
+# Required:     glib gst-plugins-base gstreamer icu libxcomposite
+# Required:     libxext libxkbcommon libxkbfile libxrender libxslt
+# Required:     mesa alsa-lib fontconfig harfbuzz jsoncpp libevent
+# Required:     libjpeg-turbo libpng libsrtp libvpx libwebp libxcursor
+# Rewuired:     libxi libxml2 libxrandr libxslt nodejs nss opus pcre
+# Required:     protobuf pulseaudio sndio re2 ruby snappy sqlite yasm
+# Recommended:  NONE
+# Optional:     NONE
+
+rmdir -v src/3rdparty
+mv ../qtwebengine-chromium-ab3a3447aa59c946fec6877d748bb8a72a8b34be src/3rdparty
+
+# update vendored catapult version to python3 compatible version.
+rm -rf src/3rdparty/chromium/third_party/catapult
+mv ../catapult src/3rdparty/chromium/third_party/catapult
+
+mkdir -pv .git src/3rdparty/chromium/.git
+
+# Apply patches from Alpine Linux
+patch -Np1 -i ../patches/qtwebengine-alpine/0001-pretend-to-stay-at-5.15.3.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/0010-chromium-musl-Match-syscalls-to-match-musl.patch 
+patch -Np1 -i ../patches/qtwebengine-alpine/default-pthread-stacksize.patch 
+patch -Np1 -i ../patches/qtwebengine-alpine/fix-chromium-build.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/musl-hacks.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/musl-sandbox.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/nasm.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/qt-chromium-python3.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/qt-musl-dispatch_to_musl.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/qt-musl-elf-arm.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/qt-musl-execinfo.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/qt-musl-mallinfo.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/qt-musl-off_t.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/qt-musl-pread-pwrite.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/qt-musl-pvalloc.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/qt-musl-resolve.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/qt-musl-siginfo_t.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/qt-musl-stackstart.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/qt-musl-sysreg-for__WORDSIZE.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/qt-musl-thread-stacksize.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/remove-glibc-check.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/sndio.patch
+patch -Np1 -i ../patches/qtwebengine-alpine/support-python3.patch
+
+# Add missing header:
+#    17 | #include "base/strings/string_number_conversions.h"
+#   +++ |+#include <cstring>
+vi src/3rdparty/chromium/mojo/public/cpp/platform/named_platform_channel_posix.cc
+
+# Copy missing headers:
+mkdir -pv include/QtWebEngineCore/private
+cp -vn  src/core/api/*.h             include/QtWebEngineCore/
+mv -v include/QtWebEngineCore/*_p.h  include/QtWebEngineCore/private/
+
+qmake-qt5 QMAKE_EXTRA_ARGS+="-webengine-sndio -system-ffmpeg -system-opus -system-webp -proprietary-codecs" CONFIG+=force_debug_info
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make INSTALL_ROOT=$BUILD install &&
+
+# Drop QMAKE_PRL_BUILD_DIR because reference the build dir
+find "$BUILD/opt/qt5/lib" -type f -name '*.prl' \
+	        -exec sudo sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+               |-----handy-ruler------------------------------------------------------|
+qt5-qtwebengine: Qt5 QtWebEngine
+qt5-qtwebengine:
+qt5-qtwebengine: A cross-platform C++ application framework. Qt's primary feature 
+qt5-qtwebengine: is its rich set of widgets that provide standard GUI functionality. 
+qt5-qtwebengine:
+qt5-qtwebengine: http://qt-project.org
+qt5-qtwebengine:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/qt5-qtwebengine-5.15.3_git20220304-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
