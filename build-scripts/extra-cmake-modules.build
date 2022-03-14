@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Extra Cmake Modules
-# https://download.kde.org/stable/frameworks/5.91/extra-cmake-modules-5.91.0.tar.xz
+# https://download.kde.org/stable/frameworks/5.92/extra-cmake-modules-5.92.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -48,5 +48,5 @@ extra-cmake-modules:
 extra-cmake-modules:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/extra-cmake-modules-5.91.0-noarch-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/extra-cmake-modules-5.92.0-noarch-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
