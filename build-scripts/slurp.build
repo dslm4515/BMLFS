@@ -14,6 +14,8 @@
 meson --prefix=/usr build && \
 ninja -C build -j2 && \
 sudo -S DESTDIR=$BUILD ninja -C build install && \
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share    /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -34,5 +36,17 @@ slurp: https://github.com/emersion/slurp
 slurp:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/slurp-1.3.2-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/slurp-1.3.2-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+slurp-doc: Manual for slurp
+slurp-doc:
+slurp-doc: Select a region in a Wayland compositor and print it to the standard
+slurp-doc: output. Works well with grim.
+slurp-doc:
+slurp-doc: https://github.com/emersion/slurp
+slurp-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/slurp-doc-1.3.2-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

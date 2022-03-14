@@ -14,6 +14,8 @@
 meson --prefix=/usr build && \
 ninja -C build -j2 && \
 sudo -S DESTDIR=$BUILD ninja -C build install && \
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo -S mv $BUILD/usr/share    /BMAN/usr/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -34,5 +36,17 @@ grim: https://github.com/emersion/grim
 grim:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/grim-1.3.2-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/grim-1.3.2-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+grim-doc: Manual for Grim
+grim-doc:
+grim-doc: Grab images from a Wayland compositor. Works great with slurp and
+grim-doc: with sway.
+grim-doc:
+grim-doc:  https://github.com/emersion/grim
+grim-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/grim-doc-1.3.2-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
