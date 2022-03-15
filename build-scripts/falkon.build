@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# falkon 
+# Source: https://download.kde.org/stable/falkon/3.2.0/falkon-3.2.0.tar.xz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     qt5-qtwebengine qt5-qtbase extra-cmake-modules karchive
+# Required:     kcoreaddons libxcb  qt5-qtdeclarative qt5-qttools
+# Required:     xcb-util qt5-qtx11extras
+# Recommended:  NONE
+# Optional:     purpose kio kwallet kcrash PySide2 Shiboken2
+
+cmake -B build -DCMAKE_BUILD_TYPE=Release \
+	-DCMAKE_INSTALL_PREFIX=/opt/qt5 \
+	-DCMAKE_INSTALL_LIBDIR=/opt/qt5/lib \
+        -DBUILD_SHARED_LIBS=True \
+        -DBUILD_TESTING=ON && \	
+
+read -p "Compile?" && make -j2 -C build &&
+
+sudo -S make DESTDIR=$BUILD -C build install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+falkon: falkon
+falkon:
+falkon: Cross-platform Qt Web Browser
+falkon:
+falkon: https://github.com/KDE/falkon
+falkon:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/falkon-3.2.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
