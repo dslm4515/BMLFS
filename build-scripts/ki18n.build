@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# ki18n 
+# Source: https://download.kde.org/stable/frameworks/5.92/ki18n-5.92.0.tar.xz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     qt5-qtdeclarative qt5-qtscript extra-cmake-modules doxygen 
+# Required:     qt5-qttools
+# Recommended:  NONE
+# Optional:     NONE
+
+cmake -B build -DCMAKE_BUILD_TYPE=Release \
+	       -DCMAKE_INSTALL_PREFIX=$KF5_PREFIX \
+	       -DCMAKE_PREFIX_PATH=$QT5DIR \
+	       -DCMAKE_INSTALL_LIBDIR=/opt/qt5/lib -DBUILD_QCH=ON
+
+read -p "Compile?" && make -j2 -C build &&
+
+sudo -S make DESTDIR=$BUILD -C build install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+ki18n: ki18n
+ki18n:
+ki18n: Advanced internationalization framework
+ki18n:
+ki18n: https://community.kde.org/Frameworks
+ki18n:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/ki18n-5.92.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
