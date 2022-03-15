@@ -1,0 +1,120 @@
+#! /bin/bash
+
+# Qt5 QtTools 5.15.3_git20201202
+# Source: https://invent.kde.org/qt/qt/qttools/-/archive/33693a928986006d79c1ee743733cde5966ac402/qttools-33693a928986006d79c1ee743733cde5966ac402.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     qt5-qtbase qt5-qtdeclarative vulkan-headers
+# Recommended:  NONE
+# Optional:     NONE
+
+# Per Alpine Linux
+# We need to make the build system think we're running in a git repository
+# so it correctly symlinks during the build:
+mkdir .git && \
+
+qmake-qt5 && \
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make INSTALL_ROOT=$BUILD install &&
+
+# Drop QMAKE_PRL_BUILD_DIR because reference the build dir
+find "$BUILD/opt/qt5/lib" -type f -name '*.prl' \
+      -exec sudo sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+
+sudo -S mkdir -pv $BUILD/usr/bin && \
+for b in $BUILD/opt/qt5/bin/*
+do
+	sudo -S ln -sv ../../opt/qt5/bin/${i##*/} $BUILD/usr/bin/${b##*/}-qt5
+done && \
+
+# Create the desktop files
+cat > /tmp/assistant-qt5.desktop << "EOF"
+[Desktop Entry]
+Exec=/opt/qt5/bin/assistant
+Name=Qt Assistant
+GenericName=Qt Document Browser
+Icon=assistant
+Terminal=false
+Type=Application
+Categories=Qt;Development;Documentation
+EOF
+cat > /tmp/designer-qt5.desktop << "EOF"
+[Desktop Entry]
+Exec=/opt/qt5/bin/designer
+Name=Qt Designer
+GenericName=Interface Designer
+MimeType=application/x-designer
+Icon=designer
+Terminal=false
+Type=Application
+Categories=Qt;Development;GUIDesigner
+EOF
+cat > /tmp/linguist-qt5.desktop << "EOF"
+[Desktop Entry]
+Exec=/opt/qt5/bin/linguist
+Name=Qt Linguist
+GenericName=Translation Tool
+MimeType=application/x-linguist
+Terminal=false
+Type=Application
+Icon=linguist
+Categories=Qt;Development;Translation
+EOF
+cat > /tmp/qdbusviewer-qt5.desktop << "EOF"
+[Desktop Entry]
+Name=Qt5 QDbusViewer
+GenericName=D-Bus Debugger
+Comment=Debug D-Bus applications
+Exec=/opt/qt5/bin/qdbusviewer
+Icon=qt5-qdbusviewer
+Terminal=false
+Type=Application
+Categories=Qt;Development;Debugger;
+EOF
+sudo mkdir -pv  $BUILD/usr/share/applications && \
+sudo mv /tmp/assistant-qt5.desktop /tmp/designer-qt5.desktop \
+       /tmp/linguist-qt5.desktop /tmp/qdbusviewer-qt5.desktop \
+       $BUILD/usr/share/applications/  && \
+
+# Install the icons:
+sudo -S install -m644 -p -D src/assistant/assistant/images/assistant.png \
+        $BUILD/usr/share/icons/hicolor/32x32/apps/assistant-qt5.png && \
+sudo -S install -m644 -p -D src/assistant/assistant/images/assistant-128.png \
+        $BUILD/usr/share/icons/hicolor/128x128/apps/assistant-qt5.png && \
+sudo -S install -m644 -p -D src/designer/src/designer/images/designer.png \
+        $BUILD/usr/share/icons/hicolor/32x32/apps/designer-qt5.png && \
+sudo -S install -m644 -p -D src/qdbus/qdbusviewer/images/qdbusviewer.png \
+        $BUILD/usr/share/icons/hicolor/32x32/apps/qdbusviewer-qt5.png && \
+sudo -S install -m644 -p -D src/qdbus/qdbusviewer/images/qdbusviewer-128.png \
+        $BUILD/usr/share/icons/hicolor/128x128/apps/qdbusviewer-qt5.png && \
+for icon in src/linguist/linguist/images/icons/linguist-*-32.png ; do
+	size=$(echo ${icon##*/} | cut -d- -f2)
+	sudo -S install -p -m644 -D $icon $BUILD/usr/share/icons/hicolor/"$size"x"$size"/apps/linguist.png
+done
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+qt5-qttools: Qt5 QtTools
+qt5-qttools:
+qt5-qttools: A cross-platform C++ application framework. Qt's primary feature
+qt5-qttools: is its rich set of widgets that provide standard GUI functionality. 
+qt5-qttools:
+qt5-qttools: http://qt-project.org
+qt5-qttools:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/qt5-qttools-5.15.3_git20201202-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
