@@ -1,0 +1,53 @@
+#! /bin/bash
+
+# glMark2 
+# Source: https://github.com/glmark2/glmark2 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     mesa libjpeg-turbo libpng libdrm libudev 
+# Recommended:  wayland wayland protocols libX11 
+# Optional:     NONE
+
+# For Wayland only:
+export TESTS="wayland-gl,wayland-glesv2"
+
+# For X11 only:
+export TESTS="x11-gl,x11-glesv2"
+
+# Or Both:
+export TESTS="wayland-gl,wayland-glesv,x11-gl,x11-glesv2"
+
+meson setup build -Dflavors=drm-gl,drm-glesv2,$TESTS --prefix=/usr
+
+# Generate missing header:
+wayland-scanner client-header \
+	/usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
+	src/xdg-shell-client-protocol.h
+
+read -p "Compile?" && ninja -j2 -C build &&
+
+sudo -S DESTDIR=$BUILD ninja -C build install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+glmark2: glmark2
+glmark2:
+glmark2: An OpenGL 2.0 and ES 2.0 benchmark 
+glmark2:
+glmark2: https://github.com/glmark2/glmark2 
+glmark2:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/glmark2-2021.12-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
