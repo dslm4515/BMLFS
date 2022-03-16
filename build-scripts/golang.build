@@ -1,0 +1,116 @@
+#! /bin/bash
+
+# Go Compiler 
+# Source: https://go.dev/dl/go1.17.8.src.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     golang-bootstrap
+# Recommended:  NONE
+# Optional:     NONE
+
+# Apply patches from Alpine Linux
+patch -Np1 -i ../patches/go-alpine/allow-unshare-to-return-enosys.patch 
+patch -Np1 -i ../patches/go-alpine/disable-flaky-gc-test.patch
+patch -Np1 -i ../patches/go-alpine/disable-flaky-sync-test.patch 
+
+# For AMD64/x86_64
+export GOARCH="amd64"
+
+# For i686
+# export GOARCH=386
+# For arch64
+# export GOARCH=arm64
+# For armv7
+# export GOARCH="arm" GOARM=7
+# For armhf
+# export GOARCH="arm" GOARM=6
+
+# compile go itself as a PIE on supported arches.
+case $(uname -m) in
+	x86_64|s390x|aarch64) export GO_LDFLAGS=-buildmode=pie ;;
+esac
+
+export GOOS="linux"
+export GOPATH="/src"
+export GOROOT="/src/go"
+export GOBIN="$GOROOT"/bin
+export GOROOT_FINAL=/usr/lib/go
+
+for p in /usr/lib/go-bootstrap /usr/lib/go-linux-$GOARCH-bootstrap /usr/lib/go; do
+	if [ -d "$p" ]; then
+		export GOROOT_BOOTSTRAP="$p"
+		break
+	fi
+done
+
+# Build!
+cd src && ./make.bash -v
+
+# Install
+cd .. && \
+sudo -S mkdir -pv $BUILD/usr/bin $BUILD/usr/lib/go/bin $BUILD/usr/share/doc/go &&
+for binary in go gofmt; do
+	sudo -S install -Dm755 bin/"$binary" $BUILD/usr/lib/go/bin/"$binary"
+	sudo -S ln -sv ../../usr/lib/go/bin/"$binary" $BUILD/usr/bin/
+done
+
+sudo -S cp -av  pkg lib  $BUILD/usr/lib/go       && \
+sudo -S cp -rv  doc misc $BUILD/usr/share/doc/go && \
+sudo -S rm -rfv $BUILD/usr/lib/go/pkg/obj        && \
+sudo -S rm -rfv $BUILD/usr/lib/go/pkg/bootstrap  && \
+sudo -S rm -fv  $BUILD/usr/lib/go/pkg/tool/*/api && \
+
+sudo -S mkdir -pv $BUILD/usr/lib/go/ && \
+sudo -S cp -a src $BUILD/usr/lib/go/ && \
+
+# Per Alpine Linux
+# Remove tests from /usr/lib/go/src to reduce package size,
+# these should not be needed at run-time by any program.
+find $BUILD/usr/lib/go/src \( -type f -a -name "*_test.go" \) \
+	-exec sudo -S rm -rf \{\} \+
+find $BUILD/usr/lib/go/src \( -type d -a -name "testdata" \) \
+	-exec sudo -S rm -rf \{\} \+
+
+# Per Alpine Linux
+# Remove rc (plan 9) and bat scripts (windows) to reduce package
+#
+# See: https://gitlab.alpinelinux.org/alpine/aports/issues/11091
+find $BUILD/usr/lib/go/src -type f -a \( -name "*.rc" -o -name "*.bat" \) \
+	-exec sudo -S rm -rf \{\} \+
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+golang: golang
+golang:
+golang: Go programming language compiler
+golang:
+golang: https://go.dev/
+golang:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
+sudo mv $BUILD/usr/share /BMAN/usr/ && \
+sudo -S makepkg -l y -c n $PKGS/golang-1.17.8-$(uname -m)-mlfs.txz &&
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+golang-doc: Documentation for golang
+golang-doc:
+golang-doc: Go programming language compiler
+golang-doc:
+golang-doc: https://go.dev/
+golang-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/golang-doc-1.17.8-noarch-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

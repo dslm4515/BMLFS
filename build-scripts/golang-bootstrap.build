@@ -1,0 +1,75 @@
+#! /bin/bash
+
+# Golang Bootstrap 
+# Source: https://storage.googleapis.com/golang/go1.4.3.src.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+# Apply patches from Alpine Linux
+patch -Np1 -i ../go-bootstrap-alpine/default-sc-getpw-r-size-max.patch\?h\=3.7-stable
+patch -Np1 -i ../go-bootstrap-alpine/fix-arm-hackery.patch\?h\=3.7-stable 
+patch -Np1 -i ../go-bootstrap-alpine/new-binutils.patch\?h\=3.7-stable 
+patch -Np1 -i ../go-bootstrap-alpine/no-longjmp-redefine.patch\?h\=3.7-stable 
+patch -Np1 -i ../go-bootstrap-alpine/no-pic.patch\?h\=3.7-stable 
+
+# Set the paths
+export GOPATH="/src"    # Full path to where source was unpacked
+export GOROOT="/src/go" # Full path to unpacked source
+export GOBIN="$GOROOT"/bin
+export GOROOT_FINAL=/usr/lib/go-bootstrap # Full path where bootstrap will finally be installed
+export CGO_ENABLED=0
+
+# Set the arch
+case $(uname -m) in
+	x86)    export GOARCH="386" ;;
+	x86_64) export GOARCH="amd64" ;;
+	arm*)   export GOARCH="arm" ;;
+	*)return 1 ;;
+esac
+
+# Build!
+cd src && 
+./make.bash --no-clean
+
+# Install!
+cd ..
+sudo -S mkdir -pv $BUILD/usr/lib/go-bootstrap $BUILD/usr/lib/go-bootstrap
+
+# Per Apline Linux:
+# The source needs to be installed due to an upstream
+# bug (https://github.com/golang/go/issues/2775).
+sudo -S cp -a bin pkg src $BUILD/usr/lib/go-bootstrap
+
+# Remove tests and bashscripts from /usr/lib/go/src.
+# Those shouldn't be affacted by the upstream bug (see above).
+find $BUILD/usr/lib/go-bootstrap/src \( -type f -a -name "*_test.go" \) \
+	-exec sudo -S rm -rvf \{\} \+ || return 1
+find $BUILD/usr/lib/go-bootstrap/src \( -type d -a -name "testdata" \) \
+	-exec sudo -S rm -rvf \{\} \+ || return 1
+find $BUILD/usr/lib/go-bootstrap/src \( -type f -a -name "*.bash" \) \
+	-exec rm -rf \{\} \+ || return 1
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+            |-----handy-ruler------------------------------------------------------|
+go-bootstrap: Go Bootstrap
+go-bootstrap:
+go-bootstrap: Go programming language compiler used for bootstraping
+go-bootstrap:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/go-bootstrap-1.4.3-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
