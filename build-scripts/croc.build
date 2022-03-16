@@ -1,0 +1,39 @@
+#! /bin/bash
+
+# croc
+# Source: https://github.com/schollz/croc/releases/download/v9.5.2/croc_9.5.2_src.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     go
+# Recommended:  NONE
+# Optional:     NONE
+
+GOFLAGS=" -trimpath -mod=vendor" go mod vendor && \
+
+go build && \
+
+sudo -S install -Dm755 -t  $BUILD/usr/bin croc && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+croc: croc
+croc: 
+croc: Easily and securely send things from one computer to another
+croc:
+croc: https://github.com/schollz/croc
+croc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/croc-9.5.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
