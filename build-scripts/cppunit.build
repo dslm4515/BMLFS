@@ -1,0 +1,54 @@
+#! /bin/bash
+
+# cppunit 
+# Source: https://dev-www.libreoffice.org/src/cppunit-1.15.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+LIBS="-ldl" ./configure --prefix=/usr --sysconfdir=/etc \
+	   --mandir=/usr/share/man --infodir=/usr/share/info \
+	   --localstatedir=/var $BT && \
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install && \
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
+sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/ && \ 
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+cppunit: cppunit
+cppunit:
+cppunit: C++ unit testing framework
+cppunit:
+cppunit: http://www.freedesktop.org/wiki/Software/cppunit/
+cppunit:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/cppunit-1.15.1-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+cppunit-doc: Manuals for cppunit
+cppunit-doc:
+cppunit-doc: C++ unit testing framework
+cppunit-doc:
+cppunit-doc: http://www.freedesktop.org/wiki/Software/cppunit/
+cppunit-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/cppunit-doc-1.15.1-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

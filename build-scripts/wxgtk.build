@@ -1,0 +1,46 @@
+#! /bin/bash
+
+# wxgtk3
+# Source: https://github.com/wxWidgets/wxWidgets/releases/download/v3.0.4/wxWidgets-3.0.4.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     gtk3 mesa tiff libsm glu 
+# Recommended:  libjpeg-turbo SDL2 gstreamer gst-plugins-base
+# Optional:     NONE
+
+cp -v ../files/config.guess-musl config.guess 
+cp -v ../files/config.sub-musl config.sub 
+
+./configure --prefix=/usr --with-sdl --with-opengl \
+	    --enable-unicode --enable-aui --enable-no_deps \
+	    --enable-shared --enable-sound -enable-mediactrl \
+	    --disable-rpath --disable-optimise --with-gtk3 $BT && \
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+wxgtk3: wxgtk3
+wxgtk3:
+wxgtk3: GTK3 port of wxWidgets GUI library
+wxgtk3:
+wxgtk3:
+wxgtk3: https://www.wxwidgets.org/
+wxgtk3:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/wxgtk3-version-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
