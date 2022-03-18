@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Audacious
-# Source: https://distfiles.audacious-media-player.org/audacious-4.0.5.tar.bz2
+# Source: https://distfiles.audacious-media-player.org/audacious-4.1.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,13 +13,18 @@
 #
 # NOTE: Required audacious-plugins
 
+# No longer building GTK+2
+
 LDFLAGS=" -Wl,-rpath=/opt/qt5/lib" \
 TPUT=/bin/true ./configure --prefix=/usr \
-                           --with-buildstamp="BMLFS" $BUILDTRUPLE && 
+                           --with-buildstamp="BMLFS" \
+			   --disable-gtk $BUILDTRUPLE && 
                            
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -44,5 +49,17 @@ audacious: The webpage for Audacious is: http://www.audacious-media-player.org.
 audacious:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/audacious-4.0.5-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/audacious-4.1-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+audacious-doc: Manuals for audacious (A relatively powerful media player)
+audacious-doc:
+audacious-doc: A media player, based on Beep Media Player, which is in turn
+audacious-doc: based on the X Multimedia System (XMMS).
+audacious-doc:
+audacious-doc: http://www.audacious-media-player.org
+audacious-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && 
+sudo -S makepkg -l y -c n $PKGS/audacious-doc-4.1-norch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*

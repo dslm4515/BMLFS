@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # audacious-plugins 
-# Source: https://distfiles.audacious-media-player.org/audacious-plugins-4.0.5.tar.bz2
+# Source: https://distfiles.audacious-media-player.org/audacious-plugins-4.1.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     neon
+# Required:     audacious neon
 # Recommended:  mpg123 
 # Optional:     wavpack, cURL, FAAD2, FFmpeg, FLAC, LAME, libcdio, libnotify,
 # Optional:     libsamplerate, libsndfile, libvorbis, Pulseaudio, SDL,  
@@ -15,8 +15,10 @@
 # Optional:     FluidSynth, JACK (requires libsamplerate-0.1.9), libcue, 
 # Optional:     libmodplug, libmms, libsidplayfp, LIRC
 
+# No longer building GTK+2
+
 TPUT=/bin/true ./configure --prefix=/usr \
-                           --enable-gtk $BUILDTRUPLE &&
+                           --disable-gtk $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -44,5 +46,5 @@ audacious-plugins:
 audacious-plugins:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/audacious-plugins-4.0.5-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/audacious-plugins-4.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
