@@ -1,0 +1,42 @@
+#! /bin/bash
+
+# Qt5ct 
+# Source:  https://sourceforge.net/projects/qt5ct/files/qt5ct-1.5.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     qt5-qtbase qt5-qttools
+# Recommended:  NONE
+# Optional:     NONE
+
+cmake -B build -DCMAKE_INSTALL_PREFIX=/opt/qt5 && \
+
+read -p "Compile?" && make -j2 -C build &&
+
+sudo -S make DESTDIR=$BUILD -C build install && \
+sudo -S mkdir -pv  $BUILD/usr/share && \
+sudo -S mv $BUILD/opt/qt5/share/applications $BUILD/usr/share/ && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+qt5ct: Qt5CT
+qt5ct:
+qt5ct: This program allows users to configure Qt5 settings (theme, font, 
+qt5ct: icons, etc.) under DE/WM without Qt integration.
+qt5ct:
+qt5ct: https://qt5ct.sourceforge.io
+qt5ct:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/qt5ct-1.5-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
