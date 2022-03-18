@@ -22,14 +22,25 @@ unset LDFLAGS
 ./configure --prefix=/usr        \
             --disable-static     \
             --with-fuse=internal \
-            --docdir=/usr/share/doc/ntfs-3g-2021.8.22 $BUILDTRUPLE &&
+            --docdir=/usr/share/doc/ntfs-3g-2021.8.22 \
+	    --bindir=/usr/bin --libdir=/usr/lib --sbindir=/usr/bin $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
-sudo -S mkdir -pv ${BUILD}/lib &&
 sudo -S make DESTDIR=$BUILD install &&
+# /bin and /sbin are not longer directories, but are just links 
+# to /usr/bin & /usr/sbin
+sudo -S mv $BUILD/bin/* $BUILD/usr/bin/ && \
+sudo -S rm -rf $BUILD/bin        && \
+sudo -S rm -rf $BUILD/sbin       && \
+sudo -S mkdir $BUILD/usr/sbin    && \
+sudo -S ln -sv ../bin/lowntfs-3g usr/sbin/lowntfs-3g && \
+sudo -S ln -sv ../bin/ntfs-3g usr/sbin/ntfs-3g       && \
+sudo -S rm -rf usr/bin/mkfs.ntfs         && \
+sudo -S ln -sv mkntfs  usr/bin/mkfs.ntfs && \
+
 sudo -S mkdir -pv /BMAN/install  && \
 sudo -S mkdir -pv /BMAN/usr      && \
-sudo -S mv $BUILD/usr/share /BMAN/usr/ 
+sudo -S mv $BUILD/usr/share /BMAN/usr/ && \ 
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -54,7 +65,7 @@ ntfs-3g: Homepage: http://www.tuxera.com/community/open-source-ntfs-3g/
 ntfs-3g:
 EOF
 sudo -S mv -v /tmp/slack-desc install/    &&
-sudo -S ln -s bin/ntfs-3g sbin/mount.ntfs &&
+sudo -S ln -s ../bin/ntfs-3g usr/sbin/mount.ntfs &&
 sudo -S makepkg -l y -c n $PKGS/ntfs-3g-2021.8.22-$(uname -m)-mlfs.txz &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
