@@ -15,7 +15,7 @@
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
-udo -S mkdir -pv /BMAN/install /BMAN/$XORG_PREFIX/share && \
+sudo -S mkdir -pv /BMAN/install /BMAN/$XORG_PREFIX/share && \
 sudo -S mv $BUILD/$XORG_PREFIX/share/man /BMAN/$XORG_PREFIX/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
