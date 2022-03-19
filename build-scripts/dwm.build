@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # dwm
-# Source: https://dl.suckless.org/dwm/dwm-6.2.tar.gz
+# Source: https://dl.suckless.org/dwm/dwm-6.3.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,14 +11,16 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-sed -i -e '/CFLAGS/{s/-Os//;s/=/+=/}' \
-    -e '/LDFLAGS/{s/=/+=/}' config.mk &&
+#sed -i -e '/CFLAGS/{s/-Os//;s/=/+=/}' \
+#    -e '/LDFLAGS/{s/=/+=/}' config.mk &&
 read -p "Compile?" &&
-make X11INC=/usr/include/X11 \
-     X11LIB=/usr/lib/X11     \
+make X11INC=$XORG_PREFIX/include/X11 \
+     X11LIB=$XORG_PREFIX/lib     \
      FREETYPEINC=/usr/include/freetype2 &&
 
-sudo -S make PREFIX=/usr DESTDIR=$BUILD install &&
+sudo -S make PREFIX=$XORG_PREFIX DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/$XORG_PREFIX/share && \
+sudo -S mv $BUILD/$XORG_PREFIX/share/man /BMAN/$XORG_PREFIX/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -43,5 +45,16 @@ dwm:
 dwm: Homepage: http://dwm.suckless.org
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/dwm-6.2-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/dwm-6.3-$(uname -m)-mlfs.txz &&
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+dwm-doc: Manpages for dwm (suckless dynamic window manager)
+dwm-doc:
+dwm-doc: A dynamic window manager for X
+dwm-doc:
+dwm-doc: http://dwm.suckless.org
+dwm-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/dwm-6.3-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
