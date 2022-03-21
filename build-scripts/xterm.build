@@ -1,22 +1,25 @@
 #! /bin/bash
 
 # XTerm
-# Source: http://invisible-mirror.net/archives/xterm/xterm-361.tgz
+# Source: https://invisible-mirror.net/archives/xterm/xterm-372.tgz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     xorg-apps, utempter
+# Required:     libxaw libxft
 # Recommended:  NONE
-# Optional:     pcre or pcre2, vlagrind, man2html
+# Optional:     pcre or pcre2, vlagrind, man2html, utempter
 
 patch -Np1 -i ../patches/xterm-alpine/posix-ptys.patch
+
+# If using netBSD curses instead of Ncurses, use "-lterminfo" instead of "-ltinfo"
+CFLAGS="-ltinfo " \
 ./configure \
-		--prefix=/usr \
+		--prefix=$XORG_PREFIX \
 		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
-		--infodir=/usr/share/info \
+		--mandir=$XORG_PREFIX/share/man \
+		--infodir=$XORG_PREFIX/share/info \
 		--localstatedir=/var \
 		--with-x \
 		--disable-full-tgetent \
@@ -45,6 +48,8 @@ patch -Np1 -i ../patches/xterm-alpine/posix-ptys.patch
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/$XORG_PREFIX/share && \
+sudo -S mv $BUILD/$XORG_PREFIX/share/man /BMAN/$XORG_PREFIX/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -62,12 +67,23 @@ xterm: The xterm program is a terminal emulator for the X Window System.
 xterm: It provides DEC VT102/VT220 (VTxxx) and Tektronix 4014 compatible
 xterm: terminals for programs that cannot use the window system directly.
 xterm:
-xterm:
+xterm: https://invisible-mirror.net
 xterm:
 xterm:
 xterm:
 xterm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xterm-361-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/xterm-372-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+xterm-doc: Manuals for xterm (terminal emulator for X)
+xterm-doc:
+xterm-doc: A terminal emulator for the X Window System.
+xterm-doc:
+xterm-doc: https://invisible-mirror.net
+xterm-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/xterm-doc-372-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/* 
