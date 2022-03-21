@@ -1,6 +1,7 @@
 #! /bin/bash
 
 # xf86-video-intel (Xorg Intel Driver)
+# Source: https://github.com/freedesktop/xorg-xf86-video-intel/archive/31486f40f8e8f8923ca0799aea84b58799754564.zip
 # Source: ftp://anduin.linuxfromscratch.org/BLFS/xf86-video-intel/xf86-video-intel-20200817.tar.xz
 #
 # $BUILD = Directory to temporarily install
@@ -11,16 +12,17 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+autoreconf -vif && \
+
 export LDFLAGS="$LDFLAGS -Wl,-z,lazy" 
-./autogen.sh $XORG_CONFIG $BUILDTRUPLE \
-             --enable-kms-only \
-             --enable-uxa      \
-             --mandir=/usr/share/man \
+./configure $XORG_CONFIG $BT \
              --enable-xvm      \
-             --disable-selective-werror \
+	     --disable-selective-werror \
              --with-default-dri=3
 read -p "Compile?" && make -j2 &&
-sudo -S make DESTDIR=$BUILD install &&
+sudo -S make DESTDIR=$BUILD install && \
+sudo -S mkdir -pv /BMAN/install /BMAN/$XORG_PREFIX/share && \
+sudo -S mv $BUILD/$XORG_PREFIX/share/man /BMAN/$XORG_PREFIX/share/ && \
 unset LDFLAGS
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
@@ -40,11 +42,22 @@ xf86-video-intel:
 xf86-video-intel: For more information about the X.Org Foundation (the providers of the
 xf86-video-intel: X.Org implementation of the X Window System), see their website:
 xf86-video-intel:
-xf86-video-intel: http://www.x.org
+xf86-video-intel: https://github.com/freedesktop/xorg-xf86-video-intel
 xf86-video-intel:
 xf86-video-intel:
 xf86-video-intel:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xf86-video-intel-2020.08.17-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/xf86-video-intel-2.99.917_git20210115-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+xf86-video-intel-doc: Manpages for X.org graphics driver for Intel graphics
+xf86-video-intel-doc:
+xf86-video-intel-doc: xf86-video-intel is part of X.org.
+xf86-video-intel-doc:
+xf86-video-intel-doc: https://github.com/freedesktop/xorg-xf86-video-intel
+xf86-video-intel-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/xf86-video-intel-doc-2.99.917_git20210115-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
