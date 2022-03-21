@@ -11,11 +11,16 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-sed -e 's/miPointer/extern &/' \
-    -i src/drmmode_display.h &&
-./configure $XORG_CONFIG $BUILDTRUPLE LDFLAGS="$LDFLAGS -Wl,-z,lazy" &&
+# Apply patch from LFS(BMLFS).
+# Includes fixes for known performance regressions and future problems 
+# with Xorg-Server. 
+patch -Np1 -i ../patches/xf86-video-ati-lfs/xf86-video-ati-19.1.0-upstream_fixes-1.patch 
+
+./configure $XORG_CONFIG $BT &&
 read -p "Compile?" && make -j2 &&
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/$XORG_PREFIX/share && \
+sudo -S mv $BUILD/$XORG_PREFIX/share/man /BMAN/$XORG_PREFIX/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -40,5 +45,16 @@ xf86-video-ati:
 xf86-video-ati:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xf86-video-ati-19.1.0-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/xf86-video-ati-19.1.0-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+xf86-video-ati-doc: Manuals for (ATI Radeon video driver for the Xorg X server
+xf86-video-ati-doc:
+xf86-video-ati-doc: xf86-video-ati is part of X11.
+xf86-video-ati-doc:
+xf86-video-ati-doc: http://www.x.org
+xf86-video-ati-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/xf86-video-ati-19.1.0-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
