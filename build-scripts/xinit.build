@@ -17,6 +17,8 @@ patch -Np1 -i ../patches/xinit-alpine/06_move_serverauthfile_into_tmp.patch
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/$XORG_PREFIX/share && \
+sudo -S mv $BUILD/$XORG_PREFIX/share/man /BMAN/$XORG_PREFIX/share/ && \
 
 #sudo -S install -m755 -d ${BUILD}/etc/skel &&
 #sudo -S install -m755 -D ../files/xinit-alpine/xinitrc ${BUILD}/etc/X11/xinit/xinitrc
@@ -48,7 +50,9 @@ xinit:
 xinit:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S ln -sv dwm usr/bin/twm &&
+# Depending if TWM or DWM was installed,
+# Modify /etc/X11/app-defaults/xinitrc
+#sudo -S ln -sv dwm usr/bin/twm &&
 sudo -S makepkg -l y -c n $PKGS/xinit-1.4.1-$(uname -m)-mlfs.txz &&
 cp -v install/doinst.sh /tmp/ &&
 cat >> /tmp/doinst.sh << "EOF"
@@ -56,4 +60,13 @@ chmod -v +x /usr/bin/startx
 EOF
 sudo -S mv /tmp/doinst.sh install/ &&
 sudo -S makepkg -l y -c n $PKGS/xinit-1.4.1-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+xinit-doc: Manuals for xinit (scripts to start X11 servers)
+xinit-doc:
+xinit-doc: Basic script to start a X11 server.
+xinit-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/xinit-doc-1.4.1-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
