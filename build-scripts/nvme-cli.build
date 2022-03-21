@@ -1,0 +1,55 @@
+#! /bin/bash
+
+# nvme-cli 
+# Source:  https://github.com/linux-nvme/nvme-cli/archive/v1.16.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/nvme-cli-mlfs/nvme-cli-add-limits.patch
+
+
+read -p "Compile?" && make PREFIX=/usr HAVE_SYSTEMD=1  &&
+
+sudo -S make DESTDIR=$BUILD PREFIX=/usr install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+nvme-cli: nvme-cli
+nvme-cli:
+nvme-cli: NVM-Express user space tooling for Linux
+nvme-cli:
+nvme-cli: https://github.com/linux-nvme/nvme-cli
+nvme-cli:
+nvme-cli:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/nvme-cli-1.16-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+nvme-cli-doc: Manpages for nvme-cli
+nvme-cli-doc:
+nvme-cli-doc: NVM-Express user space tooling for Linux
+nvme-cli-doc:
+nvme-cli-doc: https://github.com/linux-nvme/nvme-cli
+nvme-cli-doc:
+nvme-cli-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/nvme-cli-doc-1.16-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
