@@ -1,0 +1,72 @@
+#! /bin/bash
+
+# PPSSPP 
+# Source: https://github.com/hrydgard/ppsspp/archive/v1.12.3.tar.gz 
+# Source: https://github.com/Kingcom/armips/archive/7885552b208493a6a0f21663770c446c3ba65576.tar.gz
+# Source: https://github.com/discordapp/discord-rpc/archive/963aa9f3e5ce81a4682c6ca3d136cddda614db33.tar.gz
+# Source: https://github.com/hrydgard/glslang/archive/dc11adde23c455a24e13dd54de9b4ede8bdd7db8.tar.gz
+# Source: https://github.com/KhronosGroup/SPIRV-Cross/archive/9acb9ec31f5a8ef80ea6b994bb77be787b08d3d1.tar.gz
+# Source: https://github.com/Tencent/rapidjson/archive/73063f5002612c6bf64fe24f851cd5cc0d83eef9.tar.gz
+# Source: https://github.com/hrydgard/ppsspp-lang/archive/567b22525b115751ee3ae2ed2c8b046034c9dd8d.tar.gz
+# Source: https://github.com/hrydgard/miniupnp/archive/3a87be33e797ba947b2b2a5f8d087f6c3ff4d93e.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     glew snappy mesa sdl2 cmake  ffpmeg
+# Recommended:  NONE
+# Optional:     qt5-qtbase qt5-qtmultimedia
+
+# adding submodules needed by ppsspp
+mv ../armips-7885552b208493a6a0f21663770c446c3ba65576/* ext/armips/ 
+mv ../discord-rpc-963aa9f3e5ce81a4682c6ca3d136cddda614db33/* ext/discord-rpc/
+mv ../glslang-dc11adde23c455a24e13dd54de9b4ede8bdd7db8/* ext/glslang/
+mv ../rapidjson-73063f5002612c6bf64fe24f851cd5cc0d83eef9/* ext/rapidjson/
+mv ../SPIRV-Cross-9acb9ec31f5a8ef80ea6b994bb77be787b08d3d1/* ext/SPIRV-Cross/
+mv ../miniupnp-3a87be33e797ba947b2b2a5f8d087f6c3ff4d93e/* ext/miniupnp/
+mv ../ppsspp-lang-567b22525b115751ee3ae2ed2c8b046034c9dd8d/* assets/lang/
+
+# disable git versioning
+sed -e 's|find_package(Git)|# &|' -i git-version.cmake
+
+patch -Np1 -i ../patches/ppsspp-void/unittest.patch
+patch -Np1 -i ../patches/ppsspp-void/system-zstd.patch 
+
+mkdir build-qt && cd build-qt && \
+
+# Qt5 UI is unstable. Defaulting to SDL.
+cmake -DUSE_SYSTEM_FFMPEG=ON -DUSING_QT_UI=OFF \
+      -DCMAKE_INSTALL_PREFIX=/opt/ppsspp \
+      -DCMAKE_BUILD_TYPE=Release -DUSING_EGL=ON \
+      -DUSING_GLES2=ON -DUSE_SYSTEM_ZSTD=ON .. && \
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv $BUILD/usr/share/applications && \
+sudo mv $BUILD/opt/ppsspp/share/pixmaps $BUILD/usr/share/ && \
+sudo mv $BUILD/opt/ppsspp/share/icons   $BUILD/usr/share/ && \
+#sudo ln -sv ../../../opt/ppsspp/share/applications/PPSSPPQt.desktop $BUILD/usr/share/applications/PPSSPPQt.desktop
+sudo ln -sv ../../../opt/ppsspp/share/applications/PPSSPPSDL.desktop $BUILD/usr/share/applications/PPSSPPSDL.desktop && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+ppsspp: ppsspp
+ppsspp:
+ppsspp: Fast and portable PSP emulator
+ppsspp:
+ppsspp: https://www.ppsspp.org/
+ppsspp:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/ppsspp-1.12.3-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
