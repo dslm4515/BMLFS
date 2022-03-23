@@ -1,0 +1,49 @@
+#! /bin/bash
+
+# Qt5 QtSystems 0_git20190103
+# Source: https://github.com/qt/qtsystems/archive/e3332ee38d27a134cef6621fdaf36687af1b6f4a/qtsystem-e3332ee38d27a134cef6621fdaf36687af1b6f4a.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     qt5-qtdeclarative qt5-qtbase
+# Recommended:  NONE
+# Optional:     NONE
+
+# per ALpine Linux:
+# Something in the build system only runs the syncqt.pl script 
+# when it's in a git repo
+mkdir .git
+
+qmake-qt5 && \
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make INSTALL_ROOT=$BUILD install &&
+
+# Drop QMAKE_PRL_BUILD_DIR because reference the build dir
+find "$BUILD/opt/qt5/lib" -type f -name '*.prl' \
+	-exec sudo sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+qt5-qtsystems: Qt5 QtSystems
+qt5-qtsystems:
+qt5-qtsystems: A cross-platform C++ application framework. Qt's primary feature 
+qt5-qtsystems: is its rich set of widgets that provide standard GUI functionality. 
+qt5-qtsystems:
+qt5-qtsystems: http://qt-project.org/
+qt5-qtsystems:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/qt5-qtsystems-0_git20190103-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
