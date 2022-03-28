@@ -15,6 +15,8 @@
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/$XORG_PREFIX/share && \
+sudo -S mv $BUILD/$XORG_PREFIX/share/man /BMAN/$XORG_PREFIX/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -39,5 +41,16 @@ xf86-input-evdev:
 xf86-input-evdev:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xf86-input-evdev-2.10.6-$(uname -m)-mlfs.txz &&
-sudo -S rm -rf ${BUILD}/*
+sudo -S makepkg -l y -c n $PKGS/xf86-input-evdev-2.10.6-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+xf86-input-evdev-doc: Manuals for the Xorg Generic Linux input driver 
+xf86-input-evdev-doc:
+xf86-input-evdev-doc: xf86-input-evdev is part of X11
+xf86-input-evdev-doc:
+xf86-input-evdev-doc: http://www.x.org
+xf86-input-evdev-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/xf86-input-evdev-doc-2.10.6-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
