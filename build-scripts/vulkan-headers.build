@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Vulkan-headers
-# Source: https://github.com/khronosgroup/vulkan-headers/archive/v1.2.196/vulkan-headers-v1.2.196.tar.gz 
+# Source: https://github.com/khronosgroup/vulkan-headers/archive/v1.3.209/vulkan-headers-v1.3.209.tar.gz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -36,5 +36,5 @@ vulkan-headers: https://github.com/khronosgroup/vulkan-headers
 vulkan-headers: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/vulkan-headers-1.2.196-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/vulkan-headers-1.3.209-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
