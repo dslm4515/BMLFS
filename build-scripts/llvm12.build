@@ -55,7 +55,7 @@ patch  -Np1 -i ../patches/llvm12-void/llvm-005-ppc-bigpic.patch        && \
 patch  -Np1 -i ../patches/llvm12-void/llvm-006-aarch64-mf_exec.patch   
 
 # Disable sanitizers for musl-based systems
-sed -i 's/set(COMPILER_RT_HAS_SANITIZER_COMMON TRUE)/set(COMPILER_RT_HAS_SANITIZER_COMMON FALSE)/' projects/compiler-rt/cmake/config-ix.cmake &&
+#sed -i 's/set(COMPILER_RT_HAS_SANITIZER_COMMON TRUE)/set(COMPILER_RT_HAS_SANITIZER_COMMON FALSE)/' projects/compiler-rt/cmake/config-ix.cmake &&
 
 # Update host/target triple detection
 cp -v ../files/config.guess-musl cmake/config.guess
