@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Libdrm
-# Source: https://dri.freedesktop.org/libdrm/libdrm-2.4.109.tar.xz
+# Source: https://dri.freedesktop.org/libdrm/libdrm-2.4.110.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -61,5 +61,5 @@ libdrm:
 libdrm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libdrm-2.4.109-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libdrm-2.4.110-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
