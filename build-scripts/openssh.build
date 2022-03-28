@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# OpenSSH 8.0p1
-# Source: https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.8p1.tar.gz
+# OpenSSH 8.9p1
+# Source: https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-8.9p1.tar.gz
 #
 # DEPS
 # Required:     NONE
@@ -32,6 +32,11 @@ patch  -Np1 -i ../patches/openssh-alpine/sftp-interactive.patch
 
 autoreconf -fiv &&
 
+# If OpenSSL was built:
+export OPTARGS="--with-ssl-dir=/opt/openssl"
+export OPTFLAGS="-I/opt/openssl/include -L/opt/openssl/lib"
+
+CFLAGS=$OPTFLAGS" \
 LIBS="-lutmps -lskarnet" \
 ac_cv_header_sys_cdefs_h=false \
 ./configure --prefix=/usr \
@@ -44,7 +49,7 @@ ac_cv_header_sys_cdefs_h=false \
             --without-rpath \
             --with-ssl-engine \
             --enable-wtmp \
-            --with-Werror=no $BUILDTRUPLE  &&
+            --with-Werror=no $BT $OPTARGS  &&
 read -p "Compile? " && make -j2 &&
 
 read -p "Press Enter to install" &&
@@ -57,11 +62,11 @@ sudo -S make DESTDIR=$BUILD install &&
 # If packing documentation and man pages in seperate package:
 sudo mkdir   -pv        /BMAN/install
 sudo mkdir   -pv         /BMAN/usr/share/man/man1 
-sudo install -v -m755 -d /BMAN/usr/share/doc/openssh-8.8p1 
+sudo install -v -m755 -d /BMAN/usr/share/doc/openssh-8.9p1 
 sudo install -v -m644    contrib/ssh-copy-id.1 \
                     /BMAN/usr/share/man/man1
 sudo install -v -m644    INSTALL LICENCE OVERVIEW README* \
-                    /BMAN/usr/share/doc/openssh-8.8p1
+                    /BMAN/usr/share/doc/openssh-8.9p1
 
 sudo -S mkdir -pv  ${BUILD}/usr/bin &&
 sudo -S install -v -m755    contrib/ssh-copy-id ${BUILD}/usr/bin && 
@@ -121,7 +126,7 @@ sudo cp -rv  usr/share/man /BMAN/usr/share/
 sudo rm -rf  ust/share
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/openssh-8.8p1-$(uname -m)-mlfs.txz 
+sudo makepkg -l y -c n $PKGS/openssh-8.9p1-$(uname -m)-mlfs.txz 
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -147,6 +152,6 @@ openssh-doc:
 EOF
 sudo mv /tmp/slack-desc install/
 
-sudo makepkg -l y -c n $PKGS/openssh-doc-8.8p1-noarch-mlfs.txz
+sudo makepkg -l y -c n $PKGS/openssh-doc-8.9p1-noarch-mlfs.txz
 sudo rm -rf /BMAN/*
 sudo rm -rf $BUILD/*                                                                                                                                                                                                              
