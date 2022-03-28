@@ -19,7 +19,7 @@ export CFLAGS+="-fno-trapping-math "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 meson  --prefix=/usr --buildtype=release \
-       --Ddocumentation=false BUILD &&
+       -Ddocumentation=false BUILD &&
 read -p "Compile?" && ninja -C BUILD -j2      &&
 
 sudo -S DESTDIR=$BUILD ninja -C BUILD install &&
