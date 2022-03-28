@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # CMake 
-# Source: https://cmake.org/files/v3.22/cmake-3.22.1.tar.gz
+# Source: https://cmake.org/files/v3.22/cmake-3.22.3.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built package
@@ -25,7 +25,7 @@ sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake
             --mandir=/share/man  \
             --no-system-jsoncpp  \
             --no-system-librhash \
-            --docdir=/share/doc/cmake-3.22.1 &&
+            --docdir=/share/doc/cmake-3.22.3 &&
 
 read -p "Compile? " && make -j4  &&
 
@@ -63,7 +63,7 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/cmake-3.22.1-$(uname -m)-mlfs.txz &&                                                                                                                                                              
+sudo makepkg -l y -c n $PKGS/cmake-3.22.3-$(uname -m)-mlfs.txz &&                                                                                                                                                              
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 cmake-doc: Manuals for CMake (cross-platform, open-source make system)
@@ -78,7 +78,7 @@ cmake-doc:
 cmake-doc:
 EOF
 sudo mv /tmp/slack-desc install/
-sudo makepkg -l y -c n $PKGS/cmake-doc-3.22.1-noarch-mlfs.txz
+sudo makepkg -l y -c n $PKGS/cmake-doc-3.22.3-noarch-mlfs.txz
  
 sudo rm -rf /BMAN/*
 sudo rm -rf $BUILD/*
