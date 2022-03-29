@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GObject Introspection
-# Source: https://download.gnome.org/sources/gobject-introspection/1.70/gobject-introspection-1.70.0.tar.xz
+# Source: https://download.gnome.org/sources/gobject-introspection/1.72/gobject-introspection-1.72.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -55,7 +55,7 @@ gobject-introspection:
 gobject-introspection:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gobject-introspection-1.70.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/gobject-introspection-1.72.0-$(uname -m)-mlfs.txz &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -70,7 +70,7 @@ gobject-introspection-doc: For more information, check out:
 gobject-introspection-doc: http://live.gnome.org/GObjectIntrospection
 gobject-introspection-doc: 
 EOF
-udo -S mv -v /tmp/slack-desc install/ &&                                                                                                             
-sudo -S makepkg -l y -c n $PKGS/gobject-introspection-doc-1.70.0-noarch-mlfs.txz
+sudo -S mv -v /tmp/slack-desc install/ &&                                                                                                             
+sudo -S makepkg -l y -c n $PKGS/gobject-introspection-doc-1.72.0-noarch-mlfs.txz
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
