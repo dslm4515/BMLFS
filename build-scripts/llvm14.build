@@ -1,0 +1,129 @@
+#! /bin/bash
+
+# LLVM 14 
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.0/llvm-14.0.0.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.0/clang-14.0.0.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.0/compiler-rt-14.0.0.src.tar.xz
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.0/lld-14.0.0.src.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cmake libexecinfo
+# Recommended:  NONE
+# Optional:     doxygen git graphviz libxml2 Pygments rsync texlive/install-tl-unx  valgrind
+
+# Unpack
+tar -xf ../clang-14.0.0.src.tar.xz -C tools && \
+mv tools/clang-14.0.0.src tools/clang &&\
+tar -xf ../compiler-rt-14.0.0.src.tar.xz -C projects && \
+mv projects/compiler-rt-14.0.0.src projects/compiler-rt && \
+tar -xf ../lld-14.0.0.src.tar.xz -C tools && \
+mv tools/lld-14.0.0.src tools/lld && \
+
+# Fix scripts to use python3:
+grep -rl '#!.*python' | xargs sed -i '1s/python$/python3/'
+
+# Fix missing header for lld, https://bugs.llvm.org/show_bug.cgi?id=49228
+mkdir -pv tools/lld/include/mach-o
+cp -v ../files/libunwind-llvm14/compact_unwind_encoding.h tools/lld/include/mach-o
+
+# Update host/target triple detection
+cp -v ../files/config.guess-musl cmake/config.guess
+
+# Vastly reduce size of debugging symbols:
+export CFLAGS=" -g -g1"
+export CXXFLAGS=" -g -g1"
+
+case $(uname -m) in
+	 i686*)    export BARCH="X86"
+		   export B_TARGETS="AMDGPU"
+		   export B_TRUPLE="i686-unknown-linux-musl"
+		   ;;
+	 x86_64*)  export BARCH="X86"
+		   export B_TARGETS="AMDGPU"
+		   export B_TRUPLE="x86_64-unknown-linux-musl"
+		   ;;
+	 aarch64*) # Not yet tested for ARM. May need patching
+		   export BARCH="AArch64"
+		   export B_TARGETS="ARM;AArch64"
+		   export B_TRUPLE="aarch64-unknown-linux-musleabihf"
+		   ;;
+esac
+
+# Set the configure options:
+export  CARGS="-DLLVM_ENABLE_FFI=ON "
+export CARGS+="-DCMAKE_BUILD_TYPE=Release "
+export CARGS+="-DLLVM_BUILD_LLVM_DYLIB=ON "
+export CARGS+="-DLLVM_LINK_LLVM_DYLIB=ON "
+export CARGS+="-DLLVM_BUILD_TESTS=OFF "
+export CARGS+="-DLLVM_INSTALL_UTILS=ON "
+
+# Build LLVM with run-time type information. Required for building Mesa
+export CARGS+="-DLLVM_ENABLE_RTTI=ON "
+
+# Disable generation build targets for the LLVM benchmarks. Requires additional 
+# code that is not currently available
+export CARGS+="-DLLVM_INCLUDE_BENCHMARKS=OFF "
+
+# Configure source to use gcc and link with libexecinfo
+LDFLAGS="-Wl,-lexecinfo " \
+CC=gcc CXX=g++ \
+cmake -B OUT -DCMAKE_INSTALL_PREFIX=/usr \
+             -DLLVM_BINUTILS_INCDIR="/usr/include" \
+	     -DLLVM_TARGET_ARCH=${BARCH} \
+	     -DLLVM_TARGETS_TO_BUILD="host;BPF;${B_TARGETS}" \
+	     -DLLVM_HOST_TRIPLE="${B_TRUPLE}" \
+	     -DLLVM_DEFAULT_TARGET_TRIPLE="${B_TRUPLE}" \
+	     -DCOMPILER_RT_DEFAULT_TARGET_TRIPLE="${B_TRUPLE}" \
+	     $CARGS -Wno-dev -G Ninja 
+
+read -p "Compile?" && ninja -j2 -C OUT && \
+
+cd OUT && \
+sudo -S cmake -DCMAKE_INSTALL_PREFIX=${BUILD}/usr -P cmake_install.cmake && \
+
+cd $BUILD && sudo mkdir -v install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+llvm: llvm (LLVM compiler toolkit)
+llvm:
+llvm: Low Level Virtual Machine is a toolkit for the construction of highly
+llvm: optimized compilers, optimizers, and runtime environments.
+llvm:
+llvm: This package also includes the clang frontend for the C family of
+llvm: languages:  C, C++, Objective-C, and Objective-C++
+llvm:
+llvm:
+llvm: Homepage: http://llvm.org/
+llvm:
+EOF
+sudo mv /tmp/slack-desc install/ &&
+
+sudo mkdir -pv /BMAN/usr/share && \
+sudo mv usr/share/man /BMAN/usr/share && \
+
+sudo makepkg -l y -c n $PKGS/llvm-14.0.0-$(uname -m)-mlfs.txz &&
+cd /BMAN && \
+sudo mkdir -pv install && \
+cat > /tmp/slack-desc << "EOF"
+llvm-doc: Manpages for  llvm (LLVM compiler toolkit)
+llvm-doc:
+llvm-doc: Low Level Virtual Machine is a toolkit for the construction of highly
+llvm-doc: optimized compilers, optimizers, and runtime environments.
+llvm-doc:
+llvm-doc:  http://llvm.org/
+llvm-doc:
+EOF
+sudo mv /tmp/slack-desc install/ && \
+
+sudo makepkg -l y -c n $PKGS/llvm-doc-14.0.0-noarch-mlfs.txz &&
+sudo rm -rf $BUILD/* /BMAN/*
