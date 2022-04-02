@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Vulkan Tools
-# Source: https://github.com/KhronosGroup/Vulkan-Tools/archive/v1.2.196/vulkan-tools-v1.2.196.tar.gz 
+# Source: https://github.com/KhronosGroup/Vulkan-Tools/archive/refs/tags/v1.3.209.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -17,12 +17,12 @@ export CARGS+="-DCMAKE_INSTALL_LIBDIR=lib "
 export CARGS+="-DCMAKE_INSTALL_SYSCONFDIR=/etc "
 export CARGS+="-DCMAKE_INSTALL_DATADIR=/usr/share "
 export CARGS+="-DCMAKE_SKIP_RPATH=True "
-export CARGS+="-DBUILD_CUBE=OFF " #requires libxcb
+export CARGS+="-DBUILD_CUBE=ON "
 export CARGS+="-DBUILD_VULKANINFO=ON "
 export CARGS+="-DGLSLANG_INSTALL_DIR=/usr "
 export CARGS+="-DBUILD_WSI_WAYLAND_SUPPORT=ON "
-export CARGS+="-DBUILD_WSI_XCB_SUPPORT=OFF "
-export CARGS+="-DBUILD_WSI_XLIB_SUPPORT=OFF "
+export CARGS+="-DBUILD_WSI_XCB_SUPPORT=ON "
+export CARGS+="-DBUILD_WSI_XLIB_SUPPORT=ON "
 export CARGS+="-DVULKAN_HEADERS_INSTALL_DIR=/usr/include/vulkan "
 export CARGS+="-DVULKAN_LOADER_INSTALL_DIR=/usr/lib "
 
@@ -51,5 +51,5 @@ vulkan-tools: https://www.khronos.org/vulkan
 vulkan-tools:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/vulkan-tools-1.2.196-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/vulkan-tools-1.3.209-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
