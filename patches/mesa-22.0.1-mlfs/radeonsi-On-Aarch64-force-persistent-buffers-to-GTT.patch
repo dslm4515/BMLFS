@@ -1,0 +1,15 @@
+diff -uNr mesa-22.0.1.orig/src/gallium/drivers/radeonsi/si_buffer.c mesa-22.0.1/src/gallium/drivers/radeonsi/si_buffer.c
+--- mesa-22.0.1.orig/src/gallium/drivers/radeonsi/si_buffer.c	2022-03-29 14:22:21.000000000 -0500
++++ mesa-22.0.1/src/gallium/drivers/radeonsi/si_buffer.c	2022-04-02 11:26:49.131855996 -0500
+@@ -100,6 +100,11 @@
+        */
+       if (!sscreen->info.kernel_flushes_hdp_before_ib || !sscreen->info.is_amdgpu)
+          res->domains = RADEON_DOMAIN_GTT;
++
++#if defined(PIPE_ARCH_AARCH64)
++      if (size <= 1024 * 512)
++	      res->domains = RADEON_DOMAIN_GTT;
++#endif
+    }
+ 
+    /* Tiled textures are unmappable. Always put them in VRAM. */

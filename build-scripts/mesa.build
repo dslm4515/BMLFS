@@ -1,23 +1,29 @@
 #! /bin/bash
 
 # Mesa with Xorg
-# Source: ftp://ftp.freedesktop.org/pub/mesa/mesa-21.3.5.tar.xz
+# Source: https://archive.mesa3d.org//mesa-22.0.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     LLVM, libdrm, Mako
-# Recommended:  Libva, libvdpau(for Xorg), wayland-protocols, libglvnd, spirv-headers, 
-# Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind, vulkan-headers (vulkan support/drive)r
+# Recommended:  Libva, libvdpau(for Xorg), wayland-protocols, libglvnd, spirv-headers
+# Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind, vulkan-headers (vulkan support/driver)
 # Optional:     libxcb(for Xorg), libX11(for Xorg), libxshmfence(for Xorg), libXxf86vm(for Xorg), 
 # Optional:     libXrandr(for Xorg), libclc(vulkan-support)
 
-# Apply patches from Alpine Linux
-patch -Np1 -i ../patches/mesa-alpine-21.2.1/0001-radeonsi-On-Aarch64-force-persistent-buffers-to-GTT.patch
-patch -Np1 -i ../patches/mesa-alpine-21.2.1/add-use-elf-tls.patch
-patch -Np1 -i ../patches/mesa-alpine-21.2.1/disable-rgb10-by-default.patch
-patch -Np1 -i ../patches/mesa-alpine-21.2.1/musl-fix-includes.patch
+# As of version 22.x.x, Mesa's classic OpenGL drivers (non-Gallium3D) have been removed. These are the
+# old Radeon R100 and R200 drivers, the original Nouveau code, and the Intel i915 and i965 drivers.
+# More info at https://www.phoronix.com/scan.php?page=news_item&px=Mesa-Classic-Retired
+
+# Apply patches based on Alpine Linux
+patch -Np1 -i ../patches/mesa-22.0.1-mlfs/radeonsi-On-Aarch64-force-persistent-buffers-to-GTT.patch
+patch -Np1 -i ../patches/mesa-22.0.1-mlfs/musl-fix-includes.patch 
+patch -Np1 -i ../patches/mesa-22.0.1-mlfs/disable-rgb10-by-default.patch
+
+# Not sure if "initial-exec TLS" works now with mesa 22.x.x. Enabling for now
+#patch -Np1 -i ../patches/mesa-alpine-21.2.1/add-use-elf-tls.patch
 
 # If optimizing, use these flags
 # LTO is not recommended
@@ -28,11 +34,11 @@ export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
 export CFLAGS="$CFLAGS -D_XOPEN_SOURCE=700" &&
 case $(uname -m) in
 	i686|x86_64) export GLL_DRV="i915,nouveau,radeonsi,svga,swrast,r600,iris,crocus" 
-                     export DRI_DRIVERS="i965,nouveau" 
+                     #export DRI_DRIVERS="i965,nouveau" 
 		     export V_DRIVERS="amd,swrast,intel" ;;
 	     arm*)   export GLL_DRV="vc4,panfrost,nouveau,tegra,swrast"
-		     export DRI_DRIVEiRS="nouveau" 
-		     export V_DRIVERS="" ;;
+		     #export DRI_DRIVERS="nouveau" 
+		     export V_DRIVERS="swrast" ;;
 esac
 
 export MESA_GIT_SHA1_OVERRIDE=53b2b224dc2de982c37915a0ad218e33365ff75e &&
@@ -68,11 +74,14 @@ export  XTRA_OPTS="-Dgallium-opencl=icd "
 # if libglvnd is installed
 export XTRA_OPTS+="-Dglvnd=true "
 
-export XTRA_OPTS+="-Dswr-arches=avx,avx2 "
+# Classic OpenGL drivers, such as the i965/i915, were retired to amber branch
+# Crocus driver will handle i965 chipsets
+#export XTRA_OPTS+="-Dprefer-crocus=true "
+#export XTRA_OPTS+="-Ddri-drivers=\"${DRI_DRIVERS}\" "
 
 # For intel graphics only (i.e. intergrated graphics on some laptops)
 # then only enable these drivers:
-export DRI_DRIVERS="i965"
+#export DRI_DRIVERS="i965"
 export GLL_DRV="i915,svga,swrast,iris,crocus"
 export V_DRIVERS="swrast,intel"
 
@@ -80,10 +89,9 @@ export V_DRIVERS="swrast,intel"
 export V_LAYERS="-Dvulkan-layers=device-select,overlay,intel-nullhw "
 
 meson --prefix=/usr \
-      -Dvulkan-drivers="${V_DRIVERS}" \
-      -Ddri-drivers="${DRI_DRIVERS}"  \
-      -Dgallium-drivers="${GLL_DRV}"  $BUILDOPT $GFXOPT $DRVROPT $GALLIUMOPT $V_LAYERS \
-      -Dplatforms=wayland,x11 -Dprefer-crocus=true -Dtools=xvmc,glsl $XTRA_OPTS OUT
+      -Dvulkan-drivers="${V_DRIVERS}" -Dgallium-drivers="${GLL_DRV}" \
+      -Dplatforms=wayland,x11 -Dtools=xvmc,glsl \
+      $BUILDOPT $GFXOPT $DRVROPT $GALLIUMOPT $V_LAYERS  $XTRA_OPTS OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
@@ -109,9 +117,9 @@ mesa:
 mesa: Mesa was written by Brian Paul.
 mesa:
 mesa: Homepage: https://www.mesa3d.org
-mesa:
+mesa: 
 mesa:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mesa-21.3.5-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/mesa-22.0.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
