@@ -36,5 +36,5 @@ libva-utils: is necessary to properly operate.
 libva-utils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libva-utils-2.13.0.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libva-utils-2.15.0.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
