@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libvdpau
-# Source: https://gitlab.freedesktop.org/vdpau/libvdpau/-/archive/1.4/libvdpau-1.4.tar.bz2
+# Source: https://gitlab.freedesktop.org/vdpau/libvdpau/-/archive/1.5/libvdpau-1.5.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -48,5 +48,5 @@ libvdpau: libvdpau home: http://cgit.freedesktop.org/~aplattner/libvdpau
 libvdpau:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libvdpau-1.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libvdpau-1.5-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
