@@ -1,0 +1,53 @@
+#! /bin/bash
+
+# Vulkan Validation Layers
+# Source: https://github.com/KhronosGroup/Vulkan-ValidationLayers/archive/refs/tags/v1.3.209.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     vulkan-headers spirv-tools glslang spirv-headers wayland
+# Recommended:  NONE
+# Optional:     robin_hood vulkanRegistry
+
+export  CARGS="-DCMAKE_INSTALL_LIBDIR=lib "
+export CARGS+="-DCMAKE_INSTALL_SYSCONFDIR=/etc " 
+export CARGS+="-DCMAKE_INSTALL_DATADIR=/share "
+export CARGS+="-DBUILD_LAYER_SUPPORT_FILES=ON "
+export CARGS+="-DCMAKE_SKIP_RPATH=True "
+export CARGS+="-DBUILD_TESTS=Off "
+export CARGS+="-DBUILD_WSI_XCB_SUPPORT=On "
+export CARGS+="-DBUILD_WSI_XLIB_SUPPORT=On "
+export CARGS+="-DBUILD_WSI_WAYLAND_SUPPORT=On "
+export CARGS+="-DCMAKE_BUILD_TYPE=RelWithDebInfo " 
+export CARGS+="-DUSE_ROBIN_HOOD_HASHING=OFF "
+
+cmake -B OUT -DCMAKE_INSTALL_PREFIX=/usr \
+	     -DCMAKE_INSTALL_INCLUDEDIR="/usr/include/" \
+	     $CARGS -Wno-dev && \
+
+read -p "Compile?" && make -j2 -C OUT  &&
+
+sudo -S make DESTDIR=$BUILD -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                        |-----handy-ruler------------------------------------------------------|
+vulkan-validation-layers: vulkan-validation-layers
+vulkan-validation-layers:
+vulkan-validation-layers: Vulkan Validation Layers.
+vulkan-validation-layers:
+vulkan-validation-layers: https://github.com/KhronosGroup/Vulkan-ValidationLayers 
+vulkan-validation-layers:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/vulkan-validation-layers-1.3.209-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
