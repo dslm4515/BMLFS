@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libinput 
-# Source: https://www.freedesktop.org/software/libinput/libinput-1.19.3.tar.xz
+# Source: https://gitlab.freedesktop.org/libinput/libinput/-/archive/1.20.0/libinput-1.20.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -57,7 +57,7 @@ libinput: Homepage:  http://www.freedesktop.org/wiki/Software/libinput/
 libinput:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libinput-1.19.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libinput-1.20.0-$(uname -m)-mlfs.txz &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 libinput-doc: Manuals for libinput (Input device library)
@@ -69,6 +69,6 @@ libinput-doc: Homepage:  http://www.freedesktop.org/wiki/Software/libinput/
 libinput-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libinput-doc-1.19.3-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/libinput-doc-1.20.0-noarch-mlfs.txz
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
