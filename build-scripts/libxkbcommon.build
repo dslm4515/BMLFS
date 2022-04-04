@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libxkbcommon
-# Source: https://xkbcommon.org/download/libxkbcommon-1.3.1.tar.xz
+# Source: https://xkbcommon.org/download/libxkbcommon-1.4.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -62,7 +62,7 @@ libxkbcommon: libxkbcommon does not distribute a dataset itself, other than for
 libxkbcommon: testing purposes.
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libxkbcommon-1.3.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libxkbcommon-1.4.0-$(uname -m)-mlfs.txz &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 libxkbcommon-doc: Manuals for libxkbcommon (library to handle keyboard descriptions)
@@ -78,6 +78,6 @@ libxkbcommon-doc: libxkbcommon does not distribute a dataset itself, other than 
 libxkbcommon-doc: testing purposes.
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libxkbcommon-doc-1.3.1-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/libxkbcommon-doc-1.4.0-noarch-mlfs.txz
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
