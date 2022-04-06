@@ -27,6 +27,9 @@ patch -Np1 -i ../patches/cairo-alpine/fix-mask-usage-in-image-compositor.patch
 patch -Np1 -i ../patches/cairo-alpine/musl-stacksize.patch
 patch -Np1 -i ../patches/cairo-alpine/pdf-font-subset-Generate-valid-font-names.patch
 
+# Disable Cairo-trace, as it is not needed and causes premature build fail.
+patch -Np1 -i ../patches/cairo-mlfs/disable-trace.patch
+
 # Uss of autotools can be unpredictable with gettext-tiny
 #./autogen.sh \
 #		--prefix=/usr           --sysconfdir=/etc  \

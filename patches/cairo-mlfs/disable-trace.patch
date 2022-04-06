@@ -1,0 +1,11 @@
+--- cairo-1.17.4.orig/meson.build	2020-11-26 17:20:59.000000000 -0600
++++ cairo-1.17.4/meson.build	2022-04-06 10:58:04.901392584 -0500
+@@ -835,7 +835,7 @@
+ have_ld_preload = ['linux', 'freebsd', 'darwin', 'dragonfly'].contains(host_machine.system())
+ 
+ if have_ld_preload and zlib_dep.found() and conf.get('CAIRO_HAS_REAL_PTHREAD', 0) == 1 and conf.get('CAIRO_HAS_DLSYM', 0) == 1
+-  conf.set('CAIRO_HAS_TRACE', 1)
++  conf.set('CAIRO_HAS_TRACE', 0)
+ endif
+ 
+ rt_dep = cc.find_library('rt', required: false)
