@@ -10,6 +10,7 @@
 # DEPS
 # Required:     wlroots, wayland-protocol, GLM, libjpeg, libexecinfo
 # Required:     libpng, mesa, pixman, libinput, libxkbcommon, cairo
+# Required:     pango
 # Recommended:  libappindicator, libdbusmenu
 # Optional:     wfconfig
 
