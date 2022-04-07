@@ -34,7 +34,7 @@ unset CFLAGS CPPFLAGS LDFLAGS       &&
 
 sudo -S mkdir -pv /BMAN/install
 sudo -S mkdir -pv /BMAN/usr
-sduo -S mv $BUILD/usr/share /BMAN/usr/
+sudo -S mv $BUILD/usr/share /BMAN/usr/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
