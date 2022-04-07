@@ -38,6 +38,9 @@ sudo -S make DESTDIR=$BUILD install && \
 sudo -S mkdir -pv ${BUILD}/usr/lib/pkgconfig/ && \
 sudo cp -a freeglut.pc ${BUILD}/usr/lib/pkgconfig/ && \
 
+# Missing library was not linked. Fix with patchelf:
+sudo -S /opt/build/bin/patchelf --add-needed libglut.so.3 ${BUILD/usr/lib/libfreeglut-gles.so.3.11.1 
+
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
