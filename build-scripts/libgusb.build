@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libgusb
-# Source: https://people.freedesktop.org/~hughsient/releases/libgusb-0.3.7.tar.xz
+# Source: https://people.freedesktop.org/~hughsient/releases/libgusb-0.3.10.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -48,5 +48,5 @@ libgusb: Project URL: https://github.com/hughsie/libgusb
 libgusb:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libgusb-0.3.7-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libgusb-0.3.10-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
