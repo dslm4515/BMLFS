@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Little CMS2
-# Source: https://downloads.sourceforge.net/lcms/lcms2-2.12.tar.gz
+# Source: https://downloads.sourceforge.net/lcms/lcms2-2.13.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -49,7 +49,7 @@ lcms2:
 lcms2:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/lcms2-2.12-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/lcms2-2.13.1-$(uname -m)-mlfs.txz &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 lcms2-doc: Manuals for lcms2 (little cms engine, version 2)
@@ -60,6 +60,6 @@ lcms2-doc: http://www.littlecms.com
 lcms2-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/lcms2-doc-2.12-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/lcms2-doc-2.13.1-noarch-mlfs.txz
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
