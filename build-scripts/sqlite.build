@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # SQLite 3.37.2
-# Source: https://sqlite.org/2022/sqlite-autoconf-3370200.tar.gz
+# Source: https://sqlite.org/2022/sqlite-autoconf-3380200.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -68,7 +68,7 @@ sqlite:
 EOF
 
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/sqlite-3.37.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/sqlite-3.38.2-$(uname -m)-mlfs.txz &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 sqlite-doc: Manuals for SQLite (simple, self contained database engine)
@@ -78,7 +78,7 @@ sqlite-doc: zero-configuration SQL database engine.
 sqlite-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/sqlite-doc-3.37.2-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/sqlite-doc-3.38.2-noarch-mlfs.txz
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
 
