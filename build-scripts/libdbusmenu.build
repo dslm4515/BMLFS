@@ -23,7 +23,8 @@ export CFLAGS="$CFLAGS -Wno-error" && \
 	   --disable-static \
 	   --enable-tests \
 	   --enable-vala \
-	   --enable-introspection $BUILDTRUPLE && \
+	   --enable-introspection \
+	   --with-gtk=3  $BUILDTRUPLE && \
 read -p "Compile?" && make -j2 && \
 
 sudo -S make DESTDIR=$BUILD install && \
