@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # CUPS
-# Source: https://github.com/OpenPrinting/cups/releases/download/v2.4.0/cups-2.4.0-source.tar.gz
+# Source: https://github.com/OpenPrinting/cups/releases/download/v2.4.1/cups-2.4.1-source.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -25,13 +25,13 @@ CC=gcc CXX=g++ \
             --disable-systemd            \
             --with-rcdir=/tmp/cupsinit   \
             --with-system-groups=lpadmin \
-            --with-docdir=/usr/share/cups/doc-2.4.0 $BUILDTRUPLE &&
+            --with-docdir=/usr/share/cups/doc-2.4.1 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
 #sudo -S rm -rf /tmp/cupsinit &&
 sudo -S mkdir -pv ${BUILD}/usr/share/doc                     &&
-sudo -S ln -svnf ../cups/doc-2.4.0 ${BUILD}/usr/share/doc/cups-2.4.0 &&
+sudo -S ln -svnf ../cups/doc-2.4.1 ${BUILD}/usr/share/doc/cups-2.4.1 &&
 echo "ServerName /run/cups/cups.sock" > /tmp/client.conf     &&
 sudo -S mkdir -pv ${BUILD}/etc/cups                          &&
 sudo -S mv -v /tmp/client.conf ${BUILD}/etc/cups/client.conf &&
@@ -66,14 +66,14 @@ EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S rm -rvf usr/share/cups/banners/* \
                usr/share/cups/data/testprint &&
-sudo -S makepkg -l y -c n $PKGS/cups-2.4.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/cups-2.4.1-$(uname -m)-mlfs.txz &&
 cp -v install/doinst.sh /tmp/ &&
 cat >> /tmp/doinst.sh << "EOF"
 useradd -c "Print Service User" -d /var/spool/cups -g lp -s /bin/false -u 9 lp
 groupadd -g 19 lpadmin
 EOF
 sudo -S mv -v /tmp/doinst.sh install/ &&
-sudo -S makepkg -l y -c n $PKGS/cups-2.4.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/cups-2.4.1-$(uname -m)-mlfs.txz &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 cups-doc: Manuals for CUPS (Common UNIX Printing System)
@@ -85,6 +85,6 @@ cups-doc: PostScript and raster printers
 cups-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cups-doc-2.4.0-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/cups-doc-2.4.1-noarch-mlfs.txz
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
