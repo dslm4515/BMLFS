@@ -48,5 +48,5 @@ glibmm:
 glibmm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/glibmm-2.72.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/glibmm-2.72.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
