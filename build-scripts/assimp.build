@@ -1,0 +1,53 @@
+#! /bin/bash
+
+# assimp 
+# Source: https://github.com/assimp/assimp/archive/v5.2.2/assimp-v5.2.2.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cmake zlib
+# Recommended:  NONE
+# Optional:     NONE
+
+# for x86, tests report correct values, but comparison fails
+sed -i \
+	-e "/AssimpAPITest_aiMatrix3x3/d" \
+	-e "/AssimpAPITest_aiMatrix4x4/d" \
+	-e "/utFastAtof/d" \
+	test/CMakeLists.txt
+
+cmake -B build -G Ninja \
+      -DCMAKE_BUILD_TYPE=MinSizeRel \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_INSTALL_LIBDIR=lib \
+      -DBUILD_SHARED_LIBS=True \
+      -DASSIMP_BUILD_TESTS=True \
+      -DASSIMP_BUILD_MINIZIP=True && \
+
+read -p "Compile?" && ninja -C build  && \
+
+sudo -S DESTDIR=$BUILD ninja -C build install && \
+sudo =S rm -vf $BUILD/usr/lib/libIrrXML.a     && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+assimp: assimp
+assimp:
+assimp: Open Asset Import Library imports and exports 3D model formats.
+assimp:
+assimp: http://www.assimp.org/
+assimp:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/assimp-5.2.2-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
