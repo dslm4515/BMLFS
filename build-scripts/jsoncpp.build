@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # jsoncpp 
-# Source: https://github.com/open-source-parsers/jsoncpp/archive/1.9.4.tar.gz 
+# Source: https://github.com/open-source-parsers/jsoncpp/archive/refs/tags/1.9.5.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -40,5 +40,5 @@ jsoncpp:
 jsoncpp:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/jsoncpp-1.9.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/jsoncpp-1.9.5-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
