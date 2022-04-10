@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # ALSA Utilities 
-# Source: ftp://ftp.alsa-project.org/pub/utils/alsa-utils-1.2.5.1.tar.bz2
+# Source: https://www.alsa-project.org/files/pub/utils/alsa-utils-1.2.6.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -51,7 +51,7 @@ alsa-utils:
 alsa-utils: For more information, see http://alsa-project.org
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/alsa-utils-1.2.5.1-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/alsa-utils-1.2.6-$(uname -m)-mlfs.txz && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 alsa-utils-doc: Manuals for Advanced Linux Sound Architecture utilities
@@ -64,5 +64,5 @@ alsa-utils-doc: http://alsa-project.org
 alsa-utils-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ 
-sudo -S makepkg -l y -c n $PKGS/alsa-utils-doc-1.2.5.1-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/alsa-utils-doc-1.2.6-noarch-mlfs.txz && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
