@@ -1,14 +1,14 @@
 #! /bin/bash
 
 # libsndfile
-# Source: https://github.com/libsndfile/libsndfile/releases/download/1.0.31/libsndfile-1.0.31.tar.bz2
+# Source: https://github.com/libsndfile/libsndfile/releases/download/1.1.0/libsndfile-1.1.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     NONE
-# Recommended:  NONE
+# Recommended:  libvorbis opus flac
 # Optional:     NONE
 
 # If optimizing, use these flags
@@ -21,7 +21,7 @@ ac_cv_sys_largefile_CFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64" \
 ./configure --prefix=/usr    \
             --disable-static \
             --enable-largefile \
-            --docdir=/usr/share/doc/libsndfile-1.0.31 $BUILDTRUPLE &&
+            --docdir=/usr/share/doc/libsndfile-1.1.0 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -52,7 +52,7 @@ libsndfile:
 libsndfile:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libsndfile-1.0.31-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libsndfile-1.1.0-$(uname -m)-mlfs.txz &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 libsndfile-doc: Manuals for libsndfile (C library for reading and writing wav files)
@@ -64,6 +64,6 @@ libsndfile-doc: http://www.mega-nerd.com/libsndfile/
 libsndfile-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libsndfile-doc-1.0.31-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/libsndfile-doc-1.1.0-noarch-mlfs.txz
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
