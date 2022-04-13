@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # NSS 
-# Source: https://archive.mozilla.org/pub/security/nss/releases/NSS_3_74_RTM/src/nss-3.74.tar.gz
+# Source: https://archive.mozilla.org/pub/security/nss/releases/NSS_3_77_RTM/src/nss-3.77.tar.gz
 # Build Method: BLFS
 #
 # $BUILD = Directory to temporarily install
@@ -13,7 +13,7 @@
 # Optional:     NONE
 
 # Apply patches to fix pkgconfig files
-patch -Np1 -i ../patches/nss-lfs/nss-3.74-standalone-1.patch  &&
+patch -Np1 -i ../patches/nss-lfs/nss-3.77-standalone-1.patch  &&
 
 # Build	
 cd nss &&
@@ -88,7 +88,7 @@ nss: standards into an application.
 nss:
 EOF
 mv -v /tmp/slack-desc install/ &&
-makepkg -l y -c n $PKGS/nss-3.74-$(uname -m)-mlfs.txz &&
+makepkg -l y -c n $PKGS/nss-3.77-$(uname -m)-mlfs.txz &&
 rm -rf ${BUILD}/*
 
 # Exit super user
