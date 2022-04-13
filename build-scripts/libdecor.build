@@ -13,6 +13,11 @@
 
 meson  --prefix=/usr --buildtype=release OUT
 
+# May have missing header. If absent:
+wayland-scanner client-header \
+	        /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
+		src/xdg-shell-client-protocol.h
+
 read -p "Compile?" && ninja -C OUT -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja -C OUT install &&
