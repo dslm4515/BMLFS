@@ -27,9 +27,10 @@ find "$BUILD/opt/qt5/lib" -type f -name '*.prl' \
       -exec sudo sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
 
 sudo -S mkdir -pv $BUILD/usr/bin && \
+
 for b in $BUILD/opt/qt5/bin/*
 do
-	sudo -S ln -sv ../../opt/qt5/bin/${i##*/} $BUILD/usr/bin/${b##*/}-qt5
+	sudo -S ln -sv ../../opt/qt5/bin/${b##*/} $BUILD/usr/bin/${b##*/}-qt5
 done && \
 
 # Create the desktop files
