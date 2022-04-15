@@ -12,11 +12,11 @@
 # Optional:     NONE
 
 # Apply patches from Alpine Linux
-patch -Np1 -i ../go-bootstrap-alpine/default-sc-getpw-r-size-max.patch\?h\=3.7-stable
-patch -Np1 -i ../go-bootstrap-alpine/fix-arm-hackery.patch\?h\=3.7-stable 
-patch -Np1 -i ../go-bootstrap-alpine/new-binutils.patch\?h\=3.7-stable 
-patch -Np1 -i ../go-bootstrap-alpine/no-longjmp-redefine.patch\?h\=3.7-stable 
-patch -Np1 -i ../go-bootstrap-alpine/no-pic.patch\?h\=3.7-stable 
+patch -Np1 -i ../patches/go-bootstrap-alpine/default-sc-getpw-r-size-max.patch
+patch -Np1 -i ../patches/go-bootstrap-alpine/fix-arm-hackery.patch 
+patch -Np1 -i ../patches/go-bootstrap-alpine/new-binutils.patch 
+patch -Np1 -i ../patches/go-bootstrap-alpine/no-longjmp-redefine.patch 
+patch -Np1 -i ../patches/go-bootstrap-alpine/no-pic.patch 
 
 # Set the paths
 export GOPATH="/src"    # Full path to where source was unpacked
