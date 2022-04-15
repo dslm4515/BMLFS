@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Ruby 
-# Source: https://cache.ruby-lang.org/pub/ruby/3.1/ruby-3.1.0.tar.xz
+# Source: https://cache.ruby-lang.org/pub/ruby/3.1/ruby-3.1.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -31,7 +31,7 @@ patch -Np1 -i ../patches/ruby-alpine/test_insns-lower-recursion-depth.patch
 
 ./configure --prefix=/usr   \
             --enable-shared \
-            --docdir=/usr/share/doc/ruby-3.1.0 \
+            --docdir=/usr/share/doc/ruby-3.1.1 \
             --enable-pthread \
             --disable-rpath  \
             --enable-shared $BUILDTURPLE &&
@@ -70,7 +70,7 @@ ruby:
 ruby:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/ruby-3.1.0-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/ruby-3.1.1-$(uname -m)-mlfs.txz && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 ruby-doc: Manuals for ruby (Interpreted object-oriented scripting language)
@@ -82,5 +82,5 @@ ruby-doc: http://www.ruby-lang.org/
 ruby-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/ruby-3.1.0-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/ruby-3.1.1-noarch-mlfs.txz && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
