@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libgcrypt
-# Source:  https://www.gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-1.9.4.tar.bz2
+# Source:  https://www.gnupg.org/ftp/gcrypt/libgcrypt/libgcrypt-1.10.1.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -54,7 +54,7 @@ libgcrypt:
 libgcrypt: libgcrypt home: http://directory.fsf.org/security/libgcrypt.html
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libgcrypt-1.9.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libgcrypt-1.10.1-$(uname -m)-mlfs.txz &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 libgcrypt-doc: Manuals for libgcrypt (general purpose cryptographic library)
@@ -69,6 +69,6 @@ libgcrypt-doc: lot of supporting functions.
 libgcrypt-doc: libgcrypt home: http://directory.fsf.org/security/libgcrypt.html
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libgcrypt-doc-1.9.4-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/libgcrypt-doc-1.10.1-noarch-mlfs.txz
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
