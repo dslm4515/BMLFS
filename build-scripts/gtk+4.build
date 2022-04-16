@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GTK+ 4
-# Sources: https://download.gnome.org/sources/gtk/4.4/gtk-4.4.0.tar.xz
+# Sources: https://download.gnome.org/sources/gtk/4.4/gtk-4.6.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -37,17 +37,6 @@ meson   --prefix=/usr \
 ninja -C BUILD  -j2 && 
 sudo -S DESTDIR=${BUILD} ninja -C BUILD  install &&
 
-# Can use meson instead:
-#mkdir BUILD && cd BUILD &&
-#meson --prefix=/usr   \
-#      -Dman=true      \
-#      -Dgtk_doc=false \
-#      -Dbroadway_backend=true ..
-#
-#read -p "Compile?" && ninja -j2 &&
-
-#sudo -S DESTDIR=$BUILD ninja install &&
-
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -75,5 +64,5 @@ sudo -S mv -v /tmp/slack-desc install/ &&
 # pkgconf wont find gtk4. Fix:
 sudo ln -sv gtk4.pc usr/lib/pkgconfig/gtk+-4.0.pc && 
 	
-sudo -S makepkg -l y -c n $PKGS/gtk+4-4.4.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/gtk+4-4.6.2-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
