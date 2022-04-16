@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GStreamer Bad Plug-ins
-# Source: https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-1.20.0.tar.xz
+# Source: https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-1.20.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -38,7 +38,7 @@ cd    build &&
 meson  --prefix=/usr       \
        -Dbuildtype=release \
        -Dpackage-origin=https://github.com/dslm4515/BMLFS \
-       -Dpackage-name="GStreamer 1.20.0 BMLFS" \
+       -Dpackage-name="GStreamer 1.20.1 BMLFS" \
        -Dlibde265=enabled \
        -Dopenh264=enabled \
        -Dx265=enabled $XARGS &&
@@ -71,5 +71,5 @@ gst-plugins-bad:
 gst-plugins-bad:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gst-plugins-bad-1.20.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/gst-plugins-bad-1.20.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
