@@ -1,0 +1,50 @@
+#! /bin/bash
+
+# scons
+# Source: https://downloads.sourceforge.net/project/scons/scons/4.3.0/SCons-4.3.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     py3-setuptools
+# Recommended:  NONE
+# Optional:     NONE
+
+python3 setup.py build && \
+
+sudo -S python3 setup.py install --prefix=/usr --root=$BUILD &&
+sudo mkdir -pv  /BMAN/usr/share/man/man1 /BMAN/install &&
+sudo mv -v $BUILD/usr/*.1 /BMAN/usr/share/man/man1/ && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+scons: scons
+scons:
+scons: Software construction system
+scons:
+scons: https://scons.org
+scons:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/scons-4.3.0-$(uname -m)-mlfs.txz &&
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+scons-doc: Manpages for scons
+scons-doc:
+scons-doc: Software construction system
+scons-doc:
+scons-doc: https://scons.org
+scons-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ 
+sudo -S makepkg -l y -c n $PKGS/scons-doc-4.3.0-noarch-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

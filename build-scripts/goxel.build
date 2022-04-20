@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# Goxel 
+# Source: https://github.com/guillaumechereau/goxel/archive/refs/tags/v0.10.8.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     scons glfw gtk+3
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/goxel-alpine/fix-musl.patch
+
+# Build
+scons mode=release werror=0
+cat > /tmp/goxel.desktop << "EOF"
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Goxel
+Exec=goxel
+Icon=goxel
+Categories=Graphics;
+EOF
+
+# Install
+sudo install -Dm775 goxel    $BUILD/usr/bin/goxel && \
+sudo install -Dm644 icon.png $BUILD/usr/share/pixmaps/goxel.png && \
+sudo install -Dm644 /tmp/goxel.desktop $BUILD/usr/share/applications/goxel.desktop
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+goxel: goxel
+goxel:
+goxel: Free and Open Source 3D Voxel Editor 
+goxel:
+goxel: https://github.com/guillaumechereau/goxel
+goxel:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/goxel-0.10.8-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
