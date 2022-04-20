@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # WPE WebKit 
-# Source: https://wpewebkit.org/releases/wpewebkit-2.34.5.tar.xz
+# Source: https://wpewebkit.org/releases/wpewebkit-2.36.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,9 +13,20 @@
 # Required:     SQLite3, libwebp, libsoup, atk, openjpeg, libtasn1, libxslt,
 # Required:     LCM2, libseccomp, xdg-dbus-proxy
 # Recommended:  NONE
-# Optional:     NONE
+# Optional:     qt5-qtbase qt5-qttools libsoup3
 
 patch -Np1 -i ../patches/wpewebkit-alpine/patch-gettext.patch 
+
+# If Qt5 was not installed in /usr:
+export  QT5CMAKES="-DENABLE_WPE_QT_API=ON "
+export QT5CMAKES+="-DQt5Core_DIR=/opt/qt5/lib/cmake/Qt5Core "
+export QT5CMAKES+="-DQt5Gui_DIR=/opt/qt5/lib/cmake/Qt5Gui "
+export QT5CMAKES+="-DQt5Network_DIR=/opt/qt5/lib/cmake/Qt5Network "
+export QT5CMAKES+="-DQt5QmlModels_DIR=/opt/qt5/lib/cmake/Qt5QmlModels "
+export QT5CMAKES+="-DQt5Qml_DIR=/opt/qt5/lib/cmake/Qt5Qml "
+export QT5CMAKES+="-DQt5Quick_DIR=/opt/qt5/lib/cmake/Qt5Quick "
+export QT5CMAKES+="-DQt5Test_DIR=/opt/qt5/lib/cmake/Qt5Test "
+export QT5CMAKES+="-DQt5_DIR=/opt/qt5/lib/cmake/Qt5 "
 
 export  CMARGS="-DCMAKE_INSTALL_PREFIX=/usr "
 export CMARGS+="-DCMAKE_INSTALL_LIBDIR=lib "
@@ -25,14 +36,17 @@ export CMARGS+="-DPORT=WPE "
 export CMARGS+="-DENABLE_MINIBROWSER=On "
 export CMARGS+="-DENABLE_GTKDOC=On "
 export CMARGS+="-DUSE_SOUP2=On "
-export CMARGS+="-DUSE_SYSTEMD=Off "
+export CMARGS+="-DUSE_SYSTEMD=OFF "
+export CMARGS+="-DENABLE_JOURNALD_LOG=OFF "
+export CMARGS+="-DENABLE_WEBGL2=ON "
 export CMARGS+="-GNinja "
 
-cmake -B build $CMARGS && \
+cmake -B build $CMARGS $QT5CMAKES && \
 
 read -p "Compile?" && ninja -C build -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja -C build install &&
+unset CMARGS QT5CMAKES && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -55,5 +69,5 @@ wpewebkit: https://wpewebkit.org/
 wpewebkit:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wpewebkit-2.34.5-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wpewebkit-2.36.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
