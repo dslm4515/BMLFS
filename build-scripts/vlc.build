@@ -13,7 +13,8 @@
 # Optional:     dbus libidn libssh2 gst-plugins-bad gst-plugins-good
 
 patch -Np1 -i ../patches/vlc-alpine/check-headless.patch 
-patch -Np1 -i ../patches/vlc-alpine/disable-sub-autodetect-fuzzy-1-test.papatch -Np1 -i ../patches/vlc-alpine/fribidi_allow_deprecated.patch 
+patch -Np1 -i ../patches/vlc-alpine/disable-sub-autodetect-fuzzy-1-test.patch
+patch -Np1 -i ../patches/vlc-alpine/fribidi_allow_deprecated.patch 
 patch -Np1 -i ../patches/vlc-alpine/test-s390x.patch 
 
 NOCONFIGURE=1 ./bootstrap &&
