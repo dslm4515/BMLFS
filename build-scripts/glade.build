@@ -11,8 +11,8 @@
 # Recommended:  NONE
 # Optional:     webkit2gtk, pygobject3
 
-# For python 3.9:
-sed -i meson.build -e "/python_deqp/s/3.8/3.9/g"
+patch -Np1 -i ../patches/glade-alpine/duplicate-linguas.patch 
+patch -Np1 -i ../patches/glade-alpine/meson-0.60.patch 
 
 mkdir BUILD && cd BUILD &&
 meson --prefix=/usr -Dgladeui=true -Dman=false -Dgtk_doc=true .. &&
