@@ -13,6 +13,45 @@
 # Recommended:  sdl2 libgcrypt nettle mesa 
 # Optional:     libssh liburing virglrenderer vde2 bridge-utils
 
+# check to see if your processor supports Virtualization Technology (VT):
+egrep '^flags.*(vmx|svm)' /proc/cpuinfo
+# if there is any output, you have VT technology (vmx for Intel processors 
+# and svm for AMD processors). You then need to go into your system BIOS 
+# and ensure it is enabled. After enabling, reboot back to your MLFS instance. 
+
+# Kernel Configuration 
+# Enable the following options in the kernel configuration:
+#
+# [*] Virtualization:  --->                                            [CONFIG_VIRTUALIZATION]
+#  <*/M>   Kernel-based Virtual Machine (KVM) support [CONFIG_KVM]
+#  <*/M>     KVM for Intel (and compatible) processors support         [CONFIG_KVM_INTEL]
+#  <*/M>     KVM for AMD processors support                            [CONFIG_KVM_AMD]
+#
+# To use the “bridge” network device, as explained below, check that 
+# bridge-utils is installed and the following options in the kernel 
+# configuration are enabled: 
+#
+# [*] Networking support  --->                         [CONFIG_NET]
+#  Networking options  --->
+#     <*/M> 802.1d Ethernet Bridging                   [CONFIG_BRIDGE]
+#      Device Drivers  --->
+#   [*] Network device support  --->                   [CONFIG_NETDEVICES]
+#     <*/M>    Universal TUN/TAP device driver support [CONFIG_TUN]
+#
+
+# Check if there is kvm group in /etc/group. If not, add as root:
+cat >> /etc/group << EOF
+kvm:x:61:
+EOF
+
+# Add any users that might use the KVM device to that group: 
+usermod -a -G kvm ${username}
+
+# As root, Add an Udev rule so that the KVM device gets correct permissions: 
+cat > /lib/udev/rules.d/65-kvm.rules << "EOF"
+KERNEL=="kvm", GROUP="kvm", MODE="0660"
+EOF
+
 # Apply patches from Alpine Linux
 patch -Np1 -i ../patches/qemu-alpine/0006-linux-user-signal.c-define-__SIGRTMIN-MAX-for-non-GN.patch 
 patch -Np1 -i ../patches/qemu-alpine/CVE-2021-20255.patch 
