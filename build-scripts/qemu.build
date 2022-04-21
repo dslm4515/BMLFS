@@ -1,0 +1,135 @@
+#! /bin/bash
+
+# qemu 
+# Source: https://wiki.qemu-project.org/download/qemu-7.0.0.tar.xz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     glib 
+# Recommended:  alsa-lib curl gnutls libjpeg-turbo libpng libseccomp
+# Recommended:  libusb libxml2 lzo vte3 libaio snappy libnfs libcap-ng
+# Recommended:  sdl2 libgcrypt nettle mesa 
+# Optional:     libssh liburing virglrenderer vde2 bridge-utils
+
+# Apply patches from Alpine Linux
+patch -Np1 -i ../patches/qemu-alpine/0006-linux-user-signal.c-define-__SIGRTMIN-MAX-for-non-GN.patch 
+patch -Np1 -i ../patches/qemu-alpine/CVE-2021-20255.patch 
+patch -Np1 -i ../patches/qemu-alpine/MAP_SYNC-fix.patch
+patch -Np1 -i ../patches/qemu-alpine/guest-agent-shutdown.patch
+patch -Np1 -i ../patches/qemu-alpine/mips-softfloat.patch 
+patch -Np1 -i ../patches/qemu-alpine/musl-initialise-msghdr.patch
+patch -Np1 -i ../patches/qemu-alpine/xattr_size_max.patch
+
+# Create build directories
+mkdir -pv build 
+# mkdir -pv build-static
+
+# Set the configure options
+export  CMM_ARGS="--prefix=/usr "
+export CMM_ARGS+="--localstatedir=/var "
+export CMM_ARGS+="--sysconfdir=/etc "
+export CMM_ARGS+="--libexecdir=/usr/lib/qemu "
+export CMM_ARGS+="--python=/usr/bin/python3 "
+export CMM_ARGS+="--disable-glusterfs "
+export CMM_ARGS+="--disable-debug-info "
+export CMM_ARGS+="--disable-bsd-user "
+export CMM_ARGS+="--disable-werror "
+export CMM_ARGS+="--disable-xen "
+export CMM_ARGS+="--enable-kvm "
+export CMM_ARGS+="--enable-seccomp "
+
+#export  STTC_ARGS="--enable-linux-user "
+#export STTC_ARGS+="--disable-system "
+#export STTC_ARGS+="--static "
+#export STTC_ARGS+="--disable-docs "
+#export STTC_ARGS+="--disable-sdl "
+#export STTC_ARGS+="--disable-gtk "
+#export STTC_ARGS+="--disable-spice "
+#export STTC_ARGS+="--disable-guest-agent "
+#export STTC_ARGS+="--disable-guest-agent-msi "
+#export STTC_ARGS+="--disable-curses "
+#export STTC_ARGS+="--disable-curl "
+#export STTC_ARGS+="--disable-gnutls "
+#export STTC_ARGS+="--disable-gcrypt "
+#export STTC_ARGS+="--disable-nettle "
+#export STTC_ARGS+="--disable-cap-ng "
+#export STTC_ARGS+="--disable-brlapi "
+#export STTC_ARGS+="--disable-mpath "
+#export STTC_ARGS+="--disable-libnfs "
+#export STTC_ARGS+="--disable-numa "
+#export STTC_ARGS+="--disable-capstone "
+
+export  DYN_ARGS="--disable-linux-user "
+export DYN_ARGS+="--audio-drv-list=oss,alsa,sdl,pa "
+export DYN_ARGS+="--enable-cap-ng " # if libcap-ng is installed
+export DYN_ARGS+="--enable-curl "
+export DYN_ARGS+="--enable-curses "
+export DYN_ARGS+="--enable-gtk "
+export DYN_ARGS+="--enable-guest-agent "
+export DYN_ARGS+="--enable-libnfs "
+export DYN_ARGS+="--enable-libssh "
+export DYN_ARGS+="--enable-linux-aio " 
+export DYN_ARGS+="--enable-lzo "
+export DYN_ARGS+="--enable-modules "
+export DYN_ARGS+="--enable-numa " # if numba is installed
+export DYN_ARGS+="--enable-pie "
+export DYN_ARGS+="--enable-sdl "
+export DYN_ARGS+="--enable-snappy " 
+export DYN_ARGS+="--enable-spice " # if spice is installed
+export DYN_ARGS+="--enable-tpm "
+export DYN_ARGS+="--enable-usb-redir " # if libusbredirparser is installed
+export DYN_ARGS+="--enable-vde " # if vde2 is installed
+export DYN_ARGS+="--enable-vhost-net "
+export DYN_ARGS+="--enable-virglrenderer " # if virglrender is installed
+export DYN_ARGS+="--enable-virtfs "
+export DYN_ARGS+="--enable-vnc "
+export DYN_ARGS+="--enable-vnc-jpeg "
+export DYN_ARGS+="--enable-vnc-png "
+export DYN_ARGS+="--enable-zstd "
+
+#export TBUILD="--target-list=i386-softmmu,i386-linux-user,x86_64-softmmu,x86_64-linux-user,aarch64-softmmu,aarch64-linux-user"
+
+# Compile
+
+# Static compile fails to configure... complains about wrong glib
+#cd build-static
+#../configure $CMM_ARGS $STTC_ARGS 
+#make ARFLAGS="rc"
+#cd ..
+
+cd build
+../configure $CMM_ARGS $DYN_ARGS  --tls-priority=@QEMU,SYSTEM
+make ARFLAGS="rc"
+cd ..
+
+# Install
+
+#cd build-static
+#sudo -S make DESTDIR=$BUILD install
+#cd ..
+
+cd build
+sudo -S make DESTDIR=$BUILD install
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+qemu: qemu
+qemu:
+qemu: A generic machine emulator and virtualizer.
+qemu:
+qemu: https://qemu.org/
+qemu:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/qemu-7.0.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
