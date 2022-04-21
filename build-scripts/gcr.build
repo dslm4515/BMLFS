@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Gcr
-# Source: https://download.gnome.org/sources/gcr/3.40/gcr-3.40.0.tar.xz
+# Source: https://download.gnome.org/sources/gcr/3.41/gcr-3.41.0.tar.xz
 # GIT: https://gitlab.gnome.org/GNOME/gcr
 #
 # $BUILD = Directory to temporarily install
@@ -12,12 +12,10 @@
 # Recommended:  GnuPG, gobject-introspection, GTK+3, libxslt, Vala
 # Optional:     GTK-Doc, Valgrind
 
-# Use if not using git version
-#patch -Np1 -i ../patches/gcr-alpine/allow-building-without-gpg.patch
-#patch -Np1 -i ../patches/gcr-alpine/dont-run-gpg-tests.patch
-#patch -Np1 -i ../patches/gcr-alpine/fix-64-bit-time_t-32-bit.patch
-
-#sed -i 's:"/desktop:"/org:' schema/*.xml &&
+patch -Np1 -i ../patches/gcr-alpine/dont-run-gpg-tests.patch 
+patch -Np1 -i ../patches/gcr-alpine/fix-64-bit-time_t-32-bit.patch 
+patch -Np1 -i ../patches/gcr-alpine/fix-build-without-systemd.patch 
+patch -Np1 -i ../patches/gcr-alpine/fix-meson-invalid-kw-argument.patch 
 
 # If coptimizing:
 export  CFLAGS="-march=native -mtune=native -pipe "
@@ -27,11 +25,6 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 # Fix a deprecated entry in the schema template. 
 sed -i 's:"/desktop:"/org:' schema/*.xml &&
-
-# Fix a problem when building with meson-0.59.0
-sed -e '208 s/@BASENAME@/gcr-viewer.desktop/'   \
-    -e '231 s/@BASENAME@/gcr-prompter.desktop/' \
-    -i ui/meson.build    
 
 mkdir gcr-build &&
 cd    gcr-build &&
@@ -64,5 +57,5 @@ gcr:
 gcr:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gcr-3.40.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/gcr-3.41.0-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf ${BUILD}/*
