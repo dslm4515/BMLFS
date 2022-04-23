@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# solaar 
+# Source: https://github.com/pwr-Solaar/Solaar
+# Commit: 5a3ffe04e821989ae0b1ad595f46b20b36a7528e
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     git(to download source) pyudev pypsutil pyyaml
+# Required:     pyevdev libnotify gtk+3 
+# Recommended:  NONE
+# Optional:     NONE
+
+git clone https://github.com/pwr-Solaar/Solaar.git
+git checkout 5a3ffe04e821989ae0b1ad595f46b20b36a7528e
+
+python3 setup.py build && \
+
+sudo -S python3 setup.py install --prefix=/usr --root=$BUILD && \
+sudo -S install -Dm644 ../files/solaar-files/solaar.rules \
+                $BUILD/usr/lib/udev/rules.d/42-logitech-unify-permissions.rules && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+solaar: solaar
+solaar:
+solaar: Linux device manager for a wide range of Logitech devices
+solaar:
+solaar: https://pwr-solaar.github.io/Solaar
+solaar:
+solaar
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/solaar-1.1.3_rc3-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*

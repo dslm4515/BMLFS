@@ -1,0 +1,37 @@
+#! /bin/bash
+
+# pypsutil
+# Source: https://files.pythonhosted.org/packages/source/p/psutil/psutil-5.9.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+read -p "Compile?" && python3 setup.py build && \
+
+sudo -S python3 setup.py install --skip-build --root=$BUILD --optimize=1 && 
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+pypsutil: pypsutil
+pypsutil:
+pypsutil: A  cross-platform process and system utilities module for Python
+pypsutil:
+pypsutil: https://github.com/giampaolo/psutil
+pypsutil:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/pypsutil-5.9.0-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
