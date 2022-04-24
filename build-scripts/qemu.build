@@ -45,7 +45,7 @@ kvm:x:61:
 EOF
 
 # Add any users that might use the KVM device to that group: 
-usermod -a -G kvm ${username}
+sudo -S usermod -a -G kvm ${username}
 
 # As root, Add an Udev rule so that the KVM device gets correct permissions: 
 cat > /lib/udev/rules.d/65-kvm.rules << "EOF"
@@ -128,7 +128,8 @@ export DYN_ARGS+="--enable-vnc-jpeg "
 export DYN_ARGS+="--enable-vnc-png "
 export DYN_ARGS+="--enable-zstd "
 
-#export TBUILD="--target-list=i386-softmmu,i386-linux-user,x86_64-softmmu,x86_64-linux-user,aarch64-softmmu,aarch64-linux-user"
+# To emulate only arm, arm64, i686, amd64:
+#export $BUILD_TARGETS='--target-list="i386-softmmu x86_64-softmmu aarch64-softmmu arm-softmmu" '
 
 # Compile
 
@@ -150,7 +151,10 @@ cd ..
 #cd ..
 
 cd build
-sudo -S make DESTDIR=$BUILD install
+sudo -S make DESTDIR=$BUILD install && \
+udo -S install -Dm640 -g kvm ../../files/qemu-alpine/bridge.conf $BUILD/etc/qemu/bridge.conf && \
+sudo -S  chmod -v 04710 $BUILD/usr/lib/qemu/qemu-bridge-helper && \
+sudo -S  chgrp -v kvm   $BUILD/usr/lib/qemu/qemu-bridge-helper && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
