@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # font-manager
-# Source: https://github.com/FontManager/font-manager/archive/0.8.4-1.tar.gz 
+# Source: https://github.com/FontManager/font-manager/archive/refs/tags/0.8.8.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -12,10 +12,12 @@
 # Recommended:  NONE
 # Optional:     yelp-tools
 
-meson --prefix=/usr -Dyelp-doc=false OUT && \
+meson --prefix=/usr -Dyelp-doc=false -Dwebkit=false OUT && \
 ninja -C OUT -j2 && \
 
 sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
+sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -35,5 +37,17 @@ font-manager: https://github.com/FontManager/font-manager
 font-manager:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/font-manager-0.8.4.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/font-manager-0.8.4.1-$(uname -m)-mlfs.txz && \
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+font-manager-doc: Manpage for font-manager
+font-manager-doc:
+font-manager-doc: A simple font management application for GTK Desktop Environments
+font-manager-doc:
+font-manager-doc: https://github.com/FontManager/font-manager
+font-manager-doc:
+font-manager-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ && \
+sudo -S makepkg -l y -c n $PKGS/font-manager-doc-0.8.4.1-noarch-mlfs.txz && \
 sudo -S rm -rf ${BUILD}/*
