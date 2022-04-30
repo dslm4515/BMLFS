@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# ell (Embedded Linux Library) 0.48
-# source: https://mirrors.edge.kernel.org/pub/linux/libs/ell/ell-0.48.tar.xz
+# ell (Embedded Linux Library) 
+# source: https://mirrors.edge.kernel.org/pub/linux/libs/ell/ell-0.50.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -57,5 +57,5 @@ EOF
 sudo -S mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build and install package" &&
-sudo makepkg -l y -c n $PKGS/ell-0.48-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS/ell-0.50-$(uname -m)-mlfs.txz &&
 sudo rm -rf $BUILD/*                                     
