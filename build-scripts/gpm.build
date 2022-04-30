@@ -16,6 +16,7 @@ patch -Np0 -i ../patches/gpm-void/musl-gpm_h.patch &&
 patch -Np0 -i ../patches/gpm-void/musl-linux_major_h.patch &&
 patch -Np0 -i ../patches/gpm-void/musl-select.patch &&
 patch -Np0 -i ../patches/gpm-void/musl-sigaction.patch &&
+patch -Np1 -i ../patches/gpm-mlfs/utmpx-support.patch && 
 
 ./autogen.sh                                &&
 export CFLAGS="-fcommon" &&
