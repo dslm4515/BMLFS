@@ -1,0 +1,54 @@
+#! /bin/bash
+
+# rclone 
+# Source: https://github.com/rclone/rclone/archive/refs/tags/v1.58.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     go
+# Recommended:  NONE
+# Optional:     NONE
+
+export GO111MODULE=on CGO_ENABLED=0
+
+go build &&
+
+sudo -S install -Dm755 rclone $BUILD/usr/bin/rclone &&
+sudo -S mkdir -pv  $BUILD/usr/sbin && 
+sudo -S ln -sv /usr/bin/rclone $BUILD/usr/sbin/mount.rclone && 
+sudo -S mkdir -pv /BMAN/install /BMAN/usr/share/man/man1 && \
+sudo -S install -Dm644 rclone.1 /BMAN/usr/share/man/man1/rclone.1 && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+rclone: rclone
+rclone:
+rclone: Command line rsync for cloud storage, such as Google Drive or Dropbox
+rclone: 
+rclone: github.com/rclone/rclone
+rclone:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/rclone-1.58.1-$(uname -m)-mlfs.txz &&
+cd /BMAN && \
+cat >  /tmp/slack-desc << "EOF"
+rclone-doc: Manpage for rclone
+rclone-doc:
+rclone-doc: Command line rsync for cloud storage, such as Google Drive or Dropbox
+rclone-doc:
+rclone-doc: github.com/rclone/rclone
+rclone-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/rclone-doc-1.58.1-noarch-mlfs.txz && \ 
+sudo -S rm -rf ${BUILD}/*
