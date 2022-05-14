@@ -1,0 +1,55 @@
+#! /bin/bash
+
+# i2c-tools 
+# Source: https://fossies.org/linux/misc/i2c-tools-4.3.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+sed -e "s|^DESTDIR.*|DESTDIR = \"$BUILD\"|" \
+	-e "s|^prefix.*|prefix = /usr|" \
+	-e "s|^PREFIX.*|PREFIX = /usr|" \
+	-i Makefile && \
+
+read -p "Compile?" && make -j2 && \
+cd py-smbus && CFLAGS="$CFLAGS -I../include" python3 setup.py build && \
+cd .. && \
+sudo -S make DESTDIR=$BUILD install && \
+cd py-smbus && sudo -S python3 setup.py install --prefix=/usr --root=$BUILD && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+i2c-tools: i2c-tools
+i2c-tools:
+i2c-tools: Tools for monitoring I2C devices
+i2c-tools:
+i2c-tools: https://i2c.wiki.kernel.org/index.php/I2C_Tools
+i2c-tools:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/i2c-tools-4.3-$(uname -m)-mlfs.txz &&
+cd /BMAN && \
+cat > /tmp/slack-desc << "EOF"
+i2c-tools-doc: Manuals for i2c-tools
+i2c-tools-doc:
+i2c-tools-doc: Tools for monitoring I2C devices
+i2c-tools-doc:
+i2c-tools-doc: https://i2c.wiki.kernel.org/index.php/I2C_Tools
+i2c-tools-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/i2c-tools-doc-4.3-noarch-mlfs.txz && \
+sudo -S rm -rf ${BUILD}/* /BMAN/*
