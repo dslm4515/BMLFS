@@ -1,0 +1,44 @@
+#! /bin/bash
+
+# TPMManager
+# Source: https://github.com/kermitdafrog8/TPMManager
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     trousers qt5
+# Recommended:  NONE
+# Optional:     NONE
+
+# Source is a fork of the original, since original was not updated to
+# build on qt5. It only has qt4 support.
+
+qmake QMAKE_CFLAGS+=-fpermissive QMAKE_CXXFLAGS+=-fpermissive && \
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S install -D -m755 bin/tpmmanager  $BUILD/usr/bin/tpmmanager  &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+          |-----handy-ruler------------------------------------------------------|
+tpmmanager: tpmmanager
+tpmmanager:
+tpmmanager: TPM (1.2) management software providing an easy to use graphical user 
+tpmmanager: interface.
+tpmmanager:
+tpmmanager: Original: github.com/Sirrix-AG/TPMManager
+tpmmanager: Forked with Qt5 support: github.com/kermitdafrog8/TPMManager
+tpmmanager:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/tpmmanager-0.8.1-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
