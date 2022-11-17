@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# clinfo 3.0.21.02.21
+# Source: https://github.com/Oblomov/clinfo/archive/refs/tags/3.0.21.02.21.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     ocl-icd, 
+# Recommended:  NONE
+# Optional:     NONE
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S install -Dm755 clinfo -t $BUILD/usr/bin/
+sudo -S install -Dm644 man1/clinfo.1 -t $BMAN/usr/share/man/man1/
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+clinfo: clinfo
+clinfo:
+clinfo: Simple OpenCL application that enumerates all available platform and 
+clinfo: device properties
+clinfo: 
+clinfo: https://github.com/Oblomov/clinfo
+clinfo: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/clinfo-3.0.21.02.21-$(uname -m)-mlfs.txz &&
+sudo -S rm -rf ${BUILD}/*
+cd /BMAN
+sudo -S mkdir install
+cat > /tmp/slack-desc << "EOF"
+clinfo-doc: Manpage for clinfo-doc
+clinfo-doc:
+clinfo-doc: Simple OpenCL application that enumerates all available platform and
+clinfo-doc: device properties.
+clinfo-doc:
+clinfo-doc: https://github.com/Oblomov/clinfo
+clinfo-doc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/
+sudo -S makepkg -l y -c n $PKGS/clinfo-doc-3.0.21.02.21-noarch-mlfs.txz
