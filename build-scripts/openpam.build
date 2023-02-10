@@ -1,0 +1,56 @@
+#! /bin/bash
+
+# OpenPAM
+# Source: https://sourceforge.net/projects/openpam/files/openpam/Tabebuia/openpam-20190224.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr \
+	    --without-doc \
+	    --with-pam-unix 
+
+read -p "Compile?" && make -j2 &&
+
+su -c "make DESTDIR=$BUILD install" &&
+su -c "install -vdm755 ${BUILD}/etc/pam.d"
+for f in system-account system-auth system-password system-session
+do
+       	su -c "cp -v ../files/Linux-PAM-lfs/$f ${BUILD}/etc/pam.d/"
+done
+cat > /tmp/other << "EOF"
+auth        required        pam_deny.so
+account     required        pam_deny.so
+password    required        pam_deny.so
+session     required        pam_deny.so
+EOF
+
+# OpenPAM has no pam_warn.so
+su -c "mv -v /tmp/other ${BUILD}/etc/pam.d/"
+
+cd $BUILD && su -c "mkdir -v ${BUILD}/install" &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+openpam: OpenPAM
+openpam:
+openpam: An open source PAM library that focuses on simplicity, correctness, 
+openpam: and portability.
+openpam: 
+openpam: https://sourceforge.net/projects/openpam
+openpam:
+EOF
+su -c "mv -v /tmp/slack-desc install/" &&
+su -c "makepkg -l y -c n $PKGS/openpam-2019.02.24-${PSUFFIX}" &&
+su -c "rm -rf ${BUILD}/*"
