@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # PyGObject 3
-# Source: https://download.gnome.org/sources/pygobject/3.42/pygobject-3.42.1.tar.xz
+# Source: https://download.gnome.org/sources/pygobject/3.42/pygobject-3.42.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -42,5 +42,5 @@ pygobject3:
 pygobject3:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pygobject3-3.42.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/pygobject3-3.42.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
