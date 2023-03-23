@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # JSON-C
-# Source: https://s3.amazonaws.com/json-c_releases/releases/json-c-0.15.tar.gz
+# Source: https://s3.amazonaws.com/json-c_releases/releases/json-c-0.16.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -22,8 +22,9 @@ cd    build &&
 
 cmake -DCMAKE_INSTALL_PREFIX=/usr \
       -DCMAKE_BUILD_TYPE=Release \
-      -DBUILD_STATIC_LIBS=OFF    \
-      .. 
+      -DBUILD_STATIC_LIBS=ON    \
+      -DDISABLE_WERROR=ON \
+      -DENABLE_THREADING=ON .. 
 read -p "Compile?" && make -j2 &&
 sudo -S make DESTDIR=$BUILD install &&
 
@@ -50,5 +51,5 @@ json-c:
 json-c
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/json-c-0.15-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/json-c-0.16-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
