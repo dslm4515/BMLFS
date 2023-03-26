@@ -51,7 +51,7 @@ alsa-utils:
 alsa-utils: For more information, see http://alsa-project.org
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/alsa-utils-1.2.6-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/alsa-utils-1.2.6-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 alsa-utils-doc: Manuals for Advanced Linux Sound Architecture utilities
@@ -64,5 +64,5 @@ alsa-utils-doc: http://alsa-project.org
 alsa-utils-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ 
-sudo -S makepkg -l y -c n $PKGS/alsa-utils-doc-1.2.6-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/alsa-utils-doc-1.2.6-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
