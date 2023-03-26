@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # SDL2 Mixer
-# Source: http://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4.tar.gz
+# Source: https://github.com/libsdl-org/SDL_mixer/archive/refs/tags/release-2.6.3.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,10 +11,10 @@
 # Recommended:  mpg123, 
 # Optional:     libmikmod, libmodplug, smpeg2, fluidsynth, opusfile
 
-sed -e "/CONFIG_FILE_ETC/s|/etc/timidity.cfg|/etc/timidity++/timidity.cfg|" \
-    -e "/DEFAULT_PATH/s|/etc/timidity|/etc/timidity++|" \
-    -e "/DEFAULT_PATH2/s|/usr/local/lib/timidity|/usr/lib/timidity|" \
-    -i timidity/options.h &&
+#sed -e "/CONFIG_FILE_ETC/s|/etc/timidity.cfg|/etc/timidity++/timidity.cfg|" \
+#    -e "/DEFAULT_PATH/s|/etc/timidity|/etc/timidity++|" \
+#    -e "/DEFAULT_PATH2/s|/usr/local/lib/timidity|/usr/lib/timidity|" \
+#    -i timidity/options.h &&
 
 ./configure --prefix=/usr $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
@@ -44,5 +44,5 @@ SDL2_mixer:
 SDL2_mixer:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/SDL2_mixer-2.0.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/SDL2_mixer-2.6.3-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
