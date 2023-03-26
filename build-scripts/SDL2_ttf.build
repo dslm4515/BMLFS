@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # SDL2_ttf
-# Source: https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.15.tar.gz
+# Source: https://github.com/libsdl-org/SDL_ttf/archive/refs/tags/release-2.20.2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,10 +11,19 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-./configure --prefix=/usr --sysconfdir=/etc $BUILDTRUPLE &&
-read -p "Compile?" && make -j2 &&
+# autotools build system is broken. Use CMake instead
+#./configure --prefix=/usr --sysconfdir=/etc $BUILDTRUPLE &&
+#read -p "Compile?" && make -j2 &&
+#sudo -S make DESTDIR=$BUILD install &&
 
-sudo -S make DESTDIR=$BUILD install &&
+cmake -B build -G Ninja \
+      -DCMAKE_BUILD_TYPE=None \
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DSDL2TTF_HARFBUZZ=ON
+
+read -p "Compile?" && cmake --build build && \
+
+sudo DESTDIR=$BUILD cmake --install build && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -39,5 +48,5 @@ SDL2_ttf:
 SDL2_ttf:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/SDL2_ttf-2.0.15-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/SDL2_ttf-2.20.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
