@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # Atkmm
-# Source: https://download.gnome.org/sources/atkmm/2.28/atkmm-2.28.2.tar.xz
+# Source: https://download.gnome.org/sources/atkmm/2.28/atkmm-2.28.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     ATK, GLibmm-2.4
+# Required:     at-spi2-core GLibmm-2.4
 # Recommended:  NONE
 # Optional:     NONE
 
@@ -44,5 +44,5 @@ atkmm: atkmm home: http://www.gtkmm.org/
 atkmm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/atkmm-2.28.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/atkmm-2.28.3-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
