@@ -61,7 +61,7 @@ patch -Np1 -i ../patches/cairo-mlfs/disable-trace.patch
 # Autotool build broken. Use meson
 meson --prefix=/usr \
 	-Ddrm="enabled" \
-	-Dfontconfig="enabled"\
+	-Dfontconfig="enabled" \
 	-Dfreetype="enabled" \
 	-Dgl-backend="glesv3" \
 	-Dglesv2="enabled" -Dglesv3="enabled" \
@@ -69,7 +69,6 @@ meson --prefix=/usr \
 	-Dtee="enabled" \
 	-Dxcb="enabled" \
 	-Dxlib="enabled" \
-	-Dxlib-xcb="enabled" \
 	-Dcogl="enabled" \
 	-Dtests="disabled" OUT && \
 
@@ -114,5 +113,5 @@ cairo:
 cairo:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cairo-1.17.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/cairo-1.17.4-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
