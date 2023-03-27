@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Xwayland
-# Source: https://gitlab.freedesktop.org/xorg/xserver/-/archive/xwayland-22.1.1/xserver-xwayland-22.1.1.tar.gz
+# Source: https://www.x.org/pub/individual/xserver/xwayland-22.1.8.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -9,7 +9,7 @@
 # DEPS
 # Required:     nettle, mesa, libdrm, libepoxy, libxfont2, pixman
 # Required:     xorgproto, xtrans, libxkbfile, dbus, font-util, libtirpc,
-# Required:     xkbutils
+# Required:     xkbutils libxcvt
 # Recommended:  NONE
 # Optional:     xkbcomp  
 
@@ -22,7 +22,7 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 mkdir build && cd build &&
 
-meson --prefix=/usr     \
+meson --prefix=$XORG_PREFIX     \
       -Dipv6=true \
       -Dxvfb=false \
       -Dxcsecurity=true \
@@ -59,7 +59,7 @@ xorg-server-xwayland: handles presentation of the windows instead of KMS.
 xorg-server-xwayland:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xorg-server-xwayland-21.1.1-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xorg-server-xwayland-21.1.8-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xorg-server-xwayland-doc: Manuals for xorg-server-xwayland
@@ -68,5 +68,5 @@ xorg-server-xwayland-doc: X Clients under Wayland
 xorg-server-xwayland-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xorg-server-xwayland-doc-21.1.1-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xorg-server-xwayland-doc-21.1.8-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
