@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Intel Graphics Memory Management Library 
-# Source: https://github.com/intel/gmmlib
+# Source: https://github.com/intel/gmmlib/archive/refs/tags/intel-gmmlib-22.3.4.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -37,5 +37,5 @@ intel-gmmlib: https://github.com/intel/gmmlib
 intel-gmmlib:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/intel-gmmlib-???-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/intel-gmmlib-22.3.4-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
