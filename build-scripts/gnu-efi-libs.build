@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# gnu-efi-libs 
-# Source: https://sourceforge.net/projects/gnu-efi/files/gnu-efi-3.0.13.tar.bz2
+# gnu-efi-libs
+# Source: https://downloads.sourceforge.net/project/gnu-efi/gnu-efi-3.0.15.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
