@@ -52,7 +52,7 @@ foot:
 foot:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/foot-1.10.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/foot-1.13.1-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 foot-doc: Manuals for foot - Wayland Terminal Emulator
@@ -64,6 +64,6 @@ foot-doc: source: https://codeberg.org/dnkl/foot.git
 foot-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/foot-doc-1.10.3-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/foot-doc-1.13.1-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
