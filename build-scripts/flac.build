@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # FLAC
-# Source: https://downloads.xiph.org/releases/flac/flac-1.3.4.tar.xz
+# Source: https://downloads.xiph.org/releases/flac/flac-1.4.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -30,7 +30,7 @@ esac
 
 ./configure --prefix=/usr \
             --disable-thorough-tests \
-            --docdir=/usr/share/doc/flac-1.3.34 $BUILDTRUPLE ${ECONF} &&
+            --docdir=/usr/share/doc/flac-1.4.2 $BUILDTRUPLE ${ECONF} &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -62,7 +62,7 @@ flac:
 flac: FLAC was developed by Josh Coalson.
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/flac-1.3.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/flac-1.4.2-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 flac-doc: Manuals for flac (Free Lossless Audio Codec)
@@ -77,6 +77,6 @@ flac-doc: FLAC was developed by Josh Coalson.
 flac-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/flac-doc-1.3.4-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/flac-doc-1.4.2-$NOPSUFFIX
 sudo -S rm -f /BMAN/*
 sudo -S rm -rf ${BUILD}/*
