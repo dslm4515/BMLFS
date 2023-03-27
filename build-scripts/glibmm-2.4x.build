@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GLibmm
-# Source: https://download.gnome.org/sources/glibmm/2.66/glibmm-2.66.2.tar.xz
+# Source: https://download.gnome.org/sources/glibmm/2.66/glibmm-2.66.5.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -45,5 +45,5 @@ glibmm: Provides glibmm-2.4
 glibmm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/glibmm-2.66.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/glibmm-2.66.5-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
