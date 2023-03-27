@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# glslang 
-# Source: https://github.com/KhronosGroup/glslang/archive/11.7.0.tar.gz 
+# glslang
+# Source: https://github.com/KhronosGroup/glslang/archive/refs/tags/12.1.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -44,13 +44,13 @@ cat > /tmp/slack-desc << "EOF"
 
        |-----handy-ruler------------------------------------------------------|
 glslang: glslang
-glslang: 
-glslang: Khronos reference front-end for GLSL, ESSL, and sample SPIR-V 
+glslang:
+glslang: Khronos reference front-end for GLSL, ESSL, and sample SPIR-V
 glslang: generator.
-glslang: 
+glslang:
 glslang: https://github.com/KhronosGroup/glslang
-glslang:  
+glslang:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/glslang-11.7.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/glslang-12.0.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
