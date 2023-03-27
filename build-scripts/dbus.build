@@ -2,6 +2,7 @@
 
 # D-Bus
 # Source: https://dbus.freedesktop.org/releases/dbus/dbus-1.14.0.tar.xz
+# Source: https://dbus.freedesktop.org/releases/dbus/dbus-1.14.4.tar.xz
 #
 # DEPS
 # Required:     NONE
@@ -17,7 +18,7 @@ export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
 ./configure --prefix=/usr \
             --sysconfdir=/etc \
             --localstatedir=/var \
-            --docdir=/usr/share/doc/dbus-1.14.0 \
+            --docdir=/usr/share/doc/dbus-1.14.4 \
             --disable-selinux \
             --enable-inotify \
             --with-dbus-user=messagebus \
@@ -65,7 +66,7 @@ EOF
 sudo -S mv /tmp/slack-desc install/ &&
 sudo -S ln -sv /var/lib/dbus/machine-id etc &&
 read -p "Enter to build and install package" &&
-sudo -S makepkg -l y -c n $PKGS/dbus-1.14.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/dbus-1.14.4-$(uname -m)-mlfs.txz &&
 
 cp -v install/doinst.sh /tmp/
 cat >> /tmp/doinst.sh << "EOF"
@@ -75,7 +76,7 @@ chmod -v      4750       /usr/libexec/dbus-daemon-launch-helper
 echo "Creating machine ID..." && dbus-uuidgen --ensure
 EOF
 sudo mv -v /tmp/doinst.sh install/doinst.sh &&
-sudo -S makepkg -l y -c n $PKGS/dbus-1.14.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/dbus-1.14.4-$(uname -m)-mlfs.txz &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -90,6 +91,6 @@ dbus-doc: directly (without going through the message bus daemon).
 dbus-doc: 
 EOF
 sudo -S mv /tmp/slack-desc install/
-sudo -S makepkg -l y -c n $PKGS/dbus-doc-1.14.0-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/dbus-doc-1.14.4-noarch-mlfs.txz
 sudo rm -rf $BUILD/*
 sudo rm -rf /BMAN/*
