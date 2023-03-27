@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # font-bh-type1 
-# Source: https://www.x.org/pub/individual/font/font-bh-type1-1.0.3.tar.bz2
+# Source: https://www.x.org/pub/individual/font/font-bh-type1-1.0.4.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -14,9 +14,7 @@
 cp -vf ../files/config.sub-musl  config.sub     && \
 cp -vf ../files/config.guess-musl  config.guess && \
 
-./configure --prefix=/usr --sysconfdir=/etc \
-	    --localstatedir=/var \
-	    --disable-static $BUILDTRUPLE && \
+./configure $XORG_CONFIG $BUILDTRUPLE && \
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -44,5 +42,5 @@ font-bh-type1:
 font-bh-type1:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/font-bh-type1-1.0.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/font-bh-type1-1.0.4-$NOPSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
