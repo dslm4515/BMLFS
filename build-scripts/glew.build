@@ -55,5 +55,5 @@ glew:
 glew:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/glew-2.2.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/glew-2.2.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
