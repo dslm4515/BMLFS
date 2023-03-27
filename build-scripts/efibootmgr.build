@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # efibootmngr
-# Source: https://github.com/rhboot/efibootmgr/archive/17.tar.gz
+# Source: https://github.com/rhboot/efibootmgr/archive/18/efibootmgr-18.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -12,7 +12,9 @@
 # Optional:     NONE
 
 # fix an outdated hotfix declaration causing compilation failure 
-sed -e '/extern int efi_set_verbose/d' -i src/efibootmgr.c
+#sed -e '/extern int efi_set_verbose/d' -i src/efibootmgr.c
+
+patch -Np1 -i ../patches/efibootmgr-chimera/build.patch 
 
 case $(uname -m) in
 	x86_64)  export EFI_LOADER="grubx64.efi"  ;;
@@ -21,7 +23,8 @@ case $(uname -m) in
 	arm*)     export EFI_LOADER="grubarm.efi"  ;;
 esac
 
-read -p "Compile?" && make -j2 EXTRA_CFLAGS="$CFLAGS" EFIDIR="MLFS" EFI_LOADER="${EFI_LOADER}" &&
+read -p "Compile?" && \
+PCDIR=/usr/lib/pkgconfig make -j2 EXTRA_CFLAGS="$CFLAGS" EFIDIR="MLFS" EFI_LOADER="${EFI_LOADER}" &&
 
 sudo -S make DESTDIR=$BUILD EXTRA_CFLAGS="$CFLAGS" EFIDIR="MLFS" EFI_LOADER="${EFI_LOADER}" install &&
 sudo -S mkdir -pv /BMAN/install
