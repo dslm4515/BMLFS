@@ -1,7 +1,8 @@
 #! /bin/bash
 
-# Boost 1.78.0
+# Boost 
 # Source: https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.bz2
+# Source: https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -26,7 +27,18 @@ case $(uname -m) in
 esac
 
 # Apply patches
-patch -Np0 -i ../patches/boost-void/musl-memset.patch &&
+patch -Np1 -i ../patches/boost-alpine/0001-revert-cease-dependence-on-range.patch
+patch -Np1 -i ../patches/boost-alpine/boost-1.57.0-python-abi_letters.patch
+patch -Np1 -i ../patches/boost-alpine/boost-1.57.0-python-libpython_dep.patch
+patch -Np1 -i ../patches/boost-alpine/boost-phoenix-uarg.patch
+
+# Apply patches if clang is used instead of gcc
+patch -Np1 -i ../patches/boost-chimera/0001-revert-cease-dependence-on-range.patch 
+patch -Np1 -i ../patches/boost-chimera/boost-1.57.0-python-abi_letters.patch
+patch -Np1 -i ../patches/boost-chimera/boost-1.57.0-python-libpython_dep.patch
+patch -Np1 -i ../patches/boost-chimera/fix-x86-build.patch
+patch -Np1 -i ../patches/boost-chimera/install-strip-destdir.patch
+patch -Np1 -i ../patches/boost-chimera/toolset-default-clang.patch 
 
 # If not using pkgtools or any package manager, set $BUILD=""
 # Bootstap source
@@ -99,5 +111,5 @@ boost:
 boost:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/boost-1.78.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/boost-1.80.1-$(uname -m)-mlfs.txz &&
 sudo -S rm -rf $BUILD/*
