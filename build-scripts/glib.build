@@ -1,7 +1,8 @@
 #! /bin/bash
 
-# Glib 2.72.0
+# Glib 2.74.5
 # Source: ftp://ftp.acc.umu.se/pub/gnome/sources/glib/2.72/glib-2.72.0.tar.xz
+# Source: https://download.gnome.org/sources/glib/2.74/glib-2.74.5.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -19,8 +20,7 @@ export CFLAGS+="-O3 -Ofast -falign-functions=32 -ffat-lto-objects -flto=auto "
 export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
 export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
-patch -Np1 -i ../patches/glib-lfs/glib-2.72.0-skip_warnings-1.patch 
-patch -Np1 -i ../patches/glib-alpine/0001-gquark-fix-initialization-with-c-constructors.patch
+patch -Np1 -i ../patches/glib-lfs/glib-2.74.5-skip_warnings-1.patch 
 
 mkdir build &&
 cd    build &&
@@ -71,7 +71,7 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build and install package" &&
-sudo makepkg -l y -c n $PKGS/glib-2.72.0-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS/glib-2.74.5-${NOPSUFFIX} &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -84,6 +84,6 @@ glib-doc:  GLib is required by nearly everything that uses GTK+ 1/2/3/4.x
 glib-doc: 
 EOF
 sudo mv /tmp/slack-desc install/
-sudo makepkg -l y -c n $PKGS/glib-doc-2.72.0-noarch-mlfs.txz
+sudo makepkg -l y -c n $PKGS/glib-doc-2.74.5-${NOPSUFFIX}
 sudo rm -rf /BMAN/*
 sudo rm -rf $BUILD/*                                               
