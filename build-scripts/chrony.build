@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Chrony
-# Source: https://download.tuxfamily.org/chrony/chrony-4.2.tar.gz 
+# Source: https://download.tuxfamily.org/chrony/chrony-4.3.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -70,7 +70,7 @@ useradd  -c "chrony user" -d /var/lib/chrony \
          -u 87 -g chrony -s /usr/bin/false chrony
 EOF
 sudo -S mv -v /tmp/doinst.sh install/  && \
-sudo -S makepkg -l y -c n $PKGS/chrony-4.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/chrony-4.3-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 chrony-doc: Manuals for chrony
@@ -81,5 +81,5 @@ chrony-doc: https://chrony.tuxfamily.org
 chrony-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/chrony-doc-4.2-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/chrony-doc-4.3-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/*
