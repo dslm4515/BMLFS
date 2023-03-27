@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# SDL_sound 
+# Source: https://github.com/icculus/SDL_sound/archive/refs/tags/v2.0.1.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     SDL2 CMake
+# Recommended:  FLAC libvorbis mpg123 wavpack 
+# Optional:     NONE
+
+cmake -B BUILD -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+
+read -p "Compile?" && make -j2 -C BUILD &&
+
+sudo -S make DESTDIR=$BUILD -C BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+SDL_sound: SDL sound
+SDL_sound:
+SDL_sound: A library for SDL that handles the decoding of several popular sound 
+SDL_sound: file formats, such as .WAV and .MP3. It is meant to make the 
+SDL_sound: programmer's sound playback tasks simpler.
+SDL_sound: 
+SDL_sound: https://github.com/icculus/SDL_sound
+SDL_sound:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/SDL_sound-2.0.1-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
