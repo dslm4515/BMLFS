@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libglvnd 
-# Source: https://gitlab.freedesktop.org/glvnd/libglvnd/-/archive/v1.4.0/libglvnd-v1.4.0.tar.gz
+# Source: https://gitlab.freedesktop.org/glvnd/libglvnd/-/archive/v1.6.0/libglvnd-v1.6.0.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -45,5 +45,5 @@ libglvnd: OpenGL ES.
 libglvnd: https://gitlab.freedesktop.org/glvnd/libglvnd
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libglvnd-1.4.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libglvnd-1.6.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
