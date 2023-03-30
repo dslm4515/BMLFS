@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xvinfo
-# Source: https://www.x.org/pub/individual/app/xvinfo-1.1.4.tar.bz2
+# Source: https://www.x.org/pub/individual/app/xvinfo-1.1.5.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -41,7 +41,7 @@ xvinfo:
 xvinfo:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xvinfo-1.1.4-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xvinfo-1.1.5-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xvinfo-doc: Manuals for xvinfo
@@ -50,5 +50,5 @@ xvinfo-doc: X11 X-Video utility
 xvinfo-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xvinfo-doc-1.1.4-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xvinfo-doc-1.1.5-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

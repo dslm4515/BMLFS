@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xdpyinfo 
-# Source: https://www.x.org/pub/individual/app/xdpyinfo-1.3.2.tar.bz2
+# Source: https://www.x.org/pub/individual/app/xdpyinfo-1.3.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -41,7 +41,7 @@ xdpyinfo:
 xdpyinfo:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xdpyinfo-1.3.2-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xdpyinfo-1.3.3-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xdpyinfo-doc: Manuals for xdpyinfo
@@ -52,5 +52,5 @@ xdpyinfo-doc: http://www.x.org
 xdpyinfo-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xdpyinfo-doc-1.3.2-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xdpyinfo-doc-1.3.3-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

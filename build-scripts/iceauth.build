@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # iceauth 
-# Source: https://www.x.org/pub/individual/app/iceauth-1.0.8.tar.bz2 
+# Source: https://www.x.org/pub/individual/app/iceauth-1.0.9.tar.xz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -52,7 +52,7 @@ iceauth:
 iceauth:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/iceauth-1.0.8-$(uname -m)-mlfs.txz && 
+sudo -S makepkg -l y -c n $PKGS/iceauth-1.0.9-$PSUFFIX && 
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 iceauth-doc: Manuals for iceauth
@@ -62,5 +62,5 @@ iceauth-doc: connecting with ICE.
 iceauth-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/iceauth-doc-1.0.8-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/iceauth-doc-1.0.9-$NOPSUFFIX  && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

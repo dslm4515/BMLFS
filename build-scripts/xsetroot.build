@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xsetroot 
-# Source: https://www.x.org/pub/individual/app/xsetroot-1.1.2.tar.bz2
+# Source: https://www.x.org/pub/individual/app/xsetroot-1.1.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -46,7 +46,7 @@ xsetroot:
 xsetroot:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xsetroot-1.1.2-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xsetroot-1.1.3-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xsetroot-doc: Manuals for xsetroot
@@ -57,5 +57,5 @@ xsetroot-doc: http://www.x.org
 xsetroot-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xsetroot-doc-1.1.2-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xsetroot-doc-1.1.3-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

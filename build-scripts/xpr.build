@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xpr 
-# Source: https://www.x.org/pub/individual/app/xpr-1.0.5.tar.bz2
+# Source: https://www.x.org/pub/individual/app/xpr-1.1.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -35,7 +35,7 @@ xpr: for output on various types of printers.
 xpr:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xpr-1.0.5-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/xpr-1.1.0-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xpr-doc: Manuals for xpr
@@ -44,5 +44,5 @@ xpr-doc: dump an X window directly to a printer
 xpr-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xpr-doc-1.0.5-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xpr-doc-1.5.0-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

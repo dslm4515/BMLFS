@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xkbutils 
-# Source: https://www.x.org/pub/individual/app/xkbutils-1.0.4.tar.bz2
+# Source: https://www.x.org/pub/individual/app/xkbutils-1.0.5.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,9 +10,6 @@
 # Required:     xorgproto, libXaw, libXt
 # Recommended:  NONE
 # Optional:     NONE
-
-cp -vf ../files/config.sub-musl config.sub     && \
-cp -vf ../files/config.guess-musl config.guess && \
 
 ./configure $XORG_CONFIG $BUILDTRUPLE && \
 read -p "Compile?" && make -j2 &&
@@ -44,7 +41,7 @@ xkbutils:
 xkbutils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xkbutils-1.0.4-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xkbutils-1.0.5-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xkbutils-doc: Manuals for xkbutils
@@ -54,5 +51,5 @@ xkbutils-doc: extension to the X11 protocol.
 xkbutils-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xkbutils-doc-1.0.4-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xkbutils-doc-1.0.5-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

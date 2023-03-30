@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xmessage 
-# Source: https://www.x.org/pub/individual/app/xmessage-1.0.5.tar.bz2
+# Source: https://www.x.org/pub/individual/app/xmessage-1.0.6.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -41,7 +41,7 @@ xmessage:
 xmessage:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xmessage-1.0.5-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xmessage-1.0.6-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xmessage-doc: Manuals for xmessage
@@ -50,5 +50,5 @@ xmessage-doc: displays a message or query in a window
 xmessage-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xmessage-doc-1.0.5-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xmessage-doc-1.0.6-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

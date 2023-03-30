@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xdriinfo 
-# Source: https://www.x.org/pub/individual/app/xdriinfo-1.0.6.tar.bz2
+# Source: https://www.x.org/pub/individual/app/xdriinfo-1.0.7.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -41,7 +41,7 @@ xdriinfo:
 xdriinfo:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xdriinfo-1.0.6-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xdriinfo-1.0.7-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xdriinfo-doc: Manuals for xdriinfo
@@ -52,5 +52,5 @@ xdriinfo-doc: http://www.x.org
 xdriinfo-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xdriinfo-doc-1.0.6-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xdriinfo-doc-1.0.7-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

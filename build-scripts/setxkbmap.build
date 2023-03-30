@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # setxkbmap 
-# Source: https://www.x.org/pub/individual/app/setxkbmap-1.3.2.tar.bz2
+# Source: https://www.x.org/pub/individual/app/setxkbmap-1.3.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     xorgproto
+# Required:     xorgproto libXrandr
 # Recommended:  NONE
 # Optional:     NONE
 
@@ -47,7 +47,7 @@ setxkbmap:
 setxkbmap:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/setxkbmap-1.3.2-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/setxkbmap-1.3.3-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 setxkbmap-doc: Manuals for setxkbmap
@@ -58,5 +58,5 @@ setxkbmap-doc: http://www.x.org
 setxkbmap-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/setxkbmap-doc-1.3.2-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/setxkbmap-doc-1.3.3-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

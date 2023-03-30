@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xkbevd 
-# Source: https://www.x.org/pub/individual/app/xkbevd-1.1.4.tar.bz2
+# Source: https://www.x.org/pub/individual/app/xkbevd-1.1.5.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -41,7 +41,7 @@ xkbevd:
 xkbevd:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xkbevd-1.1.4-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xkbevd-1.1.5-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xkbevd-doc: Manuals for xkbevd
@@ -50,5 +50,5 @@ xkbevd-doc: X11 keyboard event daemon
 xkbevd-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xkbevd-doc-1.1.4-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xkbevd-doc-1.1.5-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

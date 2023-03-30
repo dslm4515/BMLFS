@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # sessreg 
-# Source: https://www.x.org/pub/individual/app/sessreg-1.1.2.tar.bz2 
+# Source: https://www.x.org/pub/individual/app/sessreg-1.1.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -42,7 +42,7 @@ sessreg:
 sessreg:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/sessreg-1.1.2-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/sessreg-1.1.3-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 sessreg-doc: Manuals for sessreg
@@ -51,5 +51,5 @@ sessreg-doc: Simple program for managing utmp/wtmp entries for X sessions
 sessreg-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/sessreg-doc-1.1.2-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/sessreg-doc-1.1.3-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

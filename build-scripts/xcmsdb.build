@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xcmsdb 
-# Source: https://www.x.org/pub/individual/app/xcmsdb-1.0.5.tar.bz2
+# Source: https://www.x.org/pub/individual/app/xcmsdb-1.0.6.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -41,7 +41,7 @@ xcmsdb:
 xcmsdb:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xcmsdb-1.0.5-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xcmsdb-1.0.6-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xcmsdb-doc: Manuals for xcmsdb
@@ -53,5 +53,5 @@ xcmsdb-doc: Communication Conventions Manual (ICCCM).
 xcmsdb-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xcmsdb-doc-1.0.5-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xcmsdb-doc-1.0.6-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

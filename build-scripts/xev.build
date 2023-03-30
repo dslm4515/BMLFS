@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xev 
-# Source: https://www.x.org/pub/individual/app/xev-1.2.4.tar.bz2
+# Source: https://www.x.org/pub/individual/app/xev-1.2.5.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -41,7 +41,7 @@ xev:
 xev:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xev-1.2.4-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xev-1.2.5-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xev-doc: Manuals for xev 
@@ -50,5 +50,5 @@ xev-doc: X11 event viewer
 xev-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xev-doc-1.2.4-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xev-doc-1.2.5-$PNOSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

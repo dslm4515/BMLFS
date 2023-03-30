@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # smproxy 
-# Source: https://www.x.org/pub/individual/app/smproxy-1.0.6.tar.bz2
+# Source: https://www.x.org/pub/individual/app/smproxy-1.0.7.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -41,7 +41,7 @@ smproxy:
 smproxy:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/smproxy-1.0.6-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/smproxy-1.0.7-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 smproxy-doc: Manuals for smproxy
@@ -51,5 +51,5 @@ smproxy-doc: management to participate in an X11R6 session.
 smproxy-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-	sudo -S makepkg -l y -c n $PKGS/smproxy-doc-1.0.6-noarch-mlfs.txz
+	sudo -S makepkg -l y -c n $PKGS/smproxy-doc-1.0.7-$NOPSUFFIX
 sudo -S rm -rf ${BUILD}/* /BMAN/*

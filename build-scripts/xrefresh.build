@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xrefresh 
-# Source: https://www.x.org/pub/individual/app/xrefresh-1.0.6.tar.bz2
+# Source: https://www.x.org/pub/individual/app/xrefresh-1.0.7.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -41,7 +41,7 @@ xrefresh:
 xrefresh:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xrefresh-1.0.6-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xrefresh-1.0.7-$PSUFFIX && \
 cd /BMAN && 
 cat > /tmp/slack-desc << "EOF"
 xrefresh-doc: Manuals for xrefresh
@@ -50,5 +50,5 @@ xrefresh-doc: refresh all or part of an X screen
 xrefresh-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xrefresh-doc-1.0.6-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xrefresh-doc-1.0.7-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

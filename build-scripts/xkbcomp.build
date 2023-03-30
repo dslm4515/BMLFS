@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xkbcomp 
-# Source: https://www.x.org/pub/individual/app/xkbcomp-1.4.4.tar.bz2
+# Source: https://www.x.org/pub/individual/app/xkbcomp-1.4.6.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -46,7 +46,7 @@ xkbcomp:
 xkbcomp:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xkbcomp-1.4.4-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xkbcomp-1.4.6-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xkbcomp-doc: Manuals for xkbcomp
@@ -55,5 +55,5 @@ xkbcomp-doc: X Keyboard Extension
 xkbcomp-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xkbcomp-doc-1.4.4-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xkbcomp-doc-1.4.6-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

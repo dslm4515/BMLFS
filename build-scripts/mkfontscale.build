@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # mkfontscale 
-# Source: https://www.x.org/pub/individual/app/mkfontscale-1.2.1.tar.bz2
+# Source: https://www.x.org/pub/individual/app/mkfontscale-1.2.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -46,7 +46,7 @@ mkfontscale:
 mkfontscale:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mkfontscale-1.2.1-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/mkfontscale-1.2.2-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 mkfontscale-doc: Manuals for mkfontscale
@@ -56,5 +56,5 @@ mkfontscale-doc: by the legacy X11 font system.
 mkfontscale-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mkfontscale-doc-1.2.1-noarch-mlfs.txz && /
+sudo -S makepkg -l y -c n $PKGS/mkfontscale-doc-1.2.2.$NOPSUFFIX && /
 sudo -S rm -rf ${BUILD}/* /BMAN/*

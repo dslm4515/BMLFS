@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xauth 
-# Source: https://www.x.org/pub/individual/app/xauth-1.1.tar.bz2
+# Source: https://www.x.org/pub/individual/app/xauth-1.1.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -46,7 +46,7 @@ xauth:
 xauth:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xauth-1.1-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xauth-1.1.2-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xauth-doc: Manuals for xauth
@@ -56,5 +56,5 @@ xauth-doc: used in connecting to the X server.
 xauth-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xauth-doc-1.1-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xauth-doc-1.1.2-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

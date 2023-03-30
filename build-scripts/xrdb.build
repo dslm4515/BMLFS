@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xrdb 
-# Source: https://www.x.org/pub/individual/app/xrdb-1.2.0.tar.bz2
+# Source: https://www.x.org/pub/individual/app/xrdb-1.2.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -46,7 +46,7 @@ xrdb:
 xrdb:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xrdb-1.2.0-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xrdb-1.2.1-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xrdb-doc: Manuals for xrdb
@@ -57,5 +57,5 @@ xrdb-doc: http://www.x.org
 xrdb-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xrdb-doc-1.2.0-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xrdb-doc-1.2.1-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

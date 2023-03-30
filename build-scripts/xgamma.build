@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xgamma 
-# Source: https://www.x.org/pub/individual/app/xgamma-1.0.6.tar.bz2
+# Source: https://www.x.org/pub/individual/app/xgamma-1.0.7.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -41,7 +41,7 @@ xgamma:
 xgamma:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xgamma-1.0.6-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xgamma-1.0.7-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xgamma-doc: Manals for xgamma
@@ -51,5 +51,5 @@ xgamma-doc: monitor via the X video mode extension (XFree86-VidModeExtension).
 xgamma-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xgamma-doc-1.0.6-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xgamma-doc-1.0.7-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
