@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# GNU TLS 3.7.2
-# Source: https://www.gnupg.org/ftp/gcrypt/gnutls/v3.7/gnutls-3.7.2.tar.xz
+# GNU TLS
+# Source: https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -71,7 +71,7 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS//gnutls-3.7.2-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS//gnutls-3.8.0-$PSUFFIX &&
 
 cd /BMAN/
 cat > /tmp/slack-desc << "EOF" 
@@ -88,6 +88,6 @@ gnutls-doc:
 gnutls-doc: 
 EOF
 sudo mv /tmp/slack-desc install/
-sudo makepkg -l y -c n $PKGS//gnutls-doc-3.7.2-noarch-mlfs.txz
+sudo makepkg -l y -c n $PKGS//gnutls-doc-3.8.0-$NOPSUFFIX
 sudo rm -rf $BUILD/*
 sudo rm -rf /BMAN/*
