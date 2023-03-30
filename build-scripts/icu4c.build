@@ -1,7 +1,8 @@
 #! /bin/bash
 
-# ICU 70.1
+# ICU 72.1
 # Source: https://github.com/unicode-org/icu/releases/download/release-70-1/icu4c-70_1-src.tgz
+# Source: https://github.com/unicode-org/icu/releases/download/release-72-1/icu4c-72_1-src.tgz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -79,9 +80,9 @@ sudo -S mv -v /tmp/slack-desc /BMAN/install/
 
 sudo mv usr/share/man /BMAN/usr/share/
 
-sudo -S makepkg -l y -c n $PKGS/icu-70.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/icu-72.1-${PSUFFIX} &&
 cd /BMAN
-sudo -S makepkg -l y -c n $PKGS/icu-doc-70.1-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/icu-doc-72.1-${NOPSUFFIX}
 
 sudo -S rm -rf $BUILD/*
 sudo -S rm -rf /BMAN
