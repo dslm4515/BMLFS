@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libnl3
-# Source: https://github.com/thom311/libnl/releases/download/libnl3_5_0/libnl-3.5.0.tar.gz
+# Source: https://github.com/thom311/libnl/releases/download/libnl3_7_0/libnl-3.7.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -51,7 +51,7 @@ libnl3: Homepage: https://github.com/thom311/libnl
 libnl3:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libnl3-3.5.0-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libnl3-3.7.0-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libnl3-doc: Manuals for libnl3 (Netlink Protocol Library Suite version 3)
@@ -63,5 +63,5 @@ libnl3-doc: https://github.com/thom311/libnl
 libnl3-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/libnl3-doc-3.5.0-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libnl3-doc-3.7.0-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
