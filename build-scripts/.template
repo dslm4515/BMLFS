@@ -27,5 +27,5 @@ cat > /tmp/slack-desc << "EOF"
       |-----handy-ruler------------------------------------------------------|
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/package-version-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/package-version-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
