@@ -1,9 +1,9 @@
 #! /bin/bash
 
-# CA Certificates 2021-10-16
-# Source: http://ftp.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_20211016.tar.xz
+# CA Certificates 2023-03-11
+# Source: http://ftp.debian.org/debian/pool/main/c/ca-certificates/ca-certificates_20230311.tar.xz
 #
-# ** Unpacks to a directory named 'work' **
+# ** Unpacks to a directory named 'ca-certificates' **
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages 
@@ -38,7 +38,7 @@ sudo -S install -Dm644 sbin/update-ca-certificates.8 \
 sudo -S mv $BUILD/usr/share/ca-certificates/mozilla/* $BUILD/usr/share/ca-certificates/ &&
 
 cd $BUILD/usr/share/ca-certificates &&
-su  -c 'find . -name "*.crt" | sort | cut -b3- > $BUILD/etc/ca-certificates.conf' &&
+sudo -E sh  -c 'find . -name "*.crt" | sort | cut -b3- > $BUILD/etc/ca-certificates.conf' &&
 sudo -S sed -i 's,openssl rehash,openssl certhash,g' $BUILD/usr/sbin/update-ca-certificates &&
 sudo -S mv ${BUILD}/usr/sbin/* ${BUILD}/usr/bin
 sudo -S rm -vfr  ${BUILD}/usr/sbin
@@ -66,14 +66,14 @@ ca-certificates:
 ca-certificates:
 EOF
 sudo mv -v /tmp/slack-desc $BUILD/install/
-sudo -S makepkg -l y -c n $PKGS/ca-certificates-2021.10.16-$(uname -m)-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/ca-certificates-2023.03.11-${PSUFFIX}
 cp -v install/doinst.sh /tmp/ &&
 cat >> /tmp/doinst.sh << "EOF"
 echo "Updating certificates..." &&
 /usr/bin/update-ca-certificates
 EOF
 sudo -S mv -v /tmp/doinst.sh install/ &&
-sudo -S makepkg -l y -c n $PKGS/ca-certificates-2020.10.16-$(uname -m)-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/ca-certificates-2023.03.11-${PSUFFIX}
 
 
 #if not using any package manager:
