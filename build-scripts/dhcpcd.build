@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# dhcpcd 9.4.1
-# Source: https://roy.marples.name/downloads/dhcpcd/dhcpcd-9.4.1.tar.xz
+# dhcpcd 
+# Source: https://github.com/NetworkConfiguration/dhcpcd/releases/download/v10.0.1/dhcpcd-10.0.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -83,7 +83,7 @@ chown    -v dhcpcd:dhcpcd /var/lib/dhcpcd
 EOF
 sudo -S mv /tmp/doinst.sh  install/ &&
 sudo -S mv /tmp/slack-desc install/ &&
-sudo makepkg -l y -c n $PKGS/dhcpcd-9.4.1-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS/dhcpcd-10.0.1-$PSUFFIX &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -97,6 +97,6 @@ dhcpcd-doc: to RFC2131 or RFC1541 depending on the command line option.
 dhcpcd-doc:
 EOF
 sudo -S mv /tmp/slack-desc install/
-sudo makepkg -l y -c n $PKGS/dhcpcd-doc-9.4.1-noarch-mlfs.txz
+sudo makepkg -l y -c n $PKGS/dhcpcd-doc-10.0.1-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo rm -rf $BUILD/*                                     
