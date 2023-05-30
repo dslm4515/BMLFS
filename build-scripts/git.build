@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Git 
-# Source: https://www.kernel.org/pub/software/scm/git/git-2.39.1.tar.xz
+# Source: https://www.kernel.org/pub/software/scm/git/git-2.40.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -50,6 +50,6 @@ git: maintained by Junio C. Hamano.
 git:
 EOF
 sudo mv /tmp/slack-desc install/ &&
-sudo makepkg -l y -c n $PKGS/git-2.39.1-$PSUFFIX &&
+sudo makepkg -l y -c n $PKGS/git-2.40.1-$PSUFFIX &&
 sudo rm -rf $BUILD/*
 
