@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libatomics_ops
-# Source: https://github.com/ivmai/libatomic_ops/releases/download/v7.6.12/libatomic_ops-7.6.12.tar.gz
+# Source: https://github.com/ivmai/libatomic_ops/releases/download/v7.8.0/libatomic_ops-7.8.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -22,7 +22,7 @@ unset LDFLAGS
 ./configure --prefix=/usr    \
             --enable-shared  \
             --disable-static \
-            --docdir=/usr/share/doc/libatomic_ops-7.6.12 $BUILDTRUPLE &&
+            --docdir=/usr/share/doc/libatomic_ops-7.8.0 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 sudo -S make DESTDIR=$BUILD install &&
 sudo -S mkdir -pv /BMAN/install
@@ -52,7 +52,7 @@ libatomic_ops: Homepage: http://www.hpl.hp.com/research/linux/atomic_ops/
 libatomic_ops:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libatomic_ops-7.6.12-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libatomic_ops-7.8.0-$(uname -m)-mlfs.txz &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -69,6 +69,6 @@ libatomic_ops-doc: Homepage: http://www.hpl.hp.com/research/linux/atomic_ops/
 libatomic_ops-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ 
-sudo -S makepkg -l y -c n $PKGS/libatomic_ops-doc-7.6.12-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/libatomic_ops-doc-7.8.0-noarch-mlfs.txz
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
