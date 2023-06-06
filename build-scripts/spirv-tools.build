@@ -2,6 +2,7 @@
 
 # spirv-tools
 # Source: https://github.com/KhronosGroup/spirv-tools 
+# commit: 5ed21eb1e2f4b11dea5c840fc6c2fe805ed751f1
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -43,5 +44,5 @@ spirv-tools: https://github.com/KhronosGroup/spirv-tools
 spirv-tools: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/spirv-tools-2022.2.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/spirv-tools-2023.6.6-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
