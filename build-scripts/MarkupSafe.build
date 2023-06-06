@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # MarkupSafe
-# Source: https://files.pythonhosted.org/packages/source/M/MarkupSafe/MarkupSafe-2.1.2.tar.gz
+# Source: https://files.pythonhosted.org/packages/source/M/MarkupSafe/MarkupSafe-2.1.3.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,9 +11,12 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-read -p "Compile?" && python3 setup.py build &&
+# Build with pip
+#read -p "Compile?" && python3 setup.py build &&
+read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
 
-sudo -S python3 setup.py install --prefix=/usr --root=${BUILD} &&
+#sudo -S python3 setup.py install --prefix=/usr --root=${BUILD} &&
+sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user markupsafe --root=${BUILD} 
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -38,5 +41,5 @@ MarkupSafe:
 MarkupSafe:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/MarkupSafe-2.1.2-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/MarkupSafe-2.1.3-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
