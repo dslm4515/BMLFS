@@ -2,6 +2,8 @@
 
 # SPIRV Headers 
 # Source: https://github.com/KhronosGroup/SPIRV-Headers
+# Source: https://github.com/KhronosGroup/SPIRV-Headers/archive/refs/tags/sdk-1.3.250.0.tar.gz
+# Commit: 8e2ad27488ed2f87c068c01a8f5e8979f7086405
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
