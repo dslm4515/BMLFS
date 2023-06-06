@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # glslang
-# Source: https://github.com/KhronosGroup/glslang/archive/refs/tags/12.1.0.tar.gz
+# Source: https://github.com/KhronosGroup/glslang/archive/refs/tags/12.2.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -52,5 +52,5 @@ glslang: https://github.com/KhronosGroup/glslang
 glslang:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/glslang-12.0.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/glslang-12.2.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
