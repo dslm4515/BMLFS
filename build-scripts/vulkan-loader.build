@@ -1,13 +1,14 @@
 #! /bin/bash
 
 # Vulkan Loader 
-# Source: https://github.com/KhronosGroup/Vulkan-Loader/archive/refs/tags/v1.3.210.tar.gz
+# Source: https://github.com/KhronosGroup/Vulkan-Loader/archive/refs/tags/v1.3.253.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     vulkan-headers,cmake,wayland,xcb(for X11)
+# Required:     vulkan-headers,cmake,wayland
+# Required:     xcb  libXrander (for X11)
 # Recommended:  NONE
 # Optional:     NONE
 
@@ -45,5 +46,5 @@ vulkan-loader: https://github.com/khronosgroup/vulkan-loader
 vulkan-loader: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/vulkan-loader-1.3.210-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/vulkan-loader-1.3.253-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
