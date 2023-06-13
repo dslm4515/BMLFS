@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Vulkan Validation Layers
-# Source: https://github.com/KhronosGroup/Vulkan-ValidationLayers/archive/refs/tags/v1.3.209.tar.gz
+# Source: https://github.com/KhronosGroup/Vulkan-ValidationLayers/archive/refs/tags/v1.3.253.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -20,7 +20,7 @@ export CARGS+="-DBUILD_TESTS=Off "
 export CARGS+="-DBUILD_WSI_XCB_SUPPORT=On "
 export CARGS+="-DBUILD_WSI_XLIB_SUPPORT=On "
 export CARGS+="-DBUILD_WSI_WAYLAND_SUPPORT=On "
-export CARGS+="-DCMAKE_BUILD_TYPE=RelWithDebInfo " 
+export CARGS+="-DCMAKE_BUILD_TYPE=Release " 
 export CARGS+="-DUSE_ROBIN_HOOD_HASHING=OFF "
 
 cmake -B OUT -DCMAKE_INSTALL_PREFIX=/usr \
@@ -30,6 +30,7 @@ cmake -B OUT -DCMAKE_INSTALL_PREFIX=/usr \
 read -p "Compile?" && make -j2 -C OUT  &&
 
 sudo -S make DESTDIR=$BUILD -C OUT install &&
+unset CARGS
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -49,5 +50,5 @@ vulkan-validation-layers: https://github.com/KhronosGroup/Vulkan-ValidationLayer
 vulkan-validation-layers:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/vulkan-validation-layers-1.3.209-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/vulkan-validation-layers-1.3.253-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
