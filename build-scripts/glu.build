@@ -18,14 +18,20 @@ export  CFLAGS="-march=native -mtune=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-./configure --prefix=/usr \
-            --sysconfdir=/etc \
-            --localstatedir=/var \
-            --disable-static  $BUILDTRUPLE &&
+# Configure script fails to recognize clang++ instead of 
+# g++ for clang-only systems. Use meson instead.
+#./configure --prefix=/usr \
+#            --sysconfdir=/etc \
+#            --localstatedir=/var \
+#            --disable-static  $BUILDTRUPLE &&
 
-read -p "Compile?" && make -j2 &&
+meson --prefix=/usr --buildtype=release -Dgl_provider=gl OUT
 
-sudo -S make DESTDIR=$BUILD install &&
+#read -p "Compile?" && make -j2 &&
+read -p "Compile" && ninja -C OUT -j2 
+
+#sudo -S make DESTDIR=$BUILD install &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -50,5 +56,5 @@ glu:
 glu:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/glu-9.0.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/glu-9.0.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
