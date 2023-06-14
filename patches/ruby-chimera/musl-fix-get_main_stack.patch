@@ -1,8 +1,12 @@
+Source: Adélie Linux
+
+Fixes crashes on some musl platforms.
+
 diff --git a/thread_pthread.c b/thread_pthread.c
 index 951885ffa0..cf90321d1d 100644
 --- a/thread_pthread.c
 +++ b/thread_pthread.c
-@@ -656,9 +656,6 @@ hpux_attr_getstackaddr(const pthread_attr_t *attr, void **addr)
+@@ -552,9 +552,6 @@ hpux_attr_getstackaddr(const pthread_attr_t *attr, void **addr)
  #   define MAINSTACKADDR_AVAILABLE 0
  # endif
  #endif
@@ -12,7 +16,7 @@ index 951885ffa0..cf90321d1d 100644
  
  #ifdef STACKADDR_AVAILABLE
  /*
-@@ -740,6 +737,55 @@ get_stack(void **addr, size_t *size)
+@@ -632,6 +629,55 @@ get_stack(void **addr, size_t *size)
      return 0;
  #undef CHECK_ERR
  }
