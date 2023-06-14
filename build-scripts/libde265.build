@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libde265
-# Source: https://github.com/strukturag/libde265/releases/download/v1.0.8/libde265-1.0.8.tar.gz
+# Source: https://github.com/strukturag/libde265/releases/download/v1.0.12/libde265-1.0.12.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -9,18 +9,19 @@
 # DEPS
 # Required:     NONE
 # Recommended:  NONE
-# Optional:     NONE
+# Optional:     SDL
 
-patch -Np1 -i ../patches/libde265-alpine/disable_tools.patch &&
-patch -Np1 -i ../patches/libde265-alpine/export-only-decoder-api.patch &&
+#patch -Np1 -i ../patches/libde265-alpine/disable_tools.patch &&
+#patch -Np1 -i ../patches/libde265-alpine/export-only-decoder-api.patch &&
 
 autoreconf -fvi
 
-export CPPFLAGS="${CPPFLAGS/-Os/-O2}" &&
-export CXXFLAGS="${CXXFLAGS/-Os/-O2}" &&
+#export CPPFLAGS="${CPPFLAGS/-Os/-O2}" &&
+#export CXXFLAGS="${CXXFLAGS/-Os/-O2}" &&
 
 ./configure --prefix=/usr \
-            --disable-sherlock265 $BUILDTRUPLE &&
+            --disable-sherlock265 \
+	    --disable-option-checking $BUILDTRUPLE &&
 
 read -p "Compile?" && make -j2 &&
 
@@ -49,5 +50,5 @@ libde265:
 libde265:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libde265-1.0.8-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libde265-1.0.12-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
