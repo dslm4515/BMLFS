@@ -1,21 +1,21 @@
 #! /bin/bash
 
 # VAA-API Utilities 
-# Source: https://github.com/01org/libva-utils
+# Source: https://github.com/intel/libva-utils/releases/download/2.18.2/libva-utils-2.18.2.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     libva libdrm cmake
+# Required:     libva libdrm 
 # Recommended:  Xorg-Lbraries wayland
 # Optional:     NONE
 
-meson --prefix=/usr BUILD && \
+./configure --prefix=/usr 
 
-read -p "Compile?" && ninja -C BUILD  -j2 && \
+make -j2 && \
 
-sudo -S DESTDIR=$BUILD ninja -C BUILD install && \
+sudo -E make DESTDIR=$BUILD install &&  \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install && \
 cat > /tmp/slack-desc << "EOF"
@@ -36,5 +36,5 @@ libva-utils: is necessary to properly operate.
 libva-utils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libva-utils-2.15.0.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libva-utils-2.18.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
