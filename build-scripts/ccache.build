@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # ccache 
-# Source: https://github.com/ccache/ccache/releases/download/v4.1/ccache-4.1.tar.xz 
+# Source: https://github.com/ccache/ccache/releases/download/v4.8.2/ccache-4.8.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -52,5 +52,5 @@ for f in gcc cc c++ g++
 do
 	sudo ln -sfr usr/bin/ccache usr/lib/ccache/bin/${f}
 done &&
-sudo -S makepkg -l y -c n $PKGS/ccache-4.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/ccache-4.8.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
