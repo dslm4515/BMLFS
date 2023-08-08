@@ -1,0 +1,42 @@
+#! /bin/bash
+
+# labwc 
+# Source: https://github.com/labwc/labwc/archive/refs/tags/0.6.1.tar.gz
+# Source: https://github.com/labwc/labwc/archive/refs/tags/0.6.3.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     wlroot(0.16.2) wayland wayland-protocols libdrm libxml2 glib
+# Required:     cairo pango libxkbcommon libinput
+# Recommended:  scdoc
+# Optional:     xorg-xwayland libxcb-errors libxcb 
+
+meson --prefix=/usr BUILD
+
+read -p "Compile?" && ninja -C BUILD -j2  &&
+
+sudo -S DESTDIR=$BUILD ninja -C BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+labwc: labwc 
+labwc:
+labwc: labwc stands for Lab Wayland Compositor.
+labwc:
+labwc:
+labwc: https://github.com/labwc/labwc
+labwc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/labwc-0.6.3-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
