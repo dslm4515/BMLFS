@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# CDParanoia-III 
+# Source: https://downloads.xiph.org/releases/cdparanoia/cdparanoia-III-10.2.src.tgz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+# Apply patches from Chimera Linux
+patch -Np1 -i ../patches/cdparanoia-chimera/autoconf-init-ac_cv_objext.patch 
+patch -Np1 -i ../patches/cdparanoia-chimera/byteswap-null-check.diff
+patch -Np1 -i ../patches/cdparanoia-chimera/makefile.in-install.patch 
+patch -Np1 -i ../patches/cdparanoia-chimera/musl.patch 
+
+./configure --prefix=/usr --mandir=/usr/share/man && \
+
+read -p "Compile?" && make -j1 && \
+
+sudo -S make DESTDIR=$BUILD install && \
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+          |-----handy-ruler------------------------------------------------------|
+cdparanoia: cdparanoia III
+cdparanoia:
+cdparanoia: This package contains a CD audio extraction tool. This is useful for
+cdparanoia: extracting .wav files from audio CDs. A CDDA capable CDROM drive is 
+cdparanoia: needed. Practically all drives supported by Linux can be used. 
+cdparanoia:
+cdparanoia: https://downloads.xiph.org/releases/cdparanoia
+cdparanoia:
+cdparanoia:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/cdparanoia-10.2-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
