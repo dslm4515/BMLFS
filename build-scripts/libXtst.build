@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # libXtst
-# Source: ftp://ftp.x.org/pub/individual/lib/libXtst-1.2.3.tar.bz2
+# Source: ftp://ftp.x.org/pub/individual/lib/libXtst-1.2.4.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     xorgproto, xtrans, libXext
+# Required:     xorgproto, xtrans, libXext, libXi
 # Recommended:  libxcb
 # Optional:     NONE
 
@@ -54,7 +54,7 @@ libXtst:
 libXtst:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libXtst-1.2.3-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libXtst-1.2.4-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libXtst-doc: Manuals for libXtst 
@@ -65,5 +65,5 @@ libXtst-doc: http://www.x.org
 libXtst-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/libXtst-doc-1.2.3-noarch-mlfs.txz && /
+sudo -S makepkg -l y -c n $PKGS/libXtst-doc-1.2.4-$NOPSUFFIX && /
 sudo -S rm -rf ${BUILD}/* /BMAN/*

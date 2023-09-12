@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # LibXrender
-# Source: ftp://ftp.x.org/pub/individual/lib/libXrender-0.9.10.tar.bz2
+# Source: ftp://ftp.x.org/pub/individual/lib/libXrender-0.9.11.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -53,7 +53,7 @@ libXrender:
 libXrender:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libXrender-0.9.10-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libXrender-0.9.11-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libXrender-doc: Manuals for libXrender
@@ -63,5 +63,5 @@ libXrender-doc:
 libXrender-doc:
 EOF 
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/libXrender-doc-0.9.10-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libXrender-doc-0.9.11-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # LibXdamage
-# Source: ftp://ftp.x.org/pub/individual/lib/libXdamage-1.1.5.tar.bz2
+# Source: ftp://ftp.x.org/pub/individual/lib/libXdamage-1.1.6.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -45,5 +45,5 @@ libXdamage:
 libXdamage:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libXdamage-1.1.5-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libXdamage-1.1.6-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*

@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libxshmfence
-# Source: ftp://ftp.x.org/pub/individual/lib/libxshmfence-1.3.tar.bz2
+# Source: ftp://ftp.x.org/pub/individual/lib/libxshmfence-1.3.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -41,5 +41,5 @@ libxshmfence:
 libxshmfence:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libxshmfence-1.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libxshmfence-1.3.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*

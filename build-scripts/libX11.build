@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# LibX11 1.7.3.1
-# Source: ftp://ftp.x.org/pub/individual/lib/libX11-1.7.3.1.tar.xz 
+# LibX11 
+# Source: ftp://ftp.x.org/pub/individual/lib/libX11-1.8.4.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -56,7 +56,7 @@ libX11:
 libX11:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libX11-1.7.3.1-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libX11-1.8.4-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libX11-doc: Manuals for libX11 (Core X11 protocol client library)
@@ -67,5 +67,5 @@ libX11-doc: http://www.x.org
 libX11-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/libX11-doc-1.7.3.1-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libX11-doc-1.8.4-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libXxf86vm
-# Source: ftp://ftp.x.org/pub/individual/lib/libXxf86vm-1.1.4.tar.bz2 
+# Source: ftp://ftp.x.org/pub/individual/lib/libXxf86vm-1.1.5.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -52,7 +52,7 @@ libXxf86vm:
 libXxf86vm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libXxf86vm-1.1.4-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libXxf86vm-1.1.5-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libXxf86vm-doc: Manuals for libXxf86vm
@@ -63,5 +63,5 @@ libXxf86vm-doc: http://www.x.org
 libXxf86vm-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/libXxf86vm-doc-1.1.4-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libXxf86vm-doc-1.1.5-$PSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # LibICE
-# Source: ftp://ftp.x.org/pub/individual/lib/libICE-1.0.10.tar.bz2
+# Source: ftp://ftp.x.org/pub/individual/lib/libICE-1.1.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -48,7 +48,7 @@ libICE:
 libICE:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libICE-1.0.10-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libICE-1.1.1-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libICE-doc: Manuals for libICE
@@ -59,5 +59,5 @@ libICE-doc: http://www.x.org
 libICE-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/libICE-doc-1.0.10-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libICE-doc-1.1.11-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

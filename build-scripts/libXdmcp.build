@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# libXdmcp 1.1.3
-# Source: ftp://ftp.x.org/pub/individual/lib/libXdmcp-1.1.3.tar.bz2
+# libXdmcp
+# Source: https://www.x.org/pub/individual/lib/libXdmcp-1.1.4.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -42,7 +42,7 @@ libXdmcp:
 libXdmcp:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libXdmcp-1.1.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libXdmcp-1.1.4-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
 
 

@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libXScrnSaver
-# Source: ftp://ftp.x.org/pub/individual/lib/libXScrnSaver-1.2.3.tar.bz2
+# Source: ftp://ftp.x.org/pub/individual/lib/libXScrnSaver-1.2.4.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -48,7 +48,7 @@ libXScrnSaver:
 libXScrnSaver:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libXScrnSaver-1.2.3-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libXScrnSaver-1.2.4-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libXScrnSaver-doc: Manuals for libXScrnSaver
@@ -59,5 +59,5 @@ libXScrnSaver-doc: http://www.x.org
 libXScrnSaver-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/libXScrnSaver-doc-1.2.3-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libXScrnSaver-doc-1.2.4-$PSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

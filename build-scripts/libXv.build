@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libXv
-# Source: ftp://ftp.x.org/pub/individual/lib/libXv-1.0.11.tar.bz2
+# Source: ftp://ftp.x.org/pub/individual/lib/libXv-1.0.12.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -54,7 +54,7 @@ libXv:
 libXv:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libXv-1.0.11-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libXv-1.0.12-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libXv-doc: Manuals for libXv
@@ -65,5 +65,5 @@ libXv-doc: http://www.x.org
 libXv-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/libXv-doc-1.0.11-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libXv-doc-1.0.12-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
