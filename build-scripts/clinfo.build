@@ -2,6 +2,7 @@
 
 # clinfo 3.0.21.02.21
 # Source: https://github.com/Oblomov/clinfo/archive/refs/tags/3.0.21.02.21.tar.gz 
+# Source: https://github.com/Oblomov/clinfo/archive/refs/tags/3.0.23.01.25.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -35,7 +36,7 @@ clinfo: https://github.com/Oblomov/clinfo
 clinfo: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/clinfo-3.0.21.02.21-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/clinfo-3.0.23.01.25-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
 cd /BMAN
 sudo -S mkdir install
@@ -49,4 +50,4 @@ clinfo-doc: https://github.com/Oblomov/clinfo
 clinfo-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/
-sudo -S makepkg -l y -c n $PKGS/clinfo-doc-3.0.21.02.21-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/clinfo-doc-3.0.23.01.25-$NOPSUFFIX
