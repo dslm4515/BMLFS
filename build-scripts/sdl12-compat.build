@@ -1,0 +1,42 @@
+#! /bin/bash
+
+# sdl12-compat 
+# Source: https://github.com/libsdl-org/sdl12-compat/archive/refs/tags/release-1.2.64/sdl12-compat-release-1.2.64.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cmake glu SDL2
+# Recommended:  NONE
+# Optional:     NONE
+
+cmake -B OUT -DCMAKE_INSTALL_PREFIX=/usr \
+	     -DCMAKE_BUILD_TYPE=RELEASE
+
+read -p "Compile?" && make -C OUT -j2 &&
+
+sudo -S make DESTDIR=$BUILD -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+            |-----handy-ruler------------------------------------------------------|
+sdl12-compat: sdl12-compat
+sdl12-compat:
+sdl12-compat: This code is a compatibility layer; it provides a binary and source 
+sdl12-compat: compatible API for programs written against SDL 1.2, but it uses SDL 
+sdl12-compat: 2.0 behind the scenes.
+sdl12-compat:
+sdl12-compat: https://github.com/libsdl-org/sdl12-compat
+sdl12-compat: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/sdl12-compat-1.2.64-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
