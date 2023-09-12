@@ -39,5 +39,5 @@ libxcb-errors:
 libxcb-errors:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libxcb-errors-1.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libxcb-errors-1.0.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
