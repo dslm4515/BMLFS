@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # mpg123
-# Source: https://downloads.sourceforge.net/mpg123/mpg123-1.29.3.tar.bz2
+# Source: https://downloads.sourceforge.net/mpg123/mpg123-1.31.2.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,13 +11,8 @@
 # Recommended:  alsa-lib
 # Optional:     PulseAudio, SDL, JACK, OpenAL, PortAudio
 
-CFLAGS="-D_FILE_OFFSET_BITS=64" \
-./configure --prefix=/usr \
-            --disable-lfs-alias \
-            --enable-ipv6=yes \
-            --enable-network=yes \
-            --with-optimization=0 \
-            --with-default-audio=alsa $BUILDTRUPLE &&
+#CFLAGS="-D_FILE_OFFSET_BITS=64" \
+./configure --prefix=/usr  $BUILDTRUPLE &&
 
 read -p "Compile?" && make -j2 &&
 
@@ -49,7 +44,7 @@ mpg123:
 mpg123:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mpg123-1.29.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/mpg123-1.31.2-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 mpg123-doc: Manuals for mpg123 (a command-line mp3 player)
@@ -61,6 +56,6 @@ mpg123-doc: http://mpg123.org/
 mpg123-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mpg123-doc-1.29.3-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/mpg123-doc-1.31.2-$NOSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
