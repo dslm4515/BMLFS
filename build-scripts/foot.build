@@ -2,6 +2,7 @@
 
 # foot
 # Source: https://codeberg.org/dnkl/foot.git 
+# commit: 34520aa16e3b1f284168f614a0bd0ba92f5eccc6
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -52,7 +53,7 @@ foot:
 foot:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/foot-1.13.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/foot-1.15.3-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 foot-doc: Manuals for foot - Wayland Terminal Emulator
@@ -64,6 +65,6 @@ foot-doc: source: https://codeberg.org/dnkl/foot.git
 foot-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/foot-doc-1.13.1-$NOPSUFFIX
+sudo -S makepkg -l y -c n $PKGS/foot-doc-1.15.3-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
