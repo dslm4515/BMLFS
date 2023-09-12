@@ -3,6 +3,7 @@
 # ocl-icd
 # Source: https://github.com/OCL-dev/ocl-icd
 # Commit: 1165deedb2ae741cd76e60986f7c2cb5023059d9
+# Commit: fdde6677b21329432db8b481e2637cd10f7d3cb2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -14,11 +15,12 @@
 
 # Release version has typos. Pull source with git.
 git clone https://github.com/OCL-dev/ocl-icd
-git check 1165deedb2ae741cd76e60986f7c2cb5023059d9
+#git checkout 1165deedb2ae741cd76e60986f7c2cb5023059d9
+git checkout fdde6677b21329432db8b481e2637cd10f7d3cb2 
 
 autoreconf -vif && \
 
-./configure --prefix=/opt/build --sysconfdir=/etc --localstatedir=/var $BT && \
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var $BT && \
 
 read -p "Compile?" && make -j2 && \
 
@@ -42,5 +44,5 @@ ocl-icd: https://github.com/OCL-dev/ocl-icd
 ocl-icd:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/ocl-icd-2.3.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/ocl-icd-2.3.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
