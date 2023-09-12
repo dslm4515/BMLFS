@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# lzip 
+# Source: https://download.savannah.gnu.org/releases/lzip/lzip-1.23.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+./configure --prefix=/usr
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+lzip: lzip
+lzip: 
+lzip: Lzip is a lossless data compressor with a user interface similar to 
+lzip: the one of gzip or bzip2. Lzip uses a simplified form of the
+lzip: 'Lempel-Ziv-Markov chain-Algorithm' (LZMA) stream format and provides
+lzip: a 3 factor integrity checking to maximize interoperability and
+lzip: optimize safety. Lzip can compress about as fast as gzip (lzip -0)
+lzip: or compress most files more than bzip2 (lzip -9).
+lzip:
+lzip: https://www.nongnu.org/lzip/
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/lzip-1.23-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
