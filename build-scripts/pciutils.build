@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # PCI Utils
-# Source: https://mj.ucw.cz/download/linux/pci/pciutils-3.9.0.tar.gz
+# Source: https://mj.ucw.cz/download/linux/pci/pciutils-3.10.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -57,7 +57,7 @@ pciutils:
 pciutils: See the manual pages for more details.
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pciutils-3.9.0-${PSUFFIX} &&
+sudo -S makepkg -l y -c n $PKGS/pciutils-3.10.0-${PSUFFIX} &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 pciutils-doc: Manuals for pciutils (PCI utilities)
@@ -72,6 +72,6 @@ pciutils-doc: pcimodules lists the kernel modules for all plugged in PCI devices
 pciutils-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pciutils-doc-3.9.0-${NOPSUFFIX}
+sudo -S makepkg -l y -c n $PKGS/pciutils-doc-3.10.0-${NOPSUFFIX}
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
