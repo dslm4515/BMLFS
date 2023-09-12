@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # DConf Editor
-# Source: https://download.gnome.org/sources/dconf-editor/3.38/dconf-editor-3.38.3.tar.xz
+# Source: https://download.gnome.org/sources/dconf-editor/43/dconf-editor-43.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     DBus, GLib, GTK+3, libxml2
+# Required:     GTK+3 libxml2 libhandy
 # Recommended:  libxslt, Vala
 # Optional:     GTK-Doc
 
@@ -19,7 +19,9 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 mkdir build &&
 cd    build &&
-meson --prefix=/usr --sysconfdir=/etc .. &&
+meson --prefix=/usr \
+      --sysconfdir=/etc \
+      --buildtype=release .. &&
 
 ninja -j2 && \
 
@@ -45,7 +47,7 @@ dconf-editor: provides similar functionality on the command line.
 dconf-editor:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/dconf-editor-3.38.3-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/dconf-editor-43.0-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 dconf-editor-doc: Manuals for dconf-editor
@@ -55,5 +57,5 @@ dconf-editor-doc: that are stored in the dconf database.
 dconf-editor-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/dconf-editor-doc-3.38.3-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/dconf-editor-doc-43.0-$PSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
