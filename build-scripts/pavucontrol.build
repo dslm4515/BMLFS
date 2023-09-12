@@ -7,7 +7,7 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     GTKmm3, libcanberra
+# Required:     GTKmm3, libcanberra json-glib
 # Recommended:  NONE
 # Optional:     NONE
 
