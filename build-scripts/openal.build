@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # OpenAL
-# Source: https://github.com/kcat/openal-soft/archive/openal-soft-1.21.1.tar.gz
+# Source: https://github.com/kcat/openal-soft/archive/refs/tags/1.23.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -42,5 +42,5 @@ OpenAL:
 OpenAL:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/OpenAL-1.21.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/OpenAL-1.23.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
