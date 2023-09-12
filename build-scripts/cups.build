@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # CUPS
-# Source: https://github.com/OpenPrinting/cups/releases/download/v2.4.2/cups-2.4.2-source.tar.gz
+# Source: https://github.com/OpenPrinting/cups/releases/download/v2.4.6/cups-2.4.6-source.tar.gz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -23,13 +23,14 @@ CC=gcc CXX=g++ \
             --without-systemd            \
             --with-rcdir=/tmp/cupsinit   \
             --with-system-groups=lpadmin \
-            --with-docdir=/usr/share/cups/doc-2.4.2 $BUILDTRUPLE &&
+	    --with-rundir=/run/cups \
+            --with-docdir=/usr/share/cups/doc-2.4.6 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
-#sudo -S rm -rf /tmp/cupsinit &&
+sudo -S rm -rf /tmp/cupsinit &&
 sudo -S mkdir -pv ${BUILD}/usr/share/doc                     &&
-sudo -S ln -svnf ../cups/doc-2.4.2 ${BUILD}/usr/share/doc/cups-2.4.2 &&
+sudo -S ln -svnf ../cups/doc-2.4.6 ${BUILD}/usr/share/doc/cups-2.4.6 &&
 echo "ServerName /run/cups/cups.sock" > /tmp/client.conf     &&
 sudo -S mkdir -pv ${BUILD}/etc/cups                          &&
 sudo -S mv -v /tmp/client.conf ${BUILD}/etc/cups/client.conf &&
@@ -64,7 +65,7 @@ EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S rm -rvf usr/share/cups/banners/* \
                usr/share/cups/data/testprint &&
-sudo -S makepkg -l y -c n $PKGS/cups-2.4.2-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/cups-2.4.6-$PSUFFIX &&
 cp -v install/doinst.sh /tmp/ &&
 cat >> /tmp/doinst.sh << "EOF"
 useradd -c "Print Service User" -d /var/spool/cups -g lp -s /bin/false -u 9 lp
@@ -83,6 +84,6 @@ cups-doc: PostScript and raster printers
 cups-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cups-doc-2.4.2-$NOPUSFFIX
+sudo -S makepkg -l y -c n $PKGS/cups-doc-2.4.6-$NOPUSFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
