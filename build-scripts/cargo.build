@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# cargo 1.72.0
+# Source: https://github.com/rust-lang/cargo/archive/103a7ff2ee7678d34f34d778614c5eb2525ae9de.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cargo rustc curl libgit2 libssh2 
+# Recommended:  NONE
+# Optional:     NONE
+
+# NOTE: Requires cargo + rustc for bootstrapping.
+#       Use ia prebuilt cargo from rust-lang.org and rustc from Chimera Linux (CMLFS) or
+#       Alpine Linux (MLFS)
+
+export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+export RUST_BACKTRACE=1
+
+read -p "Compile?" && cargo build --release  &&
+
+sudo mkdir -pv $BUILD/opt/rustc-1.72.0/bin &&
+sudo cp -v target/release/cargo \
+           $BUILD/opt/rustc-1.72.0/bin/
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+cargo: cargo 
+cargo:
+cargo: Cargo downloads your Rust project’s dependencies and compiles your 
+cargo: project.
+cargo:
+cargo: https://github.com/rust-lang/cargo
+cargo: https://rust-lang.org
+cargo:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/cargo-1.72.0-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
