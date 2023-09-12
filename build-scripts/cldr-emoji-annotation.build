@@ -2,6 +2,7 @@
 
 # cldr-emoji-annotation 
 # Source: https://github.com/unicode-org/cldr/archive/release-40/cldr-release-40.tar.gz
+# Source: https://github.com/unicode-org/cldr/archive/refs/tags/release-43-1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -37,5 +38,5 @@ cldr-emoji-annotation: https://github.com/unicode-org/cldr
 cldr-emoji-annotation:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cldr-emoji-annotation-40-noarch-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/cldr-emoji-annotation-43.1-$NOPSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
