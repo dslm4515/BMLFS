@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Intel Media Driver for VAAPI 
-# Source: https://github.com/intel/media-driver
+# Source: https://github.com/intel/media-driver/archive/refs/tags/intel-media-22.6.6.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -37,5 +37,5 @@ intel-media-driver: https://github.com/intel/media-driver
 intel-media-driver:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/intel-media-driver-7.2.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/intel-media-driver-22.6.6-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
