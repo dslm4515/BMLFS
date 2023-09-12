@@ -3,25 +3,31 @@
 # OpenCL SDK
 # Source: https://github.com/KhronosGroup/OpenCL-SDK.git
 # Commit: fc6482202e9a7484f15a4a438dd5bcb2ee56c32a
+# Commit: ae7fcae82fe0b7bcc272e43fc324181b2d544eea
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     git cmake 
-# Recommended:  NONE
-# Optional:     NONE
+# Recommended:  glm glew Mesa
+# Optional:     cargs TCLAP Stb SFML
 
 # Pull a copy of the source with git
 git clone https://github.com/KhronosGroup/OpenCL-SDK.git
-git checkout fc6482202e9a7484f15a4a438dd5bcb2ee56c32a
+#git checkout fc6482202e9a7484f15a4a438dd5bcb2ee56c32a
+git checkout ae7fcae82fe0b7bcc272e43fc324181b2d544eea
 git submodule init && git submodule update
+
+# If Xorg libraries are not in /usr/lib:
+export XTRACONF="-DCMAKE_FIND_ROOT_PATH=/opt/Xorg "
 
 # Configure
 cmake -B OUT -DCMAKE_INSTALL_PREFIX=/opt/build -DCMAKE_BUILD_TYPE=Release \
-	-DBUILD_DOCS=OFF 
+	-DBUILD_DOCS=OFF $XTRACONF -DOPENCL_SDK_BUILD_SAMPLES=OFF  -Wno-dev
 
 read -p "Compile?" && make -j2 -C OUT &&
+unset XTRACONF
 
 sudo -S make DESTDIR=$BUILD -C OUT install &&
 
@@ -47,5 +53,5 @@ opencl-sdk:
 opencl-sdk: https://github.com/KhronosGroup/OpenCL-SDK
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/opencl-sdk-2022.4.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/opencl-sdk-2023.6.14-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
