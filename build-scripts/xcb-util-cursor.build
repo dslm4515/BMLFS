@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # XCB Util Cursor
-# Source: https://xcb.freedesktop.org/dist/xcb-util-cursor-0.1.3.tar.bz2
+# Source: https://xcb.freedesktop.org/dist/xcb-util-cursor-0.1.4.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -38,5 +38,5 @@ xcb-util-cursor:
 xcb-util-cursor:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xcb-util-cursor-0.1.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/xcb-util-cursor-0.1.4-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
