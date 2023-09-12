@@ -17,6 +17,8 @@ export CFLAGS+="-O2 -fno-lto "
 #export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 patch -Np1 -i ../patches/graphite2-alpine/cmake.patch
+# If LLVM' clang was installed instead of GCC:
+patch -Np1 -i ../patches/graphite2-chimera/clang.patch 
 
 mkdir build &&
 cd    build &&
