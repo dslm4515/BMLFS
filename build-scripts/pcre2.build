@@ -2,6 +2,7 @@
 
 # PCRE2 
 # Source: https://github.com/PhilipHazel/pcre2/releases/download/pcre2-10.39/pcre2-10.39.tar.bz2
+# Source: https://github.com/PCRE2Project/pcre2/releases/download/pcre2-10.42/pcre2-10.42.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built package
@@ -20,7 +21,7 @@ export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
 export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
 ./configure --prefix=/usr  \
-            --docdir=/usr/share/doc/pcre2-10.39 \
+            --docdir=/usr/share/doc/pcre2-10.42 \
             --enable-unicode                    \
             --enable-jit                        \
             --enable-pcre2-16                   \
@@ -62,7 +63,7 @@ pcre2:
 EOF
 sudo mv /tmp/slack-desc install/ &&
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/pcre2-10.39-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS/pcre2-10.42-${PSUFFIX} &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -75,7 +76,7 @@ pcre2-doc: semantics as Perl.
 pcre2-doc: 
 EOF
 sudo mv /tmp/slack-desc install/ &&
-sudo makepkg -l y -c n $PKGS/pcre2-doc-10.39-noarch-mlfs.txz
+sudo makepkg -l y -c n $PKGS/pcre2-doc-10.42-${NOPSUFFIX}
 sudo rm -rf /BMAN/*
 sudo rm -rf $BUILD/*
 
