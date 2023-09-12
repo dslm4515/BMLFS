@@ -1,0 +1,58 @@
+#! /bin/bash
+
+# 
+# Source: https://github.com/scummvm/scummvm/archive/refs/tags/v2.7.0.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     SDL
+# Recommended:  alsa-lib libogg libvorbis fribidi flac libpng giflib 
+# Optional:     tremor libmad libmpeg2 a52dec mesa libjpeg-turbo
+# Optional:     libtheora faad nasm GTK libcurl lua
+
+./configure --prefix=/opt/scummvm \
+	    --backend=sdl \
+	    --bindir=/opt/scummvm/bin \
+	    --libdir=/opt/scummvm/lib \
+	    --datarootdir=/opt/scummvm/share \
+	    --enable-all-engines \
+	    --disable-fluidsynth  \
+	    --disable-fluidlite \
+	    --enable-opl2lpt \
+	    --disable-sparkle \
+	    --disable-libunity \
+	    --disable-sdlnet \
+	    --disable-discord \
+	    --disable-engine=hpl1 # specific engine fails to compile with clang 
+
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+scummvm: scummvm
+scummvm:
+scummvm: ScummVM allows you to play classic graphic point-and-click adventure 
+scummvm: games, text adventure games, and RPGs, as long as you already have 
+scummvm: the game data files. ScummVM replaces the executable files shipped 
+scummvm: with the games, which means you can now play your favorite games on 
+scummvm: all your favorite devices.
+scummvm:
+scummvm: https://github.com/scummvm/scummvm
+scummvm:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/scummvm-2.7.0-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
