@@ -1,0 +1,46 @@
+#! /bin/bash
+
+# sshfs 
+# Source: https://github.com/libfuse/sshfs/releases/download/sshfs-3.7.3/sshfs-3.7.3.tar.xz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     fuse3 glib openssh
+# Recommended:  NONE
+# Optional:     docutils
+
+mkdir build &&
+cd    build &&
+
+meson --prefix=/usr --buildtype=release .. &&
+
+read -p "Compile?" && ninja -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+sshfs: sshfs
+sshfs:
+sshfs: The Sshfs package contains a filesystem client based on the SSH File 
+sshfs: Transfer Protocol. This is useful for mounting a remote computer that
+sshfs: you have ssh access to as a local filesystem. This allows you to drag 
+sshfs: and drop files or run shell commands on the remote files as if they 
+sshfs: were on your local computer.
+sshfs:
+sshfs: https://github.com/libfuse/sshfs
+sshfs:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/sshfs-3.7.3-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
