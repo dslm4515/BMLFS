@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# Qt5 QtTools 5.15.3_git20201202
-# Source: https://invent.kde.org/qt/qt/qttools/-/archive/33693a928986006d79c1ee743733cde5966ac402/qttools-33693a928986006d79c1ee743733cde5966ac402.tar.gz
+# Qt5 QtTools 5.15.10_git20230612
+# Source: ttps://dev.alpinelinux.org/archive/qt/qttools-9f7af2d08eea7c2a2a2bfe7e6a9b73d1b99f5123.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -16,11 +16,14 @@
 # so it correctly symlinks during the build:
 mkdir .git && \
 
-qmake-qt5 && \
+# Check PATH to include /opt/qt5/bin but not /opt/qt6/bin (if Qt6 is installed)
+export PATH=/usr/bin:/opt/Xorg/bin:/opt/qt5/bin
+
+qmake && \
 
 read -p "Compile?" && make -j2 &&
 
-sudo -S make INSTALL_ROOT=$BUILD install &&
+sudo -SE make INSTALL_ROOT=$BUILD install &&
 
 # Drop QMAKE_PRL_BUILD_DIR because reference the build dir
 find "$BUILD/opt/qt5/lib" -type f -name '*.prl' \
@@ -28,9 +31,12 @@ find "$BUILD/opt/qt5/lib" -type f -name '*.prl' \
 
 sudo -S mkdir -pv $BUILD/usr/bin && \
 
-for b in $BUILD/opt/qt5/bin/*
+for b in assistant designer lconvert linguist lprodump lrelease \
+	 lrelease-pro lupdate lupdate-pro pixeltool qcollectiongenerator \
+	 qdbus qdbusviewer qdistancefieldgenerator qdoc qhelpgenerator \
+	 qtattributionsscanner qtdiag qtpaths qtplugininfo
 do
-	sudo -S ln -sv ../../opt/qt5/bin/${b##*/} $BUILD/usr/bin/${b##*/}-qt5
+	sudo -S ln -sv ../../opt/qt5/bin/$b $BUILD/usr/bin/$b-qt5
 done && \
 
 # Create the desktop files
@@ -98,6 +104,22 @@ for icon in src/linguist/linguist/images/icons/linguist-*-32.png ; do
 	sudo -S install -p -m644 -D $icon $BUILD/usr/share/icons/hicolor/"$size"x"$size"/apps/linguist.png
 done
 
+# Run-path (rpath) for shared binaries are missing rpath's for /opt/qt5/lib
+# For now use patchelf to patch in missing rpath:
+for b in assistant designer lconvert linguist lprodump lrelease lrelease-pro \
+	 lupdate lupdate-pro pixeltool qcollectiongenerator qdbus qdbusviewer \
+	 qdistancefieldgenerator qdoc qhelpgenerator qtattributionsscanner \
+	 qtdiag qtpaths qtplugininfo
+   do
+         sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/bin/$b
+         sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+                                         $BUILD/opt/qt5-5.15.10/bin/$b
+done
+
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/lib/libQt5*.so.*
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+                                $BUILD/opt/qt5-5.15.10/lib/libQt5*.so.*
+
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -117,5 +139,5 @@ qt5-qttools: http://qt-project.org
 qt5-qttools:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/qt5-qttools-5.15.3_git20201202-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/qt5-qttools-5.15.10_git20230612-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
