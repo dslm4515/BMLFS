@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# Qt5 qtbase 5.15.3_git20220217 
-# Source:  https://invent.kde.org/qt/qt/qtbase/-/archive/f36c2233fad0bfddf9350305a6bdc6de022d3635/qtbase-f36c2233fad0bfddf9350305a6bdc6de022d3635.tar.gz
+# Qt5 QtBase 5.15.10_git20230714
+# Source: https://dev.alpinelinux.org/archive/qt/qtbase-9815348dd2fdc8c0eac8abd6f6219a3c2e1978fa.tar.xz 
 #
 # Method = Alpine Linux
 # $BUILD = Directory to temporarily install
@@ -17,9 +17,11 @@
 # Optional:     tslib, and Vulkan 
 
 # Patch source
-patch -Np1 -i ../patches/qt5-5.15.3-alpine/qt-musl-iconv-no-bom.patch 
-patch -Np1 -i ../patches/qt5-5.15.3-alpine/qt5-base-cflags.patch 
-patch -Np1 -i ../patches/qt5-5.15.3-alpine/qt5-base-nostrip.patch 
+patch -Np1 -i ../patches/qt5-qtbase-5.15.10-alpine/egl-x11.patch 
+patch -Np1 -i ../patches/qt5-qtbase-5.15.10-alpine/lfs64.patch 
+patch -Np1 -i ../patches/qt5-qtbase-5.15.10-alpine/qt-musl-iconv-no-bom.patch 
+patch -Np1 -i ../patches/qt5-qtbase-5.15.10-alpine/qt5-base-cflags.patch 
+patch -Np1 -i ../patches/qt5-qtbase-5.15.10-alpine/qt5-base-nostrip.patch 
 
 # Fix flags
 sed -i -e "s|-O2|$CXXFLAGS|" \
@@ -33,6 +35,9 @@ mkdir .git
 
 # Set configure flags
 export  CARGS="-confirm-license -opensource "
+
+# If LLVM is installed instead of GCC"
+export CARGS+="-platform linux-clang "
 
 export CPATHS+="-prefix /opt/qt5 -bindir /opt/qt5/bin "
 export CPATHS+="-datadir /opt/qt5/share "
@@ -52,7 +57,17 @@ export COPTS+="-optimized-qmake -plugin-sql-sqlite "
 export COPTS+="-system-libjpeg -system-libpng -system-pcre "
 export COPTS+="-system-sqlite -system-zlib -no-reduce-relocations "
 
-export CFLAGS="-I/opt/X11/include -L/opt/X11/lib -I/opt/openssl/include -L/opt/openssl/lib "
+export COPTS+="-R /opt/openssl/lib:/opt/Xorg/lib -I /opt/openssl/include -L /opt/openssl/lib "
+
+export  CFLAGS="-I/opt/Xorg/include -L/opt/Xorg/lib "
+export CFLAGS+="-I/opt/openssl/include -L/opt/openssl/lib "
+
+# Some libraries, such as libQtCore.so, have backtrace symbols that 
+# should be linked to libexecinfo. Musl libc does not have backtrace symbols 
+# like glibc. Despite these flags, these libraries still don't link to libexecinfo.
+# For now, use patchelf to "patch" these libraries like this:
+# patchelf --add-needed libexecinfo.so /src/qtbase-5.15.10_git20230714/lib/libQt5Core.so.5
+export CFLAGS+="-Wl,-lexecinfo "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-Wl,-lexecinfo "
 
@@ -62,13 +77,15 @@ CFLAGS=$CFLAGS CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS \
 
 read -p "Compile?" && make -j2 &&
 
-sudo -S make INSTALL_ROOT=$BUILD install && \
-sudo -S mkdir -pv $BUILD/usr/bin && \
-for b in moc qdbuscpp2xml qdbusxml2cpp qlalr \
-	 qmake qvkgen rcc tracegen uic \
-	 fixqt4headers.pl syncqt.pl ; do
-      sudo -E ln -sv ../../opt/qt5/bin/$b $BUILD/usr/bin/$b-qt5
-done
+sudo -SE make INSTALL_ROOT=$BUILD install && \
+
+# Just add /opt/qt5/bin to path
+#sudo -S mkdir -pv $BUILD/usr/bin && \
+#for b in moc qdbuscpp2xml qdbusxml2cpp qlalr \
+#	 qmake qvkgen rcc tracegen uic \
+#	 fixqt4headers.pl syncqt.pl ; do
+#      sudo -E ln -sv ../../opt/qt5/bin/$b $BUILD/usr/bin/$b-qt5
+#done
 
 # Drop QMAKE_PRL_BUILD_DIR because reference the build dir
 find "$BUILD/opt/qt5/lib" -type f -name '*.prl' \
@@ -97,7 +114,7 @@ qt5-qtbase: http://qt-project.org
 qt5-qtbase:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/qt5-qtbase-5.15.3_git20220217-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/qt5-qtbase-5.15.10_git20230714-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 qt5-qtbase-doc: Manuals for Qt5 - QtBase components
@@ -109,5 +126,5 @@ qt5-qtbase-doc: http://qt-project.org
 qt5-qtbase-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/qt5-qtbase-doc-5.15.3_git20220217-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/qt5-qtbase-doc-5.15.10_git20230714-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
