@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# Qt5 QtSVG 5.15.3_git20200406
-# Source: https://invent.kde.org/qt/qt/qtsvg/-/archive/95990cbeebc0ab9959e2a925a93ad4897416bbb7/qtsvg-95990cbeebc0ab9959e2a925a93ad4897416bbb7.tar.gz
+# Qt5 QtSVG 5.15.10_git20230612
+# Source: https://dev.alpinelinux.org/archive/qt/qtsvg-37b2c764fb599c96fc415049208e871c729217c8.tar.xz
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
@@ -15,10 +15,16 @@
 # This makes it symlink the include files to the right directory
 mkdir .git
 
-qmake-qt5
+# Check PATH to include /opt/qt5/bin but not /opt/qt6/bin (if Qt6 is installed)
+export PATH=/usr/bin:/opt/Xorg/bin:/opt/qt5/bin
 
+# Configure source
+qmake
+
+# Compile
 make -j2 && \
 
+# Install
 sudo -S make INSTALL_ROOT=$BUILD install && \
 
 # Drop QMAKE_PRL_BUILD_DIR because reference the build dir
@@ -44,5 +50,5 @@ qt5-qtsvg: http://qt-project.org
 qt5-qtsvg:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/qt5-qtsvg-5.15.3_git20200406-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/qt5-qtsvg-5.15.10_git20230612-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
