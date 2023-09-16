@@ -11,36 +11,52 @@
 # Optional:     NONE
 
 # Apply patches from Alpine Linux
-patch -Np1 -i ../patches/qt5-5.15.3-alpine/qt-musl-stackbottom.patch 
-patch -Np1 -i ../patches/qt5-5.15.3-alpine/link-libatomic-on-rv64.patch 
+patch -Np1 -i ../patches/qt5-qtdeclarative-5.15.10-alpine/link-libatomic-on-rv64.patch 
+patch -Np1 -i ../patches/qt5-qtdeclarative-5.15.10-alpine/qt-musl-stackbottom.patch 
 
 # Per Alpine:
 # Make configure think we are running in a git directory
 # This makes it symlink the include files to the right directory
 mkdir .git
 
-export CFLAGS="-I/opt/X11/include -L/opt/X11/lib "
+export CFLAGS="-I/opt/Xorg/include -L/opt/Xorg/lib -lexecinfo "
 export CXXFLAGS=$CFLAGS
-export LDFLAGS="-Wl,-lexecinfo "
-export PATH="$(pwd):$PATH"
-qmake-qt5
+export LDFLAGS="-Wl,-lexecinfo -Wl,-rpath=/opt/openssl/lib:/opt/qt5/lib:/opt/Xorg/lib "
 
-read -p "Compile?" && LD_LIBRARY_PATH=/opt/X11/lib:/opt/openssl/lib make -j2 &&
+# Check PATH to include /opt/qt5/bin but not /opt/qt6/bin (if Qt6 is installed)
+export PATH=/usr/bin:/opt/Xorg/bin:/opt/qt5/bin
 
-sudo -S make INSTALL_ROOT=$BUILD install &&
+qmake
+
+#export PATH="$(pwd):$PATH"
+#qmake-qt5
+
+read -p "Compile?" && LD_LIBRARY_PATH=/opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib make -j2 && 
+
+sudo -SE make INSTALL_ROOT=$BUILD install &&
 unset CFLAGS CXXFLAGS LDFLAGS && \
 
-sudo -S mkdir -pv $BUILD/usr/bin/
-for b in qml qmlformat qmlmin qmlprofiler \
-         qmltime qmlcachegen qmlimportscanner \
-	 qmlplugindump qmlscene  qmltyperegistrar \
-         qmleasing qmllint  qmlpreview qmltestrunner ; do
-      sudo -E ln -sv ../../opt/qt5/bin/$b $BUILD/usr/bin/$b-qt5
-done
+# Just add /opt/qt5/bin to path
+#sudo -S mkdir -pv $BUILD/usr/bin/
+#for b in qml qmlformat qmlmin qmlprofiler \
+#         qmltime qmlcachegen qmlimportscanner \
+#	 qmlplugindump qmlscene  qmltyperegistrar \
+#         qmleasing qmllint  qmlpreview qmltestrunner ; do
+#      sudo -E ln -sv ../../opt/qt5/bin/$b $BUILD/usr/bin/$b-qt5
+#done
 
 # Drop QMAKE_PRL_BUILD_DIR because reference the build dir
 find "$BUILD/opt/qt5/lib" -type f -name '*.prl' \
 	-exec sudo sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+
+# Run-path (rpath) for shared binaries are missing rpath's for /opt/qt5/lib
+# For now use patchelf to patch in missing rpath:
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/bin/*
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	          $BUILD/opt/qt5-5.15.10/bin/*
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/lib/libQt5*.so.*
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	           $BUILD/opt/qt5-5.15.10/lib/libQt5*.so.*
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -61,5 +77,5 @@ qt5-qtdeclarative: http://qt-project.org
 qt5-qtdeclarative:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/qt5-qtdeclarative-5.15.3_git20220209-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/qt5-qtdeclarative-5.15.3_git20220209-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
