@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# Qt5 qtgraphicaleffects 5.15.3_git20201105
-# Source: https://invent.kde.org/qt/qt/qtgraphicaleffects/-/archive/c36998dc1581167b12cc3de8e4ac68c2a5d9f76e/qtgraphicaleffects-c36998dc1581167b12cc3de8e4ac68c2a5d9f76e.tar.gz
+# Qt5 qtgraphicaleffects 5.15.10_git20230424
+# Source: https://dev.alpinelinux.org/archive/qt/qtgraphicaleffects-500ae59f809877e0ada9a68601564882f2733145.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -16,20 +16,29 @@
 # This makes it symlink the include files to the right directory
 mkdir .git
 
-export CFLAGS="-I/opt/X11/include -L/opt/X11/lib "
+export CFLAGS="-I/opt/Xorg/include -L/opt/Xorg/lib -lexecinfo  -Wl,-rpath=/opt/qt5/lib "
 export CXXFLAGS=$CFLAGS
-export LDFLAGS="-Wl,-lexecinfo "
-export PATH="$(pwd):$PATH"
-qmake-qt5
+export LDFLAGS="-Wl,-lexecinfo -Wl,-rpath=/opt/qt5/lib "
 
-read -p "Compile?" && LD_LIBRARY_PATH=/opt/X11/lib:/opt/openssl/lib make -j2 &&
+# Check PATH to include /opt/qt5/bin but not /opt/qt6/bin (if Qt6 is installed)
+export PATH=/usr/bin:/opt/Xorg/bin:/opt/qt5/bin
+
+qmake
+
+read -p "Compile?" &&  make -j2 &&
 
 sudo -S make INSTALL_ROOT=$BUILD install &&
 unset CFLAGS CXXFLAGS LDFLAGS && \
 
-# Drop QMAKE_PRL_BUILD_DIR because reference the build dir
-find "$BUILD/opt/qt5/lib" -type f -name '*.prl' \
-  -exec sudo sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+# Fix rpath:
+sudo -E patchelf --remove-rpath  \
+	$BUILD/opt/qt5-5.15.10/qml/QtGraphicalEffects/private/libqtgraphicaleffectsprivate.so 
+sudo -E patchelf --remove-rpath  \
+       	$BUILD/opt/qt5-5.15.10/qml/QtGraphicalEffects/libqtgraphicaleffectsplugin.so
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	$BUILD/opt/qt5-5.15.10/qml/QtGraphicalEffects/private/libqtgraphicaleffectsprivate.so
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	$BUILD/opt/qt5-5.15.10/qml/QtGraphicalEffects/libqtgraphicaleffectsplugin.so
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -51,5 +60,5 @@ qt5-qtgraphicaleffects:
 qt5-qtgraphicaleffects:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/qt5-qtgraphicaleffects-5.15.3_git20201105-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/qt5-qtgraphicaleffects-5.15.10_git20230424-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
