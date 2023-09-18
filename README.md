@@ -33,6 +33,15 @@ Build scripts assume Slackware's pkgtools is installed as package manager and as
 	<li>Run build script: `sh ../scripts/foo-4.3.build` </li>
 </ol>
 
+Each package build assumes the following are set:
+
+<ul>
+<li>export BUILD = /BUILD # Directory to temporarily install </li>
+<li>export PKGS  = /PKGS  # Directory to store built packages </li>
+<li>export PSUFFIX = "$(uname -m)-blfs.txz" # Package extension. Inludes CPU arch and package compression </li>
+<li>export NOPSUFFIX = "noarch-blfs.txz" # Package extension. Supported across all CPU arches and package compression</li>
+</ul>
+
 Changelog since 2.00
 
 <ul>
