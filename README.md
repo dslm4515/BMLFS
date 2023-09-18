@@ -5,6 +5,7 @@ This is based on the works of Beyond Linux Fom Scratch (https://www.linuxfromscr
 
 These build recipes allow to build packages for a MLFS, a Musl [based] Linux from Scratch system. Such system uses Musl as libc, LibreSSL for SSL support, and S6+S6-rc for init system.
 
+Currently, Qt5 is the default Qt toolkit. Packages that can be built against Qt6 & Qt5 will have the Qt6 version stored in `/opt/qt6`. Eventually, Qt6 will be the default with Qt5 versions of packages in `/opt/qt5`.
 Layout
 
 <ul>
