@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # ISO Codes
-# Source: https://ftp.debian.org/debian/pool/main/i/iso-codes/iso-codes_4.13.0.orig.tar.xz
+# Source: https://ftp.debian.org/debian/pool/main/i/iso-codes/iso-codes_4.15.0.orig.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -45,5 +45,5 @@ iso-codes:
 iso-codes:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/iso-codes-4.13.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/iso-codes-4.15.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
