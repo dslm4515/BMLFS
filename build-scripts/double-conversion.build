@@ -1,20 +1,21 @@
 #! /bin/bash
 
 # double-conversion 
-# Source: https://github.com/google/double-conversion/archive/v3.1.5.tar.gz
+# Source: https://github.com/google/double-conversion/archive/v3.3.0/double-conversion-3.3.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     NONE
+# Required:     cmake
 # Recommended:  NONE
 # Optional:     NONE
 
-cmake -B OUT -DBUILD_TESTING=ON -DCMAKE_INSTALL_PREFIX=/usr \
-	     -DCMAKE_INSTALL_LIBDIR=lib -DBUILD_SHARED_LIBS=ON \
+cmake -B OUT -DCMAKE_INSTALL_PREFIX=/usr \
+	     -DBUILD_SHARED_LIBS=ON \
+	     -DBUILD_TESTING=ON
 
-read -p "Compile?" && make -j2 -C OUT &&
+read -p "Compile?" && make -C OUT -j2 &&
 
 sudo -S make DESTDIR=$BUILD -C OUT install &&
 
@@ -30,11 +31,12 @@ cat > /tmp/slack-desc << "EOF"
                  |-----handy-ruler------------------------------------------------------|
 double-conversion: double-conversion
 double-conversion:
-double-conversion: Binary-decimal and decimal-binary routines for IEEE doubles
+double-conversion: This package contains a library that facilitates binary-to-decimal 
+double-conversion: and decimal-to-binary routines for IEEE doubles. 
 double-conversion:
 double-conversion: https://github.com/google/double-conversion
 double-conversion:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/double-conversion-3.1.5-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/double-conversion-3.3.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
