@@ -1,15 +1,14 @@
 #! /bin/bash
 
-# wlroots 0.16.0(git)
-# Source: https://gitlab.freedesktop.org/wlroots/wlroots
-# Commit: 2c59435e8223339070f963263f2caebf07620078
+# wlroots 0.16.2
+# Source: https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/0.16.2/wlroots-0.16.2.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     wayland-protocols, wayland, mesa, libinput, libxcb, libseat
-# Required:     libxkbcommon, pixman, xkeyboard-config
+# Required:     libxkbcommon, pixman, xkeyboard-config, hwdata
 # Recommended:  xcb-util-renderutil, xcb-util-wm, xcb-util-image
 # Optional:     xcb-errors
 
@@ -61,5 +60,5 @@ wlroots:
 wlroots: Homepage: https://github.com/swaywm/wlroots
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wlroots-0.16.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wlroots-0.16.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
