@@ -2,6 +2,7 @@
 
 # glMark2 
 # Source: https://github.com/glmark2/glmark2 
+# Commit: 7d4c4da5d34e2e70a285c345c979e5e3c1eb2c3a
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -18,7 +19,7 @@ export TESTS="wayland-gl,wayland-glesv2"
 export TESTS="x11-gl,x11-glesv2"
 
 # Or Both:
-export TESTS="wayland-gl,wayland-glesv,x11-gl,x11-glesv2"
+export TESTS="wayland-gl,wayland-glesv2,x11-gl,x11-glesv2"
 
 meson setup build -Dflavors=drm-gl,drm-glesv2,$TESTS --prefix=/usr
 
@@ -49,5 +50,5 @@ glmark2: https://github.com/glmark2/glmark2
 glmark2:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/glmark2-2021.12-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/glmark2-2023.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
