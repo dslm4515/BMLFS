@@ -1,18 +1,18 @@
 #! /bin/bash
 
 # GTK+ 3
-# Source: https://download.gnome.org/sources/gtk+/3.24/gtk+-3.24.33.tar.xz
+# Source: https://download.gnome.org/sources/gtk+/3.24/gtk+-3.24.38.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     at-spi2-atk, FriBidi, gdk-pixbuf, libepoxy, and Pango
+# Required:     at-spi2-core, FriBidi, gdk-pixbuf, libepoxy, and Pango
 # Recommended:  adwaita-icon-theme,  hicolor-icon-theme, ISO Codes, libxkbcommon, 
 # Recommended:  sassc, wayland, wayland-protocols, gobject-introspection
 # Optional:     Colord, CUPS, DocBook Utils, GTK-Doc, JSON-Glib, PyAtSpi, rest, PAPI
 
-patch -Np1 -i ../patches/gtk+3-alpine/10-Revert-gdkseatdefault-Grab-touch-events-where-applic.patch
+#patch -Np1 -i ../patches/gtk+3-alpine/10-Revert-gdkseatdefault-Grab-touch-events-where-applic.patch
 
 # if optimizing, use GCC:
 export  CFLAGS="-march=native -pipe "
@@ -20,23 +20,17 @@ export CFLAGS+="-O3 -Ofast -falign-functions=32 -ffat-lto-objects -flto=4 "
 export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-./configure --prefix=/usr              \
-            --sysconfdir=/etc          \
-            --enable-broadway-backend  \
-            --enable-x11-backend       \
-            --enable-wayland-backend $BUILDTRUPLE &&
-make -j2 && sudo -S make DESTDIR=${BUILD} install &&
+# Autotools no longer used.
+# Use meson:
+mkdir BUILD && cd BUILD &&
+meson --prefix=/usr   \
+      -Dman=true      \
+      -Dgtk_doc=false \
+      -Dbroadway_backend=true ..
 
-# Can use meson instead:
-#mkdir BUILD && cd BUILD &&
-#meson --prefix=/usr   \
-#      -Dman=true      \
-#      -Dgtk_doc=false \
-#      -Dbroadway_backend=true ..
-#
-#read -p "Compile?" && ninja -j2 &&
+read -p "Compile?" && ninja -j2 &&
 
-#sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S DESTDIR=$BUILD ninja install &&
 
 sudo -S mkdir -pv /BMAN/install
 sudo -S mkdir -pv /BMAN/usr/share
@@ -65,7 +59,7 @@ gtk+3:
 gtk+3:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gtk+3-3.24.33-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/gtk+3-3.24.38-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 gtk+3-doc: Manuals for GTK+ version 3 (multi-platform GUI toolkit)
@@ -77,6 +71,6 @@ gtk+3-doc: suites.
 gtk+3-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gtk+3-doc-3.24.33-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/gtk+3-doc-3.24.38-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
