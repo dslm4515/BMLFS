@@ -2,12 +2,13 @@
 
 # iwd
 # source: https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-1.27.tar.xz
+# Source: https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-2.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     ell
+# Required:     ell dbus
 # Recommended:  NONE
 # Optional:     NONE
 # LTO:          Tested with GCC+Binutils
@@ -35,6 +36,7 @@
 #        CONFIG_CRYPTO_SHA256_SSSE3
 
 patch -Np0 -i ../patches/iwd-void/fix-name-request.patch
+patch -Np1 -i ../patches/iwd-void/resolvconf-default.patch
 
 # Update configure script
 autoreconf -fiv
@@ -95,7 +97,7 @@ EnableIPv6=true
 EOF
 sudo -S mv /tmp/main.conf etc/iwd/ && \
 read -p "Enter to build and install package" &&
-sudo -S makepkg -l y -c n $PKGS/iwd-1.27-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/iwd-2.3-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 iwd-doc: Manuals for iwd (iNet Wireless Daemon)
@@ -106,5 +108,5 @@ iwd-doc: https://git.kernel.org/pub/scm/network/wireless/iwd.git
 iwd-doc:
 EOF
 sudo -S mv /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/iwd-doc-1.27-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/iwd-doc-2.3-$NOPSUFFIX && \
 sudo -S rm -rf $BUILD/* /BMAN/*                                    
