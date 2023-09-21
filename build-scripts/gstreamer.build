@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # gstreamer
-# Source: https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.22.1.tar.xz
+# Source: https://gstreamer.freedesktop.org/src/gstreamer/gstreamer-1.22.5.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -24,7 +24,7 @@ meson  --prefix=/usr       \
        -Dbuildtype=release \
        -Dgst_debug=false   \
        -Dpackage-origin=https://github.com/dslm4515/BMLFS \
-       -Dpackage-name="GStreamer 1.22.1 BMLFS" && 
+       -Dpackage-name="GStreamer 1.22.5 BMLFS" && 
 read -p "Compile?" && ninja -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja install &&
@@ -55,7 +55,7 @@ gstreamer: GStreamer is released under the LGPL.
 gstreamer: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gstreamer-1.22.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/gstreamer-1.22.5-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 gstreamer-doc: Manuals for gstreamer (streaming multimedia framework)
@@ -68,6 +68,6 @@ gstreamer-doc: GStreamer is released under the LGPL.
 gstreamer-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gstreamer-doc-1.22.1-$NOPSUFFIX
+sudo -S makepkg -l y -c n $PKGS/gstreamer-doc-1.22.5-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
