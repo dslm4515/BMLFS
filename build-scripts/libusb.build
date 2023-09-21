@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libusb
-# Source: https://github.com//libusb/libusb/releases/download/v1.0.24/libusb-1.0.24.tar.bz2
+# Source: https://github.com/libusb/libusb/releases/download/v1.0.26/libusb-1.0.26.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -47,5 +47,5 @@ libusb:
 libusb:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libusb-1.0.24-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libusb-1.0.26-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
