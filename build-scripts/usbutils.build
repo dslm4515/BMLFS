@@ -49,7 +49,7 @@ usbutils:
 usbutils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/usbutils-014-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/usbutils-015-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 usbutils-doc: Manuals for usbutils (USB utilities)
@@ -61,6 +61,6 @@ usbutils-doc: usbmodules lists the kernel modules for a plugged in USB device.
 usbutils-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && 
-sudo -S makepkg -l y -c n $PKGS/usbutils-doc-014-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/usbutils-doc-015-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
