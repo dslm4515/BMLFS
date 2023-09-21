@@ -1,0 +1,64 @@
+#! /bin/bash
+
+# Qt6 QtTools
+# Source: https://download.qt.io/official_releases/qt/6.5/6.5.2/submodules/qttools-everywhere-src-6.5.2.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     qt6-qtbase qt6-qtdeclarative cmake
+# Recommended:  NONE
+# Optional:     NONE
+
+# Enable features
+export  CMO="-DQT_BUILD_TESTS=OFF "
+export CMO+="-DLITEHTML_UTF8=ON "
+export CMO+="-DQT_BUILD_SHARED_LIBS=ON "
+export CMO+="-DQT_FEATURE_assistant=ON "
+export CMO+="-DQT_FEATURE_pixeltool=ON "
+export CMO+="-DQT_FEATURE_distancefieldgenerator=ON "
+
+# Configure source
+cmake -B OUT -DCMAKE_INSTALL_PREFIX=/opt/qt6  \
+	     -DCMAKE_BUILD_TYPE="Release" \
+	     -DCMAKE_FIND_ROOT_PATH=/opt/Xorg:/opt/qt6 \
+	     -DINSTALL_PUBLICBINDIR=/opt/qt6/bin \
+	     -DLLVM_INSTALL_DIR=/usr \
+	     $CMO -G Ninja 
+unset CMO
+
+# Compile
+# LibreSSL is not supported
+LD_LIBRARY_PATH=/opt/Xorg/lib:/opt/openssl/lib \
+cmake --build OUT --parallel &&
+
+# Install
+sudo -E DESTDIR=$BUILD cmake --install OUT
+
+# Drop QMAKE_PRL_BUILD_DIR because reference the build dir
+ find "$BUILD/opt/qt6/lib" -type f -name '*.prl' \
+         -exec sudo sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+qt6-qttools: qt6-qttools - QtTools module
+qt6-qttools:
+qt6-qttools: Part of a cross-platform application and UI framework callled Qt(6.x)
+qt6-qttools:
+qt6-qttools: Development Tools, QtHelp
+qt6-qttools:
+qt6-qttools: https://download.qt.io
+qt6-qttools:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/qt6-qttools-6.5.2-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*

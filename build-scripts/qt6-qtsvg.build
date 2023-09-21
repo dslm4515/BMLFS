@@ -1,0 +1,54 @@
+#! /bin/bash
+
+# Qt6 QtSVG
+# Source: https://download.qt.io/official_releases/qt/6.5/6.5.2/submodules/qtsvg-everywhere-src-6.5.2.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     qt6-qtbase cmake
+# Recommended:  NONE
+# Optional:     NONE
+
+# Configure source
+cmake -B OUT -DCMAKE_INSTALL_PREFIX=/opt/qt6  \
+	     -DCMAKE_BUILD_TYPE="Release" \
+	     -DCMAKE_FIND_ROOT_PATH=/opt/Xorg:/opt/qt6 \
+	     -DQT_BUILD_TESTS=ON \
+	     -G Ninja 
+
+# Compile
+# LibreSSL is not supported
+LD_LIBRARY_PATH=/opt/Xorg/lib:/opt/openssl/lib \
+cmake --build OUT --parallel &&
+
+# Install
+sudo -E DESTDIR=$BUILD cmake --install OUT
+
+# Drop QMAKE_PRL_BUILD_DIR because reference the build dir
+ find "$BUILD/opt/qt6/lib" -type f -name '*.prl' \
+         -exec sudo sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+qt6-qtsvg: qt6-qtsvg - QtSVG module
+qt6-qtsvg:
+qt6-qtsvg: Part of a cross-platform application and UI framework callled Qt(6.x)
+qt6-qtsvg:
+qt6-qtsvg: Classes for displaying the contents of SVG files
+qt6-qtsvg:
+qt6-qtsvg: https://download.qt.io
+qt6-qtsvg:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/qt6-qtsvg-6.5.2-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*

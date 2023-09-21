@@ -1,0 +1,105 @@
+#! /bin/bash
+
+# Qt6 QtVirtualKeyboard
+# Source: https://download.qt.io/official_releases/qt/6.5/6.5.2/submodules/qtvirtualkeyboard-everywhere-src-6.5.2.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     qt6-qtbase qt6-qtdeclarative qt6-qtsvg cmake
+# Recommended:  NONE
+# Optional:     hunspell
+
+# Optional: Enable Features:
+export  CMO="-DQT_FEATURE_vkb_arrow_keynavigation=ON "
+
+# Optional: Disable langiuages not used
+export CMO+="-DQT_FEATURE_pinyin=OFF "
+export CMO+="-DQT_FEATURE_hangul=OFF "
+export CMO+="-DQT_FEATURE_zhuyin=OFF "
+export CMO+="-DQT_FEATURE_cangjie=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_bg_BG=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_cs_CZ=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_da_DK=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_de_DE=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_el_GR=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_es_ES=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_es_MX=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_et_EE=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_fa_FA=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_fi_FI=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_fr_CA=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_fr_FR=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_he_IL=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_hi_IN=OFF "
+
+export CMO+="-DQT_FEATURE_vkb_lang_hr_HR=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_hu_HU=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_id_ID=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_it_IT=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_ja_JP=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_ko_KR=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_ms_MY=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_nb_NO=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_nl_NL=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_pl_PL=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_pt_BR=OFF "
+
+export CMO+="-DQT_FEATURE_vkb_lang_pt_PT=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_ro_RO=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_ru_RU=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_sk_SK=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_sl_SI=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_sq_AL=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_sv_SE=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_sr_SP=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_th_TH=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_tr_TR=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_zh_TW=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_uk_UA=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_vi_VN=OFF "
+export CMO+="-DQT_FEATURE_vkb_lang_zh_CN=OFF "
+
+
+# Configure source
+cmake -B OUT -DCMAKE_INSTALL_PREFIX=/opt/qt6  \
+	     -DCMAKE_BUILD_TYPE="Release" \
+	     -DCMAKE_FIND_ROOT_PATH=/opt/Xorg:/opt/qt6 \
+	     $CMO -G Ninja 
+unset CMO
+
+# Compile
+# LibreSSL is not supported
+LD_LIBRARY_PATH=/opt/Xorg/lib:/opt/openssl/lib \
+cmake --build OUT --parallel &&
+
+# Install
+sudo -E DESTDIR=$BUILD cmake --install OUT
+
+# Drop QMAKE_PRL_BUILD_DIR because reference the build dir
+ find "$BUILD/opt/qt6/lib" -type f -name '*.prl' \
+         -exec sudo sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                     |-----handy-ruler------------------------------------------------------|
+qt6-qtvirtualkeyboard: qt6-qtvirtualkeyboard - QtVirtualKeyboard module
+qt6-qtvirtualkeyboard:
+qt6-qtvirtualkeyboard: Part of a cross-platform application and UI framework callled Qt(6.x)
+qt6-qtvirtualkeyboard:
+qt6-qtvirtualkeyboard: Virtual keyboard framework
+qt6-qtvirtualkeyboard:
+qt6-qtvirtualkeyboard: https://download.qt.io
+qt6-qtvirtualkeyboard:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/qt6-qtvirtualkeyboard-6.5.2-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
