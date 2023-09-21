@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # sndio 
-# Source: https://sndio.org/sndio-1.8.1.tar.gz
+# Source: https://sndio.org/sndio-1.9.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -37,7 +37,7 @@ sndio: https://sndio.org/
 sndio:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/sndio-1.8.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/sndio-1.9.0-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 sndio-doc: Manuals for sndio
@@ -48,5 +48,5 @@ sndio-doc: https://sndio.org/
 sndio-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/sndio-doc-1.8.1-noarch.mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/sndio-doc-1.9.0-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
