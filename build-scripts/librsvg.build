@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # librsvg
-# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/librsvg/2.50/librsvg-2.50.7.tar.xz
+# Source: https://download.gnome.org/sources/librsvg/2.57/librsvg-2.57.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     gdk-pixbuf, Cairo, Pango, and rustc 
+# Required:     gdk-pixbuf  cairo, pango cargo rustc 
 # Recommended:  gobject-introspection and Vala 
 # Optional:     GTK-Doc
 
@@ -21,7 +21,7 @@ export RUSTFLAGS="$RUSTFLAGS -C debuginfo=2" &&
 ./configure --prefix=/usr    \
             --enable-vala    \
             --disable-static \
-            --docdir=/usr/share/doc/librsvg-2.50.2 $BUILDTRUPLE &&
+            --docdir=/usr/share/doc/librsvg-2.57.0 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -50,5 +50,5 @@ librsvg:
 librsvg:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/librsvg-2.50.7-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/librsvg-2.57.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
