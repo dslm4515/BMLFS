@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libgudev
-# Source: https://download.gnome.org/sources/libgudev/237/libgudev-237.tar.xz
+# Source: https://download.gnome.org/sources/libgudev/238/libgudev-238.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -48,5 +48,5 @@ libgudev:
 libgudev:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libgudev-237-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libgudev-238-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
