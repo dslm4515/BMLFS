@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libwebp
-# Source: http://downloads.webmproject.org/releases/webp/libwebp-1.2.1.tar.gz
+# Source: http://downloads.webmproject.org/releases/webp/libwebp-1.3.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -58,7 +58,7 @@ libwebp:
 libwebp:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libwebp-1.2.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libwebp-1.3.1-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 libwebp-doc: Manuals for libwebp (WebP photo compression library)
@@ -70,6 +70,6 @@ libwebp-doc: https://developers.google.com/speed/webp/
 libwebp-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libwebp-doc-1.2.1-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/libwebp-doc-1.3.1-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
