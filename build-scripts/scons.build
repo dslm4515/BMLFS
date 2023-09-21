@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # scons
-# Source: https://downloads.sourceforge.net/project/scons/scons/4.3.0/SCons-4.3.0.tar.gz
+# Source: https://sourceforge.net/projects/scons/files/scons/4.5.2/SCons-4.5.2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -35,7 +35,7 @@ scons: https://scons.org
 scons:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/scons-4.3.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/scons-4.5.2-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 scons-doc: Manpages for scons
@@ -46,5 +46,5 @@ scons-doc: https://scons.org
 scons-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ 
-sudo -S makepkg -l y -c n $PKGS/scons-doc-4.3.0-noarch-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/scons-doc-4.5.2-$NOPSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
