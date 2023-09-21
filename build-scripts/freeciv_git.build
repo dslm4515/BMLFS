@@ -1,0 +1,64 @@
+#! /bin/bash
+
+# FreeCiv (git version)
+# Source: https://github.com/freeciv/freeciv
+# Commit: 3b484d93028a92e284588f1a68e4f7ae32c634af
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libcurl sqlite
+# Recommended:  SDL2_gfx SDL2_image SDL2_mixer 
+# Recommended:  SDL2_ttf SDL2_ttf   GTK+3
+# Optional:     qt6-qtwayland lua qt5-qtwayland gtk4 SDL3
+
+# Version 3.x: Dropped Xaw & SDL clients. No GTK+2 client.
+
+git clone https://github.com/freeciv/freeciv
+cd freeciv && git check out 3b484d93028a92e284588f1a68e4f7ae32c634af 
+
+# Set the Qt version, if building the Qt client
+# qt5 = stable
+# qt6 = experimental [as of this commit]
+echo QTV="qt6"
+
+meson setup --prefix=/opt/Games/freeciv-git \
+	     -Dqtver=$QTV \
+	     -Dnls=false  \
+	     -Dclients="gtk3.22,qt,sdl2" \
+	     -Dfcmp="gtk3,qt"  OUT
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+freeciv-git: freeciv (turn-based multiplayer strategy game) [git version]
+freeciv-git:
+freeciv-git: Freeciv is a free turn-based multiplayer strategy game, in which
+freeciv-git: each player becomes the leader of a civilization, fighting to
+freeciv-git: obtain the ultimate goal: To become the greatest civilization.
+freeciv-git: 
+freeciv-git: Includes SDL2/GTK+3.22/Qt6 clients and server.
+freeciv-git: 
+freeciv-git: 
+freeciv-git: Homepage: http://www.freeciv.org/
+freeciv-git:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+
+# Not sure how to set rpath for the binaries. For now:
+sudo patchelf --set-rpath /opt/Games/freeciv-git/lib opt/Games/freeciv-git/bin/*
+
+sudo -S makepkg -l y -c n $PKGS/freeciv-git-3.0.1_git-$PSUFFIX
+sudo -S rm -rf ${BUILD}/*
