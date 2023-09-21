@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GTKmm 3
-# Source: https://download-fallback.gnome.org/sources/gtkmm/3.24/gtkmm-3.24.5.tar.xz
+# Source: https://download.gnome.org/sources/gtkmm/3.24/gtkmm-3.24.8.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -53,5 +53,5 @@ gtkmm3:
 gtkmm3:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gtkmm3-3.24.5-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/gtkmm3-3.24.8-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
