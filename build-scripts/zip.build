@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Zip
-# Source: ftp://ftp.info-zip.org/pub/infozip/src/zip30.tgz
+# Source: ftp://downloads.sourceforge.net/infozip/zip30.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
