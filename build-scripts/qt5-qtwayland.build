@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# Qt5 QtWayland 5.15.3_git20220214
-# Source: https://invent.kde.org/qt/qt/qtwayland/-/archive/d6a6b727832819d118199f7016c2c401663ee370/qtwayland-d6a6b727832819d118199f7016c2c401663ee370.tar.gz 
+# Qt5 QtWayland 5.15.10_git20230714
+# Source: https://dev.alpinelinux.org/archive/qt/qtwayland-3a8613b91d2239aebc73b43562f929aa71af0de5.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -15,20 +15,49 @@
 # This makes it symlink the include files to the right directory
 mkdir .git
 
-export CFLAGS="-I/opt/X11/include -L/opt/X11/lib "
-export CXXFLAGS=$CFLAGS
-export LDFLAGS="-Wl,-lexecinfo "
-export PATH="$(pwd):$PATH"
-qmake-qt5
+# Check PATH to include /opt/qt5/bin but not /opt/qt6/bin (if Qt6 is installed)
+export PATH=/usr/bin:/opt/Xorg/bin:/opt/qt5/bin
+qmake
 
-read -p "Compile?" && LD_LIBRARY_PATH=/opt/X11/lib:/opt/openssl/lib make -j2 &&
+read -p "Compile?" && make -j2 &&
 
-sudo -S make INSTALL_ROOT=$BUILD install &&
-unset CFLAGS CXXFLAGS LDFLAGS && \
+sudo -SE make INSTALL_ROOT=$BUILD install &&
 
 # Drop QMAKE_PRL_BUILD_DIR because reference the build dir
 find "$BUILD/opt/qt5/lib" -type f -name '*.prl' \
 	-exec sudo sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
+
+# Run-path (rpath) for shared binaries are missing rpath's for /opt/qt5/lib
+# # For now use patchelf to patch in missing rpath:
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/bin/qtwaylandscanner
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	         $BUILD/opt/qt5-5.15.10/bin/qtwaylandscanner
+
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/lib/libQt5*.so.*
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/plugins/platforms/*.so
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/plugins/wayland-decoration-client/libbradient.so
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/plugins/wayland-graphics-integration-client/*.so
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/plugins/wayland-graphics-integration-server/*.so
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/plugins/wayland-shell-integration/*.so
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/qml/QtWayland/Compositor/*.so
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/qml/QtWayland/Compositor/TextureSharingExtension/*.so
+
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	         $BUILD/opt/qt5-5.15.10/lib/libQt5*.so.*
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	         $BUILD/opt/qt5-5.15.10/plugins/platforms/*.so
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	         $BUILD/opt/qt5-5.15.10/plugins/wayland-decoration-client/libbradient.so
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	         $BUILD/opt/qt5-5.15.10/plugins/wayland-graphics-integration-client/*.so
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	         $BUILD/opt/qt5-5.15.10/plugins/wayland-graphics-integration-server/*.so
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	         $BUILD/opt/qt5-5.15.10/plugins/wayland-shell-integration/*.so
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	         $BUILD/opt/qt5-5.15.10/qml/QtWayland/Compositor/*.so
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	         $BUILD/opt/qt5-5.15.10/qml/QtWayland/Compositor/TextureSharingExtension/*.so
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -49,5 +78,5 @@ qt5-qtwayland: http://qt-project.org
 qt5-qtwayland:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/qt5-qtwayland-5.15.3_git20220214-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/qt5-qtwayland-5.15.10_git20230714-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
