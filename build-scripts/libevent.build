@@ -19,6 +19,9 @@ export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export CFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
+# Fix version in .pc files:
+patch -Np1 -i ../patches/libevent-chimera/fix-pc-versions.patch
+
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE  &&
 read -p "Compile?" && make -j2  && 
 
@@ -53,5 +56,5 @@ EOF
 
 sudo -S mv -v /tmp/slack-desc install/ &&
 
-sudo -S makepkg -l y -c n $PKGS/libevent-2.1.12-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libevent-2.1.12-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
