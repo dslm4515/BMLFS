@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # Speex
-# Source: https://downloads.xiph.org/releases/speex/speex-1.2.0.tar.gz
-# Source: https://downloads.xiph.org/releases/speex/speexdsp-1.2.0.tar.gz
+# Source: https://downloads.xiph.org/releases/speex/speex-1.2.1.tar.gz
+# Source: https://downloads.xiph.org/releases/speex/speexdsp-1.2.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -22,7 +22,7 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 ./configure --prefix=/usr    \
             --disable-static \
-            --docdir=/usr/share/doc/speex-1.2.0 $BUILDTRUPLE &&
+            --docdir=/usr/share/doc/speex-1.2.1 $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 sudo -S make DESTDIR=$BUILD install &&
 sudo -S mkdir -pv /BMAN/install
@@ -40,7 +40,7 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 ./configure --prefix=/usr    \
             --disable-static \
-            --docdir=/usr/share/doc/speexdsp-1.2.0 $BUILDTRUPLE  &&
+            --docdir=/usr/share/doc/speexdsp-1.2.1 $BUILDTRUPLE  &&
 read -p "Compile?" && make -j2                     &&
 sudo -S make DESTDIR=$BUILD install                 &&
 sudo -S mv $BUILD/usr/share/doc/* /BMAN/usr/share/doc/
@@ -68,7 +68,7 @@ speex:
 speex:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/speex-1.2.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/speex-1.2.1-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 speex-doc: Manuals for Speex
@@ -81,6 +81,6 @@ speex-doc: https://www.speex.org/
 speex-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/speex-doc-1.2.0-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/speex-doc-1.2.1-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
