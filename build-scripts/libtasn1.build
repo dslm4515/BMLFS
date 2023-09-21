@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# libtasn1 4.18.0
-# Source: ftp://ftp.gnu.org/gnu/libtasn1/libtasn1-4.18.0.tar.gz
+# libtasn1 
+# Source: https://ftp.gnu.org/gnu/libtasn1/libtasn1-4.19.0.tar.gz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -58,7 +58,7 @@ EOF
 sudo -S mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
-sudo -S makepkg -l y -c n $PKGS/libtasn1-4.18.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libtasn1-4.19.0-$PSUFFIX &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"                                                                                                                        
@@ -84,7 +84,7 @@ libtasn1-doc:
 EOF                                                                                                                                                   
 sudo -S mv /tmp/slack-desc install/
 
-sudo -S makepkg -l y -c n $PKGS/libtasn1-doc-4.18.0-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/libtasn1-doc-4.19.0-noarch-mlfs.txz
 
 sudo -S rm -rf $BUILD/*
 sudo -S rm -rf /BMAN/*
