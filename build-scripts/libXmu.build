@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Libxmu
-# Source: ftp://ftp.x.org/pub/individual/lib/libXmu-1.1.3.tar.bz2
+# Source: ftp://ftp.x.org/pub/individual/lib/libXmu-1.1.4.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -48,7 +48,7 @@ libXmu:
 libXmu:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/libXmu-1.1.3-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libXmu-1.1.4-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libXmu-doc: libXmu (X miscellaneous utility library)
@@ -60,5 +60,5 @@ libXmu-doc: of Xlib or Xt.
 libXmu-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/libXmu-doc-1.1.3-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libXmu-doc-1.1.4-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
