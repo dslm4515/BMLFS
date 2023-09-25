@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # font-util
-# Source: https://www.x.org/pub/individual/font/font-util-1.4.0.tar.xz
+# Source: https://www.x.org/pub/individual/font/font-util-1.4.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -46,7 +46,7 @@ font-util:
 font-util:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/font-util-1.4.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/font-util-1.4.1-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 font-util-doc: Manuals for font-util
@@ -57,5 +57,5 @@ font-util-doc: http://www.x.org
 font-util-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/font-util-doc-1.4.0-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/font-util-doc-1.4.1-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
