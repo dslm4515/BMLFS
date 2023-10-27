@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Nettle 
-# Source: https://ftp.gnu.org/gnu/nettle/nettle-3.9.tar.gz
+# Source: https://ftp.gnu.org/gnu/nettle/nettle-3.9.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -55,6 +55,6 @@ nettle:
 EOF
 
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/nettle-3.9-$PSUFFIX  &&
+sudo -S makepkg -l y -c n $PKGS/nettle-3.9.1-$PSUFFIX  &&
 sudo -S rm -rf ${BUILD}/*
 
