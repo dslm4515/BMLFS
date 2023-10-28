@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # dhcpcd 
-# Source: https://github.com/NetworkConfiguration/dhcpcd/releases/download/v10.0.1/dhcpcd-10.0.1.tar.xz
+# Source: https://github.com/NetworkConfiguration/dhcpcd/releases/download/v10.0.4/dhcpcd-10.0.4.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     NONE
+# Required:     openssl [for privilege separation.]
 # Recommended:  NONE
 # Optional:     LLVM(with Clang), ntp, chronyd, and ypbind 
 # LTO:          LLVM, not yet tested with GCC+binutils
@@ -30,16 +30,18 @@ useradd  -c 'dhcpcd PrivSep' \
 chown    -v dhcpcd:dhcpcd /var/lib/dhcpcd 
 
 # Configure
-CFLAGS="$CFLAGS -D_GNU_SOURCE -DHAVE_PRINTF_M"
+CFLAGS="-L/opt/openssl/lib -lssl -Wl,-rpath=/opt/openssl/lib " \
+CXXFLAGS=$CFLAGS \
+LDFLAGS="-L/opt/openssl/lib -lssl -Wl,-rpath=/opt/openssl/lib " \
 ./configure --prefix=/usr \
             --sysconfdir=/etc \
             --libexecdir=/usr/lib/dhcpcd \
             --dbdir=/var/lib/dhcpcd  \
             --privsepuser=dhcpcd \
-            --rundir=/run \
+            --runstatedir=/run \
             --enable-ipv6 \
-            --without-dev \
-            --without-udev $BUILDTRUPLE
+            --enable-privsep \
+	    --enable-seccomp $BUILDTRUPLE
 
 read -p "Compile? " && make -j2 && 
 
@@ -83,7 +85,7 @@ chown    -v dhcpcd:dhcpcd /var/lib/dhcpcd
 EOF
 sudo -S mv /tmp/doinst.sh  install/ &&
 sudo -S mv /tmp/slack-desc install/ &&
-sudo makepkg -l y -c n $PKGS/dhcpcd-10.0.1-$PSUFFIX &&
+sudo makepkg -l y -c n $PKGS/dhcpcd-10.0.4-$PSUFFIX &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -97,6 +99,6 @@ dhcpcd-doc: to RFC2131 or RFC1541 depending on the command line option.
 dhcpcd-doc:
 EOF
 sudo -S mv /tmp/slack-desc install/
-sudo makepkg -l y -c n $PKGS/dhcpcd-doc-10.0.1-$NOPSUFFIX
+sudo makepkg -l y -c n $PKGS/dhcpcd-doc-10.0.4-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo rm -rf $BUILD/*                                     
