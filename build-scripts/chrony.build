@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Chrony
-# Source: https://download.tuxfamily.org/chrony/chrony-4.3.tar.gz
+# Source: https://chrony-project.org/releases/chrony-4.4.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -16,15 +16,19 @@ groupadd -g 87 chrony &&
 useradd  -c "chrony user" -d /var/lib/chrony \
 	 -u 87 -g chrony -s /usr/bin/false chrony
 
+# Per Chimera Linux, decrease maximum re-resolving delay 
+# from ~1 hour to a few minutes
+patch -Np1 -i ../patches/chrony-chimera/max_resolve_interval.patch
+
 # Per ALpine: 
 # We copy timepps.h to the local build directory instead of
 # creating a pps-tools-dev package for ppstime.h
 # (See https://github.com/ago/pps-tools)
-mkdir -p pps-tools/sys
-cp -v ../files/chrony-alpine/timepps.h pps-tools/sys/
-
-patch -Np1 -i ../patches/chrony-alpine/fix-tests.patch
-patch -Np1 -i ../patches/chrony-alpine/max_resolve_interval.patch 
+#mkdir -p pps-tools/sys
+#cp -v ../files/chrony-alpine/timepps.h pps-tools/sys/
+#
+#patch -Np1 -i ../patches/chrony-alpine/fix-tests.patch
+#patch -Np1 -i ../patches/chrony-alpine/max_resolve_interval.patch 
 
 CPPFLAGS="$CPPFLAGS -I./pps-tools/" ./configure \
 	--prefix=/usr  -mandir=/usr/share/man \
@@ -70,7 +74,7 @@ useradd  -c "chrony user" -d /var/lib/chrony \
          -u 87 -g chrony -s /usr/bin/false chrony
 EOF
 sudo -S mv -v /tmp/doinst.sh install/  && \
-sudo -S makepkg -l y -c n $PKGS/chrony-4.3-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/chrony-4.4-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 chrony-doc: Manuals for chrony
@@ -81,5 +85,5 @@ chrony-doc: https://chrony.tuxfamily.org
 chrony-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/chrony-doc-4.3-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/chrony-doc-4.4-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/*
