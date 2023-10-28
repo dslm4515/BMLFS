@@ -1,8 +1,7 @@
 #! /bin/bash
 
 # iwd
-# source: https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-1.27.tar.xz
-# Source: https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-2.3.tar.xz
+# Source: https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-2.8.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -35,8 +34,12 @@
 #        CONFIG_CRYPTO_DES3_EDE_X86_64
 #        CONFIG_CRYPTO_SHA256_SSSE3
 
-patch -Np0 -i ../patches/iwd-void/fix-name-request.patch
-patch -Np1 -i ../patches/iwd-void/resolvconf-default.patch
+# Apply fixed from Chimera Linux
+patch -Np1 -i ../patches/iwd-chimera/fix-name-request.patch 
+patch -Np1 -i ../patches/iwd-chimera/portability.patch 
+patch -Np1 -i ../patches/iwd-chimera/resolvconf-default.patch 
+patch -Np1 -i ../patches/iwd-chimera/support-traditional-dbus-activation.patch 
+patch -Np1 -i ../patches/iwd-chimera/use-network-instead-of-wheel.patch 
 
 # Update configure script
 autoreconf -fiv
@@ -44,12 +47,12 @@ autoreconf -fiv
 # Configure source
 ./configure --prefix=/usr \
             --disable-systemd-service \
-	        --enable-pie \
-	        --enable-external-ell \
-	        --enable-dbus-policy \
-	        --enable-wired \
-	        --localstatedir=/var \
-	        --sysconfdir=/etc $BUILDTRUPLE
+	    --enable-pie \
+	    --enable-external-ell \
+	    --enable-dbus-policy \
+	    --enable-wired \
+	    --localstatedir=/var \
+	    --sysconfdir=/etc $BUILDTRUPLE
 
 # Compile
 make -j2 && 
@@ -97,7 +100,7 @@ EnableIPv6=true
 EOF
 sudo -S mv /tmp/main.conf etc/iwd/ && \
 read -p "Enter to build and install package" &&
-sudo -S makepkg -l y -c n $PKGS/iwd-2.3-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/iwd-2.8-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 iwd-doc: Manuals for iwd (iNet Wireless Daemon)
@@ -108,5 +111,5 @@ iwd-doc: https://git.kernel.org/pub/scm/network/wireless/iwd.git
 iwd-doc:
 EOF
 sudo -S mv /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/iwd-doc-2.3-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/iwd-doc-2.8-$NOPSUFFIX && \
 sudo -S rm -rf $BUILD/* /BMAN/*                                    
