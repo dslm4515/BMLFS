@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # openresolv
-# Source: https://github.com/NetworkConfiguration/openresolv/archive/refs/tags/openresolv-3.12.0.tar.gz
+# Source: https://github.com/NetworkConfiguration/openresolv/releases/download/v3.13.2/openresolv-3.13.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -45,7 +45,7 @@ openresolv: https://roy.marples.name/projects/openresolv
 openresolv:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/openresolv-3.12.0-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/openresolv-3.13.2-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 openresolv-doc: Manuals for openresolv (management framework for resolv.conf) 
@@ -57,5 +57,5 @@ openresolv-doc: ttps://roy.marples.name/projects/openresolv
 openresolv-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/openresolv-doc-3.12.0-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/openresolv-doc-3.13.2-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
