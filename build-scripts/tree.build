@@ -17,7 +17,7 @@ make -j2 &&
 #sudo -S make MANDIR=/usr/share/man/man1 install &&
 #sudo -S chmod -v 644 /usr/share/man/man1/tree.1
 
-sudo -S make DESTDIR=${BUILD} MANDIR=/usr/share/man/man1 install &&
+sudo -S make prefix=${BUILD}/usr MANDIR=$BUILD/usr/share/man/man1 install 
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install
 cat > /tmp/slack-desc << "EOF"
@@ -44,6 +44,6 @@ EOF
 
 sudo chmod -v 644 usr/share/man/man1/tree.1 &&
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/tree-1.8.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/tree-1.8.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
 
