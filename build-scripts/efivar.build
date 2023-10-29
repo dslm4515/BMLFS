@@ -11,14 +11,15 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-patch -Np1 -i ../patches/efivar-void/0001-Support-custom-cflags-for-CC_FOR_BUILD-and-CCLD_FOR_.patch && \
-patch -Np1 -i ../patches/efivar-void/0002-Replace-call-to-strncpy-by-memcpy-to-fix-some-GCC8-w.patch && \
+# Apply patches from Chimera Linux
+patch -Np1 -i ../patches/efivar-chimera/0001-Support-custom-cflags-for-CC_FOR_BUILD-and-CCLD_FOR_.patch
+patch -Np1 -i ../patches/efivar-chimera/0002-Replace-call-to-strncpy-by-memcpy-to-fix-some-GCC8-w.patch 
 
 export CFLAGS="-D_GNU_SOURCE -Wno-error=address-of-packed-member" && \
 
-read -p "Compile?" && make PREFIX=/usr -j2 && \
+read -p "Compile?" && make ERRORS= LIBDIR=/usr/lib  && \
 
-sudo -S make PREFIX=/usr DESTDIR=$BUILD install && \
+sudo -S make PREFIX=/usr DESTDIR=$BUILD LIBDIR=/usr/lib install && \
 case $(uname -m) in
 	x86_64 | aarch64 sudo -S mv ${BUILD}/usr/lib64 ${BUILD}/usr/lib ;;
 esac && \
@@ -49,7 +50,7 @@ efivar:
 efivar:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/efivar-37-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/efivar-37-$PSUFFIX &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -62,6 +63,6 @@ efivar-doc: Homepage: https://github.com/rhboot/efivar
 efivar-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&                                                                                                             
-sudo -S makepkg -l y -c n $PKGS/efivar-doc-37-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/efivar-doc-37-$NOSPUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
