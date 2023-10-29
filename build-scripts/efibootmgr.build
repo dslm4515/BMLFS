@@ -11,10 +11,9 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-# fix an outdated hotfix declaration causing compilation failure 
-#sed -e '/extern int efi_set_verbose/d' -i src/efibootmgr.c
-
+# Apply patches from Chimera Linux
 patch -Np1 -i ../patches/efibootmgr-chimera/build.patch 
+patch -Np1 -i ../patches/efibootmgr-chimera/ub.patch 
 
 case $(uname -m) in
 	x86_64)  export EFI_LOADER="grubx64.efi"  ;;
@@ -24,9 +23,11 @@ case $(uname -m) in
 esac
 
 read -p "Compile?" && \
-PCDIR=/usr/lib/pkgconfig make -j2 EXTRA_CFLAGS="$CFLAGS" EFIDIR="MLFS" EFI_LOADER="${EFI_LOADER}" &&
+make  EFIDIR="MLFS" EFI_LOADER="${EFI_LOADER}"
 
-sudo -S make DESTDIR=$BUILD EXTRA_CFLAGS="$CFLAGS" EFIDIR="MLFS" EFI_LOADER="${EFI_LOADER}" install &&
+sudo -S make  EFIDIR="MLFS" EFI_LOADER="${EFI_LOADER}" DESTDIR=$BUILD install
+unset  EFI_LOADER
+
 sudo -S mkdir -pv /BMAN/install
 sudo -S mkdir -pv /BMAN/usr
 sudo -S mv $BUILD/usr/share /BMAN/usr/
@@ -54,7 +55,7 @@ efibootmgr:
 efibootmgr:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/efibootmgr-17-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/efibootmgr-18-$PSUFFIX &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -70,6 +71,6 @@ efibootmgr-doc:
 efibootmgr-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&                                                                                                             
-sudo -S makepkg -l y -c n $PKGS/efibootmgr-doc-17-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/efibootmgr-doc-18-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
