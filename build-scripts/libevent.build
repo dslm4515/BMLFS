@@ -22,6 +22,12 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 # Fix version in .pc files:
 patch -Np1 -i ../patches/libevent-chimera/fix-pc-versions.patch
 
+# If openssl in in /opt, add these flags:
+export LDFLAGS=" -Wl,-rpath=/opt/openssl/lib " 
+export LIBS="-L/opt/openssl/lib -lssl" 
+export CPPFLAGS="-I/opt/openssl/include" 
+
+LDFLAGS=$LDFLAGS LIBS=$LIBS CPPFLAGS=$CPPFLAGS \
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE  &&
 read -p "Compile?" && make -j2  && 
 
