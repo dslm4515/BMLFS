@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # parted
-# Source: ftp://ftp.gnu.org/gnu/parted/parted-3.4.tar.xz
+# Source: https://ftp.gnu.org/gnu/parted/parted-3.6.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -19,10 +19,8 @@ export CFLAGS+="-ffunction-sections -flto=4 -fno-semantic-interposition "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-patch -Np1 -i ../patches/parted-adelie/fix-includes.patch              &&
-patch -Np1 -i ../patches/parted-adelie/posix-shell.patch               &&
-patch -Np1 -i ../patches/parted-adelie/sysmacros.patch                 &&
-patch -Np1 -i ../patches/parted-adelie/tests-call-name-correctly.patch &&
+# libparted-fs-resize: require libuuid
+patch -Np1 -i ../patches/parted-chimera/uuid.patch 
 
 ./configure --prefix=/usr --disable-static \
             --enable-device-mapper $BUILDTRUPLE &&
@@ -56,7 +54,7 @@ parted:
 parted:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/parted-3.4-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/parted-3.6-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 parted-doc: Manuals for parted
@@ -66,5 +64,5 @@ parted-doc: partitions, and the filesystems on them.
 parted-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/parted-doc-3.4-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/parted-doc-3.6-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
