@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # LVM2
-# Source: https://sourceware.org/ftp/lvm2/LVM2.2.03.15.tgz
+# Source: https://sourceware.org/ftp/lvm2/LVM2.2.03.22.tgz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -19,17 +19,15 @@ export CFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-# If using dash as sh, temporarily change it to bash
-sudo rm -v /bin/sh
-sudo ln -sv bash /bin/sh
+# Apply patches from Chimera Linux
+patch -Np1 -i ../patches/lvm2-chimera/0001-lvresize-use-POSIX-shell.patch 
+patch -Np1 -i ../patches/lvm2-chimera/fix-stdio-usage.patch
+patch -Np1 -i ../patches/lvm2-chimera/mlockall-default-config.patch 
+patch -Np1 -i ../patches/lvm2-chimera/portable-install-1.patch
+patch -Np1 -i ../patches/lvm2-chimera/scripts-gnu.patch 
+patch -Np1 -i ../patches/lvm2-chimera/udev-no-systemd.patch 
 
-patch -Np1 -i ../patches/LVM2-alpine/fix-stdio-usage.patch             &&
-patch -Np1 -i ../patches/LVM2-alpine/library_dir-default-config.patch  &&
-patch -Np1 -i ../patches/LVM2-alpine/mlockall-default-config.patch     &&
-patch -Np1 -i ../patches/LVM2-adelie/mallinfo.patch                    &&
-
-SAVEPATH=$PATH                  &&
-PATH=$PATH:/sbin:/usr/sbin      &&
+PATH+=:/usr/sbin \
 ./configure --prefix=/usr       \
             --exec-prefix=      \
             --enable-cmdlib     \
@@ -65,7 +63,7 @@ lvm2:
 lvm2:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/lvm2-2.03.15-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/lvm2-2.03.22-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 lvm2-doc: Manuals for lvm2
@@ -75,9 +73,6 @@ lvm2-doc: low-level I/O interface to get a logical view of disks.
 lvm2-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/lvm2-doc-2.03.15-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/lvm2-doc-2.03.22-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/* 
 
-# Restore sh as dash if dash is the desired sh interpreter 
-sudo rm -v /bin/sh
-sudo ln -sv dash /bin/sh
