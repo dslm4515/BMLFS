@@ -1,10 +1,10 @@
 #! /bin/bash
 
 # Unicode Character Database 
-# Source: https://www.unicode.org/Public/zipped/14.0.0/UCD.zip
-# Source: https://www.unicode.org/Public/emoji/14.0/emoji-sequences.txt
-# Source: https://www.unicode.org/Public/emoji/14.0/emoji-zwj-sequences.txt
-# Source: https://www.unicode.org/Public/emoji/14.0/emoji-test.txt
+# Source: https://www.unicode.org/Public/zipped/15.0.0/UCD.zip
+# Source: https://www.unicode.org/Public/emoji/15.0/emoji-sequences.txt
+# Source: https://www.unicode.org/Public/emoji/15.0/emoji-zwj-sequences.txt
+# Source: https://www.unicode.org/Public/emoji/15.0/emoji-test.txt
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -42,6 +42,6 @@ unicode-character-database: Project URL: http://www.unicode.org/ucd/
 unicode-character-database:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/unicode-character-database-14.0.0-noarch-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/unicode-character-database-15.0.0-$NOPSUFFIX &&
 sudo -S rm -rf ${BUILD}/* 
 
