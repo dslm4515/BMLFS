@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libaio
-# Source: http://ftp.de.debian.org/debian/pool/main/liba/libaio/libaio_0.3.112.orig.tar.xz
+# Source: https://pagure.io/libaio/archive/libaio-0.3.113/libaio-0.3.113.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,8 +11,15 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-patch -Np1 -i ../patches/libaio-alpine/libaio-errno.patch           &&
-patch -Np1 -i ../patches/libaio-alpine/libaio-optional-werror.patch &&
+patch -Np1 -i ../patches/libaio-chimera/0001-man-Fix-typos.patch 
+patch -Np1 -i ../patches/libaio-chimera/0001-portable-install-1-usage.patch 
+patch -Np1 -i ../patches/libaio-chimera/0011-build-Honour-user-build-flags.patch 
+patch -Np1 -i ../patches/libaio-chimera/0010-build-Do-not-use-Werror-by-default.patch
+patch -Np1 -i ../patches/libaio-chimera/out-of-tree-build.patch
+patch -Np1 -i ../patches/libaio-chimera/tests.patch
+
+# Disable building static library, per BLFS
+sed -i '/install.*libaio.a/s/^/#/' src/Makefile
 
 read -p "Compile?" && make prefix=${BUILD}/usr sysconfdir=${BUILD}/etc -j2 &&
 
@@ -41,5 +48,5 @@ libaio:
 libaio:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libaio-0.3.112-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libaio-0.3.113-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
