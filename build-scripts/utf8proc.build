@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # utf8proc
-# Source: https://github.com/JuliaLang/utf8proc/archive/v2.7.0/utf8proc-2.7.0.tar.gz 
+# Source: https://github.com/JuliaStrings/utf8proc/archive/refs/tags/v2.8.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -34,5 +34,5 @@ utf8proc: https://github.com/JuliaLang/utf8proc
 utf8proc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/utf8proc-2.7.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/utf8proc-2.8.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
