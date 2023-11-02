@@ -49,6 +49,8 @@ export GOROOT_BOOTSTRAP="/usr/lib/go"
 # Build!
 cd src && ./make.bash -v
 
+unset GOROOT GOBIN GOROOT GOROOT_FINAL GO_LDFLAGS GOOS GOPATH GOROOT_BOOTSTRAP
+
 # Install
 cd .. && \
 sudo -S mkdir -pv $BUILD/usr/bin $BUILD/usr/lib/go/bin $BUILD/usr/share/doc/go &&
@@ -65,6 +67,11 @@ sudo -S rm -fv  $BUILD/usr/lib/go/pkg/tool/*/api && \
 
 sudo -S mkdir -pv $BUILD/usr/lib/go/ && \
 sudo -S cp -a src $BUILD/usr/lib/go/ && \
+
+# Per Archlinux, the go.env needs to be copied.
+# https://github.com/golang/go/issues/57179
+patch -Np1 -i ../patches/go1.21.3-chimera/disable-auto-go-download.patch
+sudo -S install -Dm644 go.env $BUILD/usr/lib/go/go.env
 
 # Per Alpine Linux
 # Remove tests from /usr/lib/go/src to reduce package size,
