@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # seatd
-# Source: https://git.sr.ht/~kennylevinsen/seatd/archive/0.7.0.tar.gz
+# Source: https://git.sr.ht/~kennylevinsen/seatd/archive/0.8.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -55,13 +55,13 @@ seatd:
 seatd:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/seatd-0.7.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/seatd-0.8.0-$PSUFFIX &&
 cp -v install/doinst.sh /tmp/ && \
 cat >> /tmp/doinst.sh << "EOF"
 groupadd -g 28 seat
 EOF
 sudo -S mv -v /tmp/doinst.sh install/doinst.sh && \
-sudo -S makepkg -l y -c n $PKGS/seatd-0.7.0-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/seatd-0.8.0-$PSUFFIX && \
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 seatd-doc: Manuals for seatd
