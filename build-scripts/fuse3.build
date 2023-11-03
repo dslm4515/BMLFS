@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Fuse 3
-# Source: https://github.com/libfuse/libfuse/releases/download/fuse-3.14.0/fuse-3.14.0.tar.xz
+# Source: https://github.com/libfuse/libfuse/releases/download/fuse-3.16.2/fuse-3.16.2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -14,7 +14,7 @@
 # Disable the installation of a boot script and udev rule that are not needed.
 sed -i '/^udev/,$ s/^/#/' util/meson.build               &&
 # Fix a bug with the test_passthrough_hp test.
-sed -i 's/HAVE_CONFIG_H/HAVE_LIBFUSE_PRIVATE_CONFIG_H/' meson.build 
+#sed -i 's/HAVE_CONFIG_H/HAVE_LIBFUSE_PRIVATE_CONFIG_H/' meson.build 
 #patch -Np1 -i ../patches/fuse3-adelie/fix-realpath.patch &&
 
 mkdir build &&
@@ -54,7 +54,7 @@ fuse3:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S chmod -v u+s usr/bin/fusermount3 &&
-sudo -S makepkg -l y -c n $PKGS/fuse3-3.14.0-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/fuse3-3.16.2-$PSUFFIX && \
 cd /BMAN &&
 cat > /tmp/slack-desc << "EOF"
 fuse3-doc: Manuals for fuse3 (Filesystem in Userspace)
@@ -66,5 +66,5 @@ fuse3-doc: https://github.com/libfuse/libfuse
 fuse3-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/fuse3-doc-3.14.0-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/fuse3-doc-3.16.2-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
