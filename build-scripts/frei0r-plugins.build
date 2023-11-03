@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Frei0r-plugins
-# Source: https://files.dyne.org/frei0r/releases/frei0r-plugins-1.7.0.tar.gz
+# Source: https://files.dyne.org/frei0r/releases/frei0r-plugins-1.8.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -45,5 +45,5 @@ frei0r-plugins: See also: http://frei0r.dyne.org
 frei0r-plugins:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/frei0r-plugins-1.7.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/frei0r-plugins-1.8.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
