@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # orc
-# Source: https://gstreamer.freedesktop.org/src/orc/orc-0.4.33.tar.xz
+# Source: https://gstreamer.freedesktop.org/src/orc/orc-0.4.34.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -47,5 +47,5 @@ orc:
 orc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/orc-0.4.33-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/orc-0.4.34-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
