@@ -20,6 +20,15 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 cp -v ../files/config.sub-musl config.sub     &&
 cp -v ../files/config.guess-musl config.guess &&
 
+# Per BLFS, this package accesses freedb.org, which is already closed. 
+# Modify the default to use gnudb.gnudb.org instead, and fix two stale 
+# test data files: 
+sed -e '/DEFAULT_SERVER/s/freedb.org/gnudb.gnudb.org/' \
+    -e '/DEFAULT_PORT/s/888/&0/'                       \
+    -i include/cddb/cddb_ni.h
+sed '/^Genre:/s/Trip-Hop/Electronic/' -i tests/testdata/920ef00b.txt &&
+sed '/DISCID/i# Revision: 42'         -i tests/testcache/misc/12340000
+
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
 
 read -p "Compile?" && make -j2 &&
@@ -49,5 +58,5 @@ libcddb:
 libcddb:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libcddb-1.3.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libcddb-1.3.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
