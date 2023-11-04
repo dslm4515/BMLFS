@@ -45,7 +45,7 @@ ac_cv_header_sys_cdefs_h=false \
             --without-selinux \
             --without-rpath \
             --with-ssl-engine \
-            --enable-wtmp \
+            --enable-wtmpx \
             --with-Werror=no $BT $OPTARGS --with-cflags --with-ldflags &&
 read -p "Compile? " && make -j2 &&
 
