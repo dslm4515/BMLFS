@@ -1,18 +1,18 @@
 #! /bin/bash
 
-# cargo 1.72.0
-# Source: https://github.com/rust-lang/cargo/archive/103a7ff2ee7678d34f34d778614c5eb2525ae9de.tar.gz
+# cargo 0.74.0 (1.73.0)
+# Source: https://github.com/rust-lang/cargo/archive/9c4383fb55986096b414d98125421ab87b5fd642.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     cargo rustc curl libgit2 libssh2 
+# Required:     rustc-bootstrap curl libgit2 libssh2 
 # Recommended:  NONE
 # Optional:     NONE
 
 # NOTE: Requires cargo + rustc for bootstrapping.
-#       Use ia prebuilt cargo from rust-lang.org and rustc from Chimera Linux (CMLFS) or
+#       Use a prebuilt cargo from rust-lang.org and rustc from Chimera Linux (CMLFS) or
 #       Alpine Linux (MLFS)
 
 export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
@@ -20,9 +20,9 @@ export RUST_BACKTRACE=1
 
 read -p "Compile?" && cargo build --release  &&
 
-sudo mkdir -pv $BUILD/opt/rustc-1.72.0/bin &&
+sudo mkdir -pv $BUILD/opt/rustc-1.73.0/bin &&
 sudo cp -v target/release/cargo \
-           $BUILD/opt/rustc-1.72.0/bin/
+           $BUILD/opt/rustc-1.73.0/bin/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -44,5 +44,5 @@ cargo: https://rust-lang.org
 cargo:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cargo-1.72.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/cargo-1.73.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
