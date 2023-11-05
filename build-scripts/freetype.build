@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # FreeType
-# Source: https://downloads.sourceforge.net/freetype/freetype-2.13.0.tar.xz
+# Source: https://downloads.sourceforge.net/freetype/freetype-2.13.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -47,7 +47,7 @@ freetype: Homepage:  http://www.freetype.org
 freetype:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/freetype-2.13.0-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/freetype-2.13.2-$PSUFFIX && \
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -63,6 +63,6 @@ freetype-doc: Homepage:  http://www.freetype.org
 freetype-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&                                                                                                             
-sudo -S makepkg -l y -c n $PKGS/freetype-doc-2.13.0-$PSUFFIX
+sudo -S makepkg -l y -c n $PKGS/freetype-doc-2.13.2-$PSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
