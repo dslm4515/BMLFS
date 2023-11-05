@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libdvdcss
-# Source: https://get.videolan.org/libdvdcss/1.4.2/libdvdcss-1.4.2.tar.bz2
+# Source: https://get.videolan.org/libdvdcss/1.4.3/libdvdcss-1.4.3.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,7 +13,7 @@
 
 ./configure --prefix=/usr    \
             --disable-static \
-            --docdir=/usr/share/doc/libdvdcss-1.4.2 $BUILDTRUPLE &&
+            --docdir=/usr/share/doc/libdvdcss-1.4.3 $BUILDTRUPLE &&
 
 read -p "Compile?" && make -j2 &&
 
@@ -42,5 +42,5 @@ libdvdcss:
 libdvdcss:  
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libdvdcss-1.4.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libdvdcss-1.4.3-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
