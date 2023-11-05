@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # HarfBuzz
-# Source:  https://github.com/harfbuzz/harfbuzz/releases/download/7.3.0/harfbuzz-7.3.0.tar.xz
+# Source: https://github.com/harfbuzz/harfbuzz/releases/download/8.2.2/harfbuzz-8.2.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -22,7 +22,11 @@ mkdir build && cd build &&
 
 meson --prefix=/usr        \
       --buildtype=release  \
-      -Dgraphite2=enabled
+      -Dgraphite2=enabled \
+      -Dicu=enabled \
+      -Dfreetype=enabled \
+      -Dintrospection=enabled \
+      -Dtests=disabled 
 
 read -p "Compile?" && ninja -j2 &&
 
@@ -50,5 +54,5 @@ harfbuzz:
 harfbuzz:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/harfbuzz-7.3.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/harfbuzz-8.2.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
