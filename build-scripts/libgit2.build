@@ -1,13 +1,13 @@
 #! /bin/bash
 
-# Libgit2 1.0.1
-# Source: https://github.com/libgit2/libgit2/releases/download/v1.1.0/libgit2-1.1.0.tar.gz
+# Libgit2 
+# Source: https://github.com/libgit2/libgit2/archive/refs/tags/v1.7.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Cmake, OpenSSL or LibreSSL
+# Required:     CMake, OpenSSL or LibreSSL
 # Recommended:  PCRE
 # Optional:     libssh2, http-parser
 
@@ -54,6 +54,6 @@ libgit2:
 EOF
 
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libgit2-1.1.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libgit2-1.7.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
 
