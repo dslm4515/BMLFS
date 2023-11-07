@@ -1,0 +1,151 @@
+#! /bin/bash
+
+# rustc (for CMLFS-based systems) 
+# Source: https://static.rust-lang.org/dist/rustc-1.73.0-src.tar.xz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cargo rustc-bootstrap libffi libxml2 curl cmake 
+# Recommended:  NONE
+# Optional:     patchelf
+
+# Apply patches from Chimera Linux 
+patch -Np1 -i ../patches/rust-1.73.0-chimera/0001-add-chimera-targets-always-dynamic-musl-static-pie.patch 
+patch -Np1 -i ../patches/rust-1.73.0-chimera/0002-remove-a-bunch-of-unused-junk.patch 
+patch -Np1 -i ../patches/rust-1.73.0-chimera/0003-move-debugger-scripts-to-usr-share-rust.patch 
+patch -Np1 -i ../patches/rust-1.73.0-chimera/0004-fix-shebang-on-install-template.sh.patch 
+patch -Np1 -i ../patches/rust-1.73.0-chimera/0005-get-rid-of-wrong-linkage.patch 
+patch -Np1 -i ../patches/rust-1.73.0-chimera/0006-do-not-install-libunwind-source-removed.patch 
+patch -Np1 -i ../patches/rust-1.73.0-chimera/0007-fix-rustdoc-when-cross-compiling.patch 
+patch -Np1 -i ../patches/rust-1.73.0-chimera/0008-link-stage-2-tools-dynamically-to-libstd.patch 
+patch -Np1 -i ../patches/rust-1.73.0-chimera/0009-use-CBUILD_TARGET_SYSROOT-to-locate-llvm-when-cross-.patch
+patch -Np1 -i ../patches/rust-1.73.0-chimera/0010-do-not-export-LD_LIBRARY_PATH.patch
+patch -Np1 -i ../patches/rust-1.73.0-chimera/0011-drop-latomic-on-riscv-and-elsewhere.patch
+patch -Np1 -i ../patches/rust-1.73.0-chimera/0012-fix-rustix-on-big-endian-ppc64.patch
+
+# Don't set this variable, causes curl to fail to download
+#export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt 
+
+export OPENSSL_NO_VENDOR=1 RUST_BACKTRACE=1 
+export BOOTSTRAP=0 rlib_dir=/usr/lib/rustlib/x86_64-pc-linux-musl
+export RUSTFLAGS="" PKG_CONFIG_ALLOW_CROSS=1
+
+# Set cargo variables?
+export HOST_CC="clang" HOST_CFLAGS="-O2" ZSTD_SYS_USE_PKG_CONFIG=1
+export PCRE2_SYS_STATIC=0  LIBSSH2_SYS_USE_PKG_CONFIG=1
+export LIBGIT2_NO_VENDOR=1 CARGO_BUILD_JOBS=2 CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
+export PKG_CONFIG_ALLOW_CROSS=1 
+
+# Using patches from Chimera Linux introduces required variables
+# Not sure if omitting patch 0009 is a good idea. For now:
+export CBUILD_TARGET_SYSROOT="/"
+
+# May need to add new "target" spec
+# compiler/rustc_target/src/spec/x86_64_unknown_linux_musl.rs
+# compiler/rustc_target/src/spec/x86_64_pc_linux_musl.rs
+# compiler/rustc_target/src/spec/x86_64_cmlfs_linux_musl.rs << preferred ?
+#
+# Host & build target specs are limited by the bootstrap rustc. To check:
+# rustc --print target-list
+#
+# Add new target spec [for target] to
+# compiler/rustc_target/src/spec/mod.rs
+#
+# Create "new target spec":
+cat > compiler/rustc_target/src/spec/x86_64_pc_linux_musl.rs << "EOF"
+use crate::spec::Target;
+
+pub fn target() -> Target {
+    let mut base = super::x86_64_unknown_linux_musl::target();
+
+    base.llvm_target = "x86_64-pc-linux-musl".into();
+    base.options.vendor = "pc".into();
+
+    base
+}
+EOF
+
+# Add "new target spec" to list of "supported targets"
+sed -i '1272 i \    \("x86_64-pc-linux-musl", x86_64_pc_linux_musl), ' \
+	compiler/rustc_target/src/spec/mod.rs
+
+# Don't use bundled llvm, not patched for musl
+rm -rf src/llvm-project
+
+# Clear vendor checksums 
+for d in libc libc-0.2.138 libc-0.2.140 libc-0.2.146 rustix-0.38.2 
+do
+	sed -i 's/\("files":{\)[^}]*/\1/' vendor/$d/.cargo-checksum.json
+done
+
+# Compiling will invoke c++ instead of g++ or clang++
+sudo ln -sv clang-15 /usr/bin/c++
+
+# Configure scripts seem to always fail. Use a config.toml instead.
+# Copy build config
+cp -v ../files/config.toml.rustc config.toml
+
+# Build & pack up as a distributive archive
+read -p "Compile?" && \
+env -u $PKGCONFIG -- python3 ./x.py dist -v --jobs 2
+
+# Unpack to "install' to staging area
+sudo mkdir /TBUILD
+sudo tar xf build/dist/rustc-1.73.0-x86_64-chimera-linux-musl.tar.xz -C /TBUILD
+sudo tar xf build/dist/rust-std-1.73.0-x86_64-pc-linux-musl.tar.xz   -C /TBUILD
+sudo tar xf build/dist/rust-std-1.73.0-x86_64-chimera-linux-musl.tar.xz -C /TBUILD
+sudo tar xf build/dist/rustc-dev-1.73.0-x86_64-chimera-linux-musl.tar.xz -C /TBUILD
+sudo tar xf build/dist/rust-src-1.73.0.tar.xz -C /TBUILD
+
+# Install rustc & rust-std to staging area 
+cd /TBUILD/rustc-1.73.0-x86_64-chimera-linux-musl
+sudo ./install.sh --destdir=$BUILD --prefix=/opt/rustc-1.73.0
+cd /TBUILD/rust-std-1.73.0-x86_64-pc-linux-musl
+sudo ./install.sh --destdir=$BUILD --prefix=/opt/rustc-1.73.0
+cd /TBUILD/rust-std-1.73.0-x86_64-chimera-linux-musl
+sudo ./install.sh --destdir=$BUILD --prefix=/opt/rustc-1.73.0
+cd /TBUILD/rustc-dev-1.73.0-x86_64-chimera-linux-musl
+sudo ./install.sh --destdir=$BUILD --prefix=/opt/rustc-1.73.0
+cd /TBUILD/rust-src-1.73.0
+sudo ./install.sh --destdir=$BUILD --prefix=/opt/rustc-1.73.0
+
+sudo ln -sv rustc-1.73.0 $BUILD/opt/rustc 
+
+# Set runtime path
+sudo patchelf --set-rpath /opt/rustc-1.73.0/lib $BUILD/opt/rustc-1.73.0/bin/rustc
+
+# Clean up
+sudo rm -v /usr/bin/c++
+sudo rm -rf /TBUILD
+unset OPENSSL_NO_VENDOR RUST_BACKTRACE BOOTSTRAP rlib_dir
+unset HOST_CC  HOST_CFLAGS  ZSTD_SYS_USE_PKG_CONFIG
+unset LIBGIT2_NO_VENDOR CARGO_BUILD_JOBS CARGO_PROFILE_RELEASE_CODEGEN_UNITS
+unset PKG_CONFIG_ALLOW_CROSS CBUILD_TARGET_SYSROOT
+
+# Remove clutter
+sudo rm -v  $BUILD/opt/rustc-1.73.0/lib/rustlib/manifest-*
+sudo rm -v  $BUILD/opt/rustc-1.73.0/lib/rustlib/{components,uninstall.sh,install.log,rust-installer-version} 
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+rustc: rustc
+rustc:
+rustc: Rust is a curly-brace, block-structured expression language.
+rustc: Includes rust-std and rustc. Requires cargo.
+rustc:
+rustc: Homepage: https://rust-lang.org
+rustc:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/rustc-1.73.0-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
