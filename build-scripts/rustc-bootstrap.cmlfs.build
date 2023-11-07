@@ -1,0 +1,103 @@
+#! /bin/bash
+
+# rustc bootstrap (Chimera Linux) 1.72.0
+# Source: https://repo.chimera-linux.org/distfiles/rustc-1.72.0-x86_64-chimera-linux-musl.tar.xz 
+# Source: https://repo.chimera-linux.org/distfiles/rust-std-1.72.0-x86_64-chimera-linux-musl.tar.xz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     patchelf ncurses gcc
+# Recommended:  NONE
+# Optional:     NONE
+
+# NOTE: For CMLFS, prebuilt cargo from Alpine cannot be used. It segfaults
+# NOTE: For CMLFS, the downloaded rust toolchain from rust-lang.org does not work for
+#       bootstrapping cargo. Use cargo from rust-lang.org and rustc from Chimera
+# NOTE: Using cargo from www.rust-lang.org via:
+#       curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+#       ... will download a static cargo that expects to find libgcc_s.so.1 in
+#       /usr/lib
+
+
+# Unpack all both packages
+tar xf pkgs/rustc-1.72.0-x86_64-chimera-linux-musl.tar.xz
+tar xf pkgs/rust-std-1.72.0-x86_64-chimera-linux-musl.tar.xz 
+
+# Install rustc
+cd rustc-1.72.0-x86_64-chimera-linux-musl
+sudo ./install.sh --prefix=/opt/rustc --destdir=$BUILD
+cd -
+
+# Install rust-std
+cd rust-std-1.72.0-x86_64-chimera-linux-musl
+sudo ./install.sh --prefix=/opt/rustc --destdir=$BUILD
+cd -
+
+# Download minimal rust toolchain from www.rust-lang.org
+# select minimal, no change in user's PATH
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Clean up
+rm -rf rust-std-1.72.0-x86_64-chimera-linux-musl \
+       rustc-1.72.0-x86_64-chimera-linux-musl \
+
+# Setup link to change rustc versions
+sudo mv -v $BUILD/opt/rustc $BUILD/opt/rustc-1.72.0
+sudo ln -sv rustc-1.72.0 $BUILD/opt/rustc
+
+# Add runtime path to use ncurses in /opt/ncurses
+sudo patchelf --set-rpath /opt/ncurses/lib $BUILD/opt/rustc/lib/librustc_driver-*
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+               |-----handy-ruler------------------------------------------------------|
+rustc-bootstrap: rustc-bootstrap
+rustc-bootstrap:
+rustc-bootstrap: Rustc built by Chimera Linux. Repacked as a bootstrap for building 
+rustc-bootstrap: rust from source.
+rustc-bootstrap: 
+rustc-bootstrap: https://repo.chimera-linux.org/distfiles
+rustc-bootstrap:
+rustc-bootstrap:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/rustc-bootstrap-1.72.0-$(uname -m)-chimera.txz &&
+sudo -S rm -rf ${BUILD}/*
+
+cd $BUILD
+sudo mkdir -pv $BUILD/opt/rustc-1.72.0/bin
+
+# Install static cargo
+sudo cp -va $HOME/.cargo/bin/cargo $BUILD/opt/rustc-1.72.0/bin/
+
+# Create the link for static cargo:
+sudo mkdir -pv $BUILD/usr/lib
+sudo ln -sv /opt/gnu/lib/libgcc_s.so.1 $BUILD/usr/lib/libgcc_s.so.1
+
+# Clean up
+rm -rf $HOME/.cargo
+
+# Build package
+sudo -S mkdir -v ${BUILD}/install
+cat > /tmp/slack-desc << "EOF"
+               |-----handy-ruler------------------------------------------------------|
+cargo-bootstrap: cargo bootstrap
+cargo-bootstrap:
+cargo-bootstrap: Chimera Linux built cargo, repacked as a package for bootstrapping 
+cargo-bootstrap: build of cargo & rustc.
+cargo-bootstrap:
+cargo-bootstrap: https://repo.chimera-linux.org/distfiles 
+cargo-bootstrap: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ 
+sudo -S makepkg -l y -c n $PKGS/cargo-bootstrap-1.72.0-$(uname -m)-chimera.txz 
+sudo -S rm -rf ${BUILD}/*
