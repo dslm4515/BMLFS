@@ -11,9 +11,15 @@
 # Recommended:  NONE
 # Optional:     Python2
 
+# Per Arch Linux, regenerate configure script
+autoreconf -fiv && 
+
 # Disable python 2 bindings, unless python2 is installed
 ./configure --prefix=/usr --sysconfdir=/etc \
 	    --without-python  $BUILDTRUPLE &&
+
+# Pwe Arch Linux, prevent excessive overlinking due to libtool
+sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
 
 read -p "Compile?" && make -j2 &&
 
@@ -44,7 +50,7 @@ volume_key:
 volume_key:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/volume_key-0.3.12-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/volume_key-0.3.12-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 volume_key-doc: Manuals for volume_key 
@@ -57,5 +63,5 @@ volume_key-doc: https://pagure.io/volume_key/
 volume_key-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/volume_key-doc-0.3.12-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/volume_key-doc-0.3.12-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
