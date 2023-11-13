@@ -1,0 +1,143 @@
+#! /bin/bash
+
+# Mesa Amber
+# Source:  https://gitlab.freedesktop.org/mesa/mesa.git
+# Commit:  49279914573cacbf595dab63aa989164a5021294
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     LLVM, libdrm, Mako
+# Recommended:  Libva, libvdpau(for Xorg), wayland-protocols, libglvnd, spirv-headers
+# Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind, vulkan-headers (vulkan support/driver)
+# Optional:     vulkan-loader (vulkan support), libclc(vulkan-support), libxcb(for Xorg), libX11(for Xorg)
+# Optional:     libxshmfence(for Xorg), libXxf86vm(for Xorg), libXrandr(for Xorg)
+
+# NOTE: Installing lastest Mesa & Mesa-amber together have not been tested
+
+git clone https://gitlab.freedesktop.org/mesa/mesa.git -b amber --depth=1
+cd mesa
+git checkout 49279914573cacbf595dab63aa989164a5021294
+
+# Apply Patches from Chimera
+patch -Np1 -i ../patches/mesa-amber-21.3.9-chimera/0001-radeonsi-On-Aarch64-force-persistent-buffers-to-GTT.patch 
+patch -Np1 -i ../patches/mesa-amber-21.3.9-chimera/add-use-elf-tls.patch
+patch -Np1 -i ../patches/mesa-amber-21.3.9-chimera/musl-endian.patch 
+patch -Np1 -i ../patches/mesa-amber-21.3.9-chimera/musl-stacksize.patch
+patch -Np1 -i ../patches/mesa-amber-21.3.9-chimera/musl.patch 
+patch -Np1 -i ../patches/mesa-amber-21.3.9-chimera/no-unlink-megadrivers.patch
+
+# Apply patches to support LLVM-15.x.x Skip, if using LLVM 16.x.x or newer
+
+export CFLAGS="$CFLAGS -D_XOPEN_SOURCE=700" &&
+# Not sure there are drivers for ARM that are in mesa-amber but not in mainstream mesa
+# For x86:
+export GLL_DRV="swrast,r600,r300,i915"
+export DRI_DRIVERS="i965,r100,r200"
+export V_DRIVERS="amd,intel,swrast"
+
+# Available options:
+# GLL_DRV     = kmsro radeonsi r300 r600 nouveau freedreno swrast v3d ethaviv tegra 
+#               i915 svga virgl swr panfrost iris lima zink d3d12 asahi crocus
+#
+# DRI_DRIVERS = i915 i965 r100 r200 nouveau
+#
+# V_DRIVERS   = amd broadcom freeadreno intel panfrost swrast virtio-experimental
+
+
+# Set configure flags
+export  BUILDOPT="-Dbuildtype=release "
+export BUILDOPT+="-Dllvm=enabled "
+export BUILDOPT+="-Dshared-llvm=enabled "
+export BUILDOPT+="-Dosmesa=true "
+export BUILDOPT+="-Dvalgrind=false "
+
+export  GFXOPT="-Dglx=dri "
+export GFXOPT+="-Dglx-read-only-text=true "
+export GFXOPT+="-Dxlib-lease=enabled "
+export GFXOPT+="-Ddri3=enabled "
+export GFXOPT+="-Dopengl=true "
+export GFXOPT+="-Degl=enabled "
+export GFXOPT+="-Dgles2=enabled "
+export GFXOPT+="-Dgles1=enabled "
+export GFXOPT+="-Dshared-glapi=enabled "
+
+export DRVROPT="-Degl-native-platform=wayland "
+
+export  GALLIUMOPT="-Dgallium-va=enabled "
+export GALLIUMOPT+="-Dgallium-xa=enabled "
+export GALLIUMOPT+="-Dgallium-xvmc=false "
+export GALLIUMOPT+="-Dgallium-nine=true "
+export GALLIUMOPT+="-Dgallium-vdpau=true "
+
+# if libclc is installed:
+export  XTRA_OPTS="-Dgallium-opencl=icd " 
+# if libglvnd is installed
+export XTRA_OPTS+="-Dglvnd=true "
+# if spirv-llvm-translator is installed:
+export XTRA_OPTS+="-Dopencl-spirv=true -Dspirv-to-dxil=true "
+
+# For intel graphics only (i.e. intergrated graphics on some laptops)
+# then only enable these drivers:
+export DRI_DRIVERS="i965"
+export GLL_DRV="i915,svga,swrast" # add r600 if libdrm supports radeon to enable libva & vdpau
+export V_DRIVERS="swrast,intel"
+export  GALLIUMOPT="-Dgallium-va=disabled " # enable if libdrm supports radeon and/or nvidia
+export GALLIUMOPT+="-Dgallium-xa=enabled "
+export GALLIUMOPT+="-Dgallium-xvmc=false "
+export GALLIUMOPT+="-Dgallium-nine=true "
+export GALLIUMOPT+="-Dgallium-vdpau=disabled " # enable if libdrm supports radeon and/or nvidia
+
+# If glslang is installed, vulkan layers an be built
+export V_LAYERS="-Dvulkan-layers=device-select,overlay,intel-nullhw "
+
+# LLVM 15.x is not supported. If building without LLVM:
+export V_DRIVERS="amd,intel"
+export GLL_DRV="r600,r300,i915,radeonsi,crocus,iris,nouveaui"
+export DRI_DRIVERS="i965,r100,r200,nouveau"
+export  BUILDOPT="-Dbuildtype=release -Dllvm=disabled -Dosmesa=false "
+export BUILDOPT+="-Dvalgrind=false "
+export  GALLIUMOPT="-Dgallium-va=enabled -Dgallium-xa=enabled "
+export GALLIUMOPT+="-Dgallium-xvmc=false -Dgallium-nine=false "
+export GALLIUMOPT+="-Dgallium-vdpau=true -Dgallium-opencl=disabled "
+export XTRA_OPTS="-Dglvnd=true -Dopencl-spirv=true -Dspirv-to-dxil=true " #if libglvnd & spirv-llvm-translator installed
+
+meson setup --prefix=/usr -Damber=true \
+      -Dvulkan-drivers="${V_DRIVERS}" -Dgallium-drivers="${GLL_DRV}" \
+      -Ddri-drivers="${DRI_DRIVERS}" -Dplatforms=wayland,x11 -Dtools=glsl \
+      $BUILDOPT $GFXOPT $DRVROPT $GALLIUMOPT $V_LAYERS  $XTRA_OPTS OUT
+
+ninja -C OUT src/compiler/nir/nir_intrinsics.h
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+unset CFLAGS GLL_DRV DRI_DRIVERS MESA_GIT_SHA1_OVERRIDE V_DRIVERS &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+          |-----handy-ruler------------------------------------------------------|
+mesa-amber: mesa-amber (a 3-D graphics library)
+mesa-amber:
+mesa-amber: Mesa is a 3-D graphics library with an API very similar to that of
+mesa-amber: another well-known 3-D graphics library. The Mesa libraries are used
+mesa-amber: by X to provide both software and hardware accelerated graphics.
+mesa-amber:
+mesa-amber: This version includes the retired classic drivers
+mesa-amber:
+mesa-amber: Homepage: https://www.mesa3d.org
+mesa-amber: 
+mesa-amber:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+
+sudo -S makepkg -l y -c n $PKGS/mesa-amber-21.3.9-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
