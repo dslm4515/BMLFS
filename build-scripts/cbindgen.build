@@ -1,19 +1,18 @@
 #! /bin/bash
 
 # Cbindgen
-# Source: https://github.com/eqrion/cbindgen/archive/v0.21.0/cbindgen-0.21.0.tar.gz
+# Source: https://github.com/mozilla/cbindgen/archive/v0.26.0/cbindgen-0.26.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     rustc
+# Required:     rustc cargo
 # Recommended:  NONE
 # Optional:     NONE
 
-# Builds with rustc 1.59.0 (9d1b2106e 2022-02-23), from rustup
-
-read -p "Compile?" && cargo build --release --locked --verbose &&
+#read -p "Compile?" && cargo build --release --locked --verbose &&
+cargo build --release
 
 sudo -S  mkdir -pv  ${BUILD}/usr/bin   &&
 sudo -S install -Dm0755 target/release/cbindgen -t ${BUILD}/usr/bin &&
@@ -40,5 +39,5 @@ cbindgen:
 cbindgen:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cbindgen-0.15.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/cbindgen-0.26.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
