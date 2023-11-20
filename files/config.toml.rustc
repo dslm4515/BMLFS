@@ -9,9 +9,15 @@ targets = 'X86'
 
 [build]
 
-build = 'x86_64-chimera-linux-musl'
-host = ['x86_64-chimera-linux-musl']
-target = ['x86_64-chimera-linux-musl','x86_64-pc-linux-musl']
+# This is set the host triplet to 'x86_64-chimera-linux-musl
+# and will cause firefox source to fail configuration
+#build = 'x86_64-chimera-linux-musl'
+#host = ['x86_64-chimera-linux-musl']
+#target = ['x86_64-chimera-linux-musl','x86_64-pc-linux-musl']
+
+build = 'x86_64-unknown-linux-musl'
+host = ['x86_64-unknown-linux-musl']
+target = ['x86_64-unknown-linux-musl']
 
 cargo = '/opt/rustc-1.73.0/bin/cargo'
 rustc = '/opt/rustc/bin/rustc'
@@ -61,16 +67,16 @@ llvm-libunwind = 'system'
 src-tarball = true
 compression-formats = ['xz']
 
-[target.x86_64-chimera-linux-musl]
-cc = '/usr/bin/clang'
-cxx = '/usr/bin/clang++'
-ar = '/usr/bin/ar'
-ranlib = '/usr/bin/ranlib'
-linker = '/usr/bin/clang'
-llvm-config = '/usr/bin/llvm-config'
-crt-static = false
+#[target.x86_64-chimera-linux-musl]
+#cc = '/usr/bin/clang'
+#cxx = '/usr/bin/clang++'
+#ar = '/usr/bin/ar'
+#ranlib = '/usr/bin/ranlib'
+#linker = '/usr/bin/clang'
+#llvm-config = '/usr/bin/llvm-config'
+#crt-static = false
 
-[target.x86_64-pc-linux-musl]
+[target.x86_64-unknown-linux-musl]
 cc = '/usr/bin/clang'
 cxx = '/usr/bin/clang++'
 ar = '/usr/bin/ar'
