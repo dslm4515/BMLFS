@@ -7,7 +7,7 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     ATKmm-1.6, GTK+4, Pangomm-1.4
+# Required:     ATKmm-1.6, GTK+3, Pangomm-1.4
 # Recommended:  NONE
 # Optional:     NONE
 
