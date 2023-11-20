@@ -1,7 +1,6 @@
 #! /bin/bash
 
 # TMUX
-# Source: https://github.com/tmux/tmux/releases/download/3.2a/tmux-3.2a.tar.gz
 # Source: https://github.com/tmux/tmux/releases/download/3.3a/tmux-3.3a.tar.gz
 #
 # $BUILD = Directory to temporarily install
@@ -54,5 +53,5 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/tmux-3.2a-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS/tmux-3.3a-$PSUFFIX &&
 sudo rm -rf $BUILD/* 
