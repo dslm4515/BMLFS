@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # c-ares
-# Source: https://c-ares.haxx.se/download/c-ares-1.18.1.tar.gz
+# Source: https://c-ares.haxx.se/download/c-ares-1.22.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -44,7 +44,7 @@ c-ares:
 c-ares:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/c-ares-1.18.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/c-ares-1.22.0-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 c-ares-doc: Manuals for c-ares (C library for DNS requests)
@@ -57,6 +57,6 @@ c-ares-doc: http://c-ares.haxx.se/
 c-ares-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/c-ares-doc-1.18.1-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/c-ares-doc-1.22.0-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
