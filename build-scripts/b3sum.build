@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# blake3 
+# Source: https://crates.io/api/v1/crates/b3sum/1.5.0/download
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cargo rustc
+# Recommended:  NONE
+# Optional:     NONE
+
+mv download b3sum-1.5.0.tar.gz
+tar xf b3sum-1.5.0.tar.gz
+cd b3sum-1.5.0
+
+cargo build --release 
+
+sudo install -Dm755 target/release/b3sum -t $BUILD/usr/bin
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+b3sum: b3sum
+b3sum:
+b3sum: Command line implementation of the BLAKE3 hash function
+b3sum:
+b3sum: https://blake3.io
+b3sum:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/b3sum-1.5.0-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
