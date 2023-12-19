@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Cairo 
-# Source: https://download.gnome.org/sources/cairo/1.17/cairo-1.17.6.tar.xz
+# Source: https://www.cairographics.org/releases/cairo-1.18.0.tar.xz
 # Source: https://github.com/freedesktop/cairo.git
 # Commit Hash: f8967015029e2c1c59913a2a684c74f62b6e8979 
 # Commit Hash: 06f405c775f46e29a7cc89b03fba9ab71a3f2623 (newer)
@@ -22,68 +22,15 @@ export CFLAGS+="-fno-math-errno -fno-semantic-interposition "
 export CFLAGS+="-fno-trapping-math -fstack-protector-strong -fzero-call-used-regs=used "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-# Disable Cairo-trace, as it is not needed and causes premature build fail.
-#patch -Np1 -i ../patches/cairo-mlfs/disable-trace.patch
-
-# Meson build broken. Use autotools
-./autogen.sh \
-		--prefix=/usr           --sysconfdir=/etc  \
-		--localstatedir=/var    --enable-ft        \
-		--enable-gobject        --enable-pdf       \
-		--enable-png            --enable-ps        \
-		--enable-svg            --enable-tee       \
-   		--enable-xcb       \
-		--enable-xcb-shm        --enable-xlib      \
-		--enable-xlib-xrender   --disable-xlib-xcb \
-		--disable-static        --enable-gl        \
-		--enable-xlib-xcb       --enable-trace=no  $BUILDTRUPLE && \
-read -p "Compile?" && make -j2                  && \
-sudo -S make DESTDIR=$BUILD install             && \
-
-## For building without GLX:
-./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-ft \
-	--enable-gobject --enable-pdf --enable-png --enable-ps --enable-tee \
-	--enable-xcb --enable-xcb-shm --enable-xlib --enable-xlib-xcb --disable-static \
-	--enable-glesv2=no --enable-glesv3=yes --enable-egl=yes --enable-trace=no \
-        --enable-glx=no --enable-test-surfaces=no $BUILDTRUPLE &&	
-
-## For building without Xorg
-./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-ft \
-        --enable-gobject --enable-pdf --enable-png --enable-ps --enable-tee --disable-static \
-        --enable-glesv2=yes --enable-glesv3=yes --enable-egl=yes --enable-trace=no \
-        --enable-glx=no --enable-test-surfaces=no $BUILDTRUPLE
-
-# Meson build now broken. Use autotools
-#meson --prefix=/usr \
-#	-Ddrm="enabled" \
-#	-Dfontconfig="enabled" \
-#	-Dfreetype="enabled" \
-#	-Dgl-backend="glesv3" \
-#	-Dglesv2="enabled" -Dglesv3="enabled" \
-#	-Dpng="enabled" \
-#	-Dtee="enabled" \
-#	-Dxcb="enabled" \
-#	-Dxlib="enabled" \
-#	-Dcogl="enabled" \
-#	-Dtests="disabled" OUT && \
+# If Xorg/Xwayland is installed:
+meson setup --prefix=/usr --buildtype=release -Dxlib-xcb=enabled -Dtests=disabled OUT
 
 # For building without Xorg
-#meson --prefix=/usr \
-#        -Ddrm="enabled" \
-#        -Dfontconfig="enabled"\
-#        -Dfreetype="enabled" \
-#        -Dgl-backend="glesv3" \
-#        -Dglesv2="enabled" -Dglesv3="enabled" \
-#        -Dpng="enabled" \
-#        -Dtee="enabled" \
-#        -Dxcb="disabled" \
-#        -Dxlib="disabled" \
-#        -Dtests="disabled" OUT
+meson setup --prefix=/usr --buildtype=release -Dxlib-xcb=disabled -Dtests=disabled OUT
 
+ninja -C OUT -j2                && \
 
-#ninja -C OUT -j2                && \
-
-#sudo -S DESTDIR=$BUILD ninja -C OUT install    && \
+sudo -S DESTDIR=$BUILD ninja -C OUT install    && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install && \
 cat > /tmp/slack-desc << "EOF"
@@ -108,5 +55,5 @@ cairo:
 cairo:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cairo-1.17.6-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/cairo-1.18.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
