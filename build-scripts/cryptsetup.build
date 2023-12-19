@@ -18,7 +18,8 @@ export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
 export CXXFLAGS=$CFLAGS
 unset LDFLAGS
 
-./configure --prefix=/usr --with-crypto_backend=openssl --enable-libargon2 $BUILDTRUPLE &&
+./configure --prefix=/usr --with-crypto_backend=openssl \
+	    --enable-libargon2 --disable-ssh-token $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -48,7 +49,7 @@ cryptsetup: cryptsetup home: http://luks.endorphin.org/dm-crypt
 cryptsetup:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cryptsetup-2.4.3-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/cryptsetup-2.4.3-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 cryptsetup-doc: Manuals for cryptsetup
@@ -59,5 +60,5 @@ cryptsetup-doc: http://luks.endorphin.org/dm-crypt
 cryptsetup-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/cryptsetup-doc-2.4.3-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/cryptsetup-doc-2.4.3-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/*
