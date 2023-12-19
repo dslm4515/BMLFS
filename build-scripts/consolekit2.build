@@ -1,0 +1,70 @@
+#! /bin/bash
+
+# consolekit2
+# Source: https://github.com/ConsoleKit2/ConsoleKit2/archive/refs/tags/1.2.6.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $AnthonyPKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     dbus glib polkit libdrm xorg-server
+# Recommended:  NONE
+# Optional:     NONE
+
+NOCONFIGURE=1 ./autogen.sh &&
+
+./configure --prefix=/usr --localstatedir=/var \
+            --sysconfdir=/etc --disable-static \
+	    --enable-polkit --enable-pam-module \
+	    --enable-udev-acl 
+
+sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+cat > /tmp/pam-foreground-compat.ck << "EOF"
+#!/bin/sh
+TAGDIR=/var/run/console
+
+[ -n "$CK_SESSION_USER_UID" ] || exit 1
+[ "$CK_SESSION_IS_LOCAL" = "true" ] || exit 0
+
+TAGFILE="$TAGDIR/`getent passwd $CK_SESSION_USER_UID | cut -f 1 -d:`"
+
+if [ "$1" = "session_added" ]; then
+	mkdir -p "$TAGDIR"
+	echo "$CK_SESSION_ID" >> "$TAGFILE"
+fi
+
+if [ "$1" = "session_removed" ] && [ -e "$TAGFILE" ]; then
+	sed -i "\%^$CK_SESSION_ID\$%d" "$TAGFILE"
+	[ -s "$TAGFILE" ] || rm -f "$TAGFILE"
+fi
+EOF
+
+sudo -E install -m 755 -v /tmp/pam-foreground-compat.ck $BUILD/usr/lib/ConsoleKit/run-session.d/ 
+sudo -E mkdir -pv $BUILD/usr/share/dbus-1/system.d/
+sudo -E mv -v $BUILD/etc/dbus-1/system.d/* $BUILD/usr/share/dbus-1/system.d/
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+consolekit2: consolekit2
+consolekit2:
+consolekit2: A framework for defining and tracking users, login sessions, and 
+consolekit2: seats.
+consolekit2:
+consolekit2: https://github.com/ConsoleKit2/ConsoleKit2
+consolekit2:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/consolekit2-1.2.6-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
