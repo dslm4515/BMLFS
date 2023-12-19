@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Desktop File Utils 
-# Source: https://www.freedesktop.org/software/desktop-file-utils/releases/desktop-file-utils-0.26.tar.xz
+# Source: https://www.freedesktop.org/software/desktop-file-utils/releases/desktop-file-utils-0.27.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -45,7 +45,7 @@ desktop-file-utils:  operations on them.
 desktop-file-utils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/desktop-file-utils-0.26-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/desktop-file-utils-0.27-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 desktop-file-utils-doc: Manuals for desktop-file-utils
@@ -54,5 +54,5 @@ desktop-file-utils-doc: Some utilities from freedesktop.org for handling .deskto
 desktop-file-utils-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/desktop-file-utils-doc-0.26-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/desktop-file-utils-doc-0.27-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
