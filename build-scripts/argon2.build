@@ -16,11 +16,17 @@ export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
+# use explizit_bzero on musl
+patch -Np1 -i ../patches/argon2-chimera/explicit-bzero.patch
+
+# Fix libdir for pkgconfig
+patch -Np1 -i ../patches/argon2-chimera/libdir.patch 
+
 export CFLAGS="$CFLAGS -DHAVE_EXPLICIT_BZERO=1" &&
 
 read -p "Compile?" && make OPTTARGET=none -j2 &&
 
-sed -i 's#libdir=${prefix}/lib#libdir=/lib#' libargon2.pc &&
+#sed -i 's#libdir=${prefix}/lib#libdir=/lib#' libargon2.pc &&
 sudo -S make OPTTARGET=none DESTDIR=$BUILD LIBRARY_REL=lib install &&
 unset CFLAGS &&
 
@@ -47,5 +53,5 @@ argon2:
 argon2: Homepage: https://github.com/P-H-C/phc-winner-argon2
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/argon2-2019.07.02-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/argon2-2019.07.02-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
