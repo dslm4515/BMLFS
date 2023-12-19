@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # FreeCiv 
-# Source:  http://files.freeciv.org/stable/freeciv-3.0.0.tar.bz2
+# Source:  http://files.freeciv.org/stable/freeciv-3.0.8.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -9,8 +9,8 @@
 # DEPS
 # Required:     libcurl sqlite
 # Recommended:  SDL2_gfx SDL2_image SDL2_mixer 
-# Recommended:  SDL2_ttf SDL2_ttf   GTK+3
-# Optional:     qt5-qtwayland lua gtk+2
+# Recommended:  SDL2_ttf GTK+3
+# Optional:     qt5-qtwayland lua gtk+2 gtk4
 
 # Version 3.x: Dropped Xaw & SDL clients. GTK+2 client is now depreciated.
 
@@ -27,7 +27,7 @@ export QCONFIG=""
 
 PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/opt/qt5/lib/pkgconfig \
 ./configure --prefix=/usr --sysconfdir=/etc $BUILD_CLIENTS $QCONFIG  \
-	    --enable-debug=no --enable-fcmp=gtk3,gtk4,cli --enable-fcdb=sqlite3 \
+	    --enable-debug=no --enable-fcmp=gtk3,cli --enable-fcdb=sqlite3 \
             --enable-ipv6=yes --with-readline --enable-shared $BT
 
 
@@ -62,7 +62,7 @@ freeciv: Homepage: http://www.freeciv.org/
 freeciv:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/freeciv-3.0.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/freeciv-3.0.8-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 freeciv-doc: Manuals for freeciv (turn-based multiplayer strategy game)
@@ -75,6 +75,6 @@ freeciv-doc: http://www.freeciv.org/
 freeciv-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/freeciv-doc-3.0.0-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/freeciv-doc-3.0.8-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
