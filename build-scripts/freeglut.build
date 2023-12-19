@@ -34,9 +34,23 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr       \
       -Wno-dev .. &&
 read -p "Compile?" && make -j2 &&
 
+cd -
+mkdir build-gles && cd build-gles &&
+cmake -DCMAKE_INSTALL_PREFIX=/usr       \
+      -DCMAKE_BUILD_TYPE=Release        \
+      -DFREEGLUT_BUILD_DEMOS=OFF        \
+      -DFREEGLUT_BUILD_STATIC_LIBS=OFF  \
+      -DFREEGLUT_GLES=ON                \
+      -DFREEGLUT_WAYLAND=ON             \
+      -Wno-dev .. && \
+make -j2 && 
+
+cd build && 
 sudo -S make DESTDIR=$BUILD install && \
 sudo -S mkdir -pv ${BUILD}/usr/lib/pkgconfig/ && \
 sudo cp -a freeglut.pc ${BUILD}/usr/lib/pkgconfig/ && \
+cd build-gles && 
+sudo -S make DESTDIR=$BUILD install && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
