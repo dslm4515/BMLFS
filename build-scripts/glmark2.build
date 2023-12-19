@@ -2,7 +2,7 @@
 
 # glMark2 
 # Source: https://github.com/glmark2/glmark2 
-# Commit: 7d4c4da5d34e2e70a285c345c979e5e3c1eb2c3a
+# Commit: 5f23d540342ba69e12afeb6a1ac4f6fd36747975
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -50,5 +50,5 @@ glmark2: https://github.com/glmark2/glmark2
 glmark2:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/glmark2-2023.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/glmark2-2023.11-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
