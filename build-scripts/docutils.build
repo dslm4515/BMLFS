@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Docutils
-# Source: https://downloads.sourceforge.net/docutils/docutils-0.18.1.tar.gz
+# Source: https://downloads.sourceforge.net/docutils/docutils-0.20.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -14,9 +14,11 @@
 # if optimizing with GCC
 export  CFLAGS="-march=native -pipe "
 
-read -p "Compile?" && python3 setup.py build &&
+#read -p "Compile?" && python3 setup.py build &&
+pip3 wheel -w dist --no-build-isolation --no-deps $PWD
 
-sudo -S python3 setup.py install --optimize=1 --prefix=/usr --root=${BUILD} && 
+#sudo -S python3 setup.py install --optimize=1 --prefix=/usr --root=${BUILD} && 
+sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user docutils --root=${BUILD}
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -41,5 +43,12 @@ docutils:
 docutils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/docutils-0.18.1-$(uname -m)-mlfs.txz &&
+for f in usr/bin/rst*.py; do
+	sudo ln -svf $(basename $f) usr/bin/$(basename $f .py)
+done
+
+# Per LFS, byte code files for them will be installed which is not allowed by FHS
+sudo rm -rfv usr/bin/__pycache__
+
+sudo -S makepkg -l y -c n $PKGS/docutils-0.20.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
