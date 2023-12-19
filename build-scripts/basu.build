@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# Basu 
+# Source: https://git.sr.ht/~emersion/basu/refs/download/v0.2.1/basu-0.2.1.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     audit
+
+meson setup --prefix=/usr --buildtype=release OUT 
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+basu: basu - The sd-bus library, extracted from systemd
+basu:
+basu: Some projects rely on the sd-bus library for DBus support. However 
+basu: not all systems have systemd or elogind installed. This library 
+basu: provides just sd-bus (and the busctl utility).
+basu:
+basu: https://git.sr.ht/~emersion/basu
+basu: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/basu-0.2.1-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
