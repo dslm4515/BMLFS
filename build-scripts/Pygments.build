@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Pygments
-# Source: https://files.pythonhosted.org/packages/source/P/Pygments/Pygments-2.11.2.tar.gz
+# Source: https://files.pythonhosted.org/packages/source/P/Pygments/Pygments-2.16.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,9 +11,11 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-read -p "Compile?" && python3 setup.py build &&
+#read -p "Compile?" && python3 setup.py build &&
+pip3 wheel -w dist --no-build-isolation --no-deps --no-cache-dir $PWD
 
-sudo -S python3 setup.py install --optimize=1 --prefix=/usr --root=${BUILD} &&
+#sudo -S python3 setup.py install --optimize=1 --prefix=/usr --root=${BUILD} &&
+sudo -S pip3 install --no-index --find-links=dist --no-cache-dir --no-user Pygments --root=${BUILD}
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -38,5 +40,5 @@ Pygments:
 Pygments:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/Pygments-2.11.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/Pygments-2.16.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
