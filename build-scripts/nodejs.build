@@ -1,35 +1,61 @@
 #! /bin/bash
 
 # Node.js
-# Source: https://nodejs.org/dist/v16.14.0/node-v16.14.0.tar.gz
+# Source: https://nodejs.org/dist/v21.1.0/node-v21.1.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     Which, c-ares
-# Recommended:  ICU, libuv, nghttp2
+# Recommended:  ICU, libuv, nghttp2, brotli
 # Optional:     http-parser, NPM
 #
-# Node.js does not compile with LibreSSL. Use the bundled openssl.
+# NOTE: Node.js does not compile with LibreSSL. Use the bundled openssl OR OpenSSL
+#       in /opt/openssl
+
+# NOTE: Fails to compile with clanf. Must use GCC
+
+# Apply patches from Chimera Linux
+patch -Np1 -i ../patches/nodejs-chimera/clang-ppc64.patch 
+patch -Np1 -i ../patches/nodejs-chimera/disable-running-gyp-on-shared-deps.patch
+patch -Np1 -i ../patches/nodejs-chimera/riscv-backport-refactor.patch 
+patch -Np1 -i ../patches/nodejs-chimera/shared-uv.patch
 
 case $(uname -m) in
       i686) export LDFLAGS="-Wl,--no-keep-memory"             ;;
 esac
-export CFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"    &&
-export CXXFLAGS="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64"  &&
 
-#rm -rvf  deps/brotli  deps/cares deps/uv deps/zlib &&
+for d in brotli cares zlib
+do
+	rm -rf deps/$d
+done
+rm -rf deps/v8/third_party/jinja2
+rm -rf tools/inspector_protocol/jinja2
 
+# If using OpenSSL in /opt/openssl, add these aguments to configure:
+export  EOSSL="--shared-openssl-includes /opt/openssl/include "
+export EOSSL+="--shared-openssl-libpath /optn/openssl/lib "
+
+# If GCC is not in /usr, set the path (CMLFS)
+PATH=/opt/gnu/bin:$PATH CC=gcc CXX=g++ \
 ./configure --prefix=/usr --shared-zlib \
             --with-intl=system-icu     \
             --shared-libuv \
 	    --shared-nghttp2 \
-	    --shared-cares &&
+	    --shared-cares \
+	    --shared-brotli $EOSSL &&
 
+# If GCC is not in /usr, set the path & library path (CMLFS)
+PATH=/opt/gnu/bin:$PATH  LD_LIBRARY_PATH=/opt/gnu/lib:/usr/lib \
 make BUILDTYPE=Release -j2
 
-sudo -S -E make DESTDIR=$BUILD install &&
+#sudo -S -E make DESTDIR=$BUILD install &&
+
+# If GCC is not in /usr, set the path & library path (CMLFS)
+sudo -S -E PATH=/opt/gnu/bin:$PATH  LD_LIBRARY_PATH=/opt/gnu/lib:/usr/lib \
+make DESTDIR=$BUILD install 
+
 sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 unset CXXFLAGS CFLAGS LDFLAGS &&
@@ -57,7 +83,10 @@ nodejs:
 nodejs:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/nodejs-16.14.0-$(uname -m)-mlfs.txz && \
+# If GCC is not in /usr, add runpaths via pathcelf
+sudo patchelf --add-rpath /opt/gnu/lib usr/bin/node
+	
+sudo -S makepkg -l y -c n $PKGS/nodejs-21.1.0-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 nodejs-doc: Manuals for nodejs
@@ -69,5 +98,5 @@ nodejs-doc: https://nodejs.org/
 nodejs-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/nodejs-doc-16.14.0-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/nodejs-doc-21.1.0-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
