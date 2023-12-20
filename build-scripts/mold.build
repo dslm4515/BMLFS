@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# mold [MOdern Linker] 
+# Source:   https://github.com/rui314/mold/archive/refs/tags/v2.4.0.tar.gz
+# md5 hash: 8e692fe85d061e200bb66ef7a32d3ab2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cmake
+# Recommended:  NONE
+# Optional:     onetbb
+
+cmake -B OUT -DCMAKE_BUILD_TYPE=Release \
+	 -DCMAKE_INSTALL_PREFIX=/usr \
+	 -DMOLD_USE_MIMALLOC=OFF \
+	 -DMOLD_USE_SYSTEM_TBB=OFF
+
+read -p "Compile?" && make -C OUT -j2 &&
+
+sudo -S make DESTDIR=$BUILD -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+mold: mold
+mold: 
+mold: A faster drop-in replacement for existing Unix linkers. It is 
+mold: several times quicker than the LLVM lld linker, the 
+mold: second-fastest open-source linker. Mold aims to enhance 
+mold: developer productivity by minimizing build time, particularly 
+mold: in rapid debug-edit-rebuild cycles.
+mold: 
+mold: https://github.com/rui314/mold
+mold:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/mold-2.4.0-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
