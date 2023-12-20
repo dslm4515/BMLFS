@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# NuShell
+# Source: https://github.com/nushell/nushell/archive/refs/tags/0.87.1.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     rustc cargo
+# Recommended:  NONE
+# Optional:     NONE
+
+read -p "Compile?" && cargo build --release &&
+
+sudo -S mkdir -pv $BUILD/usr/bin && 
+
+sudo cp -av target/release/nu $BUILD/usr/bin/ &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+nushell: NuShell
+nushell:
+nushell: A new type of shell. It has native support for structured and typed 
+nushell: data, such as arrays, tables, records, numeric/boolean types, etc., 
+nushell: and offers syntax and built-ins that make it easy to query, filter, 
+nushell: sort, transform, convert, and otherwise manipulate various data 
+nushell: types in a shell-like workflow, and supports taking input and 
+nushell: producing output in many builtin or user-defined formats. 
+nushell:
+nushell: https://github.com/nushell/nushell
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/nushell-0.87.1-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
