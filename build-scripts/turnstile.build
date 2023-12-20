@@ -1,0 +1,52 @@
+#! /bin/bash
+
+# turnstile 
+# Source: https://github.com/chimera-linux/turnstile
+# Commit: 27f29a523cb75ba778ca538d319181a60c533eb4
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     linux-pam 
+# Recommended:  seatd
+# Optional:     NONE
+
+git clone https://github.com/chimera-linux/turnstile
+cd turnstile
+git checkout 27f29a523cb75ba778ca538d319181a60c533eb4
+
+meson setup --prefix=/usr -Ddinit=disabled -Dmanage_rundir=true OUT
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+turnstile: turnstile
+turnstile:
+turnstile: A work in progress effort to create a session/login tracker to serve
+turnstile: as a fully featured alternative to the logind subproject from 
+turnstile: systemd, and to provide a neutral API to both our session tracker 
+turnstile: and to logind itself.
+turnstile:
+turnstile: https://github.com/chimera-linux/turnstile
+turnstile:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/turnstile-0.1.8-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
+
+# If using turnstile to replace elogind/ConsoleKit2:
+# >> The PAM module needs to be in your login path. This will differ per-distro, 
+# >> but typically it will involve a line like this:
+# session optional pam_turnstile.so
