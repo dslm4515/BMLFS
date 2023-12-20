@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# lazygit 
+# Source: https://github.com/jesseduffield/lazygit/archive/refs/tags/v0.40.2.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     go git
+# Recommended:  NONE
+# Optional:     NONE
+
+read -p "Compile?" && go build &&
+
+sudo mkdir -pv $BUILD/usr/bin &&
+sudo cp -v lazygit $BUILD/usr/bin/ &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+lazygit: lazygit
+lazygit: 
+lazygit: A simple terminal UI for git commands, written in go.
+lazygit: 
+lazygit: 
+lazygit: 
+lazygit: https://github.com/jesseduffield/lazygit
+lazygit: 
+lazygit:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/lazygit-0.40.2-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
