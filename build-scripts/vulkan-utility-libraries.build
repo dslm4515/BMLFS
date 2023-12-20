@@ -1,0 +1,42 @@
+#! /bin/bash
+
+# Vulkan Utility Libraries
+# Source: https://github.com/KhronosGroup/Vulkan-Utility-Libraries/archive/refs/tags/vulkan-sdk-1.3.268.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     vulkan-headers
+# Recommended:  NONE
+# Optional:     NONE
+
+cmake -B OUT -DCMAKE_INSTALL_PREFIX=/usr \
+	     -DCMAKE_INSTALL_INCLUDEDIR="/usr/include/" \
+	     -DCMAKE_BUILD_TYPE=Release -Wno-dev 
+
+read -p "Compile?" && make -C OUT -j2 &&
+
+sudo -S make DESTDIR=$BUILD -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                        |-----handy-ruler------------------------------------------------------|
+vulkan-utility-libraries: vulkan-utility-libraries
+vulkan-utility-libraries:
+vulkan-utility-libraries: Utility libraries for Vulkan developers
+vulkan-utility-libraries: 
+vulkan-utility-libraries: https://github.com/KhronosGroup/Vulkan-Utility-Libraries/
+vulkan-utility-libraries:
+vulkan-utility-libraries:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/vulkan-utility-libraries-1.3.268.0-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
