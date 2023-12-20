@@ -7,9 +7,11 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     LLVM-15, CMake, spirv-headers, spirv-tools
+# Required:     LLVM-15, CMake, spirv-headers, spirv-tools 
 # Recommended:  NONE
 # Optional:     NONE
+
+# NOTE: For CMLFS, llvm-extra-tools, clang-analyzer is required.
 
 mkdir -v build && \
 cd       build && \
