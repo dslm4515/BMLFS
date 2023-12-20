@@ -1,13 +1,14 @@
 #! /bin/bash
 
 # Vulkan Validation Layers
-# Source: https://github.com/KhronosGroup/Vulkan-ValidationLayers/archive/refs/tags/v1.3.253.tar.gz
+# Source: https://github.com/KhronosGroup/Vulkan-ValidationLayers/releases/tag/vulkan-sdk-1.3.268.0
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     vulkan-headers spirv-tools glslang spirv-headers wayland
+# Required:     vulkan-utility-libraries
 # Recommended:  NONE
 # Optional:     robin_hood vulkanRegistry
 
@@ -50,5 +51,5 @@ vulkan-validation-layers: https://github.com/KhronosGroup/Vulkan-ValidationLayer
 vulkan-validation-layers:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/vulkan-validation-layers-1.3.253-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/vulkan-validation-layers-1.3.268.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
