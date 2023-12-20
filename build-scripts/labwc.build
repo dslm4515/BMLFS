@@ -1,8 +1,7 @@
 #! /bin/bash
 
 # labwc 
-# Source: https://github.com/labwc/labwc/archive/refs/tags/0.6.1.tar.gz
-# Source: https://github.com/labwc/labwc/archive/refs/tags/0.6.3.tar.gz
+# Source: https://github.com/labwc/labwc/archive/refs/tags/0.6.5.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,7 +12,7 @@
 # Recommended:  scdoc
 # Optional:     xorg-xwayland libxcb-errors libxcb 
 
-meson --prefix=/usr BUILD
+meson setup --prefix=/usr BUILD
 
 read -p "Compile?" && ninja -C BUILD -j2  &&
 
@@ -38,5 +37,5 @@ labwc: https://github.com/labwc/labwc
 labwc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/labwc-0.6.3-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/labwc-0.6.5-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
