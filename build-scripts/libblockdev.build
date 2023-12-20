@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libblockdev
-# Source: https://github.com/storaged-project/libblockdev/releases/download/2.26-1/libblockdev-2.26.tar.gz
+# Source: https://github.com/storaged-project/libblockdev/releases/download/3.0.4-1/libblockdev-3.0.4.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,12 +11,15 @@
 # Recommended:  NONE
 # Optional:     btrfs-progs, GTK-Doc, mdadm, dmraid, bcachefs, and ndctl 
 
+# Building tools will have warning treated as errors. Disable
+# warnings as errors with this CFLAGS
+CFLAGS="-Wno-error " CXXFLAGS=$CFLAGS \
 ./configure --prefix=/usr     \
             --sysconfdir=/etc \
             --with-python3    \
             --without-gtk-doc \
             --without-nvdimm  \
-            --without-dm   $BUILDTRUPLE &&
+            --without-btrfs   $BUILDTRUPLE &&
 
 read -p "Compile?" && make -j2 &&
 
@@ -45,5 +48,5 @@ libblockdev:
 libblockdev:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libblockdev-2.26-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libblockdev-3.0.4-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
