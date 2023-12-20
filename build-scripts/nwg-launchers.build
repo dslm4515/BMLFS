@@ -2,6 +2,8 @@
 
 # nwg-launchers
 # Source: https://github.com/nwg-piotr/nwg-launchers 
+# Source: https://github.com/nwg-piotr/nwg-launchers/archive/refs/tags/v0.7.1.1.tar.gz
+# Commit: 29ee3b0501ebc7524eb43ba8a28375f811925d3c
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,7 +13,9 @@
 # Recommended:  NONE
 # Optional:     nlohmann, gtk-layer-shell
 
-meson --prefix=/usr BUILD && \
+meson setup --prefix=/usr BUILD && \
+
+ninja -C BUILD -j2 && \
 
 sudo -S DESTDIR=$BUILD ninja -C BUILD install && \
 
@@ -34,5 +38,5 @@ nwg-launchers:
 nwg-launchers:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/nwg-launchers-0.5.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/nwg-launchers-0.7.1.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
