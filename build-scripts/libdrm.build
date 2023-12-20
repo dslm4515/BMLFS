@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Libdrm
-# Source: https://dri.freedesktop.org/libdrm/libdrm-2.4.115.tar.xz
+# Source: https://dri.freedesktop.org/libdrm/libdrm-2.4.117.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -18,7 +18,11 @@ export CFLAGS+="-ffat-lto-objects -flto=4 "
 export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-patch -Np0 -i ../patches/libdrm-void/dont-build-noveau-tests.patch &&
+# Fix meson build for drm_intel
+patch -Np1 -i ../patches/libdrm-chimera/intel.patch 
+
+# Fix tests
+patch -Np1 -i ../patches/libdrm-chimera/tests.patch
 
 mkdir build &&
 cd    build &&
@@ -62,5 +66,5 @@ libdrm:
 libdrm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libdrm-2.4.115-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libdrm-2.4.117-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
