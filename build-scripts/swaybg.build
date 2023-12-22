@@ -1,17 +1,15 @@
 #! /bin/bash
 
 # Swaybg 
-# Source: https://github.com/swaywm/swaybg/releases/download/v1.1.1/swaybg-1.1.1.tar.gz
+# Source: https://github.com/swaywm/swaybg/releases/download/v1.2.0/swaybg-1.2.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     wlroots, json-c, wayland-protocols, libxkbcommon, cairo,
-# Required:     gdk-pixbuf, pixman, mesa, libevdev, libinput, elogind, pango,
-# Required:     libxcb, pcre
+# Required:     wayland, wayland-protocols, cairo, gdk-pixbuf
 # Recommended:  NONE
-# Optional:     fish, git
+# Optional:     git, scdoc
 
 meson --prefix=/usr -Dbuildtype=release OUT
 
@@ -40,7 +38,7 @@ swaybg:
 swaybg:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/swaybg-1.1.1-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/swaybg-1.2.0-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 swaybg-doc: Manuals for Swaybg
@@ -51,5 +49,5 @@ swaybg-doc: https://swaywm.org
 swaybg-doc:
 EOF 
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/swaybg-doc-1.1.1-noarch.mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/swaybg-doc-1.2.0-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
