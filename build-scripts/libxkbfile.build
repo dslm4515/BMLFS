@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libxkbfile
-# Source: https://www.x.org/releases/individual/lib/libxkbfile-1.1.0.tar.bz2
+# Source: https://www.x.org/releases/individual/lib/libxkbfile-1.1.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -43,5 +43,5 @@ libxkbfile:
 libxkbfile:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libxkbfile-1.1.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libxkbfile-1.1.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
