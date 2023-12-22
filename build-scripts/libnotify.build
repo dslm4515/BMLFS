@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libnotify
-# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/libnotify/0.7/libnotify-0.7.9.tar.xz
+# Source: https://download.gnome.org/sources/libnotify/0.8/libnotify-0.8.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -47,5 +47,5 @@ libnotify:
 libnotify:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libnotify-0.7.9-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libnotify-0.8.3-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
