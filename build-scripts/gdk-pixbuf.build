@@ -50,9 +50,7 @@ gdk-pixbuf:   - Simple animation loading (ie. animated gifs).
 gdk-pixbuf: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gdk-pixbuf-2.42.10-$PSUFFIX &&
-cp -v install/doinst.sh /tmp/ &&
-cat >> /tmp/doinst.sh << "EOF"
+cat > /tmp/doinst.sh << "EOF"
 gdk-pixbuf-query-loaders > /usr/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
 EOF
 sudo -S mv /tmp/doinst.sh -v install/ &&
