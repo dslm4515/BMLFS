@@ -11,9 +11,17 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# NOTE: Not compatible with Cython 3.x
+
+# Apply patch to build against libplist 2.3.0
+patch -Np1 -i ../patches/libimobiledevice-chimera/libplist-2.3.0.patch 
+
+# Apply patch for better python3 support
+patch -Np1 -i ../patches/libimobiledevice-chimera/python3.patch
+
 # LibreSSL does not provide this function
 sed -e '/SSL_CTX_set_security_level/d' -i src/idevice.c &&
-sed -e 's,-L$(libdir),,g' -i cython/Makefile.am         &&
+#sed -e 's,-L$(libdir),,g' -i cython/Makefile.am         &&
 autoreconf -vfi &&
 
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE PYTHON=/usr/bin/python3 &&
