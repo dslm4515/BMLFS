@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # MIT Kerberos V5 
-# Source: https://kerberos.org/dist/krb5/1.19/krb5-1.19.2.tar.gz
+# Source: https://kerberos.org/dist/krb5/1.21/krb5-1.21.2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,22 +13,16 @@
 #
 # Does not support LibreSSL ...without a patch!
 
-# fix a denial-of-service security vulnerability
-sed -i '210a if (sprinc == NULL) {\
-       status = "NULL_SERVER";\
-       errcode = KRB5KDC_ERR_S_PRINCIPAL_UNKNOWN;\
-       goto cleanup;\
-       }' src/kdc/do_tgs_req.c
-
 cd src &&
 patch -Np1 -i ../../patches/krb5-void/libressl.patch
 
-sed -i -e 's@\^u}@^u cols 300}@' tests/dejagnu/config/default.exp     &&
+#sed -i -e 's@\^u}@^u cols 300}@' tests/dejagnu/config/default.exp     &&
 sed -i -e '/eq 0/{N;s/12 //}'    plugins/kdb/db2/libdb2/test/run.test &&
-sed -i '/t_iprop.py/d'           tests/Makefile.in  
+#sed -i '/t_iprop.py/d'           tests/Makefile.in  
 
-WARN_CFLAGS= ./configure  \
-	     --prefix=/usr       \
+#WARN_CFLAGS= ./configure  \
+./configure \
+             --prefix=/usr       \
              --localstatedir=/var/lib \
 	     --sbindir=/usr/bin  \
 	     --disable-rpath     \
@@ -37,8 +31,7 @@ WARN_CFLAGS= ./configure  \
 	     --enable-shared     \
 	     --disable-nls       \
 	     --disable-pkinit    \
-	     --without-keyutils  \
-	     --without-tcl  $BUILDTRUPLE    \
+	     --without-keyutils  $BUILDTRUPLE    \
 	     ac_cv_func_pthread_once=yes ac_cv_func_pthread_rwlock_init=yes \
 	     acx_pthread_ok=yes ac_cv_func_regcomp=yes ac_cv_printf_positional=yes \
 	     krb5_cv_attr_constructor_destructor=yes,yes
@@ -85,7 +78,7 @@ sudo -S chmod -v 755 usr/bin/ksu  &&
 sudo mv usr/share/* /BMAN/usr/share/
 
 # Pack the main package
-sudo -S makepkg -l y -c n $PKGS/krb5-1.19.2-$(uname -m)-mlfs.txz &
+sudo -S makepkg -l y -c n $PKGS/krb5-1.21.2-$PSUFFIX &&
 
 # Pack the doc package
 cd /BMAN
@@ -112,7 +105,7 @@ krb5-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/
 
-sudo -S makepkg -l y -c n $PKGS/krb5-doc-1.19.2-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/krb5-doc-1.21.2-$NOPSUFFIX
 
 sudo -S rm -rf ${BUILD}/*
 sudo -S rm -rf /BMAN/*
