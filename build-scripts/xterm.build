@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # XTerm
-# Source: https://invisible-mirror.net/archives/xterm/xterm-372.tgz
+# Source: https://invisible-mirror.net/archives/xterm/xterm-379.tgz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,8 +10,6 @@
 # Required:     libxaw libxft
 # Recommended:  NONE
 # Optional:     pcre or pcre2, vlagrind, man2html, utempter
-
-patch -Np1 -i ../patches/xterm-alpine/posix-ptys.patch
 
 # If using netBSD curses instead of Ncurses, use "-lterminfo" instead of "-ltinfo"
 CFLAGS="-ltinfo " \
@@ -43,8 +41,8 @@ CFLAGS="-ltinfo " \
 		--enable-narrowproto \
 		--enable-exec-xterm \
 		--enable-sixel-graphics \
-		--with-tty-group=tty \
-		--with-utempter $BUILDTRUPLE &&
+		--with-tty-group=tty #\
+#		--with-utempter $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -74,7 +72,7 @@ xterm:
 xterm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xterm-372-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xterm-379-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xterm-doc: Manuals for xterm (terminal emulator for X)
@@ -85,5 +83,5 @@ xterm-doc: https://invisible-mirror.net
 xterm-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xterm-doc-372-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xterm-doc-379-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/* 
