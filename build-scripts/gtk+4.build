@@ -1,19 +1,21 @@
 #! /bin/bash
 
 # GTK+ 4
-# Sources: https://download.gnome.org/sources/gtk/4.4/gtk-4.6.2.tar.xz
+# Source: https://download.gnome.org/sources/gtk/4.10/gtk-4.10.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     at-spi2-atk, FriBidi, gdk-pixbuf, libepoxy, Graphene , libXdamage (for X11),
-# Required:     libXinerama(for x11), libXcursor(for x11) and Pango
-# Recommended:  adwaita-icon-theme,  hicolor-icon-theme, ISO Codes, libxkbcommon, 
-# Recommended:  sassc, wayland, wayland-protocols, gobject-introspection, graphene
-# Optional:     Colord, CUPS, DocBook Utils, GTK-Doc, JSON-Glib, PyAtSpi, rest, PAPI
+# Required:     fribidi gdk-pixbuf graphene iso-codes libepoxy libxkbcommon
+# Required:     pango pygobject wayland-protocols gst-plugins-bad
+# Recommended:  adwaita-icon-theme gst-plugins-good 
+# Recommended:  hicolor-icon-theme librsvg 
+# Recommended:  xorg-libs(x11,xrander,xi,xext,xcursor,xdamage,xfixes,xinerama
+# Optional:     colord cups docutils ffmpeg gi-docgen highlight libcloudproviders
+# Optional:     sassc tracker vulkan
 
-# "ifunc" is not supported only by Glibc. Therefore, -Df16c=disabled
+# "ifunc" is not supported by musl, only by Glibc. Therefore, -Df16c=disabled
 
 # If coptimizing with GCC:
 export  CFLAGS="-march=native -pipe "
