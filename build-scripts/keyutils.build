@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# keyutils
+# Source: https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/keyutils.git/snapshot/keyutils-1.6.3.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     krb5
+# Recommended:  NONE
+# Optional:     NONE
+
+# Per Chimera Linux, enable install(1) portability
+patch -Np1 -i ../patches/keyutils-chimera/install.patch 
+
+read -p "Compile?" && \
+make NO_ARLIB=1 LIBDIR=/usr/lib \
+     USRLIBDIR=/usr/lib VERSION="1.6.3" \
+     RELEASE="-r0" -j2 &&
+
+sudo -S make NO_ARLIB=1 LIBDIR=/usr/lib \
+             BINDIR=/usr/bin SBINDIR=/usr/sbin \
+	     DESTDIR=$BUILD USRLIBDIR=/usr/lib install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+keyutils: keyutils
+keyutils:
+keyutils: A et of utilities for managing the key retention facility in the 
+keyutils: kernel, which can be used by filesystems, block devices and more to 
+keyutils: gain and retain the authorization and encryption keys required to 
+keyutils: perform secure operations.
+keyutils:
+keyutils: https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/keyutils.git
+keyutils:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/keyutils-1.6.3-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
