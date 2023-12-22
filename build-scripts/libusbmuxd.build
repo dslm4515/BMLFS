@@ -7,9 +7,11 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     libplist libimobiledevice-glue
+# Required:     libplist libusb
 # Recommended:  NONE
 # Optional:     NONE
+
+patch -Np1 -i ../patches/libusbmuxd-chimera/musl.patch 
 
 NOCONFIGURE=1 ./autogen.sh &&
 ./configure --prefix=/usr $BUILDTRUPLE &&
@@ -42,7 +44,7 @@ libusbmuxd:
 libusbmuxd:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libusbmuxd-2.0.2-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libusbmuxd-2.0.2-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libusbmuxd-doc: Manuals for libusbmuxd
@@ -53,5 +55,5 @@ libusbmuxd-doc: http://www.libimobiledevice.org/
 libusbmuxd-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/libusbmuxd-doc-2.0.2-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libusbmuxd-doc-2.0.2-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
