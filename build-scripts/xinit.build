@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xInit
-# Source: ftp://ftp.x.org/pub/individual/app/xinit-1.4.1.tar.bz2
+# Source: ftp://ftp.x.org/pub/individual/app/xinit-1.4.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,7 +11,7 @@
 # Recommended:  xterm, xclock, twm, dwm
 # Optional:     NONE
 
-patch -Np1 -i ../patches/xinit-alpine/06_move_serverauthfile_into_tmp.patch
+#patch -Np1 -i ../patches/xinit-alpine/06_move_serverauthfile_into_tmp.patch
 
 ./configure $XORG_CONFIG --with-xinitdir=/etc/X11/app-defaults $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
@@ -53,13 +53,13 @@ sudo -S mv -v /tmp/slack-desc install/ &&
 # Depending if TWM or DWM was installed,
 # Modify /etc/X11/app-defaults/xinitrc
 #sudo -S ln -sv dwm usr/bin/twm &&
-sudo -S makepkg -l y -c n $PKGS/xinit-1.4.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/xinit-1.4.2-$PSUFFIX &&
 cp -v install/doinst.sh /tmp/ &&
 cat >> /tmp/doinst.sh << "EOF"
 chmod -v +x /usr/bin/startx
 EOF
 sudo -S mv /tmp/doinst.sh install/ &&
-sudo -S makepkg -l y -c n $PKGS/xinit-1.4.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/xinit-1.4.2-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xinit-doc: Manuals for xinit (scripts to start X11 servers)
@@ -68,5 +68,5 @@ xinit-doc: Basic script to start a X11 server.
 xinit-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xinit-doc-1.4.1-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xinit-doc-1.4.2-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
