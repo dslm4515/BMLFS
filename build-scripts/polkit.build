@@ -1,19 +1,16 @@
 #! /bin/bash
 
 # Polkit 
-# Source: https://www.freedesktop.org/software/polkit/releases/polkit-0.120.tar.gz
+# Source: https://gitlab.freedesktop.org/polkit/polkit/-/archive/123/polkit-123.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Glib, mozjs(JS)
-# Recommended:  Linux-PAM, elogind
+# Required:     Glib, mozjs(JS) or duktape, 
+# Recommended:  Linux-PAM, elogind turnstile
 # Optional:     gobject-introspection, D-Bus Python, dbusmock, docbook-xml, 
 # Optional:     docbook-xsl, GTK-Doc, and libxslt
-
-# NOTE: Rust sometimes will not build on musl-1.2.x, which means mozjs will not build.
-# Workaround is by installing and patching Alpine Linux's build of mozjs.
 
 # If coptimizing with GCC:
 export  CFLAGS="-march=native -pipe "
@@ -23,43 +20,52 @@ export CFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-# First, fix problems with setting permissions during installation and with meson-0.60.0:
-sed '/0,/s/^/#/' -i meson_post_install.py &&
-sed '/policy,/d' -i actions/meson.build \
-	         -i src/examples/meson.build &&
+# For polkit-121, apply patch from Chimera Linux to  make innetgr optional; does not exist on musl:
+# patch -Np1 -i ../patches/polkit-chimera/innetgr.patch 
 
-patch -Np1 -i ../patches/polkit-alpine/make-innetgr-optional.patch &&
+# Ensure turnstile-session processes fall back to display check
+patch -Np1 -i ../patches/polkit-chimera/turnstile.patch 
 
-# Security fix suggested by LFS
-patch -Np1 -i ../patches/polkit-lfs/polkit-0.120-security_fix-1.patch 
+# Per LFS, There should be a dedicated user and group to take control of the polkitd 
+# daemon after it is started.
+sudo -E groupadd -fg 27 polkitd &&
+sudo -E useradd -c "PolicyKit Daemon Owner" -d /etc/polkit-1 -u 27 \
+                -g polkitd -s /bin/false polkitd
 
-# Use patch if elogind is wanted/used
-#patch -Np1 -i ../patches/polkit-lfs/fix_elogind_detection-1.patch  &&
+# If using mozjs instead of duktape:
+sed -e '/mozjs/s/102/115/' -i meson.build      &&
+sed -e 's/JS_Init/JS::DisableJitBackend(); &/' \
+    -i src/polkitbackend/polkitbackendjsauthority.cpp
 
-autoreconf -fiv &&
-./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--mandir=/usr/share/man \
-		--infodir=/usr/share/info \
-		--libexecdir=/usr/lib/polkit-1 \
-		--localstatedir=/var \
-		--disable-static \
-		--enable-introspection \
-		--with-authfw=pam \
-		--disable-gtk-doc \
-		--disable-gtk-doc-html \
-		--disable-gtk-doc-pdf \
-		--disable-libelogind \
-		--disable-systemd \
-		--disable-libsystemd-login \
-		--with-mozjs=mozjs-78.0 $BT &&
-read -p "Compile?" && make -j2 &&
+# If elogind is installed:
+export stkr=libelogind
 
-sudo -S make SHELL=/bin/bash DESTDIR=$BUILD install && \
+# if seatd is installed OR Consolekit2, then:
+export stkr=ConsoleKit
+
+meson setup --prefix=/usr --buildtype=release \
+            -Dman=true    -Dsession_tracking=$stkr \
+            -Dtests=false -Dos_type=lfs OUT	    
+unset stkr
+
+read -p "Compile?" && ninja -C OUT  -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install && \
 sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
-sudo -S install -m644 ../files/polkit-lfs/polkit-1  ${BUILD}/etc/pam.d/ &&
+#sudo -S install -m644 ../files/polkit-lfs/polkit-1  ${BUILD}/etc/pam.d/ &&
+
+# Fix the pam configuration, per Chimera Linux:
+cat > /tmp/polkit-1 << "EOF"
+auth            requisite       pam_nologin.so
+auth            required        pam_env.so
+auth            required        pam_unix.so
+account         required        pam_unix.so
+session         required        pam_unix.so
+session         required        pam_limits.so
+password        required        pam_unix.so
+EOF
+sudo -S install -m644 /tmp/polkit-1 ${BUILD}/etc/pam.d/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -84,11 +90,18 @@ polkit: Home: http://www.freedesktop.org/wiki/Software/PolicyKit
 polkit:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/polkit-0.120-$(uname -m)-mlfs.txz &&
-cp -v install/doinst.sh /tmp/ && \
-cd - && cat ../files/polkit-lfs/doinst.sh >> /tmp/doinst.sh &&
-cd - && sudo -S mv -v /tmp/doinst.sh install/doinst.sh      &&
-sudo -S makepkg -l y -c n $PKGS/polkit-0.120-$(uname -m)-mlfs.txz && \
+cat > /tmp/doinst.sh << "EOF"
+groupadd -fg 27 polkitd &&
+useradd -c "PolicyKit Daemon Owner" -d /etc/polkit-1 -u 27 \
+        -g polkitd -s /bin/false polkitd
+EOF
+sudo mv /tmp/doinst.sh install/ &&
+
+sudo -S makepkg -l y -c n $PKGS/polkit-123-$PSUFFIX &&
+#cp -v install/doinst.sh /tmp/ && \
+#cd - && cat ../files/polkit-lfs/doinst.sh >> /tmp/doinst.sh &&
+#cd - && sudo -S mv -v /tmp/doinst.sh install/doinst.sh      &&
+#sudo -S makepkg -l y -c n $PKGS/polkit-0.120-$(uname -m)-mlfs.txz && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 polkit-doc: Manuals for polkit (authentication framework)
@@ -101,5 +114,5 @@ polkit-doc: http://www.freedesktop.org/wiki/Software/PolicyKit
 polkit-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/polkit-doc-0.120-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/polkit-doc-123-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
