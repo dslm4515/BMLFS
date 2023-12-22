@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # WCM - Wayfire Config Manager
-# Source: https://github.com/WayfireWM/wcm/releases/download/v0.7.0/wcm-0.7.0.tar.xz 
+# Source: https://github.com/WayfireWM/wcm/releases/download/v0.8.0/wcm-0.8.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,7 +11,7 @@
 # Recommended:  wf-shell,wf-config
 # Optional:     NONE
 
-meson --prefix=/usr --buildtype=release OUT
+meson setup --prefix=/usr --buildtype=release OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
@@ -36,5 +36,5 @@ wcm: https://github.com/WayfireWM/wcm
 wcm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wcm-0.7.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wcm-0.8.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
