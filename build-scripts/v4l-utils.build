@@ -7,9 +7,12 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     LLVM
+# Required:     LLVM argp-standalone
 # Recommended:  alsa-lib, GLU, libjpeg-turbo, and Qt
 # Optional:     Doxygen, SDL2
+
+# NOTE: version 1.24.1 will not compile, due to redefinitions
+# in source
 
 # If optimizing with GCC:
 export  CFLAGS="-march=native -pipe "
@@ -17,17 +20,26 @@ export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-#patch -Np1 -i ../patches/v4l-utils-alpine/getsubopt.patch
-patch -Np1 -i ../patches/v4l-utils-alpine/types.patch
-export CFLAGS="$CFLAGS -D__off_t=off_t" &&
+# Apply patch from Chimera Linux
+patch -Np1 -i ../patches/v4l-utils-chimera/musl.patch 
+
+# If using libc++ instead of GNU's libstdc++, apply this patch
+# from Chimera Linux
+patch -Np1 -i ../patches/v4l-utils-chimera/libcpp.patch 
+
+autoreconf -vfi
+
+export CFLAGS="$CFLAGS -D__off_t=off_t -D__off64_t=off_t -fcommon" &&
 export LIBS="-largp -lintl" &&
 ./configure --prefix=/usr     \
             --sysconfdir=/etc \
             --disable-static  \
-            --enable-libdvbv5 $BUILDTRUPLE &&
+            --enable-libdvbv5 \
+	    --disable-qv4l2 \
+	    --with-udevdir=/usr/lib/udev $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
-sudo -S make DESTDIR=$BUILD install &&
+sudo -S make DESTDIR=$BUILD install && 
 unset CFLAGS LIBS &&
 sudo -S mkdir -vp /BMAN/install        && \
 sudo -S mkdir -pv /BMAN/usr/share      && \
@@ -56,7 +68,7 @@ v4l-utils: Homepage:  http://linuxtv.org
 v4l-utils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/v4l-utils-1.22.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/v4l-utils-1.22.1-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 v4l-utils-doc: Manuals for v4l-utils (libraries and utilities for video4linux)
@@ -72,6 +84,6 @@ v4l-utils-doc: http://linuxtv.org
 v4l-utils-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/v4l-utils-doc-1.22.1-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/v4l-utils-doc-1.22.1-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
