@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # SoundTouch
-# Source: https://www.surina.net/soundtouch/soundtouch-2.3.1.tar.gz
+# Source: https://www.surina.net/soundtouch/soundtouch-2.3.2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -14,7 +14,7 @@
 export OLD_ACLOCAL=$ACLOCAL && export ACLOCAL="" &&
 ./bootstrap &&
 ./configure --prefix=/usr \
-            --docdir=/usr/share/doc/soundtouch-2.3.1 \
+            --docdir=/usr/share/doc/soundtouch-2.3.2 \
             --localstatedir=/var \
             --enable-shared \
             --disable-static $BUILDTRUPLE &&
@@ -51,7 +51,7 @@ soundtouch: soundtouch home: http://www.surina.net/soundtouch/
 soundtouch:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/soundtouch-2.3.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/soundtouch-2.3.2-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 soundtouch-doc: Manuals for soundtouch (sound processing library)
@@ -63,5 +63,5 @@ soundtouch-doc: http://www.surina.net/soundtouch/
 soundtouch-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/soundtouch-doc-2.3.1-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/soundtouch-doc-2.3.2-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
