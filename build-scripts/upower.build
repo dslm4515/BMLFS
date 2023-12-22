@@ -1,26 +1,35 @@
 #! /bin/bash
 
 # UPower 
-# Source: https://gitlab.freedesktop.org/upower/upower/uploads/177df5b9f9b76f25a2ad9da41aa0c1fa/upower-0.99.13.tar.xz 
-# Source: https://gitlab.freedesktop.org/upower/upower/-/archive/v1.90.0/upower-v1.90.0.tar.bz2
+# Source: https://gitlab.freedesktop.org/upower/upower/-/archive/v1.90.2/upower-v1.90.2.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     libgudev libusb polkit
+# Required:     libgudev libusb 
 # Recommended:  gobject-introspection
 # Optional:     GTK-Doc PyGObject dbusmock  umockdev(for part of the test suite) libimobiledevice 
 
-./configure --prefix=/usr \
-            --sysconfdir=/etc    \
-            --localstatedir=/var \
-            --enable-deprecated  \
-            --disable-static $BT
+#./configure --prefix=/usr \
+#            --sysconfdir=/etc    \
+#            --localstatedir=/var \
+#            --enable-deprecated  \
+#            --disable-static $BT
 
-read -p "Compile?" && make -j2 &&
+# Per BLFS, remove an unneeded dependency from a test
+sed '/parse_version/d' -i src/linux/integration-test.py
 
-sudo -S make DESTDIR=$BUILD install &&
+meson setup --prefix=/usr --buildtype=release \
+	    -Dgtk-doc=false -Dman=false \
+	    -Dos_backend=linux \
+	    -Dsystemdsystemunitdir=no \
+	    -Dintrospection=enabled \
+	    -Dudevrulesdir=/usr/lib/udev/rules.d OUT
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \ 
 
@@ -41,7 +50,7 @@ upower: to device events and querying history and statistics
 upoeer:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/upower-0.99.13-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/upower-1.90.2-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 upower-doc: Manuals for UPower
@@ -51,5 +60,5 @@ upower-doc: and querying history and statistics
 upower-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/upower-doc-0.99.13-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/upower-doc-1.90.2-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
