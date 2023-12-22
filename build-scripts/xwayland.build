@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Xwayland
-# Source: https://www.x.org/pub/individual/xserver/xwayland-23.1.2.tar.xz
+# Source: https://www.x.org/pub/individual/xserver/xwayland-23.2.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -24,11 +24,11 @@ mkdir build && cd build &&
 
 meson --prefix=$XORG_PREFIX     \
       -Dipv6=true \
-      -Dxvfb=false \
+      -Dxvfb=true \
       -Dxcsecurity=true \
       -Ddri3=true \
       -Dglamor=true \
-      -Dxkb_dir=/usr/share/X11/xkb  \
+      -Dxkb_dir=$XORG_PREFIX/share/X11/xkb  \
       -Dxkb_output_dir=/var/lib/xkb ..
 read -p "Compile?" && ninja -j2 &&
 
@@ -45,28 +45,28 @@ cat > /tmp/slack-desc << "EOF"
 # make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-                    |-----handy-ruler------------------------------------------------------|
-xorg-server-xwayland: xorg-server-xwayland (X Clients under Wayland)
-xorg-server-xwayland:
-xorg-server-xwayland: Wayland is a complete window system in itself, but even so, if we're
-xorg-server-xwayland: migrating away from X, it makes sense to have a good backwards
-xorg-server-xwayland: compatibility story. With a few changes, the Xorg server can be
-xorg-server-xwayland: modified to use Wayland input devices for input and forward either the
-xorg-server-xwayland: root window or individual top-level windows as wayland surfaces. The
-xorg-server-xwayland: server still runs the same 2D driver with the same acceleration code
-xorg-server-xwayland: as it does when it runs natively. The main difference is that Wayland
-xorg-server-xwayland: handles presentation of the windows instead of KMS.
-xorg-server-xwayland:
+        |-----handy-ruler------------------------------------------------------|
+xwayland: xwayland (X Clients under Wayland)
+xwayland:
+xwayland: Wayland is a complete window system in itself, but even so, if we're
+xwayland: migrating away from X, it makes sense to have a good backwards
+xwayland: compatibility story. With a few changes, the Xorg server can be
+xwayland: modified to use Wayland input devices for input and forward either the
+xwayland: root window or individual top-level windows as wayland surfaces. The
+xwayland: server still runs the same 2D driver with the same acceleration code
+xwayland: as it does when it runs natively. The main difference is that Wayland
+xwayland: handles presentation of the windows instead of KMS.
+xwayland:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xorg-server-xwayland-23.1.2-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/xwayland-23.2.2-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
-xorg-server-xwayland-doc: Manuals for xorg-server-xwayland
-xorg-server-xwayland-doc:
-xorg-server-xwayland-doc: X Clients under Wayland
-xorg-server-xwayland-doc:
+xwayland-doc: Manuals for xorg-server-xwayland
+xwayland-doc:
+xwayland-doc: X Clients under Wayland
+xwayland-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xorg-server-xwayland-doc-23.1.2-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/xwayland-doc-23.2.2-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
