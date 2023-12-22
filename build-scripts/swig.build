@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # SWIG
-# Source: https://downloads.sourceforge.net/swig/swig-4.0.2.tar.gz
+# Source: https://downloads.sourceforge.net/swig/swig-4.1.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -12,7 +12,8 @@
 # Optional:     Boost
 
 ./configure --prefix=/usr \
-            --without-maximum-compile-warnings --with-python3 $BUILDTRUPLE  &&
+            --without-maximum-compile-warnings --with-python3 \
+	    --without-javascript $BUILDTRUPLE  &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -40,5 +41,5 @@ swig:
 swig: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/swig-4.0.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/swig-4.1.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
