@@ -1,19 +1,21 @@
 #! /bin/bash
 
 # Pipewire
-# Source: https://github.com/PipeWire/pipewire/archive/0.3.49/pipewire-0.3.49.tar.gz
+# Source: https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/0.3.84/pipewire-0.3.84.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     BlueZ, FFmpeg, gstreamer, gst-plugins-base, libva, PulseAudio, docutils(python module) 
-# Required:     SBC, SDL2, and v4l-utils 
+# Required:     BlueZ, FFmpeg, gstreamer, gst-plugins-base, libva, PulseAudio, 
+# Required:     docutils(python module) SBC, SDL2, v4l-utils wireplumber
 # Recommended:  NONE
 # Optional:     Valgrind, Doxygen and Graphviz (for documentation), JACK, Vulkan, and xmltoman 
 
+meson subprojects download
+
 mkdir BUILD && cd BUILD &&
-meson   --prefix=/usr \
+meson setup  --prefix=/usr \
         -Ddocs=disabled \
 	-Dman=enabled \
 	-Dgstreamer=enabled \
@@ -53,7 +55,7 @@ pipewire:
 pipewire:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pipewire-0.3.49-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/pipewire-0.3.84-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 pipewire-doc: Manuals for pipewire (multimedia processing graphs)
@@ -63,5 +65,5 @@ pipewire-doc: but also for video.
 pipewire-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pipewire-doc-0.3.49-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/pipewire-doc-0.3.84-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
