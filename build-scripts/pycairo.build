@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # PyCairo
-# Source: https://github.com/pygobject/pycairo/releases/download/v1.21.0/pycairo-1.21.0.tar.gz
+# Source: https://github.com/pygobject/pycairo/releases/download/v1.24.0/pycairo-1.24.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,9 +11,11 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-read -p "Compile?" && python3 setup.py build &&
+meson setup --prefix=/usr --buildtype=release OUT
 
-sudo -S  python3 setup.py install --prefix=/usr --root=${BUILD} &&
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S  DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -38,5 +40,5 @@ pycairo:
 pycairo:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pycairo-1.21.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/pycairo-1.24.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
