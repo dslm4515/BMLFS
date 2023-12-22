@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # swaylock 
-# Source: https://github.com/swaywm/swaylock/releases/download/1.5/swaylock-1.5.tar.gz
+# Source: https://github.com/swaywm/swaylock/releases/download/v1.7.2/swaylock-1.7.2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -37,5 +37,5 @@ swaylock: https://github.com/swaywm/swaylock
 swaylock:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/swaylock-1.5-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/swaylock-1.7.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
