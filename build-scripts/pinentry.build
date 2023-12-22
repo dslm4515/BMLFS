@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # PIN-Entry 
-# Source: ftp://ftp.gnupg.org/gcrypt/pinentry/pinentry-1.2.0.tar.bz2
+# Source: https://www.gnupg.org/ftp/gcrypt/pinentry/pinentry-1.2.1.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -47,5 +47,5 @@ pinentry:
 pinentry:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pinentry-1.2.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/pinentry-1.2.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
