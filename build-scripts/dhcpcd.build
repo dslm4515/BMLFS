@@ -30,7 +30,11 @@ useradd  -c 'dhcpcd PrivSep' \
 chown    -v dhcpcd:dhcpcd /var/lib/dhcpcd 
 
 # Configure
+# if building with clang 17, add to to flags
+export WNO="-Wno-implicit-function-declaration "
+
 CFLAGS="-L/opt/openssl/lib -lssl -Wl,-rpath=/opt/openssl/lib " \
+CFLAGS="$CFLAGS $WNO " \
 CXXFLAGS=$CFLAGS \
 LDFLAGS="-L/opt/openssl/lib -lssl -Wl,-rpath=/opt/openssl/lib " \
 ./configure --prefix=/usr \
@@ -50,6 +54,7 @@ sudo -S make DESTDIR=${BUILD} install
 sudo -S mkdir -pv /BMAN/install
 sudo -S mkdir -pv /BMAN/usr/share
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
+unset WNO
 
 read -p "Press Enter to create pakage description." &&
 cd $BUILD && sudo mkdir -v install &&
@@ -80,7 +85,7 @@ useradd  -c 'dhcpcd PrivSep' \
          -d /var/lib/dhcpcd  \
          -g dhcpcd           \
          -s /bin/false     \
-         -u 52 dhcpcd &&
+         -u 52 dhcpcd 
 chown    -v dhcpcd:dhcpcd /var/lib/dhcpcd
 EOF
 sudo -S mv /tmp/doinst.sh  install/ &&
