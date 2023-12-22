@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GPGME
-# Source: ftp://ftp.gnupg.org/gcrypt/gpgme/gpgme-1.17.1.tar.bz2
+# Source: https://www.gnupg.org/ftp/gcrypt/gpgme/gpgme-1.23.1.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,19 +13,34 @@
 
 # Python binding build still is broken.
 # Add qt if Qt5 is installed 
-export BLANG="cl,cpp"
+#export BLANG="cl,cpp"
 
 # If Python is 3.10+:
-sed -e 's/3\.9/3.10/'                    \
-    -e 's/:3/:4/'                        \
-    -e '23653 s/distutils"/setuptools"/' \
-    -i configure && \
+#sed -e 's/3\.9/3.10/'                    \
+#    -e 's/:3/:4/'                        \
+#    -e '23653 s/distutils"/setuptools"/' \
+#    -i configure && \
 
-./configure --prefix=/usr --disable-gpg-test \
-	    --enable-languages=$BLANG $BUILDTRUPLE &&
-read -p "Compile?" && make -j2 &&
+mkdir build && cd build &&
+../configure --prefix=/usr --disable-gpg-test 
+#	    --enable-languages=$BLANG $BUILDTRUPLE &&
 
-sudo -S make DESTDIR=$BUILD install &&
+read -p "Compile?" && make PYTHONS= -j2 &&
+
+# If swig is installed:
+if swig -version > /dev/null; then
+	srcdir=$PWD/../lang/python \
+	top_builddir=$PWD          \
+	pip3 wheel -w dist --no-build-isolation --no-deps --no-cache-dir $PWD/lang/python
+fi
+
+sudo -S make DESTDIR=$BUILD PYTHONS= install &&
+# If swig is installed:
+if swig -version > /dev/null; then
+	sudo -S pip3 install --no-index --find-links=dist --no-cache-dir \
+		--no-user gpg --root=$BUILD
+fi
+
 sudo -S mkdir -pv /BMAN/install /BMAN/usr/share   && \
 sudo -S mv $BUILD/usr/share/info /BMAN/usr/share/ && \
 
@@ -51,7 +66,7 @@ gpgme:
 gpgme:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gpgme-1.17.1-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/gpgme-1.23.1-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 gpgme-doc: Manuals for  gpgme - GnuPG Made Easy
@@ -61,5 +76,5 @@ gpgme-doc: to a program.
 gpgme-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/gpgme-doc-1.17.1-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/gpgme-doc-1.23.1-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
