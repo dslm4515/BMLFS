@@ -16,6 +16,9 @@
 #sed -i '/^CFLAGS/d' configure.ac                 &&
 autoreconf -fiv &&
 
+# Requires ncurses. If ncurses is installed in /opt/gnu, add this CFLAGS:
+CFLAGS="-Wl,-rpath=/opt/gnu/lib -lncursesw"
+
 ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var $BUILDTRUPLE &&
 
 read -p "Compile?" && make -j2 &&
