@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Popt
-# Source: ftp://ftp.rpm.org/pub/rpm/popt/releases/popt-1.x/popt-1.18.tar.gz
+# Source: http://ftp.rpm.org/popt/releases/popt-1.x/popt-1.19.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -52,7 +52,7 @@ popt: shell-like rules.
 popt:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/popt-1.18-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/popt-1.19-$PSUFFIX &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -68,6 +68,6 @@ popt-doc: functions for parsing arbitrary strings into argv[] arrays using
 popt-doc: shell-like rules.
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&                                                                                                             
-sudo -S makepkg -l y -c n $PKGS/popt-doc-1.18-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/popt-doc-1.19-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
