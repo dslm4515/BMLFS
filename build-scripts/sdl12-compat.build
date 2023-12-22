@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # sdl12-compat 
-# Source: https://github.com/libsdl-org/sdl12-compat/archive/refs/tags/release-1.2.64/sdl12-compat-release-1.2.64.tar.gz
+# Source: https://github.com/libsdl-org/sdl12-compat/archive/refs/tags/release-1.2.68/sdl12-compat-release-1.2.68.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -38,5 +38,5 @@ sdl12-compat: https://github.com/libsdl-org/sdl12-compat
 sdl12-compat: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/sdl12-compat-1.2.64-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/sdl12-compat-1.2.68-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
