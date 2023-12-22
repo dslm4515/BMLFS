@@ -2,21 +2,30 @@
 
 # waybar
 # Source: https://github.com/Alexays/Waybar
+# Source: https://github.com/Alexays/Waybar/archive/refs/tags/0.9.24.tar.gz
+# Commit: 48ec834ec9c7cdf146169c8b0f669ce1e9a8849e
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     CMake, wayland, waylanf-protocols, wlroots, gtkmm3, json-cpp
-# Recommended:  dbusmenu-gtk3, libnl, pulseaudio, libevdev, libsig++
-# Optional:     NONE
+# Recommended:  dbusmenu-gtk3, libnl, pulseaudio, libevdev, libsig++ libfmt spdlog
+# Optional:     libdate cava sndio
 
 # if optimizing with GCC:
 export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
-meson --prefix=/usr OUT && \
+# This version now requires a dbus session running during runtime 
+
+#git clone https://github.com/Alexays/Waybar
+#cd Waybar
+#git checkout 48ec834ec9c7cdf146169c8b0f669ce1e9a8849e
+
+meson --prefix=/usr OUT -Dbuildtype=release \
+       -Dcava=disabled  -Dsystemd=disabled && \
 ninja -C OUT -j2 && \
 sudo -S DESTDIR=${BUILD} ninja -C OUT install && \
 sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
@@ -42,7 +51,7 @@ waybar:
 waybar:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/waybar-0.9.9-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/waybar-0.9.24-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 waybar-doc: Manuals for Waybar
@@ -54,5 +63,5 @@ waybar-doc: https://github.com/Alexays/Waybar
 waybar-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-	sudo -S makepkg -l y -c n $PKGS/waybar-doc-0.9.9-noarch-mlfs.txz
+	sudo -S makepkg -l y -c n $PKGS/waybar-doc-0.9.22_git-$NOPSUFFIX
 sudo -S rm -rf ${BUILD}/* /BMAN/*
