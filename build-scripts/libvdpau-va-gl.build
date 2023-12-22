@@ -7,7 +7,7 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     CMake, FFmpeg, libvdpau, libva, Mesa
+# Required:     CMake, libvdpau, libva, Mesa
 # Recommended:  Doxygen, Graphviz, texlive/install-tl-unx
 # Optional:     NONE
 
