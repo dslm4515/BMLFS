@@ -2,6 +2,7 @@
 
 # wf-shell
 # Source: https://github.com/WayfireWM/wf-shell 
+# Source: https://github.com/WayfireWM/wf-shell/releases/download/v0.8.0/wf-shell-0.8.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,7 +12,7 @@
 # Recommended:  libnotify, pulseaudio, gobject-introspection, upower 
 # Optional:     gtk-layer-shell, wf-config
 
-meson --prefix=/usr OUT && \
+meson setup --prefix=/usr OUT && \
 ninja -C OUT -j2 && \
 sudo -S DESTDIR=${BUILD} ninja -C OUT install && \
 
@@ -35,5 +36,5 @@ wf-shell: Source: https://github.com/WayfireWM/wf-shell
 wf-shell:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wf-shell-0.8.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wf-shell-0.8.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
