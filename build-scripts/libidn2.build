@@ -21,6 +21,10 @@ export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE  &&
 
+# If building with LLVM-17.x, fix a header
+ # https://gitlab.com/libidn/libidn2/-/issues/80
+sed -i.bak 's/#define HAVE_SYMVER_ALIAS_SUPPORT 1//g' config.h
+
 read -p "Compile?" && make -j2 &&
 
 # Install
