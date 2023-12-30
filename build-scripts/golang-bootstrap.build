@@ -39,7 +39,7 @@ cd src &&
 
 # Install!
 cd ..
-sudo -S mkdir -pv $BUILD/usr/lib/go-bootstrap $BUILD/usr/lib/go-bootstrap
+sudo -S mkdir -pv $BUILD/usr/lib/go-bootstrap 
 
 # Per Apline Linux:
 # The source needs to be installed due to an upstream
@@ -54,6 +54,8 @@ find $BUILD/usr/lib/go-bootstrap/src \( -type d -a -name "testdata" \) \
 	-exec sudo -S rm -rvf \{\} \+ || return 1
 find $BUILD/usr/lib/go-bootstrap/src \( -type f -a -name "*.bash" \) \
 	-exec rm -rf \{\} \+ || return 1
+
+unset GOPATH GOROOT GOBIN GOROOT_FINAL CGO_ENABLED GOARCH
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
