@@ -1,0 +1,50 @@
+#! /bin/bash
+
+# p7zip 
+# Source: https://github.com/p7zip-project/p7zip/archive/v17.04/p7zip-17.04.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     wxwidgets
+
+# Prevent p7zip from installing compressed manual pages
+sed '/^gzip/d' -i install.sh
+
+# fix a security vulnerability:
+sed -i '160a if(_buffer == nullptr || _size == _pos) return E_FAIL;' CPP/7zip/Common/StreamObjects.cpp
+
+read -p "Compile?" && make all3 -j2 &&
+
+sudo -S make DEST_HOME=/usr \
+             DEST_MAN=/usr/share/man \
+	     DEST_SHARE_DOC=/usr/share/doc/p7zip-17.04 \
+	     DEST_DIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+p7zip: p7zip
+p7zip:
+p7zip: The Unix command-line port of 7-Zip, a file archiver that archives 
+p7zip: with high compression ratios. It handles 7z, ZIP, GZIP, Brotli, 
+p7zip: BZIP2, XZ, TAR, APM, ARJ, CAB, CHM, CPIO, CramFS, DEB, DMG, FAT, HFS,
+p7zip: ISO, Lizard, LZ5, LZFSE, LZH, LZMA, LZMA2, MBR, MSI, MSLZ, NSIS, NTFS,
+p7zip: RAR, RPM, SquashFS, UDF, VHD, WIM, XAR, Z, and Zstd formats. 
+p7zip:
+p7zip: https://github.com/p7zip-project/p7zip
+p7zip:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/p7zip-17.04-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
