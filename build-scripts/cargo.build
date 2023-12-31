@@ -30,6 +30,9 @@ cargo build --release  &&
 
 unset SSL_CERT_FILE RUST_BACKTRACE
 
+# Set the runpath for cargo
+sudo patchelf --set-rpath /opt/openssl/lib target/release/cargo
+
 sudo mkdir -pv $BUILD/opt/rustc-1.74.0/bin &&
 sudo cp -v target/release/cargo \
            $BUILD/opt/rustc-1.74.0/bin/
