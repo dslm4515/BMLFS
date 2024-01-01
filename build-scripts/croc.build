@@ -35,5 +35,5 @@ croc: https://github.com/schollz/croc
 croc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/croc-9.6.4-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/croc-9.6.6-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
