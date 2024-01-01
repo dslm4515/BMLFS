@@ -2,6 +2,7 @@
 
 # Weston
 # Source: https://wayland.freedesktop.org/releases/weston-9.0.0.tar.xz
+# Source: https://gitlab.freedesktop.org/wayland/weston/-/archive/12.0.2/weston-12.0.2.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,25 +11,32 @@
 # Required:     Wayland, Wayland-protocols, libxkbcommon, xkeyboard-config
 # Required:     libinput,libunwind, mtdev, libxcursor, glu, lcms2, pango
 # Required: 	libwebp, libva, dbus, linux-pam, libevdev, libjpeg-turbo
-# Required: 	elogind
+# Required: 	cairo libgudev 
 # Recommended:  gstreamer, colord, freerdp, gst-plugins-base
 # Optional:     pipewire
 
-patch -Np1 -i ../patches/weston-alpine/missing-fnctl_h.patch
-patch -Np1 -i ../patches/weston-alpine/timespec.patch
+#patch -Np1 -i ../patches/weston-alpine/missing-fnctl_h.patch
+#patch -Np1 -i ../patches/weston-alpine/timespec.patch
 
-mkdir BUILD && cd BUILD &&
-meson   --prefix=/usr \
-        -Dlauncher-logind=true \
-        -Dsystemd=false \
-        -Dsimple-dmabuf-drm=auto \
-        -Dpipewire=false \
-        -Dbackend-rdp=false . &&
-read -p "Compile?" && ninja -j2 &&
+#mkdir BUILD && cd BUILD &&
+#meson   --prefix=/usr \
+#        -Dlauncher-logind=true \
+#        -Dsystemd=false \
+#        -Dsimple-dmabuf-drm=auto \
+#        -Dpipewire=false \
+#        -Dbackend-rdp=false . &&
 
-sudo -S DESTDIR=$BUILD ninja install &&
-sudo -S mkdir -pv ${BUILD}/usr/lib   &&
-sudo -S mv -v ${BUILD}/usr/share/pkgconfig/* ${BUILD}/usr/lib/pkgconfig/ &&
+meson setup --prefix=/usr -Dsystemd=false \
+	    -Dpipewire=false -Dbackend-pipewire=false \
+	    -Dbackend-rdp=false \
+	    -Dbackend-vnc=false \
+	    -Dcolor-management-lcms=false OUT
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+#sudo -S mkdir -pv ${BUILD}/usr/lib   &&
+#sudo -S mv -v ${BUILD}/usr/share/pkgconfig/* ${BUILD}/usr/lib/pkgconfig/ &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -53,14 +61,5 @@ weston:
 weston: Homepage: http://wayland.freedesktop.org/
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/weston-9.0.0-$(uname -m)-mlfs.txz &&
-cp -v install/doinst.sh /tmp/ &&
-cat >> /tmp/doinst.sh << "EOF"
-echo "Setting up groups and permissions"
-groupadd weston-launch
-chown -v root /usr/bin/weston-launch
-chmod -v +s   /usr/bin/weston-launch
-EOF
-sudo -S mv /tmp/doinst.sh install/ &&
-sudo -S makepkg -l y -c n $PKGS/weston-9.0.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/weston-12.0.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
