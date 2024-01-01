@@ -1,35 +1,35 @@
 #! /bin/bash
 
 # rustc (for CMLFS-based systems) 
-# Source: https://static.rust-lang.org/dist/rustc-1.73.0-src.tar.xz 
+# Source: https://static.rust-lang.org/dist/rustc-1.74.0-src.tar.xz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     cargo rustc-bootstrap libffi libxml2 curl cmake 
+# Required:     cargo rustc-tiny libffi libxml2 curl cmake 
 # Recommended:  NONE
 # Optional:     patchelf
+#
+# NOTE: Rustc fails to build beyound stage 2 with rustc-bootstrap.
+#       Stage 2 compiler & std library (rustc-tiny) from failed build
+#       can be used to complete this build
 
 # Apply patches from Chimera Linux 
-patch -Np1 -i ../patches/rust-1.73.0-chimera/0001-add-chimera-targets-always-dynamic-musl-static-pie.patch 
-patch -Np1 -i ../patches/rust-1.73.0-chimera/0002-remove-a-bunch-of-unused-junk.patch 
-patch -Np1 -i ../patches/rust-1.73.0-chimera/0003-move-debugger-scripts-to-usr-share-rust.patch 
-patch -Np1 -i ../patches/rust-1.73.0-chimera/0004-fix-shebang-on-install-template.sh.patch 
-patch -Np1 -i ../patches/rust-1.73.0-chimera/0005-get-rid-of-wrong-linkage.patch 
-patch -Np1 -i ../patches/rust-1.73.0-chimera/0006-do-not-install-libunwind-source-removed.patch 
-patch -Np1 -i ../patches/rust-1.73.0-chimera/0007-fix-rustdoc-when-cross-compiling.patch 
-patch -Np1 -i ../patches/rust-1.73.0-chimera/0008-link-stage-2-tools-dynamically-to-libstd.patch 
-patch -Np1 -i ../patches/rust-1.73.0-chimera/0009-use-CBUILD_TARGET_SYSROOT-to-locate-llvm-when-cross-.patch
-patch -Np1 -i ../patches/rust-1.73.0-chimera/0010-do-not-export-LD_LIBRARY_PATH.patch
-patch -Np1 -i ../patches/rust-1.73.0-chimera/0011-drop-latomic-on-riscv-and-elsewhere.patch
-patch -Np1 -i ../patches/rust-1.73.0-chimera/0012-fix-rustix-on-big-endian-ppc64.patch
-
-# Don't set this variable, causes curl to fail to download
-#export SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt 
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0001-add-chimera-targets-always-dynamic-musl-static-pie.patch
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0002-remove-a-bunch-of-unused-junk.patch
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0003-move-debugger-scripts-to-usr-share-rust.patch 
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0004-fix-shebang-on-install-template.sh.patch 
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0005-get-rid-of-wrong-linkage.patch 
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0006-do-not-install-libunwind-source-removed.patch
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0007-fix-rustdoc-when-cross-compiling.patch
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0008-link-stage-2-tools-dynamically-to-libstd.patch
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0009-use-CBUILD_TARGET_SYSROOT-to-locate-llvm-when-cross-.patch
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0010-do-not-export-LD_LIBRARY_PATH.patch 
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0011-drop-latomic-on-riscv-and-elsewhere.patch 
 
 export OPENSSL_NO_VENDOR=1 RUST_BACKTRACE=1 
-export BOOTSTRAP=0 rlib_dir=/usr/lib/rustlib/x86_64-pc-linux-musl
+export BOOTSTRAP=0 
 export RUSTFLAGS="" PKG_CONFIG_ALLOW_CROSS=1
 
 # Set cargo variables?
@@ -42,40 +42,11 @@ export PKG_CONFIG_ALLOW_CROSS=1
 # Not sure if omitting patch 0009 is a good idea. For now:
 export CBUILD_TARGET_SYSROOT="/"
 
-# May need to add new "target" spec
-# compiler/rustc_target/src/spec/x86_64_unknown_linux_musl.rs
-# compiler/rustc_target/src/spec/x86_64_pc_linux_musl.rs
-# compiler/rustc_target/src/spec/x86_64_cmlfs_linux_musl.rs << preferred ?
-#
-# Host & build target specs are limited by the bootstrap rustc. To check:
-# rustc --print target-list
-#
-# Add new target spec [for target] to
-# compiler/rustc_target/src/spec/mod.rs
-#
-# Create "new target spec":
-cat > compiler/rustc_target/src/spec/x86_64_pc_linux_musl.rs << "EOF"
-use crate::spec::Target;
-
-pub fn target() -> Target {
-    let mut base = super::x86_64_unknown_linux_musl::target();
-
-    base.llvm_target = "x86_64-pc-linux-musl".into();
-    base.options.vendor = "pc".into();
-
-    base
-}
-EOF
-
-# Add "new target spec" to list of "supported targets"
-sed -i '1272 i \    \("x86_64-pc-linux-musl", x86_64_pc_linux_musl), ' \
-	compiler/rustc_target/src/spec/mod.rs
-
 # Don't use bundled llvm, not patched for musl
 rm -rf src/llvm-project
 
 # Clear vendor checksums 
-for d in libc libc-0.2.138 libc-0.2.140 libc-0.2.146 rustix-0.38.2 
+for d in libc libc-0.2.138 libc-0.2.140 libc-0.2.146 
 do
 	sed -i 's/\("files":{\)[^}]*/\1/' vendor/$d/.cargo-checksum.json
 done
@@ -87,61 +58,44 @@ sudo ln -sv clang-15 /usr/bin/c++
 # Copy build config. Make sure target, host, and build are all set to x86_64-unknown-linux-musl
 cp -v ../files/config.toml.rustc config.toml
 
-# Build & pack up as a distributive archive
-#read -p "Compile?" && \
-#env -u $PKGCONFIG -- python3 ./x.py dist -v --jobs 2
+# Make sure cargo & rustc-bootstrap are in PATH
+export PATH=/opt/rustc/bin:$PATH
 
-# If build fails, build by pieces:
-# Build the rust standard library
-env -u $PKGCONFIG -- python3 ./x.py build --stage 2 library -v --jobs 2
-# rustc and 'core std library' will be built in:
-# build/x86_64-unknown-linux-musl/stage2
-# Copy over to staging area
-sudo mkdir -pv $BUILD/opt/rustc-1.73.0/{bin,lib}
-sudo mkdir -pv $BUILD/opt/rustc-1.73.0/lib/rustlib/x86_64-unknown-linux-musl/lib
-sudo cp -a build/x86_64-unknown-linux-musl/stage2/bin/rustc \
-	   $BUILD/opt/rustc-1.73.0/bin/
-sudo cp -a build/x86_64-unknown-linux-musl/stage2/lib/*.so \
-	   $BUILD/opt/rustc-1.73.0/lib/
-sudo cp -a build/x86_64-unknown-linux-musl/stage2/lib/rustlib/lib/*.rlib \
-	   $BUILD/opt/rustc-1.73.0/lib/rustlib/x86_64-unknown-linux-musl/lib/
+# Build & pack up as a distributive archive 
+env -u $PKGCONFIG -- python3 ./x.py dist -v --jobs 2
 
 # Unpack to "install' to staging area
-#sudo mkdir /TBUILD
-#sudo tar xf build/dist/rustc-1.73.0-x86_64-chimera-linux-musl.tar.xz -C /TBUILD
-#sudo tar xf build/dist/rust-std-1.73.0-x86_64-pc-linux-musl.tar.xz   -C /TBUILD
-#sudo tar xf build/dist/rust-std-1.73.0-x86_64-chimera-linux-musl.tar.xz -C /TBUILD
-#sudo tar xf build/dist/rustc-dev-1.73.0-x86_64-chimera-linux-musl.tar.xz -C /TBUILD
-#sudo tar xf build/dist/rust-src-1.73.0.tar.xz -C /TBUILD
+sudo mkdir /TBUILD
+sudo tar xf build/dist/rustc-1.73.0-x86_64-chimera-linux-musl.tar.xz -C /TBUILD
+sudo tar xf build/dist/rust-std-1.74.0-x86_64-unknown-linux-musl.tar.xz -C /TBUILD
+sudo tar xf build/dist/rustc-dev-1.74.0-x86_64-unknown-linux-musl.tar.xz -C /TBUILD
+sudo tar xf build/dist/rust-src-1.74.0.tar.xz -C /TBUILD
 
 # Install rustc & rust-std to staging area 
-#cd /TBUILD/rustc-1.73.0-x86_64-chimera-linux-musl
-#sudo ./install.sh --destdir=$BUILD --prefix=/opt/rustc-1.73.0
-#cd /TBUILD/rust-std-1.73.0-x86_64-pc-linux-musl
-#sudo ./install.sh --destdir=$BUILD --prefix=/opt/rustc-1.73.0
-#cd /TBUILD/rust-std-1.73.0-x86_64-chimera-linux-musl
-#sudo ./install.sh --destdir=$BUILD --prefix=/opt/rustc-1.73.0
-#cd /TBUILD/rustc-dev-1.73.0-x86_64-chimera-linux-musl
-#sudo ./install.sh --destdir=$BUILD --prefix=/opt/rustc-1.73.0
-#cd /TBUILD/rust-src-1.73.0
-#sudo ./install.sh --destdir=$BUILD --prefix=/opt/rustc-1.73.0
+cd /TBUILD/rustc-1.74.0-x86_64-unknown-linux-musl/
+sudo ./install.sh --destdir=$BUILD --prefix=/opt/rustc-1.74.0
+cd /TBUILD/rust-std-1.74.0-x86_64-unknown-linux-musl/
+sudo ./install.sh --destdir=$BUILD --prefix=/opt/rustc-1.74.0
+cd /TBUILD/rustc-dev-1.74.0-x86_64-unknown-linux-musl/
+cd /TBUILD/rust-src-1.74.0/
+sudo ./install.sh --destdir=$BUILD --prefix=/opt/rustc-1.74.0
 
-sudo ln -sv rustc-1.73.0 $BUILD/opt/rustc 
+sudo ln -sv rustc-1.74.0 $BUILD/opt/rustc 
 
 # Set runtime path
-sudo patchelf --set-rpath /opt/rustc-1.73.0/lib $BUILD/opt/rustc-1.73.0/bin/rustc
+sudo patchelf --set-rpath /opt/rustc-1.74.0/lib $BUILD/opt/rustc-1.74.0/bin/rustc
+sudo patchelf --set-rpath /opt/rustc-1.74.0/lib $BUILD/opt/rustc-1.74.0/lib/librustc_driver-*
 
 # Clean up
 sudo rm -v /usr/bin/c++
-sudo rm -rf /TBUILD
 unset OPENSSL_NO_VENDOR RUST_BACKTRACE BOOTSTRAP rlib_dir
 unset HOST_CC  HOST_CFLAGS  ZSTD_SYS_USE_PKG_CONFIG
 unset LIBGIT2_NO_VENDOR CARGO_BUILD_JOBS CARGO_PROFILE_RELEASE_CODEGEN_UNITS
 unset PKG_CONFIG_ALLOW_CROSS CBUILD_TARGET_SYSROOT
 
 # Remove clutter
-#sudo rm -v  $BUILD/opt/rustc-1.73.0/lib/rustlib/manifest-*
-#sudo rm -v  $BUILD/opt/rustc-1.73.0/lib/rustlib/{components,uninstall.sh,install.log,rust-installer-version} 
+sudo rm -v  $BUILD/opt/rustc-1.74.0/lib/rustlib/manifest-*
+sudo rm -v  $BUILD/opt/rustc-1.74.0/lib/rustlib/{components,uninstall.sh,install.log,rust-installer-version} 
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -162,5 +116,5 @@ rustc: Homepage: https://rust-lang.org
 rustc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/rustc-1.73.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/rustc-1.74.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
