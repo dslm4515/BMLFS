@@ -1,0 +1,138 @@
+#! /bin/bash
+
+# rustc-tiny  (for CMLFS-based systems) 
+# Source: https://static.rust-lang.org/dist/rustc-1.74.0-src.tar.xz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cargo rustc-bootstrap libffi libxml2 curl cmake 
+# Recommended:  NONE
+# Optional:     patchelf
+
+# Apply patches from Chimera Linux 
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0001-add-chimera-targets-always-dynamic-musl-static-pie.patch
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0002-remove-a-bunch-of-unused-junk.patch
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0003-move-debugger-scripts-to-usr-share-rust.patch 
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0004-fix-shebang-on-install-template.sh.patch 
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0005-get-rid-of-wrong-linkage.patch 
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0006-do-not-install-libunwind-source-removed.patch
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0007-fix-rustdoc-when-cross-compiling.patch
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0008-link-stage-2-tools-dynamically-to-libstd.patch
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0009-use-CBUILD_TARGET_SYSROOT-to-locate-llvm-when-cross-.patch
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0010-do-not-export-LD_LIBRARY_PATH.patch 
+patch -Np1 -i ../patches/rust-1.74.0-chimera/0011-drop-latomic-on-riscv-and-elsewhere.patch 
+
+# Set build variables
+export OPENSSL_NO_VENDOR=1 RUST_BACKTRACE=1 
+export BOOTSTRAP=0 
+export RUSTFLAGS="" PKG_CONFIG_ALLOW_CROSS=1
+
+# Set cargo variables
+export HOST_CC="clang" HOST_CFLAGS="-O2" ZSTD_SYS_USE_PKG_CONFIG=1
+export PCRE2_SYS_STATIC=0  LIBSSH2_SYS_USE_PKG_CONFIG=1
+export LIBGIT2_NO_VENDOR=1 CARGO_BUILD_JOBS=2 CARGO_PROFILE_RELEASE_CODEGEN_UNITS=1
+export PKG_CONFIG_ALLOW_CROSS=1 
+
+# Using patches from Chimera Linux introduces required variables
+# Not sure if omitting patch 0009 is a good idea. For now:
+export CBUILD_TARGET_SYSROOT="/"
+
+# May need to add new "target" spec
+# compiler/rustc_target/src/spec/x86_64_unknown_linux_musl.rs
+# compiler/rustc_target/src/spec/x86_64_pc_linux_musl.rs
+# compiler/rustc_target/src/spec/x86_64_cmlfs_linux_musl.rs << preferred ?
+#
+# Host & build target specs are limited by the bootstrap rustc. To check:
+# rustc --print target-list
+#
+# Add new target spec [for target] to
+# compiler/rustc_target/src/spec/mod.rs
+#
+# To create "new target spec":
+#cat > compiler/rustc_target/src/spec/x86_64_pc_linux_musl.rs << "EOF"
+#use crate::spec::Target;
+#
+#pub fn target() -> Target {
+#    let mut base = super::x86_64_unknown_linux_musl::target();
+#
+#    base.llvm_target = "x86_64-pc-linux-musl".into();
+#    base.options.vendor = "pc".into();
+#
+#    base
+#}
+#EOF
+
+# Add "new target spec" to list of "supported targets"
+#sed -i '1275 i \    \("x86_64-pc-linux-musl", x86_64_pc_linux_musl), ' \
+#	compiler/rustc_target/src/spec/mod.rs
+
+# Don't use bundled llvm, not patched for musl
+rm -rf src/llvm-project
+
+# Clear vendor checksums 
+for d in libc libc-0.2.138 libc-0.2.140 libc-0.2.146 
+do
+	sed -i 's/\("files":{\)[^}]*/\1/' vendor/$d/.cargo-checksum.json
+done
+
+# Compiling will invoke c++ instead of g++ or clang++
+sudo ln -sv clang-15 /usr/bin/c++
+
+# Configure scripts seem to always fail. Use a config.toml instead.
+# Copy build config. Make sure target, host, and build are all set to x86_64-unknown-linux-musl
+cp -v ../files/config.toml.rustc config.toml
+
+# Since dist build fails wtih bootstrap, just build up to stage2 rust standard 
+# library & compiler:
+env -u $PKGCONFIG -- python3 ./x.py build --stage 2 library -v --jobs 2
+# rustc and 'core std library' will be built in:
+# build/x86_64-unknown-linux-musl/stage2
+# No extra tools built. Just the minimum to build other projects like librsvg and firefox
+
+# Copy over to staging area
+sudo mkdir -pv $BUILD/opt/rustc-1.74.0/{bin,lib}
+sudo mkdir -pv $BUILD/opt/rustc-1.74.0/lib/rustlib/x86_64-unknown-linux-musl/lib
+sudo cp -a build/x86_64-unknown-linux-musl/stage2/bin/rustc \
+	   $BUILD/opt/rustc-1.74.0/bin/
+sudo cp -a build/x86_64-unknown-linux-musl/stage2/lib/*.so \
+	   $BUILD/opt/rustc-1.74.0/lib/
+sudo cp -a build/x86_64-unknown-linux-musl/stage2/lib/rustlib/x86_64-unknown-linux-musl/lib/*.rlib \
+	   $BUILD/opt/rustc-1.74.0/lib/rustlib/x86_64-unknown-linux-musl/lib/
+
+sudo ln -sv rustc-1.74.0 $BUILD/opt/rustc 
+
+# Set runtime path
+sudo patchelf --set-rpath /opt/rustc-1.74.0/lib $BUILD/opt/rustc-1.74.0/bin/rustc
+sudo patchelf --set-rpath /opt/rustc-1.74.0/lib $BUILD/opt/rustc-1.74.0/lib/librustc_driver-*
+
+# Clean up
+sudo rm -v /usr/bin/c++
+unset OPENSSL_NO_VENDOR RUST_BACKTRACE BOOTSTRAP rlib_dir
+unset HOST_CC  HOST_CFLAGS  ZSTD_SYS_USE_PKG_CONFIG
+unset LIBGIT2_NO_VENDOR CARGO_BUILD_JOBS CARGO_PROFILE_RELEASE_CODEGEN_UNITS
+unset PKG_CONFIG_ALLOW_CROSS CBUILD_TARGET_SYSROOT
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+          |-----handy-ruler------------------------------------------------------|
+rustc-tiny: rustc-tiny
+rustc-tiny:
+rustc-tiny: Rust is a curly-brace, block-structured expression language.
+rustc-tiny: This includes only the official rust compiler and standard rust 
+rustc-tiny: library.
+rustc-tiny:
+rustc-tiny: Homepage: https://rust-lang.org
+rustc-tiny:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/rustc-tiny-1.74.0-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
