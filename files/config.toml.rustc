@@ -19,7 +19,7 @@ build = 'x86_64-unknown-linux-musl'
 host = ['x86_64-unknown-linux-musl']
 target = ['x86_64-unknown-linux-musl']
 
-cargo = '/opt/rustc-1.73.0/bin/cargo'
+cargo = '/opt/rustc/bin/cargo'
 rustc = '/opt/rustc/bin/rustc'
 
 docs = false
@@ -37,7 +37,7 @@ local-rebuild = false
 
 [install]
 
-prefix = '/opt/rustc-1.73.0'
+prefix = '/opt/rustc-1.74.0'
 
 [rust]
 
