@@ -1,0 +1,86 @@
+changelog-seen = 2
+
+[llvm]
+ninja = false
+link-shared = true
+static-libstdcpp = false
+use-libcxx = true
+targets = 'X86'
+
+[build]
+
+# This is set the host triplet to 'x86_64-chimera-linux-musl
+# and will cause firefox source to fail configuration
+#build = 'x86_64-chimera-linux-musl'
+#host = ['x86_64-chimera-linux-musl']
+#target = ['x86_64-chimera-linux-musl','x86_64-pc-linux-musl']
+
+build = 'x86_64-unknown-linux-musl'
+host = ['x86_64-unknown-linux-musl']
+target = ['x86_64-unknown-linux-musl']
+
+cargo = '/opt/rustc-1.74.0/bin/cargo'
+rustc = '/opt/rustc/bin/rustc'
+
+docs = false
+
+python = 'python3'
+
+locked-deps = true
+vendor = true
+
+extended = false
+
+tools = ["src"]
+
+local-rebuild = false
+
+[install]
+
+prefix = '/opt/rustc-1.74.0'
+
+[rust]
+
+optimize = true
+debug = false
+codegen-units = 1
+codegen-units-std = 1
+
+debuginfo-level = 0
+debuginfo-level-rustc = 0
+debuginfo-level-tests = 0
+
+incremental = false
+parallel-compiler = false
+
+channel = 'stable'
+description = 'Clang-Built Musl Linux'
+
+rpath = false
+
+deny-warnings = false
+
+llvm-libunwind = 'system'
+
+[dist]
+
+src-tarball = true
+compression-formats = ['xz']
+
+#[target.x86_64-chimera-linux-musl]
+#cc = '/usr/bin/clang'
+#cxx = '/usr/bin/clang++'
+#ar = '/usr/bin/ar'
+#ranlib = '/usr/bin/ranlib'
+#linker = '/usr/bin/clang'
+#llvm-config = '/usr/bin/llvm-config'
+#crt-static = false
+
+[target.x86_64-unknown-linux-musl]
+cc = '/usr/bin/clang'
+cxx = '/usr/bin/clang++'
+ar = '/usr/bin/ar'
+ranlib = '/usr/bin/ranlib'
+linker = '/usr/bin/clang'
+llvm-config = '/usr/bin/llvm-config'
+crt-static = false

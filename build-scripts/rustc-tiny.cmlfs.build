@@ -82,7 +82,7 @@ sudo ln -sv clang-15 /usr/bin/c++
 
 # Configure scripts seem to always fail. Use a config.toml instead.
 # Copy build config. Make sure target, host, and build are all set to x86_64-unknown-linux-musl
-cp -v ../files/config.toml.rustc config.toml
+cp -v ../files/config.toml.rustc-tiny config.toml
 
 # Since dist build fails wtih bootstrap, just build up to stage2 rust standard 
 # library & compiler:
