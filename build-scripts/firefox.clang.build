@@ -1,0 +1,203 @@
+#! /bin/bash
+
+# FireFox 119.0.1
+# Source: https://archive.mozilla.org/pub/firefox/releases/119.0.1/source/firefox-119.0.1.source.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     rustc cargo  Cbindgen dbus-glib GTK+3 libnotify LLVM
+# Required:     nodejs, NSS, PulseAudio(or alsa-lib), Python3 with SQlite, startup-notification,
+# Required:     Unzip, yasm, Zip, pipewire 
+# Recommended:  ICU, libevent, libwebp, NASM
+# Optional:     cURL, Doxygen, FFmpeg, liboauth, OpenJDK, Valgrind, Wget, Wireless-Tools, libpoxy
+#
+
+# Add missing header:
+cp -v ../files/firefox-chimera/stab.h \
+	toolkit/crashreporter/google-breakpad/src/
+
+# Clear vendor checksums 
+for d in $( ls -d third_party/rust/* )
+do
+	sed -i 's/\("files":{\)[^}]*/\1/' $d/.cargo-checksum.json
+done
+
+# Apply patches
+patch -Np1 -i ../patches/firefox-chimera/clang-ias.patch 
+patch -Np1 -i ../patches/firefox-chimera/clang-memory-throw-gcc.patch 
+patch -Np1 -i ../patches/firefox-chimera/disable-moz-stackwalk.patch 
+patch -Np1 -i ../patches/firefox-chimera/fix-firefox-desktop.patch
+patch -Np1 -i ../patches/firefox-chimera/fix-fortify-system-wrappers.patch 
+patch -Np1 -i ../patches/firefox-chimera/fix-rust-target.patch 
+patch -Np1 -i ../patches/firefox-chimera/fix-webrtc-glibcisms.patch 
+patch -Np1 -i ../patches/firefox-chimera/flac-no-ffvpx.patch 
+patch -Np1 -i ../patches/firefox-chimera/lolmalloc.patch 
+patch -Np1 -i ../patches/firefox-chimera/mallinfo.patch 
+patch -Np1 -i ../patches/firefox-chimera/no-ccache-stats.patch 
+patch -Np1 -i ../patches/firefox-chimera/ppc-musttail.patch 
+patch -Np1 -i ../patches/firefox-chimera/ppc64-webrtc.patch 
+patch -Np1 -i ../patches/firefox-chimera/riscv64-no-lto.patch 
+patch -Np1 -i ../patches/firefox-chimera/riscv64-reduce-debug.patch 
+patch -Np1 -i ../patches/firefox-chimera/rust-lto-thin.patch
+patch -Np1 -i ../patches/firefox-chimera/sandbox-fork.patch
+patch -Np1 -i ../patches/firefox-chimera/sandbox-largefile.patch 
+patch -Np1 -i ../patches/firefox-chimera/sandbox-mremap.patch
+patch -Np1 -i ../patches/firefox-chimera/sandbox-sched_setscheduler.patch
+patch -Np1 -i ../patches/firefox-chimera/sqlite-ppc.patch 
+patch -Np1 -i ../patches/firefox-chimera/xptcall-integrated-as.patch 
+patch -Np1 -i ../patches/firefox-chimera/zstandard.patch 
+
+# Setup Environment:
+export SHELL=/bin/sh BUILD_OFFICIAL=1 MOZILLA_OFFICIAL=1 USE_SHORT_LIBNAME=1 
+#export MACH_USE_SYSTEM_PYTHON=1 
+export MACH_BUILD_PYTHON_NATIVE_PACKAGE_SOURCE=none
+export RUST_TARGET="x86_64-unknown-linux-musl"
+# Build with Clang, takes less RAM
+export CC="clang" CXX="clang++"
+
+# set rpath so linker finds the libs
+export LDFLAGS="$LDFLAGS -Wl,-rpath,/opt/firefox/lib"
+
+# For ARM64 & x86:
+# ..  disable-elf-hack: exists only on arm, x86, x86_64
+export CXARGS="--disable-elf-hack "
+
+# FireFox doesn't have SIMD available on these arches.
+# armhf|armv7 = export CXARGS+="--disable-rust-simd --disable-debug-symbols --disable-debug "
+#               export RUSTFLAGS="$RUSTFLAGS -C debuginfo=0"
+# x86         = export CXARGS+="--disable-debug-symbols --disable-debug "
+#               export RUSTFLAGS="$RUSTFLAGS -C debuginfo=0"
+
+export CXARGS+="--enable-rust-simd "
+
+export RUST_TARGET=x86_64-unknown-linux-musl 
+
+export  CARGS="--host=x86_64-unknown-linux-musl "
+export CARGS+="--target=x86_64-unknown-linux-musl "
+export CARGS+="--enable-linker=lld "
+export CARGS+="--enable-release "
+export CARGS+="--enable-optimize "
+export CARGS+="--disable-install-strip "
+export CARGS+="--disable-strip "
+export CARGS+="--disable-hardening "
+
+# System installed
+export  SL="--with-system-pixman "
+export SL+="--with-system-ffi "
+export SL+="--with-system-nspr "
+export SL+="--with-system-nss "
+export SL+="--with-system-jpeg "
+export SL+="--with-system-webp "
+export SL+="--with-system-zlib "
+export SL+="--with-system-libevent "
+export SL+="--with-system-libvpx "
+export SL+="--with-system-icu "
+export SL+="--with-system-png "
+
+# wasi currently not ready
+export SL+="--without-wasm-sandboxed-libraries "
+
+# Enable features
+export  EF="--enable-dbus "
+export EF+="--enable-ffmpeg "
+export EF+="--enable-pulseaudio "
+export EF+="--enable-necko-wifi "
+export EF+="--enable-default-toolkit=cairo-gtk3-wayland "
+export EF+="--enable-audio-backends=pulseaudio "
+
+# Disable features
+export  DF="--disable-crashreporter "
+export DF+="--disable-profiling "
+export DF+="--disable-jemalloc "
+export DF+="--disable-tests "
+export DF+="--disable-updater "
+export DF+="--disable-alsa "
+
+# Browser features
+export  BF="--enable-official-branding "
+export BF+="--enable-application=browser "
+export BF+="--allow-addon-sideload "
+
+# Configure
+./mach configure --prefix=/opt/firefox \
+        --libdir=/opt/firefox/lib \
+	$CXARGS $SL $EF $DF $BF 
+
+# BUILD!
+./mach build
+
+# Install to stage area
+sudo -E DESTDIR=$BUILD ./mach install
+sudo install -m755 -dv $BUILD/usr/bin
+sudo install -m755 -dv $BUILD/usr/share/applications
+sudo install -m755 -dv $BUILD/usr/share/pixmaps
+sudo install -m755 -dv $BUILD/opt/firefox/lib/firefox/browser/defaults/preferences/
+sudo cp -va ../files/firefox-chimera/vendor.js \
+	$BUILD/opt/firefox/lib/firefox/browser/defaults/preferences/
+sudo ln -sv /opt/firefox/lib/firefox/firefox usr/bin/firefox
+
+# https://bugzilla.mozilla.org/show_bug.cgi?id=658850
+sudo rm -v $BUILD/opt/firefox/lib/firefox/firefox-bin 
+sudo ln -sv firefox $BUILD/opt/firefox/lib/firefox/firefox-bin
+
+# Install the icons
+for i in browser/branding/official/default*.png; do
+	export p=${i%.png}
+	p=${p##*/default}
+	sudo install -D -m644 $i $BUILD/usr/share/icons/hicolor/"$p"x"$p"/apps/firefox.png
+done
+sudo install -m644 browser/branding/official/default48.png \
+	$BUILD/usr/share/pixmaps/firefox.png
+
+# Create desktop launch file
+cat > /tmp/firefox.desktop << EOF
+[Desktop Entry]
+Encoding=UTF-8
+Name=Firefox Web Browser
+Comment=Browse the World Wide Web
+GenericName=Web Browser
+Exec=firefox %u
+Terminal=false
+Type=Application
+Icon=firefox
+Categories=GNOME;GTK;Network;WebBrowser;
+MimeType=$MIMETYPE
+StartupNotify=true
+EOF
+sudo mv /tmp/firefox.desktop $BUILD/usr/share/applications/
+
+# Create script for launch firefox in wayland
+cat > /tmp/firefox-wayland << EOF
+#!/bin/sh
+exec env MOZ_ENABLE_WAYLAND=1 /opt/firefox/lib/firefox/firefox "$@"
+EOF
+sudo mv /tmp/firefox-wayland $BUILD/usr/bin/
+sudo chmod -v +x $BUILD/usr/bin/firefox-wayland
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+               |-----handy-ruler------------------------------------------------------|
+mozilla-firefox: mozilla-firefox (Mozilla Firefox Web browser)
+mozilla-firefox:
+mozilla-firefox: This project is a redesign of the Mozilla browser component written
+mozilla-firefox: using the XUL user interface language.  Firefox empowers you to
+mozilla-firefox: browse faster, more safely and more efficiently than with any other
+mozilla-firefox: browser.
+mozilla-firefox:
+mozilla-firefox: Visit the Mozilla Firefox project online:
+mozilla-firefox:   http://www.mozilla.org/projects/firefox/
+mozilla-firefox:
+mozilla-firefox:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/mozilla-firefox-119.0.1-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
