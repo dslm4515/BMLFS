@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Xorg-Server
-# Source: https://www.x.org/pub/individual/xserver/xorg-server-21.1.3.tar.xz
+# Source: https://www.x.org/pub/individual/xserver/xorg-server-21.1.8.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -79,8 +79,8 @@ xorg-server:
 xorg-server: The home page for the X project is:  http://www.x.org
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S ln -sv Xorg $XORG_PREFIX/bin/X          &&
-sudo -S makepkg -l y -c n $PKGS/xorg-server-21.1.3-$(uname -m)-mlfs.txz && \
+#sudo -S ln -sv Xorg $BUILD/$XORG_PREFIX/bin/X          &&
+sudo -S makepkg -l y -c n $PKGS/xorg-server-21.1.8-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xorg-server-doc: Manuals for xorg-server ( X11 core of the X Window System)
@@ -92,5 +92,5 @@ xorg-server-doc: http://www.x.org
 xorg-server-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xorg-server-doc-21.1.3-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xorg-server-doc-21.1.8-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
