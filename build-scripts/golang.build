@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Go Compiler 
-# Source: https://go.dev/dl/go1.21.3.src.tar.gz
+# Source: https://go.dev/dl/go1.21.5.src.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -65,7 +65,6 @@ sudo -S rm -rfv $BUILD/usr/lib/go/pkg/obj        && \
 sudo -S rm -rfv $BUILD/usr/lib/go/pkg/bootstrap  && \
 sudo -S rm -fv  $BUILD/usr/lib/go/pkg/tool/*/api && \
 
-sudo -S mkdir -pv $BUILD/usr/lib/go/ && \
 sudo -S cp -a src $BUILD/usr/lib/go/ && \
 
 # Per Archlinux, the go.env needs to be copied.
@@ -108,7 +107,7 @@ EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
 sudo mv $BUILD/usr/share /BMAN/usr/ && \
-sudo -S makepkg -l y -c n $PKGS/golang-1.21.3-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/golang-1.21.5-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 golang-doc: Documentation for golang
@@ -119,6 +118,6 @@ golang-doc: https://go.dev/
 golang-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/golang-doc-1.21.3-${NOPSUFFIX} &&
+sudo -S makepkg -l y -c n $PKGS/golang-doc-1.21.5-${NOPSUFFIX} &&
 sudo -S rm -rf ${BUILD}/*
 unset GOOS GOPATH GOROOT GOBIN GOROOT_FINAL GOROOT_BOOTSTRAP GOARCH
