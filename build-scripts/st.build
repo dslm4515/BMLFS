@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # St (Simple Terminal from Suckless)
-# Source: https://dl.suckless.org/st/st-0.8.4.tar.gz
+# Source: https://dl.suckless.org/st/st-0.9.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,9 +11,9 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-patch -Np1 -i ../patches/st-suckless/st-scrollback-20200419-72e3f6c.diff
-patch -Np1 -i ../patches/st-suckless/st-scrollback-mouse-20191024-a2c479c.diff
-patch -Np1 -i ../patches/st-suckless/st-scrollback-mouse-altscreen-20200416-5703aa0.diff
+patch -Np1 -i ../patches/st-suckless/st-scrollback-20210507-4536f46.diff 
+patch -Np1 -i ../patches/st-suckless/st-scrollback-mouse-20220127-2c5edf2.diff 
+patch -Np1 -i ../patches/st-suckless/st-scrollback-mouse-altscreen-20220127-2c5edf2.diff
 
 sed -i '/tic/d' Makefile &&
 
@@ -44,5 +44,5 @@ st:
 st:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/st-0.8.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/st-0.9-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
