@@ -1,7 +1,8 @@
 #! /bin/bash
 
 # Cython 
-# Source: https://github.com/cython/cython/archive/0.29.24.tar.gz
+# Source: https://github.com/cython/cython/releases/download/3.0.2/Cython-3.0.2.tar.gz
+# Source: https://github.com/cython/cython/releases/download/0.29.36/Cython-0.29.36.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,17 +12,21 @@
 # Recommended:  NONE
 # Optional:     NONE
 #
-# NOTE version 3.0a6 will not build libplist:
-# OverflowError: Python int too large to convert to C ssize_t
+
+# NOTE: libimobiledevice does not support Cython 3.x
+# NOTE: So far, no package requires Cython 3.x
 
 # If coptimizing with GCC:
 export  CFLAGS="-march=native -mtune=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-read -p "Compile?" && python3 setup.py build &&
+#read -p "Compile?" && python3 setup.py build &&
+pip3 wheel -w dist --no-build-isolation --no-deps --no-cache-dir $PWD
 
-sudo -S python3 setup.py install --prefix=/usr --root=$BUILD  &&
+
+#sudo -S python3 setup.py install --prefix=/usr --root=$BUILD  &&
+sudo -S pip3 install --no-index --find-links=dist --no-cache-dir --no-user Cython --root=${BUILD}
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -46,5 +51,5 @@ Cython:
 Cython:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/Cython-0.29.24-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/Cython-0.29.36-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
