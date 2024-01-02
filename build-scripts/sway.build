@@ -1,21 +1,24 @@
 #! /bin/bash
+#uchtunes.com
 
 # Sway 
+# Source: https://github.com/swaywm/sway/releases/download/1.8.1/sway-1.8.1.tar.gz
 # Source: https://github.com/swaywm/sway/releases/download/1.7/sway-1.7.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     wlroots(0.15.1), json-c, wayland-protocols, libxkbcommon, cairo,
-# Required:     gdk-pixbuf, pixman, mesa, libevdev, libinput, elogind, pango,
+# Required:     wlroots(0.16.2), json-c, wayland-protocols, libxkbcommon, cairo,
+# Required:     gdk-pixbuf, pixman, mesa, libevdev, libinput, pango,
 # Required:     libxcb, pcre
-# Recommended:  NONE
+# Recommended:  elogind basu xwayland
 # Optional:     fish, git
 
 # Sway 1.7 will not build with wlroots-0.16.0 at this time.
 
-meson --prefix=/usr -Dbuildtype=release OUT
+meson --prefix=/usr -Dbuildtype=release \
+	-Dxwayland=enabled -Dtray=enabled OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
