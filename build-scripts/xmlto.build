@@ -11,6 +11,8 @@
 # Recommended:  NONE
 # Optional:     fop, dblatex, PassiveTeX, Links, Lynx, W3m, ELinks 
 
+# If building with LLVM-17, ad CFLAGS
+CFLAGS="-Wno-implicit-int" \
 LINKS="/usr/bin/links" \
 ./configure --prefix=/usr --mandir=/usr/share/man $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
@@ -39,5 +41,5 @@ xmlto: xmlto home: http://cyberelk.net/tim/software/xmlto/
 xmlto:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xmlto-0.0.28-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/xmlto-0.0.28-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
