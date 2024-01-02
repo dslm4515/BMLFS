@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # XCB-proto 
-# Source: https://xorg.freedesktop.org/archive/individual/proto/xcb-proto-1.15.2.tar.xz
+# Source: https://xorg.freedesktop.org/archive/individual/proto/xcb-proto-1.16.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -48,6 +48,6 @@ xcb-proto:
 xcb-proto:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xcb-proto-1.15.2-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/xcb-proto-1.16.0-$NOPSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
 
