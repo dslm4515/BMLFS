@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libfontenc
-# Source: ftp://ftp.x.org/pub/individual/lib/libfontenc-1.1.4.tar.bz2
+# Source: ftp://ftp.x.org/pub/individual/lib/libfontenc-1.1.7.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -46,5 +46,5 @@ libfontenc:
 libfontenc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libfontenc-1.1.4-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libfontenc-1.1.7-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
