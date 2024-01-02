@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # LibSSH 
-# Source: https://www.libssh.org/files/0.9/libssh-0.9.6.tar.xz
+# Source: https://www.libssh.org/files/0.10/libssh-0.10.5.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -48,5 +48,5 @@ libssh:
 libssh:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libssh-0.9.6-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libssh-0.10.5-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/* /BMAN/*
