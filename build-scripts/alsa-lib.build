@@ -24,6 +24,9 @@ patch -Np1 -i ../patches/alsa-lib-chimera/test-oldapi.patch
 
 autoreconf -vfi
 
+# If building with LLVM-17's LLD, set the LDFLAGS
+# https://github.com/termux/termux-packages/issues/18761#issuecomment-1864098542
+LDFLAGS="-Wl,--undefined-version" \
 ./configure --prefix=/usr \
 		--enable-rawmidi \
 		--enable-seq \
