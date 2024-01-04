@@ -21,6 +21,9 @@ aclocal && automake --force --add-missing
 
 # If using netBSD curses instead of Ncurses, use "-lterminfo" instead of "-ltinfo"
 LDFLAGS="-Wl,--as-needed -ltinfo " \
+# If building with LLVM-17's LLD, set the LDFLAGS
+# https://github.com/termux/termux-packages/issues/18761#issuecomment-1864098542
+LDFLAGS="$LDFLAGS -Wl,--undefined-version" \
 ./configure --prefix=/usr    --enable-mp3rtp --with-pic \
             --disable-static --enable-nasm   $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
@@ -54,7 +57,7 @@ lame:
 lame: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/lame-3.100-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/lame-3.100-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 lame-doc: Manuals for Lame (LAME Ain't an Mp3 Encoder)
@@ -65,6 +68,6 @@ lame-doc: improve the psycho acoustics, noise shaping and speed of MP3.
 lame-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/lame-doc-3.100-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/lame-doc-3.100-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
