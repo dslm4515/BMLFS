@@ -31,6 +31,9 @@ patch -Np1 -i ../patches/bluez-chimera/005-hostname-Use-phone-class-for-handheld
 patch -Np1 -i ../patches/bluez-chimera/fix-endianness.patch 
 patch -Np1 -i ../patches/bluez-chimera/test-mesh-crypto.patch 
 
+# If building with LLVM-17's LLD, set the LDFLAGS
+# https://github.com/termux/termux-packages/issues/18761#issuecomment-1864098542
+LDFLAGS="-Wl,--undefined-version" \
 ./configure --prefix=/usr         \
             --sysconfdir=/etc     \
             --localstatedir=/var  \
