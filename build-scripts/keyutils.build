@@ -15,6 +15,9 @@
 patch -Np1 -i ../patches/keyutils-chimera/install.patch 
 
 read -p "Compile?" && \
+# If building with LLVM-17's LLD, set the LDFLAGS
+# https://github.com/termux/termux-packages/issues/18761#issuecomment-1864098542
+LDFLAGS="-Wl,--undefined-version" \
 make NO_ARLIB=1 LIBDIR=/usr/lib \
      USRLIBDIR=/usr/lib VERSION="1.6.3" \
      RELEASE="-r0" -j2 &&
