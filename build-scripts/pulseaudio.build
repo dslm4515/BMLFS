@@ -21,6 +21,11 @@ export CFLAGS+="-fno-math-errno -fno-semantic-interposition -fno-trapping-math "
 # If GTK3 has no X11 support, it must be disabled -Dgtk=disabled 
 
 mkdir BUILD && cd BUILD &&
+# If building with LLVM-17's LLD, set the LDFLAGS 
+# https://github.com/termux/termux-packages/issues/18761#issuecomment-1864098542
+LDFLAGS="-Wl,--undefined-version" \
+# If building with clang-17, add CFLAG
+CFLAGS="-Wno-incompatible-function-pointer-types " \
 meson --prefix=/usr \
         -Dbuildtype=release \
         -Dgcov=false \
