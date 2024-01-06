@@ -11,7 +11,11 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-LDFLAGS="-Wl,-ltinfow " \
+#LDFLAGS="-Wl,-ltinfow " \
+# Not compatible with netbsd-curses
+CPPFLAGS="-I/opt/ncurses/include " \
+LIBS="-L/opt/ncurses/lib "  \
+LDFLAGS="-Wl,--rpath=/opt/ncurses/lib "
 ./configure --prefix=/usr $BUILDTRUPLE \
      --sysconfdir=/etc &&
 read -p "Compile?" && make -j2 &&
@@ -41,5 +45,5 @@ cdw: Homepage: http://cdw.sourceforge.net
 cdw:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cdw-0.8.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/cdw-0.8.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
