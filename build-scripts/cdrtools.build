@@ -14,6 +14,10 @@
 export GMAKE_NOWARN=true &&
 make -j1 INS_BASE=/usr DEFINSUSR=root DEFINSGRP=root &&
 
+# For CMLFS:
+PATH=/opt/gnu/bin:$PATH \
+make -j1 CC=gcc DEFCCOM=gcc INS_BASE=/usr DEFINSUSR=root DEFINSGRP=root 
+
 sudo -S make INS_BASE=/usr DEFINSUSR=root DEFINSGRP=root DESTDIR=$BUILD install &&
 
 unset GMAKE_NOWARN &&
@@ -41,5 +45,5 @@ cdrtools:
 cdrtools:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cdrtools-3.02a09-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/cdrtools-3.02a09-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
