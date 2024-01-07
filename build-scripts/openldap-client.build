@@ -1,21 +1,24 @@
 #! /bin/bash
 
 # OpenLDAP (client install)
-# Source: ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/openldap-2.4.54.tgz
+# Source: https://www.openldap.org/software/download/OpenLDAP/openldap-release/openldap-2.6.6.tgz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     NONE
-# Recommended:  Cyrus SASL
+# Recommended:  Cyrus-SASL
 # Optional:     GnuTLS, Pth, unixODBC, MariaDB or PostgreSQL or MySQL, OpenSLP, and Berkeley DB
 
-patch -Np1 -i ../patches/openldap-alpine/cacheflush.patch
-patch -Np1 -i ../patches/openldap-alpine/fix-manpages.patch
-patch -Np1 -i ../patches/openldap-alpine/openldap-2.4-ppolicy.patch
-patch -Np1 -i ../patches/openldap-alpine/openldap-2.4.11-libldap_r.patch
-patch -Np1 -i ../patches/openldap-alpine/openldap-mqtt-overlay.patch
+patch -Np1 -i ../patches/openldap-alpine/0001-Fix-build-issue-in-clients-tools-common.c.patch
+patch -Np1 -i ../patches/openldap-alpine/0002-Add-UNIX_LINK_LIBS-to-slapi-Makefile.patch 
+patch -Np1 -i ../patches/openldap-alpine/0003-Add-mqtt-overlay.patch 
+patch -Np1 -i ../patches/openldap-alpine/0004-Fix-manpages.patch
+patch -Np1 -i ../patches/openldap-alpine/0005-Correct-command-line-syntax-in-lloadd-tests.patch
+patch -Np1 -i ../patches/openldap-alpine/0007-Use-correct-extension-for-slapd-modules.patch
+patch -Np1 -i ../patches/openldap-alpine/0008-Remove-pidfile-and-argsfile.patch
+patch -Np1 -i ../patches/openldap-alpine/0009-Include-more-schemas-in-default-config.patch
 
 autoconf -v &&
 
@@ -26,7 +29,9 @@ autoconf -v &&
             --disable-debug   \
             --disable-slapd   \
             --with-cyrus-sasl \
-            --enable-crypt $BUILDTRUPLE &&
+            --disable-versioning \
+	    --with-systemd=no \
+	    --enable-crypt $BUILDTRUPLE &&
 make -j2 depend &&
 read -p "Compile?" && make -j2 &&
 
@@ -55,5 +60,5 @@ openldap-client: The OpenLDAP homepage is http://www.openldap.org/
 openldap-client:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/openldap-client-2.4.54-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/openldap-client-2.6.6-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
