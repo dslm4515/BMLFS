@@ -1,53 +1,40 @@
 #! /bin/bash
 
 # Cyrus SASL 
-# Source: https://github.com/cyrusimap/cyrus-sasl/releases/download/cyrus-sasl-2.1.27/cyrus-sasl-2.1.27.tar.gz
+# Source: https://github.com/cyrusimap/cyrus-sasl/releases/download/cyrus-sasl-2.1.28/cyrus-sasl-2.1.28.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     NONE
-# Recommended:  Berkeley DB
-# Optional:     Linux-PAM, MIT Kerberos V5, MariaDB or MySQL, OpenJDK, OpenLDAP, PostgreSQL, 
-# Optional:     SQLite, krb4, Dmalloc, Pod::POM::View::Restructured, and Sphinx 
+# Recommended:  BerkeleyDB lmdb
+# Optional:     lmdb Linux-PAM  krb5(MIT Kerberos V5) MariaDB/MySQL OpenJDK OpenLDAP PostgreSQL 
+# Optional:     SQLite krb4 Dmalloc Pod::POM::View::Restructured  Sphinx 
 
-patch -Np1 -i ../patches/cyrus-sasl-alpine/CVE-2019-19906.patch
-patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-as_needed.patch
-patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-autotools_fixes.patch
-patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-avoid_pic_overwrite.patch
-patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-doc_build_fix.patch
-patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-gss_c_nt_hostbased_service.patch
+#patch -Np1 -i ../patches/cyrus-sasl-alpine/CVE-2019-19906.patch
+#patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-as_needed.patch
+#patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-autotools_fixes.patch
+#patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-avoid_pic_overwrite.patch
+#patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-doc_build_fix.patch
+#patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-gss_c_nt_hostbased_service.patch
+patch -Np1 -i ../patches/cyrus-sasl-chimera/cyrus-sasl-2.1.28-fix-configure-time-check.patch
 autoreconf -fvi &&
 
-./configure \
-		--prefix=/usr \
-		--sysconfdir=/etc \
-		--localstatedir=/var \
-		--mandir=/usr/share/man \
-		--enable-static \
-		--enable-shared \
-		--disable-java \
-		--with-plugindir=/usr/lib/sasl2 \
-		--with-configdir=/etc/sasl2 \
-		--with-dbpath=/etc/sasl2/sasldb2 \
-		--disable-krb4 \
-		--enable-gssapi \
-		--with-rc4 \
-		--with-dblib=gdbm \
-		--with-saslauthd=/run/saslauthd \
-		--without-pwcheck \
-		--with-devrandom=/dev/urandom \
-		--with-sqlite \
-		--enable-anon \
-		--enable-cram \
-		--enable-digest \
-		--enable-ntlm \
-		--enable-plain \
-		--enable-login \
-		--enable-auth-sasldb \
-		--enable-alwaystrue \
-		--disable-otp $BUILDTRUPLE &&
+./configure --prefix=/usr \
+            --sysconfdir=/etc \
+	    --enable-auth-sasldb \
+	    --with-dblib=lmdb \
+	    --disable-krb4 \
+	    --with-dbpath=/var/lib/sasl/sasldb2 \
+	    --with-saslauthd=/var/run/saslauthd \
+	    --with-sphinx-build=no \
+	    --enable-cram --enable-digest --enable-plain \
+	    --enable-anon --enable-login --enable-gssapi \
+	    --disable-otp --disable-srp --disable-srp-setpass \
+	    --with-devrandom=/dev/random \
+	    --with-configdir=/etc/sasl2:/etc/sasl:/usr/lib/sasl2 \
+	    $BUILDTRUPLE &&
 read -p "Compile?" && make -j1 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -75,5 +62,5 @@ cyrus-sasl:
 cyrus-sasl:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cyrus-sasl-2.1.27-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/cyrus-sasl-2.1.28-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
