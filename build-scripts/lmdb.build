@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# lmdb 
+# Source: https://github.com/LMDB/lmdb/archive/LMDB_0.9.31.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+# NOTE: This package extracts to lmdb-LMDB_0.9.31. 
+
+cd libraries/liblmdb
+
+# set CC as clang if GCC not installed
+read -p "Compile?" && make CC=clang -j2 &&
+
+sudo -S make prefix=/usr DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+lmdb: lmdb
+lmdb:
+lmdb: A fast, compact, key-value embedded data store. It uses memory-mapped
+lmdb: files, so it has the read performance of a pure in-memory database 
+lmdb: while still offering the persistence of standard disk-based databases,
+lmdb: and is only limited to the size of the virtual address space.
+lmdb:
+lmdb: https://github.com/LMDB/lmdb
+lmdb: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/lmdb-0.9.31-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
