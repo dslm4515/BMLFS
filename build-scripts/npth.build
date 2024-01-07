@@ -11,6 +11,9 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# If building with LLVM-17's LLD, set the LDFLAGS
+# https://github.com/termux/termux-packages/issues/18761#issuecomment-1864098542
+LDFLAGS="-Wl,--undefined-version" \
 ./configure --prefix=/usr $BUILDTRUPLE &&
 
 read -p "Compile?" && make -j2 &&
@@ -40,5 +43,5 @@ npth:
 npth:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/npth-1.6-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/npth-1.6-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
