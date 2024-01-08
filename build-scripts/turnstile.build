@@ -2,7 +2,7 @@
 
 # turnstile 
 # Source: https://github.com/chimera-linux/turnstile
-# Commit: 27f29a523cb75ba778ca538d319181a60c533eb4
+# Commit: 00fd0b1ad7b5fd262bb83c75cb463ad32b1940c9
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -14,7 +14,7 @@
 
 git clone https://github.com/chimera-linux/turnstile
 cd turnstile
-git checkout 27f29a523cb75ba778ca538d319181a60c533eb4
+git checkout 00fd0b1ad7b5fd262bb83c75cb463ad32b1940c9
 
 meson setup --prefix=/usr -Ddinit=disabled -Dmanage_rundir=true OUT
 
