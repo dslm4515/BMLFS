@@ -91,9 +91,9 @@ do
              # Copy over slack-desc
              sudo cp -v ../../files/desc/xorg-libs/$pkgname $BUILD/install/slack-desc
              # Strip libraries if desired
-             sudo strip --strip-debug  $BUILD/$XORG_PREFIX/lib/*
+             sudo strip --strip-debug  $BUILD$XORG_PREFIX/lib/*
              # Remove man-pages if desired
-             sudo rm -vrf $BUILD/$XORG_PREFIX/share/{man,doc,info}
+             sudo rm -vrf $BUILD$XORG_PREFIX/share/{man,doc,info}
              # create pkg
              cd $BUILD
              sudo -E $PKGMAKER -l y -c n $PKGS/${packagedir}-$PSUFFIX
