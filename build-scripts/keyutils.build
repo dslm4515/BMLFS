@@ -12,7 +12,10 @@
 # Optional:     NONE
 
 # Per Chimera Linux, enable install(1) portability
-patch -Np1 -i ../patches/keyutils-chimera/install.patch 
+#patch -Np1 -i ../patches/keyutils-chimera/install.patch 
+
+# Remove -Werror from CFLAGS
+patch -Np1 -i ../patches/keyutils-mlfs/remove-werror.patch 
 
 read -p "Compile?" && \
 # If building with LLVM-17's LLD, set the LDFLAGS

@@ -1,0 +1,11 @@
+--- keyutils-1.6.3.orig/Makefile	2020-07-07 11:04:37.000000000 -0500
++++ keyutils-1.6.3/Makefile	2024-01-10 15:39:50.250688856 -0600
+@@ -1,6 +1,6 @@
+ CPPFLAGS	:= -I.
+-CFLAGS		:= -g -Wall -Werror
+-CXXFLAGS	:= -g -Wall -Werror
++CFLAGS		:= -g -Wall 
++CXXFLAGS	:= -g -Wall 
+ INSTALL		:= install
+ DESTDIR		:=
+ SPECFILE	:= keyutils.spec
