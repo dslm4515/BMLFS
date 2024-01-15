@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libnvme 
-# Source: https://github.com/linux-nvme/libnvme/archive/refs/tags/v1.6/libnvme-1.6.tar.gz 
+# Source: https://github.com/linux-nvme/libnvme/archive/refs/tags/v1.7/libnvme-1.7.tar.gz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,8 +11,8 @@
 # Recommended:  NONE
 # Optional:     dbus json-c keyutils swig
 
-patch -Np1 -i ../patches/libnvme-chimera/ioctl-int.patch 
-patch -Np1 -i ../patches/libnvme-chimera/doc-test.patch
+#patch -Np1 -i ../patches/libnvme-chimera/ioctl-int.patch 
+#patch -Np1 -i ../patches/libnvme-chimera/doc-test.patch
 
 meson setup --prefix=/usr --buildtype=release \
 	    -Dlibdbus=auto BUILD
@@ -42,5 +42,5 @@ libnvme: https://github.com/linux-nvme/libnvme
 libnvme:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libnvme-1.6-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libnvme-1.7-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
