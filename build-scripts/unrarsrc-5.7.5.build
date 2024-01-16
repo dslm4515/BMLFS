@@ -1,7 +1,0 @@
-#! /bin/bash
-
-# UnRaR 5.7.5
-# source: http://www.rarlab.com/rar/unrarsrc-5.7.5.tar.gz
-
-make -f makefile -j2 &&
-sudo -S porg -lp unrar-5.7.5 "install -v -m755 unrar /usr/bin"

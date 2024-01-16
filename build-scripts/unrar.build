@@ -1,0 +1,39 @@
+#! /bin/bash
+
+# unRAR 
+# Source: http://www.rarlab.com/rar/unrarsrc-6.2.12.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+read -p "Compile?" && make -j2 -f makefile &&
+
+sudo -S install -vd -m755      $BUILD/usr/bin/
+sudo -S install -v -m755 unrar $BUILD/usr/bin/ &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+unrar: unrar
+unrar:
+unrar: A RAR extraction tool utility used for extracting files from RAR
+unrar: archives.
+unrar:
+unrar: www.rarlab.com
+unrar:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/unrar-6.2.12-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
