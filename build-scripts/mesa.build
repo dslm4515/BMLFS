@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Mesa with Xorg
-# Source: https://archive.mesa3d.org/mesa-23.2.1.tar.xz
+# Source: https://archive.mesa3d.org/mesa-23.3.4.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,26 +11,21 @@
 # Recommended:  Libva, libvdpau(for Xorg), wayland-protocols, libglvnd, spirv-headers
 # Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind, vulkan-headers (vulkan support/driver)
 # Optional:     vulkan-loader (vulkan support), libclc(vulkan-support), libxcb(for Xorg), libX11(for Xorg)
-# Optional:     libxshmfence(for Xorg), libXxf86vm(for Xorg), libXrandr(for Xorg)
+# Optional:     libxshmfence(for Xorg), libXxf86vm(for Xorg), libXrandr(for Xorg), DirectX-headers
 
 # As of version 22.x.x, Mesa's classic OpenGL drivers (non-Gallium3D) have been removed. These are the
 # old Radeon R100 and R200 drivers, the original Nouveau code, and the Intel i915 and i965 drivers.
 # More info at https://www.phoronix.com/scan.php?page=news_item&px=Mesa-Classic-Retired
 
 # Apply patches from Chimera Linux
-patch -Np1 -i ../patches/mesa-23.2.1-chimera/0001-radeonsi-On-Aarch64-force-persistent-buffers-to-GTT.patch
-patch -Np1 -i ../patches/mesa-23.2.1-chimera/001-2d4fe5f229791fde52846b3f583c12508b5109d6.patch 
-patch -Np1 -i ../patches/mesa-23.2.1-chimera/002-d6613deed935d097cce796b3f485d07450fad33c.patch
-patch -Np1 -i ../patches/mesa-23.2.1-chimera/003-6388896985da7495ad0968322491953894d29637.patch 
-patch -Np1 -i ../patches/mesa-23.2.1-chimera/9590bce3e249a34665b2c42b20bfdbdc7f32147f.patch 
-patch -Np1 -i ../patches/mesa-23.2.1-chimera/disable-ppc64-asm.patch
-patch -Np1 -i ../patches/mesa-23.2.1-chimera/fix-meson-build.patch 
-patch -Np1 -i ../patches/mesa-23.2.1-chimera/musl-endian.patch 
-patch -Np1 -i ../patches/mesa-23.2.1-chimera/musl-stacksize.patch 
-patch -Np1 -i ../patches/mesa-23.2.1-chimera/musl.patch 
-
-# Not sure if "initial-exec TLS" works now with mesa 22.x.x. Enabling for now
-#patch -Np1 -i ../patches/mesa-alpine-21.2.1/add-use-elf-tls.patch
+patch -Np1 -i ../patches/mesa-23.3.4-chimera/0001-radeonsi-On-Aarch64-force-persistent-buffers-to-GTT.patch 
+patch -Np1 -i ../patches/mesa-23.3.4-chimera/disable-ppc64-asm.patch
+patch -Np1 -i ../patches/mesa-23.3.4-chimera/fix-meson-build.patch 
+patch -Np1 -i ../patches/mesa-23.3.4-chimera/musl-endian.patch 
+patch -Np1 -i ../patches/mesa-23.3.4-chimera/musl-stacksize.patch 
+patch -Np1 -i ../patches/mesa-23.3.4-chimera/musl.patch 
+patch -Np1 -i ../patches/mesa-23.3.4-chimera/no-unlink-megadrivers.patch
+patch -Np1 -i ../patches/mesa-23.3.4-chimera/vec-clang.patch 
 
 # If optimizing, use these flags
 # LTO is not recommended
@@ -47,9 +42,6 @@ case $(uname -m) in
 		     #export DRI_DRIVERS="nouveau" 
 		     export V_DRIVERS="swrast" ;;
 esac
-
-#export MESA_GIT_SHA1_OVERRIDE=53b2b224dc2de982c37915a0ad218e33365ff75e &&
-#python3 bin/git_sha1_gen.py --output include/git_sha1.h &&
 
 # Set configure flags
 export  BUILDOPT="-Dbuildtype=release "
@@ -72,7 +64,6 @@ export DRVROPT="-Degl-native-platform=wayland "
 
 export  GALLIUMOPT="-Dgallium-va=enabled "
 export GALLIUMOPT+="-Dgallium-xa=enabled "
-#export GALLIUMOPT+="-Dgallium-xvmc=true "
 export GALLIUMOPT+="-Dgallium-nine=true "
 export GALLIUMOPT+="-Dgallium-vdpau=enabled "
 
@@ -99,15 +90,18 @@ export V_DRIVERS="swrast,intel"
 # If glslang is installed, vulkan layers an be built
 export V_LAYERS="-Dvulkan-layers=device-select,overlay,intel-nullhw "
 
-meson --prefix=/usr \
-      -Dvulkan-drivers="${V_DRIVERS}" -Dgallium-drivers="${GLL_DRV}" \
+# If compiling with clang-17, add flag:
+LDFLAGS="-Wl,--undefined-version" \
+meson setup --prefix=/usr -Dvulkan-drivers="${V_DRIVERS}" \
+      -Dgallium-drivers="${GLL_DRV}" \
       -Dplatforms=wayland,x11 -Dtools=glsl \
       $BUILDOPT $GFXOPT $DRVROPT $GALLIUMOPT $V_LAYERS  $XTRA_OPTS OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja -C OUT install &&
-unset CFLAGS GLL_DRV DRI_DRIVERS MESA_GIT_SHA1_OVERRIDE V_DRIVERS &&
+unset CFLAGS GLL_DRV V_DRIVERS BUILDOPT 
+unset GFXOPT DRVROPT GALLIUMOPT V_LAYERS XTRA_OPTS  &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -132,5 +126,5 @@ mesa:
 mesa:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mesa-23.2.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/mesa-23.3.4-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
