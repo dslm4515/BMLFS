@@ -1,0 +1,44 @@
+#! /bin/bash
+
+# EGL external platform 
+# Source: https://github.com/NVIDIA/eglexternalplatform/archive/refs/tags/1.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+sudo mkdir -pv $BUILD/usr/include/EGL
+sudo mkdir -pv $BUILD/usr/lib/pkgconfig
+sudo cp -v interface/*.h $BUILD/usr/include/EGL/
+sudo chmod -v 644 $BUILD/usr/include/EGL/*
+sudo cp -v eglexternalplatform.pc $BUILD/usr/lib/pkgconfig/
+sudo chmod -v 644 $BUILD/usr/lib/pkgconfig/*
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                   |-----handy-ruler------------------------------------------------------|
+eglexternalplatform: eglexternalplatform
+eglexternalplatform:
+eglexternalplatform: A work-in-progress specification of the EGL External Platform 
+eglexternalplatform: interface for writing EGL platforms and their interactions with 
+eglexternalplatform: modern window systems on top of existing low-level EGL platform 
+eglexternalplatform: implementations. This keeps window system implementation specifics 
+eglexternalplatform: out of EGL drivers by using application-facing EGL functions.
+eglexternalplatform:
+eglexternalplatform: https://github.com/NVIDIA/eglexternalplatform
+eglexternalplatform:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/eglexternalplatform-1.1-$NOPSUFFIX &&
+sudo -S rm -rf ${BUILD}/*

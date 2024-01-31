@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# EGL Wayland (wayland-eglsttream) 
+# Source: https://github.com/NVIDIA/egl-wayland/archive/refs/tags/1.1.13.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     mesa eglexternalplatform wayland wayland-protocols
+# Recommended:  libdrm
+# Optional:     NONE
+
+meson setup --prefix=/usr --buildtyp=release OUT
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+egl-wayland: egl-wayland
+egl-wayland:
+egl-wayland: This is a work-in-progress implementation of a EGL External Platform 
+egl-wayland: library to add client-side Wayland support to EGL on top of EGLDevice
+egl-wayland: and EGLStream families of extensions. This library implements an 
+egl-wayland: EGL External Platform interface to work along with EGL drivers that 
+egl-wayland: support the external platform mechanism.
+egl-wayland:
+egl-wayland: https://github.com/NVIDIA/egl-wayland
+egl-wayland:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/egl-wayland-1.1.13-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
