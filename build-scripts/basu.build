@@ -11,6 +11,8 @@
 # Recommended:  NONE
 # Optional:     audit
 
+# If compiling with LLVM-17, add flag:
+LDFLAGS="-Wl,--undefined-version" \
 meson setup --prefix=/usr --buildtype=release OUT 
 
 read -p "Compile?" && ninja -C OUT -j2 &&
