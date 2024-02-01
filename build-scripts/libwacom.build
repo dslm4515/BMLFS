@@ -1,0 +1,40 @@
+#! /bin/bash
+
+# libwacom 
+# Source: https://github.com/linuxwacom/linuxwacom/releases/download/libwacom-2.0.0/libwacom-2.9.0.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libgudev
+# Recommended:  libxml2
+# Optional:     doxygen git librsvg valgrind pytest python-libevdev pyudev
+
+meson setup --prefix=/usr --buildtype=release -Dtests=disabled OUT
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+libwacom: libwacom
+libwacom: 
+libwacom: This library is used to identify wacom tablets and their model
+libwacom: specific features.
+libwacom:
+libwacom: github.com/linuxwacom/linuxwacom
+libwacom:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libwacom-2.9.0-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
