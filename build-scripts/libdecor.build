@@ -1,22 +1,23 @@
 #! /bin/bash
 
 # libdecor 
-# Source: https://gitlab.gnome.org/jadahl/libdecor
+# Source: https://gitlab.freedesktop.org/libdecor/libdecor/-/releases/0.2.2/downloads/libdecor-0.2.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     wayland,wayland-protocols,cairo,pango,OpenGL(Mesa or libglvnd)
+# Required:     wayland wayland-protocols cairo pango OpenGL(Mesa or libglvnd)
+# Required:     gtk3 
 # Recommended:  dbus
 # Optional:     libxkbcommon
 
-meson  --prefix=/usr --buildtype=release OUT
+meson setup --prefix=/usr --buildtype=release OUT
 
 # May have missing header. If absent:
-wayland-scanner client-header \
-	        /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
-		src/xdg-shell-client-protocol.h
+#wayland-scanner client-header \
+#	        /usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
+#		src/xdg-shell-client-protocol.h
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
@@ -42,5 +43,5 @@ libdecor: https://gitlab.gnome.org/jadahl/libdecor
 libdecor: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libdecor-0.1.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libdecor-0.2.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
