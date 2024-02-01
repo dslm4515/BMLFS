@@ -2,7 +2,7 @@
 
 # sassc
 # Source: https://github.com/sass/sassc/archive/3.6.2/sassc-3.6.2.tar.gz
-# Source: https://github.com/sass/libsass/archive/3.6.5/libsass-3.6.5.tar.gz
+# Source: https://github.com/sass/libsass/archive/3.6.5/libsass-3.6.6.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -44,7 +44,7 @@ libsass: http://sass-lang.com
 libsass:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libsass-3.6.5-$PSUFFIX
+sudo -S makepkg -l y -c n $PKGS/libsass-3.6.6-$PSUFFIX
 sudo rm -rf $BUILD/* && 
 
 popd &&
