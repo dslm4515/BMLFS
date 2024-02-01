@@ -1,0 +1,40 @@
+#! /bin/bash
+
+# Attrs
+# Source: https://files.pythonhosted.org/packages/e3/fc/f800d51204003fa8ae392c4e8278f256206e7a919b708eef054f5f4b650d/attrs-23.2.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     python3 hatch-vcs
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/attrs-chimera/remove-hatch-fancy-pypi-readme-dep.patch
+
+read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+
+#sudo -S python3 setup.py install --prefix=/usr --root=${BUILD} &&
+sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user attrs --root=${BUILD} 
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+attrs: attrs (a python module)
+attrs:
+attrs: Attributes without boilerplate. 
+attrs:
+attrs: https://attrs.readthedocs.io
+attrs: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/attrs-23.2.0-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*

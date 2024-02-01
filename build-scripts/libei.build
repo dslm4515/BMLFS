@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# libei 
+# Source: https://gitlab.freedesktop.org/libinput/libei/-/archive/1.2.0/libei-1.2.0.tar.bz2 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libevdev libxkbcommon basu attrs munit
+# Recommended:  NONE
+# Optional:     NONE
+
+# if offline, clone munit repo from another machine
+# and copy it over to subprojects:
+# https://github.com/nemequ/munit
+
+meson setup --prefix=/usr --buildtype=release OUT
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+libei: libei
+libei:
+libei: A library for Emulated Input, primarily aimed at the Wayland stack. 
+libei: It provides three parts:
+libei: o EI (Emulated Input) for the client side (`libei`)
+libei: o EIS (Emulated Input Server) for the server side (`libeis`)
+libei: o oeffis is an optional helper library for DBus communication with 
+libei:   the XDG RemoteDesktop portal (`liboeffis`)
+libei:
+libei: https://gitlab.freedesktop.org/libinput/libei
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libei-1.2.0-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
