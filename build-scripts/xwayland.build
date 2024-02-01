@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Xwayland
-# Source: https://www.x.org/pub/individual/xserver/xwayland-23.2.2.tar.xz
+# Source: https://www.x.org/pub/individual/xserver/xwayland-23.2.4.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,7 +11,7 @@
 # Required:     xorgproto, xtrans, libxkbfile, dbus, font-util, libtirpc,
 # Required:     xkbutils libxcvt
 # Recommended:  NONE
-# Optional:     xkbcomp  
+# Optional:     xkbcomp libdecor libei 
 
 # if optimizing with GCC:
 export  CFLAGS="-march=native -pipe "
@@ -59,7 +59,7 @@ xwayland: handles presentation of the windows instead of KMS.
 xwayland:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xwayland-23.2.2-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/xwayland-23.2.4-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xwayland-doc: Manuals for xorg-server-xwayland
@@ -68,5 +68,5 @@ xwayland-doc: X Clients under Wayland
 xwayland-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xwayland-doc-23.2.2-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/xwayland-doc-23.2.4-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
