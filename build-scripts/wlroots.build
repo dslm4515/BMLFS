@@ -1,25 +1,19 @@
 #! /bin/bash
 
-# wlroots 0.16.2
-# Source: https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/0.16.2/wlroots-0.16.2.tar.bz2
+# wlroots 0.17.1
+# Source: https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/0.17.1/downloads/wlroots-0.17.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     wayland-protocols, wayland, mesa, libinput, libxcb, libseat
-# Required:     libxkbcommon, pixman, xkeyboard-config, hwdata
-# Recommended:  xcb-util-renderutil, xcb-util-wm, xcb-util-image
-# Optional:     xcb-errors
+# Required:     wayland-protocols wayland mesa libinput libxcb libseat
+# Required:     libxkbcommon pixman xkeyboard-config  hwdata
+# Recommended:  xcb-util-renderutil  xcb-util-wm  xcb-util-image
+# Recommended:  libdisplay-info (drm-support) libliftoff (drm-support)
+# Optional:     xcb-errors xwayland 
 
 # As of 0.14.x, logind support was dropped in favor of libseat
-
-# version 0.16.0 and master branch from gitlab has missing 
-# headers used by wayfire. But reveting to specific commit 
-# allows wayfire to build with wlroots 0.16.0
-
-git clone     https://gitlab.freedesktop.org/wlroots/wlroots   && \
-git checkout  2c59435e8223339070f963263f2caebf07620078         && \
 
 # If optimizing, use flags with GCC
 export  CFLAGS="-march=native -pipe "
@@ -31,12 +25,11 @@ mkdir build && cd build &&
 # For no-X11 support add to confiure:
 # -Dx11-backend="disabled" -Dxwayland="disabled"
 
-meson --prefix=/usr     \
-      -Dexamples=false ..
+meson setup --prefix=/usr -Dexamples=false OUT
 
-read -p "Compile?" && ninja -j2 &&
+read -p "Compile?" && ninja -C OUT -j2 &&
 
-sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -60,5 +53,5 @@ wlroots:
 wlroots: Homepage: https://github.com/swaywm/wlroots
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wlroots-0.16.2-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/wlroots-0.17.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
