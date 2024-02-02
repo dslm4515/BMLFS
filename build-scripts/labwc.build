@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # labwc 
-# Source: https://github.com/labwc/labwc/archive/refs/tags/0.6.5.tar.gz
+# Source: https://github.com/labwc/labwc/archive/refs/tags/0.7.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     wlroot(0.16.2) wayland wayland-protocols libdrm libxml2 glib
+# Required:     wlroot(0.17.1) wayland wayland-protocols libdrm libxml2 glib
 # Required:     cairo pango libxkbcommon libinput
 # Recommended:  scdoc
 # Optional:     xorg-xwayland libxcb-errors libxcb 
@@ -37,5 +37,5 @@ labwc: https://github.com/labwc/labwc
 labwc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/labwc-0.6.5-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/labwc-0.7.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
