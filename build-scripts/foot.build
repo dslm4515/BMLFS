@@ -9,7 +9,7 @@
 # DEPS
 # Required:     Fontconfig, pixman, scdoc, libxkbcommon
 # Recommended:  dejavu-fonts-ttf
-# Optional:     fcft
+# Optional:     fcft utf8proc
 
 # If building with ncurses:
 meson setup --prefix=/usr \
