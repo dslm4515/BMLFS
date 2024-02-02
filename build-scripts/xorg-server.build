@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Xorg-Server
-# Source: https://www.x.org/pub/individual/xserver/xorg-server-21.1.8.tar.xz
+# Source: https://www.x.org/pub/individual/xserver/xorg-server-21.1.11.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,6 +13,15 @@
 # Optional:     xcb-util-image, xcb-util-renderutil, xcb-util-wm,
 # Optional:     xmlto, libunwind, xorg-sgml-doctools 
 
+# Add libseat support
+patch -Np1 -i ../patches/xorg-server-21.1.11-chimera/0001-Support-libseat.patch 
+patch -Np1 -i ../patches/xorg-server-21.1.11-chimera/libseat-dep.patch 
+
+patch -Np1 -i ../patches/xorg-server-21.1.11-chimera/06_use-intel-only-on-pre-gen4.patch 
+patch -Np1 -i ../patches/xorg-server-21.1.11-chimera/07_use-modesetting-driver-by-default-on-GeForce.patch
+patch -Np1 -i ../patches/xorg-server-21.1.11-chimera/fix-libshadow-2.patch
+
+
 sed -i -e 's/termio.h/termios.h/' hw/xfree86/os-support/xf86_OSlib.h
 
 # xorg modules does not work with the -z now and it seems like we
@@ -21,38 +30,43 @@ sed -i -e 's/termio.h/termios.h/' hw/xfree86/os-support/xf86_OSlib.h
 export CFLAGS="$CFLAGS -D_GNU_SOURCE -D__gid_t=gid_t -D__uid_t=uid_t"
 export LDFLAGS="$LDFLAGS -Wl,-z,lazy"
 
-meson  --prefix=$XORG_PREFIX \
+# Enable & disable specific options
+export  MARGS="-Dxephyr=true "
+export MARGS+="-Dglamor=true "
+export MARGS+="-Dxnest=true "
+export MARGS+="-Dxvfb=true "
+export MARGS+="-Dglx=true "
+export MARGS+="-Dxdmcp=true "
+export MARGS+="-Dxdm-auth-1=true "
+export MARGS+="-Dxcsecurity=true "
+export MARGS+="-Dipv6=true "
+export MARGS+="-Dlisten_unix=true "
+export MARGS+="-Dlisten_local=true "
+export MARGS+="-Dsuid_wrapper=true "
+export MARGS+="-Dpciaccess=true "
+export MARGS+="-Dudev=true "
+export MARGS+="-Ddpms=true "
+export MARGS+="-Ddri1=true "
+export MARGS+="-Ddri2=true "
+export MARGS+="-Ddri3=true "
+export MARGS+="-Dsecure-rpc=false "
+export MARGS+="-Dhal=false "
+export MARGS+="-Dxwin=false "
+export MARGS+="-Dlisten_tcp=false "
+
+# Configure source
+meson setup  \
+	--prefix=$XORG_PREFIX \
 	-Dxorg=true \
-	-Dxephyr=true \
-	-Dglamor=true \
-	-Dxnest=true \
-	-Dxvfb=true \
-	-Dxwin=false \
-	-Dglx=true \
-	-Dxdmcp=true \
-	-Dxdm-auth-1=true \
-	-Dxcsecurity=true \
-	-Dsecure-rpc=false \
-	-Dipv6=true \
 	-Dxkb_dir=/usr/share/X11/xkb \
 	-Dxkb_output_dir=/var/lib/xkb \
-	-Dlisten_tcp=false \
-	-Dlisten_unix=true \
-	-Dlisten_local=true \
-	-Dsuid_wrapper=true \
-	-Dpciaccess=true \
-	-Dudev=true \
-	-Dhal=false \
 	-Dsystemd_logind=false \
-	-Ddpms=true \
-	-Ddri1=true \
-	-Ddri2=true \
-	-Ddri3=true \
-	OUTPUT
+	-Dseatd_libseat=true \
+	$MARGS OUTPUT
 
 read -p "Compile?" && ninja  -j2 -C OUTPUT &&
-unset CFLAGS LDFLAGS
-sudo -S  DESTDIR=$BUILD ninja -C OUTPUT install && \
+unset CFLAGS LDFLAGS MARGS
+sudo -SE  DESTDIR=$BUILD ninja -C OUTPUT install && \
 sudo -S mkdir -pv /BMAN/install /BMAN/$XORG_PREFIX/share && \
 sudo -S mv $BUILD/$XORG_PREFIX/share/man /BMAN/$XORG_PREFIX/share/ && \
 
@@ -80,7 +94,7 @@ xorg-server: The home page for the X project is:  http://www.x.org
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 #sudo -S ln -sv Xorg $BUILD/$XORG_PREFIX/bin/X          &&
-sudo -S makepkg -l y -c n $PKGS/xorg-server-21.1.8-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/xorg-server-21.1.11-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 xorg-server-doc: Manuals for xorg-server ( X11 core of the X Window System)
@@ -92,5 +106,5 @@ xorg-server-doc: http://www.x.org
 xorg-server-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xorg-server-doc-21.1.8-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/xorg-server-doc-21.1.11-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
