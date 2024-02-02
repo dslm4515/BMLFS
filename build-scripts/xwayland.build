@@ -20,19 +20,34 @@ export CFLAGS+="-fno-semantic-interposition -fstack-protector-strong "
 export CFLAGS+="-fzero-call-used-regs=used -mprefer-vector-width=256 "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-mkdir build && cd build &&
+patch -Np1 -i ../patches/xwayland-chimera/allow-overflow-on-glamor_composite_clipped_region.patch 
+patch -Np1 -i ../patches/xwayland-chimera/no-sighandler-segv-etc.patch 
 
-meson --prefix=$XORG_PREFIX     \
-      -Dipv6=true \
-      -Dxvfb=true \
-      -Dxcsecurity=true \
-      -Ddri3=true \
-      -Dglamor=true \
+# Enable some feature
+export MARGS="-Dipv6=true "
+export MARGS="-Dxcsecurity=true "
+export MARGS="-Ddri3=true "
+export MARGS="-Dglamor=true "
+
+# Disable some features
+export MARGS+="-Dxvfb=false "
+export MARGS+="-Dxdmcp=false "
+
+# if libei is  built:
+export MARGS+="-Dxwayland_ei=socket "
+
+# if egl-wayland not built:
+export MARGS+="-Dxwayland_eglstream=false "
+
+meson setup \
+      --prefix=$XORG_PREFIX     \
       -Dxkb_dir=$XORG_PREFIX/share/X11/xkb  \
-      -Dxkb_output_dir=/var/lib/xkb ..
-read -p "Compile?" && ninja -j2 &&
+      -Dxkb_output_dir=/var/lib/xkb \
+      $MARGS OUT
+read -p "Compile?" && ninja -C OUT -j2 &&
+unset MARGS
 
-sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 sudo -S mkdir -vp /BMAN/install /BMAN/$XORG_PREFIX && \
 sudo -S mv $BUILD/$XORG_PREFIX/share /BMAN/$XORG_PREFIX/ && \ 
 
