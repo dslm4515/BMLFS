@@ -11,6 +11,11 @@
 # Recommended:  NONE
 # Optional:     doctest,cmake
 
+# For unreleased 0.9.0
+# git clone https://github.com/WayfireWM/wf-config
+# cd wf-config
+# git checkout af1bddc9d7191b9902edcb4c74572eac65577806
+
 meson setup --prefix=/usr --buildtype=release BUILD
 
 read -p "Compile?" && ninja -C BUILD -j2 &&
