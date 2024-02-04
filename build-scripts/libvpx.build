@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libvpx
-# Source: https://github.com/webmproject/libvpx/archive/v1.13.1/libvpx-1.13.1.tar.gz
+# Source: https://github.com/webmproject/libvpx/archive/v1.14.0/libvpx-1.14.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -60,5 +60,5 @@ libvpx:
 libvpx:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libvpx-1.13.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libvpx-1.14.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
