@@ -33,7 +33,8 @@ PATH+=:/usr/sbin \
             --enable-cmdlib     \
             --enable-pkgconfig  \
             --enable-udev_sync  \
-	    --libdir=/usr/lib $BUILDTRUPLE &&
+	    --libdir=/usr/lib \
+	    --with-symvers=no  $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
