@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GStreamer Base Plug-ins 
-# Source: https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.22.7.tar.xz 
+# Source: https://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-1.22.9.tar.xz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -22,20 +22,17 @@ export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 # First fix a build failure caused by a change in meson-0.58.0:
 #sed -i 's|implicit_include_directories : false||' gst-libs/gst/gl/meson.build
 
-mkdir build &&
-cd    build &&
-
 # For no Xorg & GLX (Pure Wayland)
 # export NOX_CONFIG='-Dgl_platform=egl -Dx11=disabled -Dgl_winsys="wayland,egl" -Dgl_api=gles2'
 
 meson setup --prefix=/usr       \
        -Dbuildtype=release \
        -Dpackage-origin=https://github.com/dslm4515/BMLFS \
-       -Dpackage-name="GStreamer 1.22.7 BMLFS"    \
-       -Dexamples=disabled --wrap-mode=nodownload $NOX_CONFIG &&
-read -p "Compile?" && ninja -j2 &&
+       -Dpackage-name="GStreamer 1.22.9 BMLFS"    \
+       -Dexamples=disabled --wrap-mode=nodownload $NOX_CONFIG OUT &&
+read -p "Compile?" && ninja -C OUT -j2 &&
 
-sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 sudo -S mkdir -pv /BMAN/install  && \
 sudo -S mkdir -pv /BMAN/usr/share      && \
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \ 
@@ -63,7 +60,7 @@ gst-plugins-base: gst-plugins-base is a an essential exemplary set of plugins
 gst-plugins-base: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gst-plugins-base-1.22.7-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/gst-plugins-base-1.22.9-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 gst-plugins-base-doc: Manuals for gst-plugins-base (a set of GStreamer plugins)
@@ -76,5 +73,5 @@ gst-plugins-base-doc: gst-plugins-base is a an essential exemplary set of plugin
 gst-plugins-base-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gst-plugins-base-doc-1.22.7-$NOPSUFFIX
+sudo -S makepkg -l y -c n $PKGS/gst-plugins-base-doc-1.22.9-$NOPSUFFIX
 sudo -S rm -rf /BMAN/* ${BUILD}/*
