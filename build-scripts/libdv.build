@@ -11,14 +11,16 @@
 # Recommended:  NONE
 # Optional:     popt, SDL, and X ORG Window System 
 
+# For CMLFS systems, skip the patches:
 patch -Np1 -i ../patches/libdv-alpine/automake.patch
 patch -Np1 -i ../patches/libdv-alpine/libdv-0.104-no-exec-stack.patch
 patch -Np1 -i ../patches/libdv-alpine/libdv-1.0.0-dso-linking.patch
-patch -Np1 -i ../patches/libdv-alpine/libdv-1.0.0-gtk2.patch
 patch -Np1 -i ../patches/libdv-alpine/libdv-1.0.0-pic.patch
 
 cp -v ../files/config.sub-musl config.sub     &&
 cp -v ../files/config.guess-musl config.guess &&
+
+# For CMLFS systems, skip re-generating configure script:
 rm -vf missing &&
 libtoolize --force && aclocal && autoconf && automake --add-missing &&
 
@@ -55,5 +57,5 @@ libdv:
 libdv:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libdv-1.0.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libdv-1.0.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
