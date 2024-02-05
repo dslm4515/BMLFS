@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # v4l-utils
-# Source: https://www.linuxtv.org/downloads/v4l-utils/v4l-utils-1.22.1.tar.bz2
+# Source: https://www.linuxtv.org/downloads/v4l-utils/v4l-utils-1.26.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     LLVM argp-standalone
+# Required:     LLVM argp-standalone libexecinfo
 # Recommended:  alsa-lib, GLU, libjpeg-turbo, and Qt
 # Optional:     Doxygen, SDL2
 
@@ -20,27 +20,14 @@ export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-# Apply patch from Chimera Linux
-patch -Np1 -i ../patches/v4l-utils-chimera/musl.patch 
+CFLAGS="-Wl,-lexecinfo -Wl,-largp " \
+meson setup --prefix=/usr \
+      --buildtype=release \
+      -Ddoxygen-html=false \
+      -Ddoxygen-man=false OUT
+ninja -C OUT -j2
+sudo -S DESTDIR=$BUILD ninja -C OUT install && \
 
-# If using libc++ instead of GNU's libstdc++, apply this patch
-# from Chimera Linux
-patch -Np1 -i ../patches/v4l-utils-chimera/libcpp.patch 
-
-autoreconf -vfi
-
-export CFLAGS="$CFLAGS -D__off_t=off_t -D__off64_t=off_t -fcommon" &&
-export LIBS="-largp -lintl" &&
-./configure --prefix=/usr     \
-            --sysconfdir=/etc \
-            --disable-static  \
-            --enable-libdvbv5 \
-	    --disable-qv4l2 \
-	    --with-udevdir=/usr/lib/udev $BUILDTRUPLE &&
-read -p "Compile?" && make -j2 &&
-
-sudo -S make DESTDIR=$BUILD install && 
-unset CFLAGS LIBS &&
 sudo -S mkdir -vp /BMAN/install        && \
 sudo -S mkdir -pv /BMAN/usr/share      && \
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
@@ -68,7 +55,7 @@ v4l-utils: Homepage:  http://linuxtv.org
 v4l-utils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/v4l-utils-1.22.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/v4l-utils-1.26.1-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 v4l-utils-doc: Manuals for v4l-utils (libraries and utilities for video4linux)
@@ -84,6 +71,6 @@ v4l-utils-doc: http://linuxtv.org
 v4l-utils-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/v4l-utils-doc-1.22.1-$NOPSUFFIX
+sudo -S makepkg -l y -c n $PKGS/v4l-utils-doc-1.26.1-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
