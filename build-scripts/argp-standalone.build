@@ -1,0 +1,50 @@
+#! /bin/bash
+
+# argp-standalone
+# Source: https://github.com/ericonr/argp-standalone/archive/refs/tags/1.4.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+autoreconf -vfi &&
+
+CFLAGS=" -fPIC" \
+./configure --prefix=/usr \
+            --sysconfdir=/etc --localstatedir=/var
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S mkdir -pv ${BUILD}/usr/{lib,include}                 &&
+sudo -S install -v -D -m644  libargp.a ${BUILD}/usr/lib/     &&
+sudo -S install -v -D -m644  argp.h    ${BUILD}/usr/include/ &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+               |-----handy-ruler------------------------------------------------------|
+argp-standalone: argp-standalone (parsing functions from GLIBC)
+argp-standalone: 
+argp-standalone: Standalone version of arguments parsing functions from GLIBC
+argp-standalone:
+argp-standalone: https://github.com/ericonr/argp-standalone
+argp-standalone:
+argp-standalone:
+argp-standalone:
+argp-standalone:
+argp-standalone:
+argp-standalone:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/argp-standalone-1.4.1-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
