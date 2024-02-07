@@ -1,0 +1,48 @@
+#! /bin/bash
+
+# shaderc 
+# Source:  https://github.com/google/shaderc/archive/refs/tags/v2023.8.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     spirv-tools spirv-headers glslang
+# Recommended:  NONE
+# Optional:     gmock
+
+patch -Np1 -i ../patches/shaderc-chimera/drop-build-versions.patch
+patch -Np1 -i ../patches/shaderc-chimera/unbundle.patch
+
+CFLAGS="-I/usr/include/glslang " \
+CXXFLAGS=$CFLAGS \
+cmake -B OUT -DCMAKE_INSTALL_PREFIX=/usr -GNinja \
+	-DCMAKE_BUILD_TYPE=Release \
+	-DSHADERC_SKIP_TESTS=ON -DSHADERC_SKIP_EXAMPLES=ON \
+	-DPYTHON_EXECUTABLE=python3 
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+shaderc: shaderc
+shaderc:
+shaderc: A collection of tools, libraries, and tests for Vulkan shader 
+shaderc: compilation.
+shaderc:
+shaderc: https://github.com/google/shaderc
+shaderc:  
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/shaderc-2023.8-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
