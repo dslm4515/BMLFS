@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libwpebackend-fdo
-# Source: https://github.com/Igalia/WPEBackend-fdo/releases/download/1.12.0/wpebackend-fdo-1.12.0.tar.xz
+# Source: https://wpewebkit.org/releases/wpebackend-fdo-1.14.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,13 +11,11 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-mkdir BUILD && cd BUILD &&
+meson setup --prefix=/usr --buildtype=release OUT && \
 
-meson --prefix=/usr --buildtype=release .. && \
+read -p "Compile?" && ninja -C OUT -j2 &&
 
-read -p "Compile?" && ninja -j2 &&
-
-sudo -S DESTDIR=$BUILD ninja  install &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -42,5 +40,5 @@ wpebackend-fdo:
 wpebackend-fdo:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wpebackend-fdo-1.12.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wpebackend-fdo-1.14.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
