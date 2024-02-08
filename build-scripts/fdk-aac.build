@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # fdk-aac
-# Source: https://downloads.sourceforge.net/opencore-amr/fdk-aac-2.0.2.tar.gz
+# Source: https://downloads.sourceforge.net/opencore-amr/fdk-aac-2.0.3.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -39,5 +39,5 @@ fdk-aac:
 fdk-aac:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/fdk-aac-2.0.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/fdk-aac-2.0.3-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
