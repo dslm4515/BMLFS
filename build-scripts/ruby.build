@@ -1,17 +1,20 @@
 #! /bin/bash
 
 # Ruby 
-# Source: https://cache.ruby-lang.org/pub/ruby/3.2/ruby-3.2.2.tar.xz
+# Source: https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     libucontext
+# Required:     libucontext libyaml
 # Recommended:  NONE
-# Optional:     Berkeley DB, Doxygen, Graphviz, libyaml, Tk, Valgrind, and DTrace 
+# Optional:     berkeleydb doxygen graphviz tk valgrind dtrace rustc
 
-# NOTE: Fails to compile under clang
+# NOTE: Fails to compile under clang due to undefine "RUBY_FUNCTION_NAME_STRING" macro
+# If GCC not installed in /usr, add these variables to configure
+# PATH=/opt/gnu/bin:$PATH:/opt/rustc/bin CC=gcc CXX=g++ \
+# LDFLAGS="-Wl,-rpath=/opt/gnu/lib "
 
 # If optimizing with GCC:
 unset LDFLAGS
@@ -19,31 +22,27 @@ export  CFLAGS="-march=native -O2 "
 export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
 export CXXFLAGS=$CFLAGS
 
-#autoconf -v &&
-#export CFLAGS="$CFLAGS -fno-omit-frame-pointer -fno-strict-aliasing"     &&
-#export CPPFLAGS="$CPPFLAGS -fno-omit-frame-pointer -fno-strict-aliasing" &&
-#export LIBS="-lucontext"                                                 &&
-#export INSTALL=install        &&
-#export ac_cv_func_isnan=yes   &&
-#export ac_cv_func_isinf=yes   &&
-
 # Apply patches from Chimera Linux
+patch -Np1 -i ../patches/ruby-chimera/fix-riscv64-build.patch 
 patch -Np1 -i ../patches/ruby-chimera/musl-fix-get_main_stack.patch
 patch -Np1 -i ../patches/ruby-chimera/rubygems-avoid-platform-specific-gems.patch
 patch -Np1 -i ../patches/ruby-chimera/test_insns-lower-recursion-depth.patch
 
+autoconf -v -f && \
+
 ./configure --prefix=/usr   \
             --enable-shared \
-            --docdir=/usr/share/doc/ruby-3.2.2 \
-            --disable-rpath  \
-            --enable-shared $BUILDTURPLE &&
+            --docdir=/usr/share/doc/ruby-3.3.0 \
+            --disable-rpath \
+            --enable-shared \
+	    --disable-install-doc \
+	    ac_cv_func_isnan=yes ac_cv_func_isinf=yes &&
             
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
-#unset CFLAGS CPPFLAGS LIBS INSTALL ac_cv_func_isnan ac_cv_func_isinf     &&
-sudo -S rm -v    ${BUILD}/usr/lib/ruby/3.2.0/rubygems/ssl_certs/*/*.pem  &&
-sudo -S rmdir -v ${BUILD}/usr/lib/ruby/3.2.0/rubygems/ssl_certs/*        &&
+#sudo -S rm -v    ${BUILD}/usr/lib/ruby/3.3.0/rubygems/ssl_certs/*/*.pem  &&
+#sudo -S rmdir -v ${BUILD}/usr/lib/ruby/3.3.0/rubygems/ssl_certs/*        &&
 sudo -S mkdir -pv /BMAN/install  && \
 sudo -S mkdir -pv /BMAN/usr/share      && \
 sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/ && \
@@ -72,7 +71,7 @@ ruby:
 ruby:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/ruby-3.2.2-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/ruby-3.3.0-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 ruby-doc: Manuals for ruby (Interpreted object-oriented scripting language)
@@ -84,5 +83,5 @@ ruby-doc: http://www.ruby-lang.org/
 ruby-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/ruby-3.2.2-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/ruby-3.3.0-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
