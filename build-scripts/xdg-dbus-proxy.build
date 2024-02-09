@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xdg-dbus-proxy
-# Source: https://github.com/flatpak/xdg-dbus-proxy/releases/download/0.1.2/xdg-dbus-proxy-0.1.2.tar.xz
+# Source: https://github.com/flatpak/xdg-dbus-proxy/releases/download/0.1.5/xdg-dbus-proxy-0.1.5.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -53,7 +53,7 @@ xdg-dbus-proxy:
 xdg-dbus-proxy:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xdg-dbus-proxy-0.1.2-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/xdg-dbus-proxy-0.1.5-$PSUFFIX &&
 cd /BMAN  && \
 cat > /tmp/slack-desc << "EOF"
 xdg-dbus-proxy-doc: Manuals for xdg-dbus-proxy (D-Bus proxy)
@@ -64,5 +64,5 @@ xdg-dbus-proxy-doc: https://github.com/flatpak/xdg-dbus-proxy
 xdg-dbus-proxy-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/xdg-dbus-proxy-doc-0.1.2-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/xdg-dbus-proxy-doc-0.1.5-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
