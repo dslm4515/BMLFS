@@ -1,0 +1,40 @@
+#! /bin/bash
+
+# Smartypants
+# Source: https://github.com/leohemsted/smartypants.py/archive/v2.0.1/smartypants-2.0.1.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     python3 
+# Recommended:  NONE
+# Optional:     NONE
+
+#read -p "Compile?" && python3 setup.py build &&
+read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+
+#sudo -S python3 setup.py install --prefix=/usr --root=${BUILD} &&
+sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user smartypants --root=${BUILD} 
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+Smartypants: Smartypants (python module)
+Smartypants:
+Smartypants: This translates plain ASCII punctuation characters into “smart” 
+Smartypants: typographic punctuation HTML entities. 
+Smartypants:
+Smartypants: https://pypi.org/project/smartypants/
+Smartypants:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/Smartypants-2.0.1-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
