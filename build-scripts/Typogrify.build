@@ -1,0 +1,40 @@
+#! /bin/bash
+
+# Typogrify
+# Source: https://files.pythonhosted.org/packages/source/t/typogrify/typogrify-2.0.7.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     python3 Smartypants
+# Recommended:  NONE
+# Optional:     NONE
+
+#read -p "Compile?" && python3 setup.py build &&
+read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+
+#sudo -S python3 setup.py install --prefix=/usr --root=${BUILD} &&
+sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user typogrify --root=${BUILD} 
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+Typogrify: Typogrify (python3 module)
+Typogrify:
+Typogrify: This module provides filters to enhance web typography, including 
+Typogrify: support for Django and Jinja templates.
+Typogrify:
+Typogrify: https://github.com/mintchaos/typogrify
+Typogrify:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/Typogrify-2.0.7-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
