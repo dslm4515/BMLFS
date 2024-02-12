@@ -11,7 +11,11 @@
 # Recommended:  NONE
 # Optional:     NSS, Doxygen
 
+
+patch -Np1 -i ..patches/liboath-lfs/liboauth-1.0.3-openssl-1.1.0-3.patch
+
 autoreconf -vif &&
+
 ./configure --prefix=/usr --disable-static --enable-nss $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
