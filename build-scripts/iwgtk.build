@@ -1,0 +1,46 @@
+#! /bin/bash
+
+# iwgtk 
+# Source: https://github.com/J-Lentz/iwgtk/archive/refs/tags/v0.9.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     iwd gtk4 libqrencode scdoc
+# Recommended:  adwaita-icon-theme
+# Optional:     NONE
+
+meson setup --prefix=/usr --buildtype=release OUT 
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+# If not booting with systemd, remove:
+sudo rm -rf $BUILD/usr/lib
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+iwgtk: iwgtk
+iwgtk:
+iwgtk: A wireless networking GUI for Linux. It is a front-end for iwd (
+iwgtk: iNet Wireless Daemon), with supported functionality similar to that 
+iwgtk: of iwctl. Features include viewing and connecting to available 
+iwgtk: networks, managing known networks, provisioning new networks via WPS 
+iwgtk: or Wi-Fi Easy Connect, and an indicator (tray) icon displaying 
+iwgtk: connection status and signal strength.
+iwgtk:
+iwgtk: https://github.com/J-Lentz/iwgtk
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/iwgtk-0.9-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
