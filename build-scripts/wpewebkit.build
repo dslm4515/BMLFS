@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # WPE WebKit 
-# Source: https://wpewebkit.org/releases/wpewebkit-2.36.0.tar.xz
+# Source: https://wpewebkit.org/releases/wpewebkit-2.43.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,7 +11,8 @@
 # Required:     ruby, cairo, GLib, fontconfig, freetype, harfBuzz, ICU,
 # Required:     libjpeg-turbo, libepoxy, libgcrypt, libxml2, mesa, libpng,
 # Required:     SQLite3, libwebp, libsoup, atk, openjpeg, libtasn1, libxslt,
-# Required:     LCM2, libseccomp, xdg-dbus-proxy
+# Required:     LCM2, libseccomp, xdg-dbus-proxy unifdef gi-docgen libjxl
+# Required:     libavif
 # Recommended:  NONE
 # Optional:     qt5-qtbase qt5-qttools libsoup3
 
@@ -33,17 +34,20 @@ export CMARGS+="-DCMAKE_INSTALL_LIBDIR=lib "
 export CMARGS+="-DBUILD_SHARED_LIBS=True "
 export CMARGS+="-DCMAKE_BUILD_TYPE=None "
 export CMARGS+="-DPORT=WPE "
-export CMARGS+="-DENABLE_MINIBROWSER=On "
-export CMARGS+="-DENABLE_GTKDOC=On "
+export CMARGS+="-DENABLE_MINIBROWSER=ON "
+export CMARGS+="-DENABLE_GTKDOC=OFF "
 export CMARGS+="-DUSE_SOUP2=On "
 export CMARGS+="-DUSE_SYSTEMD=OFF "
 export CMARGS+="-DENABLE_JOURNALD_LOG=OFF "
 export CMARGS+="-DENABLE_WEBGL2=ON "
-export CMARGS+="-GNinja "
 
-cmake -B build $CMARGS $QT5CMAKES && \
+export CMARGGS+="-G Ninja "
 
-read -p "Compile?" && ninja -C build -j2 &&
+cmake -B build $CMARGS -DENABLE_DOCUMENTATION=OFF \
+	 -DUSE_LIBBACKTRACE=OFF $QT5CMAKES && \
+
+#read -p "Compile?" && ninja -C build -j2 &&
+cmake --build build --parallel 2
 
 sudo -S DESTDIR=$BUILD ninja -C build install &&
 unset CMARGS QT5CMAKES && \
@@ -69,5 +73,5 @@ wpewebkit: https://wpewebkit.org/
 wpewebkit:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wpewebkit-2.36.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/wpewebkit-2.43.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
