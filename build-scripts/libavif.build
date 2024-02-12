@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# libavif 
+# Source: https://github.com/AOMediaCodec/libavif/archive/v1.0.3/libavif-1.0.3.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     aom
+# Recommended:  gdk-pix-buf
+# Optional:     gtest libdav1d libyuv ravle svt-avl
+
+cmake -B build -G Ninja -DCMAKE_INSTALL_PREFIX=/usr \
+	 -DCMAKE_BUILD_TYPE=Release \
+	 -DAVIF_CODEC_AOM=ON \
+	 -DAVIF_BUILD_GDK_PIXBUF=ON 
+
+read -p "Compile?" && cmake --build build --parallel 2 &&
+
+sudo -S DESTDIR=$BUILD cmake --install build --strip &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+libavif: libavif
+libavif:
+libavif: This package contains a library used for encoding and decoding AVIF 
+libavif: files.
+libavif:
+libavif: https://github.com/AOMediaCodec/libavif
+libavif:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libavif-1.0.3-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
