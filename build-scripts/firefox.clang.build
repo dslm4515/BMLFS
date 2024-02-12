@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# FireFox 119.0.1
-# Source: https://archive.mozilla.org/pub/firefox/releases/119.0.1/source/firefox-119.0.1.source.tar.xz
+# FireFox 122.0.1
+# Source: https://archive.mozilla.org/pub/firefox/releases/122.0.1/source/firefox-122.0.1.source.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -25,29 +25,15 @@ do
 done
 
 # Apply patches
-patch -Np1 -i ../patches/firefox-chimera/clang-ias.patch 
-patch -Np1 -i ../patches/firefox-chimera/clang-memory-throw-gcc.patch 
-patch -Np1 -i ../patches/firefox-chimera/disable-moz-stackwalk.patch 
-patch -Np1 -i ../patches/firefox-chimera/fix-firefox-desktop.patch
-patch -Np1 -i ../patches/firefox-chimera/fix-fortify-system-wrappers.patch 
-patch -Np1 -i ../patches/firefox-chimera/fix-rust-target.patch 
-patch -Np1 -i ../patches/firefox-chimera/fix-webrtc-glibcisms.patch 
-patch -Np1 -i ../patches/firefox-chimera/flac-no-ffvpx.patch 
-patch -Np1 -i ../patches/firefox-chimera/lolmalloc.patch 
-patch -Np1 -i ../patches/firefox-chimera/mallinfo.patch 
-patch -Np1 -i ../patches/firefox-chimera/no-ccache-stats.patch 
-patch -Np1 -i ../patches/firefox-chimera/ppc-musttail.patch 
-patch -Np1 -i ../patches/firefox-chimera/ppc64-webrtc.patch 
-patch -Np1 -i ../patches/firefox-chimera/riscv64-no-lto.patch 
-patch -Np1 -i ../patches/firefox-chimera/riscv64-reduce-debug.patch 
-patch -Np1 -i ../patches/firefox-chimera/rust-lto-thin.patch
-patch -Np1 -i ../patches/firefox-chimera/sandbox-fork.patch
-patch -Np1 -i ../patches/firefox-chimera/sandbox-largefile.patch 
-patch -Np1 -i ../patches/firefox-chimera/sandbox-mremap.patch
-patch -Np1 -i ../patches/firefox-chimera/sandbox-sched_setscheduler.patch
-patch -Np1 -i ../patches/firefox-chimera/sqlite-ppc.patch 
-patch -Np1 -i ../patches/firefox-chimera/xptcall-integrated-as.patch 
-patch -Np1 -i ../patches/firefox-chimera/zstandard.patch 
+for p in clang-ias clang-memory-throw-gcc crash-reporting-ptrace disable-moz-stackwalk \
+	 enable-elfhack-relr fix-firefox-desktop fix-fortify-system-wrappers \
+	 fix-rust-target fix-webrtc-glibcisms flac-no-ffvpx icu74 lfs64 lolmalloc \
+	 mallinfo no-ccache-stats ppc-musttail ppc64-webrtc py312 python312 \
+	 riscv64-no-lto riscv64-reduce-debug rust-lto-thin sandbox-fork sandbox-largefile \
+	 sandbox-sched_setscheduler sqlite-ppc xptcall-integrated-as zstandard
+do
+	 patch -Np1 -i ../patches/firefox-122.0.1-chimera/${p}.patch
+done
 
 # Setup Environment:
 export SHELL=/bin/sh BUILD_OFFICIAL=1 MOZILLA_OFFICIAL=1 USE_SHORT_LIBNAME=1 
@@ -58,7 +44,7 @@ export RUST_TARGET="x86_64-unknown-linux-musl"
 export CC="clang" CXX="clang++"
 
 # set rpath so linker finds the libs
-export LDFLAGS="$LDFLAGS -Wl,-rpath,/opt/firefox/lib"
+export LDFLAGS="$LDFLAGS -Wl,-rpath,/opt/firefox/lib/firefox"
 
 # For ARM64 & x86:
 # ..  disable-elf-hack: exists only on arm, x86, x86_64
@@ -136,7 +122,7 @@ sudo install -m755 -dv $BUILD/usr/share/pixmaps
 sudo install -m755 -dv $BUILD/opt/firefox/lib/firefox/browser/defaults/preferences/
 sudo cp -va ../files/firefox-chimera/vendor.js \
 	$BUILD/opt/firefox/lib/firefox/browser/defaults/preferences/
-sudo ln -sv /opt/firefox/lib/firefox/firefox usr/bin/firefox
+sudo ln -sv /opt/firefox/lib/firefox/firefox $BUILD/usr/bin/firefox
 
 # https://bugzilla.mozilla.org/show_bug.cgi?id=658850
 sudo rm -v $BUILD/opt/firefox/lib/firefox/firefox-bin 
@@ -199,5 +185,5 @@ mozilla-firefox:
 mozilla-firefox:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mozilla-firefox-119.0.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/mozilla-firefox-122.0.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
