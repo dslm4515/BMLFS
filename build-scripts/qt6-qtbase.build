@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # qt6-base
-# Source: https://download.qt.io/official_releases/qt/6.5/6.5.2/submodules/qtbase-everywhere-src-6.5.2.tar.xz
+# Source: https://download.qt.io/official_releases/qt/6.6/6.6.6/submodules/qtbase-everywhere-src-6.6.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -90,7 +90,7 @@ qt6-qtbase: https://download.qt.io
 qt6-qtbase:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo mv -v opt/qt6 opt/qt6-6.5.2 &&
-sudo ln -sv qt6-6.5.2 opt/qt6 &&
-sudo -S makepkg -l y -c n $PKGS/qt6-qtbase-6.5.2-$PSUFFIX &&
+sudo mv -v opt/qt6 opt/qt6-6.6.1 &&
+sudo ln -sv qt6-6.6.1 opt/qt6 &&
+sudo -S makepkg -l y -c n $PKGS/qt6-qtbase-6.6.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*

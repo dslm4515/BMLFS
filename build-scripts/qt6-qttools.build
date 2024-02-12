@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Qt6 QtTools
-# Source: https://download.qt.io/official_releases/qt/6.5/6.5.2/submodules/qttools-everywhere-src-6.5.2.tar.xz
+# Source: https://download.qt.io/official_releases/qt/6.6/6.6.1/submodules/qttools-everywhere-src-6.6.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -60,5 +60,5 @@ qt6-qttools: https://download.qt.io
 qt6-qttools:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/qt6-qttools-6.5.2-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/qt6-qttools-6.6.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
