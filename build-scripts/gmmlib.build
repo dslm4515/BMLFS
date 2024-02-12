@@ -37,5 +37,5 @@ intel-gmmlib: https://github.com/intel/gmmlib
 intel-gmmlib:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/intel-gmmlib-22.3.4-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/intel-gmmlib-22.3.16-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
