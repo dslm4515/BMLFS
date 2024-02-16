@@ -22,6 +22,7 @@ patch -Np1 -i ../patches/qt5-qtbase-5.15.10-alpine/lfs64.patch
 patch -Np1 -i ../patches/qt5-qtbase-5.15.10-alpine/qt-musl-iconv-no-bom.patch 
 patch -Np1 -i ../patches/qt5-qtbase-5.15.10-alpine/qt5-base-cflags.patch 
 patch -Np1 -i ../patches/qt5-qtbase-5.15.10-alpine/qt5-base-nostrip.patch 
+patch -Np1 -i ../patches/qt5-qtbase-5.15.10-alpine/fix-build-with-xkbcommon-160.patch
 
 # Fix flags
 sed -i -e "s|-O2|$CXXFLAGS|" \
