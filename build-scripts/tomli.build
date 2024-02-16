@@ -1,0 +1,33 @@
+#! /bin/bash
+
+# tomli 
+# Source: https://github.com/hukkin/tomli/archive/2.0.1/tomli-2.0.1.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     installer
+# Recommended:  NONE
+# Optional:     NONE
+
+sudo python3 -m installer -d $BUILD ../files/tomli-pythonhosted/tomli-2.0.1-py3-none-any.whl
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+tomli: tomli
+tomli:
+tomli: Lil' TOML parser for python
+tomli:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/tomli-2.0.1-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
