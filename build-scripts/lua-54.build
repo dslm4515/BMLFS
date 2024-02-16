@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Lua 54
-# Source: https://www.lua.org/ftp/lua-5.4.1.tar.gz
+# Source: https://www.lua.org/ftp/lua-5.4.6.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,29 +11,42 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-patch -Np0 -i ../patches/lua54-void/liblua.so.patch
+# Some packages check for the pkg-config file for Lua, which is created with: 
+cat > lua.pc << "EOF"
+V=5.4
+R=5.4.6
 
-read -p "Compile?" &&
+prefix=/usr
+INSTALL_BIN=${prefix}/bin
+INSTALL_INC=${prefix}/include
+INSTALL_LIB=${prefix}/lib
+INSTALL_MAN=${prefix}/share/man/man1
+INSTALL_LMOD=${prefix}/share/lua/${V}
+INSTALL_CMOD=${prefix}/lib/lua/${V}
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
 
-sed -i src/Makefile -r \
-    -e '/^LUA_(SO|A|T)=/ s;lua;lua5.4;' \
-    -e '/^LUAC_T=/ s;luac;luac5.4;'       &&
-make MYCFLAGS="$CFLAGS -fPIC" \
-     INSTALL_DATA="cp -d" LUA_SO=liblua5.4.so -j2 linux-readline
+Name: Lua
+Description: An Extensible Extension Language
+Version: ${R}
+Requires:
+Libs: -L${libdir} -llua -lm -ldl
+Cflags: -I${includedir}
+EOF
 
-read -p "Install?" &&
-sudo -S make INSTALL_DATA="cp -d" INSTALL_TOP="${BUILD}/usr" \
-             TO_BIN="lua5.4 luac5.4" \
-             TO_LIB="liblua5.4.a liblua5.4.so liblua5.4.so.5.4 liblua5.4.so.5.4.1" \
-             INSTALL_INC="${BUILD}/usr/include/lua5.4" \
-             INSTALL_MAN="${BUILD}/usr/share/man/man1" install &&
-#sudo -S 
-             
-cp -v ../files/lua53-void/lua.pc  /tmp/            &&
-sed /tmp/lua.pc \
-    -e "s;%VER%;5.4;g;s;%REL%;5.4.1;g" > lua5.4.pc &&
-sudo -S install -D -m644 lua5.4.pc ${BUILD}/usr/lib/pkgconfig/lua5.4.pc          &&
-rm -v /tmp/lua.pc &&
+patch -Np1 -i ../patches/lua54-lfs/lua-5.4.6-shared_library-1.patch 
+make linux
+
+sudo make INSTALL_TOP=$BUILD/usr  INSTALL_DATA="cp -d" \
+     INSTALL_MAN=$BUILD/usr/share/man/man1 \
+     TO_LIB="liblua.so liblua.so.5.4 liblua.so.5.4.6" \
+     install
+sudo mkdir -pv  $BUILD/usr/share/doc/lua-5.4.6 && 
+sudo cp -v doc/*.{html,css,gif,png}  $BUILD/usr/share/doc/lua-5.4.6 && 
+
+sudo mkdir -pv $BUILD/usr/lib/pkgconfig
+sudo install -v -m644 -D lua.pc $BUILD/usr/lib/pkgconfig/lua.pc
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -58,9 +71,6 @@ lua-54:
 lua-54:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-# Fix a few libraries and headers...
-sudo -s rm -rvf usr/lib/lua/5.4 &&
-sudo -s ln -sv liblua5.4.so.5.4.1 usr/lib/liblua.so.5.4.1 &&
-sudo -S ln -sv luac5.4 usr/bin/luac &&
-sudo -S makepkg -l y -c n $PKGS/lua-54-5.4.1-$(uname -m)-mlfs.txz &&
+
+sudo -S makepkg -l y -c n $PKGS/lua-54-5.4.6-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
