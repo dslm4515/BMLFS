@@ -1,0 +1,39 @@
+#! /bin/bash
+
+# glad 
+# Source: https://github.com/Dav1dde/glad/archive/refs/tags/v2.0.5.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     python3 jinja2 setuptools wheel gpep517
+# Recommended:  NONE
+# Optional:     NONE
+
+gpep517 build-wheel --wheel-dir .dist --output-fd 3 3>&1 >&2
+
+sudo python3 -m installer -d $BUILD .dist/*.whl
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+    |-----handy-ruler------------------------------------------------------|
+glad: glad (python module)
+glad:
+glad: Multi-Language Vulkan/GL/GLES/EGL/GLX/WGL Loader-Generator based on 
+glad: the official specs.  
+glad:
+glad: https://github.com/Dav1dde/glad
+glad:
+glad:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/glad-2.0.5-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
