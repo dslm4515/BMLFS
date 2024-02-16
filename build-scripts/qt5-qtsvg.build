@@ -1,7 +1,8 @@
 #! /bin/bash
 
-# Qt5 QtSVG 5.15.10_git20230612
-# Source: https://dev.alpinelinux.org/archive/qt/qtsvg-37b2c764fb599c96fc415049208e871c729217c8.tar.xz
+# Qt5 QtSVG 5.15.12
+# Source: https://github.com/qt/qtsvg/archive/refs/tags/v5.15.12-lts-lgpl.tar.gz
+#
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
@@ -31,6 +32,18 @@ sudo -S make INSTALL_ROOT=$BUILD install && \
 find "$BUILD/opt/qt5/lib" -type f -name '*.prl' \
   -exec sudo sed -i -e '/^QMAKE_PRL_BUILD_DIR/d' {} \;
 
+# Run-path (rpath) for shared binaries are missing rpath's for /opt/qt5/lib
+# For now use patchelf to patch in missing rpath:
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5/lib/libQt5Svg.so*
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	$BUILD/opt/qt5/lib/libQt5Svg.so*
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5/plugins/iconengines/libqsvgicon.so
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5/plugins/imageformats/libqsvg.so
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	$BUILD/opt/qt5/plugins/iconengines/libqsvgicon.so
+sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
+	$BUILD/opt/qt5/plugins/imageformats/libqsvg.so
+
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
@@ -50,5 +63,5 @@ qt5-qtsvg: http://qt-project.org
 qt5-qtsvg:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/qt5-qtsvg-5.15.10_git20230612-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/qt5-qtsvg-5.15.12-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
