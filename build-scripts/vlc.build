@@ -1,34 +1,40 @@
 #! /bin/bash
 
 # VLC 
-# Source: https://download.videolan.org/vlc/3.0.16/vlc-3.0.16.tar.xz
+# Source: https://download.videolan.org/vlc/3.0.20/vlc-3.0.20.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     NONE
+# Required:     libplacebo
 # Recommended:  gst-plugins-ugly a52dec libgcrypt libmad alsa-lib 
 # Recommended:  desktop-file-utils ffmpeg lua52 qt5-qtsvg
 # Optional:     dbus libidn libssh2 gst-plugins-bad gst-plugins-good
 
+# NOTE: VLC still expect headers from libplacebo, even if support for
+#       is disabled
+# NOTE: Fails to build with clang-17. Use GCC.
+# NOTE: Stripping libraries of debug symbols causes vlc not to load
+
 patch -Np1 -i ../patches/vlc-alpine/check-headless.patch 
 patch -Np1 -i ../patches/vlc-alpine/disable-sub-autodetect-fuzzy-1-test.patch
 patch -Np1 -i ../patches/vlc-alpine/fribidi_allow_deprecated.patch 
-patch -Np1 -i ../patches/vlc-alpine/test-s390x.patch 
+patch -Np1 -i ../patches/vlc-alpine/libplacebo-5.patch
+patch -Np1 -i ../patches/vlc-alpine/omxil-rpi-codecs.patch
 
 NOCONFIGURE=1 ./bootstrap &&
 
 CFLAGS=" -fcommon -D_GNU_SOURCE" CXXFLAGS="-fcommon" \
 BUILDCC="gcc -std=c99" \
 ./configure --prefix=/usr    \
-            --disable-vpx \
             --enable-x264 \
             --enable-merge-ffmpeg \
-            --without-mpg123 $BUILDTRUPLE &&
+	    --disable-v4l2 --disable-libplacebo # incompatible atm
+            $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
-sudo -S make DESTDIR=$BUILD  docdir=/usr/share/doc/vlc-3.0.16 install &&
+sudo -S make DESTDIR=$BUILD  docdir=/usr/share/doc/vlc-3.0.20 install &&
 sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
 sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/  && \
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
@@ -56,7 +62,7 @@ vlc: homepage: http://www.videolan.org/vlc/
 vlc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/vlc-3.0.16-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/vlc-3.0.20-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 vlc-doc: Manuals for vlc (VLC media player)
@@ -68,5 +74,5 @@ vlc-doc: http://www.videolan.org/vlc/
 vlc-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/vlc-doc-3.0.16-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/vlc-doc-3.0.20-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
