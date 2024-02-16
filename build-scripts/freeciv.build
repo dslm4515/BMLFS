@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # FreeCiv 
-# Source:  http://files.freeciv.org/stable/freeciv-3.0.8.tar.bz2
+# Source:  http://files.freeciv.org/stable/freeciv-3.0.10.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -62,7 +62,7 @@ freeciv: Homepage: http://www.freeciv.org/
 freeciv:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/freeciv-3.0.8-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/freeciv-3.0.10-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 freeciv-doc: Manuals for freeciv (turn-based multiplayer strategy game)
@@ -75,6 +75,6 @@ freeciv-doc: http://www.freeciv.org/
 freeciv-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/freeciv-doc-3.0.8-$NOPSUFFIX
+sudo -S makepkg -l y -c n $PKGS/freeciv-doc-3.0.10-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
