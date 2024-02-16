@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# Qt5 QtWayland 5.15.10_git20230714
-# Source: https://dev.alpinelinux.org/archive/qt/qtwayland-3a8613b91d2239aebc73b43562f929aa71af0de5.tar.xz
+# Qt5 QtWayland 5.15.12
+# Source: https://github.com/qt/qtwayland/archive/refs/tags/v5.15.12-lts-lgpl.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -78,5 +78,5 @@ qt5-qtwayland: http://qt-project.org
 qt5-qtwayland:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/qt5-qtwayland-5.15.10_git20230714-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/qt5-qtwayland-5.15.12-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
