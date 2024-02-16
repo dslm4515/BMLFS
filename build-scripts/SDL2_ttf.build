@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # SDL2_ttf
-# Source: https://github.com/libsdl-org/SDL_ttf/archive/refs/tags/release-2.20.2.tar.gz
+# Source: https://github.com/libsdl-org/SDL_ttf/releases/download/release-2.22.0/SDL2_ttf-2.22.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -48,5 +48,5 @@ SDL2_ttf:
 SDL2_ttf:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/SDL2_ttf-2.20.2-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/SDL2_ttf-2.22.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
