@@ -1,0 +1,44 @@
+#! /bin/bash
+
+# gpep517 
+# Source: https://github.com/projg2/gpep517/archive/refs/tags/v15.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     tomli
+# Recommended:  NONE
+# Optional:     NONE
+
+patch -Np1 -i ../patches/gpep517-alpine/default-bytecode-levels.patch 
+
+export sitedir="$(python3 -c 'import site;print(site.getsitepackages()[0])')"
+sudo mkdir -pv $BUILD${sitedir}
+
+sudo cp -av gpep517 $BUILD${sitedir}/
+sudo python3 -m compileall $BUILD${sitedir}
+sudo mkdir -pv $BUILD/usr/bin
+sudo cp -v ../files/gpep517-alpine/gpep517  $BUILD/usr/bin/
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+gpep517: gpep517
+gpep517:
+gpep517: Minimal backend script to aid installing Python packages through PEP 
+gpep517: 517-compliant build systems
+gpep517:
+gpep517: https://github.com/mgorny/gpep517
+gpep517: 
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gpep517-15-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
