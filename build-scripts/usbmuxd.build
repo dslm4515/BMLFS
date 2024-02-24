@@ -11,6 +11,9 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# Patch in support for newer libplist
+patch -Np1 -i ../patches/usbmuxd-chimera/libplist-2.3.0.patch
+
 autoreconf -fiv &&
 
 ./configure --prefix=/usr \
@@ -52,5 +55,5 @@ useradd  -c "USB Mux Daemon User" \
          -s /bin/false usbmux
 EOF
 sudo -S mv /tmp/doinst.sh install/
-sudo -S makepkg -l y -c n $PKGS/usbmuxd-1.1.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/usbmuxd-1.1.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
