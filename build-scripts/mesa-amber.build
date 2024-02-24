@@ -8,8 +8,8 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     LLVM, libdrm, Mako
-# Recommended:  Libva, libvdpau(for Xorg), wayland-protocols, libglvnd, spirv-headers
+# Required:     libdrm, Mako
+# Recommended:  LLVM, Libva, libvdpau(for Xorg), wayland-protocols, libglvnd, spirv-headers
 # Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind, vulkan-headers (vulkan support/driver)
 # Optional:     vulkan-loader (vulkan support), libclc(vulkan-support), libxcb(for Xorg), libX11(for Xorg)
 # Optional:     libxshmfence(for Xorg), libXxf86vm(for Xorg), libXrandr(for Xorg)
@@ -28,14 +28,20 @@ patch -Np1 -i ../patches/mesa-amber-21.3.9-chimera/musl-stacksize.patch
 patch -Np1 -i ../patches/mesa-amber-21.3.9-chimera/musl.patch 
 patch -Np1 -i ../patches/mesa-amber-21.3.9-chimera/no-unlink-megadrivers.patch
 
-# Apply patches to support LLVM-15.x.x Skip, if using LLVM 16.x.x or newer
+# May need patches for building with LLVM-13+
+# Otherwise, do not build with LLVM support
 
 export CFLAGS="$CFLAGS -D_XOPEN_SOURCE=700" &&
+
+# If compiling with clang-17, add this flag:
+export CFLAGS+=" -Wno-implicit-function-declaration -Wno-int-conversion "
+export CXXFLAGS="-Wno-implicit-function-declaration -Wno-int-conversion "
+
 # Not sure there are drivers for ARM that are in mesa-amber but not in mainstream mesa
 # For x86:
-export GLL_DRV="swrast,r600,r300,i915"
-export DRI_DRIVERS="i965,r100,r200"
-export V_DRIVERS="amd,intel,swrast"
+export GLL_DRV="i915,iris,crocus,r300,r600,nouveau"
+export DRI_DRIVERS="i965,r100,r200,nouveau"
+export V_DRIVERS="amd,intel"
 
 # Available options:
 # GLL_DRV     = kmsro radeonsi r300 r600 nouveau freedreno swrast v3d ethaviv tegra 
@@ -48,9 +54,9 @@ export V_DRIVERS="amd,intel,swrast"
 
 # Set configure flags
 export  BUILDOPT="-Dbuildtype=release "
-export BUILDOPT+="-Dllvm=enabled "
-export BUILDOPT+="-Dshared-llvm=enabled "
-export BUILDOPT+="-Dosmesa=true "
+export BUILDOPT+="-Dllvm=disabled "
+#export BUILDOPT+="-Dshared-llvm=enabled " # Too many errors with recent LLVM version (13+)
+#export BUILDOPT+="-Dosmesa=true " # requires gallium softpipe or llvmpip
 export BUILDOPT+="-Dvalgrind=false "
 
 export  GFXOPT="-Dglx=dri "
@@ -68,7 +74,7 @@ export DRVROPT="-Degl-native-platform=wayland "
 export  GALLIUMOPT="-Dgallium-va=enabled "
 export GALLIUMOPT+="-Dgallium-xa=enabled "
 export GALLIUMOPT+="-Dgallium-xvmc=false "
-export GALLIUMOPT+="-Dgallium-nine=true "
+export GALLIUMOPT+="-Dgallium-nine=false " # requires llvmpipe
 export GALLIUMOPT+="-Dgallium-vdpau=true "
 
 # if libclc is installed:
@@ -85,16 +91,16 @@ export GLL_DRV="i915,svga,swrast" # add r600 if libdrm supports radeon to enable
 export V_DRIVERS="swrast,intel"
 export  GALLIUMOPT="-Dgallium-va=disabled " # enable if libdrm supports radeon and/or nvidia
 export GALLIUMOPT+="-Dgallium-xa=enabled "
-export GALLIUMOPT+="-Dgallium-xvmc=false "
+export GALLIUMOPT+="-Dgallium-xvmc=disabled "
 export GALLIUMOPT+="-Dgallium-nine=true "
 export GALLIUMOPT+="-Dgallium-vdpau=disabled " # enable if libdrm supports radeon and/or nvidia
 
 # If glslang is installed, vulkan layers an be built
 export V_LAYERS="-Dvulkan-layers=device-select,overlay,intel-nullhw "
 
-# LLVM 15.x is not supported. If building without LLVM:
+# LLVM 14+ is not supported. If building without LLVM:
 export V_DRIVERS="amd,intel"
-export GLL_DRV="r600,r300,i915,radeonsi,crocus,iris,nouveaui"
+export GLL_DRV="r600,r300,i915,radeonsi,crocus,iris,nouveau"
 export DRI_DRIVERS="i965,r100,r200,nouveau"
 export  BUILDOPT="-Dbuildtype=release -Dllvm=disabled -Dosmesa=false "
 export BUILDOPT+="-Dvalgrind=false "
@@ -103,17 +109,18 @@ export GALLIUMOPT+="-Dgallium-xvmc=false -Dgallium-nine=false "
 export GALLIUMOPT+="-Dgallium-vdpau=true -Dgallium-opencl=disabled "
 export XTRA_OPTS="-Dglvnd=true -Dopencl-spirv=true -Dspirv-to-dxil=true " #if libglvnd & spirv-llvm-translator installed
 
+LDFLAGS="-Wl,--undefined-version" \
 meson setup --prefix=/usr -Damber=true \
       -Dvulkan-drivers="${V_DRIVERS}" -Dgallium-drivers="${GLL_DRV}" \
       -Ddri-drivers="${DRI_DRIVERS}" -Dplatforms=wayland,x11 -Dtools=glsl \
-      $BUILDOPT $GFXOPT $DRVROPT $GALLIUMOPT $V_LAYERS  $XTRA_OPTS OUT
+      $BUILDOPT $GFXOPT $DRVROPT $GALLIUMOPT $V_LAYERS  $XTRA_OPTS -Duse-elf-tls=false OUT
 
 ninja -C OUT src/compiler/nir/nir_intrinsics.h
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja -C OUT install &&
-unset CFLAGS GLL_DRV DRI_DRIVERS MESA_GIT_SHA1_OVERRIDE V_DRIVERS &&
+unset CFLAGS CXXFLAGS GLL_DRV DRI_DRIVERS  V_DRIVERS &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
