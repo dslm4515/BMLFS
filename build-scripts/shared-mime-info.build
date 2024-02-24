@@ -7,8 +7,8 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     GLib, itstool, libxml2, and xmlto 
-# Recommended:  NONE
+# Required:     GLib itstool libxml2
+# Recommended:  xmlto
 # Optional:     NONE
 
 # If optimizing, use these flags with GCC
