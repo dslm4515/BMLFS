@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # PyGObject 3
-# Source: https://download.gnome.org/sources/pygobject/3.44/pygobject-3.44.1.tar.xz
+# Source: https://download.gnome.org/sources/pygobject/3.46/pygobject-3.46.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,13 +11,11 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-mkdir build &&
-cd    build &&
+meson setup --prefix=/usr -Dpython=python3 OUT &&
 
-meson --prefix=/usr -Dpython=python3 .. &&
-read -p "Compile?" && ninja -j2 &&
+read -p "Compile?" && ninja -C OUT -j2 &&
 
-sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -42,5 +40,5 @@ pygobject3:
 pygobject3:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pygobject3-3.44.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/pygobject3-3.46.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
