@@ -43,10 +43,23 @@ LDFLAGS="-Wl,--undefined-version" \
             --enable-deprecated   \
             --enable-mesh \
 	    --enable-btpclient \ 
-	    --disable-manpages $BUILDTRUPLE &&
+	    --disable-manpages --enable-btpclient --enable-sixaxis --enable-experimental \
+	    --enable-datafiles --enable-midi $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
+
+# Install additional tools
+for t in advtest amptest avinfo avtest bcmfw bdaddr bluetooth-player bneptest \
+	 btconfig btgatt-client btgatt-server btinfo btiotest btpclient \
+	 btpclientctl btproxy btsnoop check-selftest cltest create-image \
+	 eddystone gatt-service hcieventmask hcisecfilter hwdb ibeacon mcaptest \
+	 nokfw obex-client-tool obex-server-tool obexctl oobtest rtlfw scotest \
+	 seq2bseq test-runner
+ do 
+	 sudo -S install -Dm755 -v tools/$t $BUILD/usr/bin/
+ done
+
 sudo -S install -D -m644 src/main.conf ${BUILD}/etc/bluetooth/main.conf      &&
 sed 's|^#!/usr/bin/python$|#!/usr/bin/env python3|g' -i test/simple-agent    &&
 sudo -S install -Dm755 test/simple-agent ${BUILD}/usr/bin/bluez-simple-agent &&
