@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# Blueman 
+# Source: https://github.com/blueman-project/blueman/releases/download/2.3.5/blueman-2.3.5.tar.xz  
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     bluez dbus gdk-pix-buf glib gtk3 pango pulseaudio pycairo pygobject 
+# Required:     cython
+# Recommended:  NONE
+# Optional:     NONE
+
+# Meson build fails to configure. Use GNU's autotools
+./configure --prefix=/usr --with-systemduserunitdir=/tmp \
+	--with-systemdsystemunitdir=/tmp 
+make -j2
+
+sudo -S make DESTDIR=$BUILD install && 
+# Remove undded systemd units:
+sudo -S rm -rf $BUILD/tmp
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+blueman: blueman
+blueman:
+blueman: A GTK+ Bluetooth Manager that is designed to provide a simple yet 
+blueman: effective means for controlling the BlueZ API and simplifying 
+blueman: Bluetooth task
+blueman:
+blueman: https://github.com/blueman-project/blueman
+blueman:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/blueman-2.3.5-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
