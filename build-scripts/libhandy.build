@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libhandy 
-# Source: https://download.gnome.org/sources/libhandy/1.8/libhandy-1.8.2.tar.xz
+# Source: https://download.gnome.org/sources/libhandy/1.8/libhandy-1.8.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,16 +11,13 @@
 # Recommended:  vala (required for dconf-editor) 
 # Optional:     gtk-doc glade
 
-mkdir build &&
-cd    build &&
-
 meson setup --prefix=/usr \
             --buildtype=release \
-	    -Dvapi=false ..
+	    -Dvapi=false OUT
 
-read -p "Compile?" && ninja -j2 &&
+read -p "Compile?" && ninja -C OUT -j2 &&
 
-sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -41,5 +38,5 @@ libhandy: ftp://ftp.acc.umu.se/pub/gnome/sources/libhandy
 libhandy:
 EOF
 sudo -S mv /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libhandy-1.8.2-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libhandy-1.8.3-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
