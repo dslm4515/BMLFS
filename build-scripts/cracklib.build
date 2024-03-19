@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # CrackLib
-# Source: https://github.com/cracklib/cracklib/releases/download/v2.9.7/cracklib-2.9.7.tar.bz2
-# Source: https://github.com/cracklib/cracklib/releases/download/v2.9.7/cracklib-words-2.9.7.bz2
+# Source: https://github.com/cracklib/cracklib/releases/download/v2.9.11/cracklib-2.9.11.tar.xz
+# Source: https://github.com/cracklib/cracklib/releases/download/v2.9.11/cracklib-words-2.9.11.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,7 +13,7 @@
 # Optional:     NONE
 
 #autoreconf -fiv &&
-sed -i '/skipping/d' util/packer.c &&
+#sed -i '/skipping/d' util/packer.c &&
 
 ./configure --prefix=/usr    \
             --disable-static \
@@ -21,8 +21,8 @@ sed -i '/skipping/d' util/packer.c &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
-sudo -S install -v -m644 -D    ../cracklib-words-2.9.7.bz2 \
-                         $BUILD/usr/share/dict/cracklib-words.bz2 &&
+sudo -S install -v -m644 -D    ../pkgs/cracklib-words-2.9.11.xz \
+                         $BUILD/usr/share/dict/cracklib-words.xz &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -50,15 +50,19 @@ sudo -S mv -v /tmp/slack-desc install/ &&
 #sudo -S mkdir -v lib &&
 #sudo -S mv -v usr/lib/libcrack.so.* lib &&
 #sudo -S ln -sfv ../../lib/libcrack.so.2.9.0 usr/lib/libcrack.so && 
-sudo -S bunzip2 -v               usr/share/dict/cracklib-words.bz2 &&
-sudo -S ln -v -sf cracklib-words usr/share/dict/words &&
+#sudo -S bunzip2 -v               usr/share/dict/cracklib-words.bz2 &&
+#sudo -S ln -v -sf cracklib-words usr/share/dict/words &&
 #sudo -S install -v -m755 -d lib/cracklib &&
-sudo -S makepkg -l y -c n $PKGS/cracklib-2.9.7-$(uname -m)-mlfs.txz &&
-cp -v install/doinst.sh /tmp/ &&
-cat >> /tmp/doinst.sh << "EOF"
+
+sudo -S unxz -v usr/share/dict/cracklib-words.xz 
+sudo -S ln -v -sf cracklib-words usr/share/dict/words
+sudo -S install -v -m755 -d usr/lib/cracklib 
+
+cat > /tmp/doinst.sh << "EOF"
+echo $(hostname) >>      /usr/share/dict/cracklib-extra-words
 create-cracklib-dict     /usr/share/dict/cracklib-words \
                          /usr/share/dict/cracklib-extra-words
 EOF
 sudo -S mv /tmp/doinst.sh install/ &&
-sudo -S makepkg -l y -c n $PKGS/cracklib-2.9.7-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/cracklib-2.9.11-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
