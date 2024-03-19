@@ -1,24 +1,22 @@
 #! /bin/bash
 
 # gnome-disk-utility
-# Source: https://download.gnome.org/sources/gnome-disk-utility/42/gnome-disk-utility-42.rc.tar.xz
+# Source: https://download.gnome.org/sources/gnome-disk-utility/45/gnome-disk-utility-45.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     libcanberra, libdvdread, libnotify, libpwquality, libsecret, 
-# Required:     udisks2, libxslt
+# Required:     itstool libdvdread  libpwquality libsecret libnotify
+# Required:     udisks2 libhandy libcanberra
 # Recommended:  NONE
-# Optional:     GTK-doc, libhandy
+# Optional:     GTK-doc gnome-settings-daemon gtk4
 
-mkdir BUILD && cd BUILD && \
+meson setup --prefix=/usr --buildtype=release -Dlogind=none  OUT && \
 
-meson --prefix=/usr -Dlogind=none .. && \
+read -p "Compile?" && ninja -C OUT -j2 &&
 
-read -p "Compile?" && ninja -j2 &&
-
-sudo -S DESTDIR=$BUILD ninja install && \
+sudo -S DESTDIR=$BUILD ninja -C OUT install && \
 sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 
@@ -45,7 +43,15 @@ gnome-disk-utility:
 gnome-disk-utility:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gnome-disk-utility-42_rc-$(uname -m)-mlfs.txz && \
+cat > /tmp/doinst.sh << "EOF"
+glib-compile-schemas            /usr/share/glib-2.0/schemas
+update-desktop-database -q      /usr/share/applications
+if [ -f /bin/gtk4-update-icon-cache ] ; then
+   gtk4-update-icon-cache -q -t -f /usr/share/icons/hicolor
+fi
+EOF
+sudo -S mv /tmp/doinst.sh install/ &&
+sudo -S makepkg -l y -c n $PKGS/gnome-disk-utility-45.1-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 gnome-disk-utility-doc: Manuals for gnome-disk-utility
@@ -54,5 +60,5 @@ gnome-disk-utility-doc: Libraries and apps for storage device handling
 gnome-disk-utility-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/gnome-disk-utility-doc-42_rc-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/gnome-disk-utility-doc-45.1-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
