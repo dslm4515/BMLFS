@@ -2,6 +2,7 @@
 
 # askpass GTK3 
 # Source: https://github.com/undesktop/askpass
+# Source: https://github.com/undesktop/askpass/archive/f16c3ace475b2c1171852329bcc095caa5f5965a.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -33,5 +34,5 @@ askpass-gtk3: https://github.com/undesktop/askpass
 askpass-gtk3:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/askpass-gtk3-1.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/askpass-gtk3-0.1.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
