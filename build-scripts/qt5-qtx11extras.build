@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# Qt5 QtX11Extras 5.15.3_git20201027
-# Source: https://invent.kde.org/qt/qt/qtx11extras/-/archive/3898f5484fd4864b047729bfeda9a1222f32364f/qtx11extras-3898f5484fd4864b047729bfeda9a1222f32364f.tar.gz
+# Qt5 QtX11Extras 5.15.12
+# Source: https://github.com/qt/qtx11extras/archive/refs/tags/v5.15.12-lts-lgpl.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -17,9 +17,6 @@
 mkdir .git && \
 
 qmake-qt5 && \
-
-# Build does nothing. Manually change directories.
-cd src/x11extras && qmake && \
 
 read -p "Compile?" && make -j2 &&
 
@@ -46,5 +43,5 @@ qt5-qtx11extras: https://www.qt.io/developers/
 qt5-qtx11extras:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/qt5-qtx11extras-5.15.3_git20201027-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/qt5-qtx11extras-5.15.12-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
