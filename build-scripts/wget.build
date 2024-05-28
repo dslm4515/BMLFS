@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Wget 
-# Source: https://ftp.gnu.org/gnu/wget/wget-1.21.4.tar.gz
+# Source: https://ftp.gnu.org/gnu/wget/wget-1.24.5.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built package
@@ -60,7 +60,7 @@ wget:
 wget:
 EOF
 sudo mv /tmp/slack-desc install/ &&
-sudo makepkg -l y -c n $PKGS/wget-1.21.4-$PSUFFIX &&
+sudo makepkg -l y -c n $PKGS/wget-1.24.5-$PSUFFIX &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -75,7 +75,7 @@ wget-doc: The author of Wget is Hrvoje Niksic <hniksic@srce.hr>.
 wget-doc: 
 EOF
 sudo mv /tmp/slack-desc install/ &&
-sudo makepkg -l y -c n $PKGS/wget-doc-1.21.4-$NOPSUFFIX
+sudo makepkg -l y -c n $PKGS/wget-doc-1.24.5-$NOPSUFFIX
 sudo rm -rf /BMAN/*
 sudo rm -rf $BUILD/*
 
