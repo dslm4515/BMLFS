@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libpwquality
-# Source: https://github.com/libpwquality/libpwquality/releases/download/libpwquality-1.4.4/libpwquality-1.4.4.tar.bz2
+# Source: https://github.com/libpwquality/libpwquality/releases/download/libpwquality-1.4.5/libpwquality-1.4.5.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -9,8 +9,13 @@
 # DEPS
 # Required:     Cracklib
 # Recommended:  linux-PAM
-# Optional:     Python2
+# Optional:     Python3
 
+# Apply patch as distutils is removed from Python 3.12+
+patch -Np1 -i ../patches/libpwquality-chimera/setuptools.patch 
+
+# Add flags if compiling with clang-17
+CFLAGS="-Wno-implicit-function-declaration " CXXFLAGS=$CFLAGS \
 ./configure --prefix=/usr                  \
             --disable-static               \
             --with-securedir=/usr/lib/security \
@@ -45,7 +50,7 @@ libpwquality:
 libpwquality:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libpwquality-1.4.4-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libpwquality-1.4.5-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libpwquality-doc: Manuals for libpwquality
@@ -56,5 +61,5 @@ libpwquality-doc: https://github.com/libpwquality/libpwquality/
 libpwquality-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/libpwquality-doc-1.4.4-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/libpwquality-doc-1.4.5-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
