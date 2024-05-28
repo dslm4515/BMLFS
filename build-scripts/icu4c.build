@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # ICU 
-# Source: https://github.com/unicode-org/icu/releases/download/release-74-1/icu4c-74_1-src.tgz
+# Source: https://github.com/unicode-org/icu/releases/download/release-75-1/icu4c-75_1-src.tgz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -79,9 +79,9 @@ sudo -S mv -v /tmp/slack-desc /BMAN/install/
 
 sudo mv usr/share/man /BMAN/usr/share/
 
-sudo -S makepkg -l y -c n $PKGS/icu-74.1-${PSUFFIX} &&
+sudo -S makepkg -l y -c n $PKGS/icu-75.1-${PSUFFIX} &&
 cd /BMAN
-sudo -S makepkg -l y -c n $PKGS/icu-doc-74.1-${NOPSUFFIX}
+sudo -S makepkg -l y -c n $PKGS/icu-doc-75.1-${NOPSUFFIX}
 
 sudo -S rm -rf $BUILD/*
 sudo -S rm -rf /BMAN
