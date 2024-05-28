@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# qalculate-gtk
+# Source: https://github.com/Qalculate/qalculate-gtk/releases/download/v5.0.0/qalculate-gtk-5.0.0.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     libqalculate gtk+3
+# Recommended:  NONE
+# Optional:     NONE
+
+# Add flags if mpfr is not in /usr
+CFLAGS="-I/opt/gnu/include" CPPFLAGS=$CFLAGS \
+CXXFLAGS=$CFLAGS LDFLAGS="-L/opt/gnu/lib -Wl,-rpath=/opt/gnu/lib" \
+./configure --prefix=/usr
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+             |-----handy-ruler------------------------------------------------------|
+qalculate-gtk: qalculate-gtk
+qalculate-gtk:
+qalculate-gtk: The GTK+3 GUI for qalculate, a multi-purpose cross-platform desktop 
+qalculate-gtk: calculator. 
+qalculate-gtk:
+qalculate-gtk: https://github.com/Qalculate/qalculate-gtk
+qalculate-gtk:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/qalculate-gtk-5.0.0-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
