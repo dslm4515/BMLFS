@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # pyevdev
-# Source: https://files.pythonhosted.org/packages/47/f0/650d83c84386d4a79e91e5c826f4ea10315c0708ea784e79c1b67e18bf26/evdev-1.5.0.tar.gz
+# Source: https://files.pythonhosted.org/packages/f3/0c/c87b141250a650ee53d4e9957e905b17c144cda6dc4187cbe89a641a1b34/evdev-1.7.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,9 +11,12 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-read -p "Compile?" && python3 setup.py build && \
+#read -p "Compile?" && python3 setup.py build && \
+#sudo -S python3 setup.py install --skip-build --root=$BUILD --optimize=1 && 
 
-sudo -S python3 setup.py install --skip-build --root=$BUILD --optimize=1 && 
+read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+
+sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user evdev --root=${BUILD}
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -34,5 +37,5 @@ pyevdev: https://pypi.org/project/evdev/
 pyevdev:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pyevdev-1.5.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/pyevdev-1.7.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
