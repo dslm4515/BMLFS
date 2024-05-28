@@ -2,20 +2,17 @@
 #uchtunes.com
 
 # Sway 
-# Source: https://github.com/swaywm/sway/releases/download/1.8.1/sway-1.8.1.tar.gz
-# Source: https://github.com/swaywm/sway/releases/download/1.7/sway-1.7.tar.gz
+# Source: https://github.com/swaywm/sway/releases/download/1.9/sway-1.9.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     wlroots(0.16.2), json-c, wayland-protocols, libxkbcommon, cairo,
+# Required:     wlroots(0.17.x), json-c, wayland-protocols, libxkbcommon, cairo,
 # Required:     gdk-pixbuf, pixman, mesa, libevdev, libinput, pango,
 # Required:     libxcb, pcre
 # Recommended:  elogind basu xwayland
-# Optional:     fish, git
-
-# Sway 1.7 will not build with wlroots-0.16.0 at this time.
+# Optional:     fish, git.
 
 meson --prefix=/usr -Dbuildtype=release \
 	-Dxwayland=enabled -Dtray=enabled OUT
@@ -47,7 +44,7 @@ sway:
 sway:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/sway-1.7-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/sway-1.9-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 sway-doc: Manuals for Sway
@@ -56,7 +53,8 @@ sway-doc: to be compatible with the i3 window manager.
 sway-doc:
 sway-doc: https://swaywm.org
 sway-doc:
-EOF 
+EOF
+
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/sway-doc-1.7-noarch.mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/sway-doc-1.9-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
