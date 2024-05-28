@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # BTOP++
-# Source: https://github.com/aristocratos/btop/archive/refs/tags/v1.2.13.tar.gz
+# Source: https://github.com/aristocratos/btop/archive/refs/tags/v1.3.2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     gcc (no clang support)
+# Required:     NONE (clang support since 1.3.x ?)
 # Recommended:  NONE
 # Optional:     NONE
 
@@ -34,5 +34,5 @@ btop: https://github.com/aristocratos/btop
 btop:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/btop-1.2.13-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/btop-1.3.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
