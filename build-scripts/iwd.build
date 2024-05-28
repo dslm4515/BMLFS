@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # iwd
-# Source: https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-2.8.tar.xz
+# Source: https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-2.9.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -45,6 +45,8 @@ patch -Np1 -i ../patches/iwd-chimera/use-network-instead-of-wheel.patch
 autoreconf -fiv
 
 # Configure source
+# Add this CFLAGS if compiling with clang 17+
+CFLAGS="-Wno-implicit-function-declaration -Wno-int-conversion " \
 ./configure --prefix=/usr \
             --disable-systemd-service \
 	    --enable-pie \
@@ -100,7 +102,7 @@ EnableIPv6=true
 EOF
 sudo -S mv /tmp/main.conf etc/iwd/ && \
 read -p "Enter to build and install package" &&
-sudo -S makepkg -l y -c n $PKGS/iwd-2.8-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/iwd-2.9-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 iwd-doc: Manuals for iwd (iNet Wireless Daemon)
@@ -111,5 +113,5 @@ iwd-doc: https://git.kernel.org/pub/scm/network/wireless/iwd.git
 iwd-doc:
 EOF
 sudo -S mv /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/iwd-doc-2.8-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/iwd-doc-2.9-$NOPSUFFIX && \
 sudo -S rm -rf $BUILD/* /BMAN/*                                    
