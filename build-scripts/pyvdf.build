@@ -1,0 +1,39 @@
+#! /bin/bash
+
+# pyvdf
+# Source: https://files.pythonhosted.org/packages/44/7f/74192f47d67c8bf3c47bf0d8487b3457614c2c98d58b6617721d217f3f79/vdf-3.4.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+#read -p "Compile?" && python3 setup.py build &&
+read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+
+#sudo -S python3 setup.py install --prefix=/usr --root=${BUILD} &&
+sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user vdf --root=${BUILD}
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+     |-----handy-ruler------------------------------------------------------|
+pyvdf: pyvdf
+pyvdf:
+pyvdf: Python Library for working with Valve's VDF text format
+pyvdf:
+pyvdf: https://pypi.org/project/vdf/
+pyvdf:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/pyvdf-3.4-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
