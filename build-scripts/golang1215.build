@@ -1,17 +1,17 @@
 #! /bin/bash
 
 # Go Compiler 
-# Source: https://go.dev/dl/go1.22.3.src.tar.gz
+# Source: https://go.dev/dl/go1.21.5.src.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     golang-1.20.6+
+# Required:     golang-1.17.8
 # Recommended:  NONE
 # Optional:     NONE
 
-# NOTE: go-1.22.x requires at least go 1.20.6 for bootstrap. A recent GCC-go can be used instead.
+# NOTE: go1.20.x requires at least go 1.17 for bootstrap. A recent GCC-go can be used instead.
 
 # Per Chimera Linux, drop gold enforcement on linux
 patch -Np1 -i ../patches/go1.21.3-chimera/arm64-no-gold.patch 
@@ -20,17 +20,14 @@ patch -Np1 -i ../patches/go1.21.3-chimera/arm64-no-gold.patch
 # even if a different version was specified in go.mod
 patch -Np1 -i ../patches/go1.21.3-chimera/disable-auto-go-download.patch 
 
-# For AMD64/x86_64
-export GOARCH="amd64"
-
-# For i686
-# export GOARCH=386
-# For arch64
-# export GOARCH=arm64
-# For armv7
-# export GOARCH="arm" GOARM=7
-# For armhf
-# export GOARCH="arm" GOARM=6
+# Set the arch
+case $(uname -m) in
+     x86)    export GOARCH="386" ;;
+     x86_64) export GOARCH="amd64" ;;
+     armv7*) export GOARCH="arm" GOARM=7 ;;
+     armv6*) export GOARCH="arm" GOARM=6 ;;
+     *)return 1 ;;
+esac
 
 # compile go itself as a PIE on supported arches.
 case $(uname -m) in
@@ -43,7 +40,7 @@ export GOROOT="/src/go"
 export GOBIN="$GOROOT"/bin
 export GOROOT_FINAL=/usr/lib/go
 
-# go-bootstrap is too old. Build and use go-1.21.5 in /usr/lib/go
+# go-bootstrap is too old. Build and use go-1.17.8 in /usr/lib/go
 export GOROOT_BOOTSTRAP="/usr/lib/go"
 
 # Build!
@@ -106,7 +103,7 @@ EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 sudo -S mkdir -pv /BMAN/install /BMAN/usr && \
 sudo mv $BUILD/usr/share /BMAN/usr/ && \
-sudo -S makepkg -l y -c n $PKGS/golang-1.22.3-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/golang-1.21.5-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 golang-doc: Documentation for golang
@@ -117,6 +114,6 @@ golang-doc: https://go.dev/
 golang-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/golang-doc-1.22.3-${NOPSUFFIX} &&
+sudo -S makepkg -l y -c n $PKGS/golang-doc-1.21.5-${NOPSUFFIX} &&
 sudo -S rm -rf ${BUILD}/*
 unset GOOS GOPATH GOROOT GOBIN GOROOT_FINAL GOROOT_BOOTSTRAP GOARCH
