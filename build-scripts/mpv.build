@@ -1,31 +1,24 @@
 #! /bin/bash
 
 # mpv
-# Source: https://github.com/mpv-player/mpv/archive/v0.33.0.tar.gz
+# Source: https://github.com/mpv-player/mpv/archive/refs/tags/v0.37.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Mesa, FFmpeg, libXv
-# Recommended:  harfbuzz, libass, 
-# Optional:     wayland, lcms2, libbluray
+# Required:     mesa ffmpeg  libXv
+# Recommended:  harfbuzz libass sdl2
+# Optional:     wayland lcms2 libbluray appleframeworks lua-5.3
+# OPtional:     opensles shaderc openal
 
-python3 bootstrap.py &&
-./waf configure --prefix=/usr      \
-                --libdir=/usr/lib  \
-                --confdir=/etc/mpv \
-                --enable-dvdnav    \
-                --enable-libarchive \
-                --enable-cdda \
-                --enable-libmpv-shared \
-                --enable-alsa \
-                --enable-pulse \
-                --enable-sdl2 
+meson setup --prefix=/usr --buildtype=release \
+	-Dlibmpv=true -Dopenal=enabled \
+	-Dsdl2=enabled OUT
                 
-read -p "Compile?" && ./waf -j 2 &&
+read -p "Compile?" && ninja -C OUT -j2 &&
 
-sudo -S -E ./waf --destdir=$BUILD install &&
+sudo -S -E DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -50,5 +43,12 @@ mpv: mpv homepage: http://mpv.io/
 mpv:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mpv-0.33.0-$(uname -m)-mlfs.txz &&
+cat > /tmp/doinst.sh << "EOF"
+update-desktop-database -q      /usr/share/applications
+if [ -f /bin/gtk4-update-icon-cache ] ; then
+	   gtk4-update-icon-cache -q -t -f /usr/share/icons/hicolor
+fi
+EOF
+sudo -S mv /tmp/doinst.sh install/ 
+sudo -S makepkg -l y -c n $PKGS/mpv-0.37.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
