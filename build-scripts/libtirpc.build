@@ -17,6 +17,8 @@ export CFLAGS+="-O3 -ffat-lto-objects -flto=4 -fstack-protector-strong "
 export CFLAGS+="-fzero-call-used-regs=used "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
+# If building with clang-17+, add this linker flag:
+LDFLAGS="-Wl,--undefined-version" \
 ./configure --prefix=/usr --sysconfdir=/etc \
 	    --localstatedir=/var \
 	    --disable-static \
