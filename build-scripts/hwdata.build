@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # hwdata 
-# Source: https://github.com/vcrhonek/hwdata/archive/refs/tags/v0.378.tar.gz
+# Source: https://github.com/vcrhonek/hwdata/archive/v0.382/hwdata-0.382.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -37,5 +37,5 @@ hwdata: https://github.com/vcrhonek/hwdata
 hwdata:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/hwdata-0.378-$NOPSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/hwdata-0.382-$NOPSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
