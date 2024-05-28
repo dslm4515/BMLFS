@@ -1,8 +1,7 @@
 #! /bin/bash
 
 # Weston
-# Source: https://wayland.freedesktop.org/releases/weston-9.0.0.tar.xz
-# Source: https://gitlab.freedesktop.org/wayland/weston/-/archive/12.0.2/weston-12.0.2.tar.bz2
+# Source: https://gitlab.freedesktop.org/wayland/weston/-/archive/13.0.1/weston-13.0.1.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -15,22 +14,23 @@
 # Recommended:  gstreamer, colord, freerdp, gst-plugins-base
 # Optional:     pipewire
 
-#patch -Np1 -i ../patches/weston-alpine/missing-fnctl_h.patch
-#patch -Np1 -i ../patches/weston-alpine/timespec.patch
+patch -Np1- i ../patches/weston-chimera/basename.patch
+patch -Np1- i ../patches/weston-chimera/disable-atomic.patch 
+patch -Np1- i ../patches/weston-chimera/disable-config-parser-test.patch
+patch -Np1- i ../patches/weston-chimera/disable-xwayland-tests.patch 
+patch -Np1- i ../patches/weston-chimera/errno.patch
+patch -Np1- i ../patches/weston-chimera/fd-notify.patch
 
-#mkdir BUILD && cd BUILD &&
-#meson   --prefix=/usr \
-#        -Dlauncher-logind=true \
-#        -Dsystemd=false \
-#        -Dsimple-dmabuf-drm=auto \
-#        -Dpipewire=false \
-#        -Dbackend-rdp=false . &&
-
-meson setup --prefix=/usr -Dsystemd=false \
-	    -Dpipewire=false -Dbackend-pipewire=false \
+meson setup --prefix=/usr \
+	    -Dsystemd=false \
+	    -Dpipewire=true \
+	    -Dremoting=false \
 	    -Dbackend-rdp=false \
 	    -Dbackend-vnc=false \
-	    -Dcolor-management-lcms=false OUT
+	    -Dbackend-drm-screencast-vaapi=true \
+	    -Dcolor-management-lcms=true \
+	    -Dtest-junit-xml=false \
+	    -Ddefault_library=shared OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
@@ -61,5 +61,5 @@ weston:
 weston: Homepage: http://wayland.freedesktop.org/
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/weston-12.0.2-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/weston-13.0.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
