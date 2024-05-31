@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Libpng (PNG Library)
-# Source: https://downloads.sourceforge.net/libpng/libpng-1.6.40.tar.xz
+# Source: https://downloads.sourceforge.net/libpng/libpng-1.6.43.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -20,7 +20,7 @@ export CFLAGS+="-fzero-call-used-regs=used "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 # Per BLFS, patch libpng to support apng files:
-gzip -cd ../patches/libpng-lfs/libpng-1.6.40-apng.patch.gz | patch -p1
+gzip -cd ../patches/libpng-lfs/libpng-1.6.43-apng.patch.gz | patch -p1
 
 
 LIBS=-lpthread ./configure --prefix=/usr --disable-static $BUILDTRUMPLE &&
@@ -52,7 +52,7 @@ libpng:
 libpng:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libpng-1.6.40-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/libpng-1.6.43-$PSUFFIX && \
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF" 
