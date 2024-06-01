@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # DirectX Headers
-# Source: https://github.com/microsoft/DirectX-Headers/archive/refs/tags/v1.611.0.tar.gz
+# Source: https://github.com/microsoft/DirectX-Headers/archive/refs/tags/v1.614.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -33,5 +33,5 @@ DirectX-headers: https://github.com/microsoft/DirectX-Headers
 DirectX-headers:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/DirectX-headers-1.611.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/DirectX-headers-1.614.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
