@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # xorgproto
-# Source: https://xorg.freedesktop.org/archive/individual/proto/xorgproto-2023.2.tar.xz
+# Source: https://xorg.freedesktop.org/archive/individual/proto/xorgproto-2024.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -49,7 +49,7 @@ xorgproto:
 EOF
 
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xorgproto-2023.2-$NOPSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/xorgproto-2024.1-$NOPSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
 
 
