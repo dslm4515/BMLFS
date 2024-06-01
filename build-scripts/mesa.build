@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Mesa with Xorg
-# Source: https://archive.mesa3d.org/mesa-23.3.4.tar.xz
+# Source: https://mesa.freedesktop.org/archive/mesa-24.0.8.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -17,10 +17,10 @@
 # old Radeon R100 and R200 drivers, the original Nouveau code, and the Intel i915 and i965 drivers.
 # More info at https://www.phoronix.com/scan.php?page=news_item&px=Mesa-Classic-Retired
 
-# Apply patches from Chimera Linux
+# Apply patches from Chimera Linux... patches for 23.3.4 also pply to 24.0.8
 patch -Np1 -i ../patches/mesa-23.3.4-chimera/0001-radeonsi-On-Aarch64-force-persistent-buffers-to-GTT.patch 
 patch -Np1 -i ../patches/mesa-23.3.4-chimera/disable-ppc64-asm.patch
-patch -Np1 -i ../patches/mesa-23.3.4-chimera/fix-meson-build.patch 
+#patch -Np1 -i ../patches/mesa-23.3.4-chimera/fix-meson-build.patch 
 patch -Np1 -i ../patches/mesa-23.3.4-chimera/musl-endian.patch 
 patch -Np1 -i ../patches/mesa-23.3.4-chimera/musl-stacksize.patch 
 patch -Np1 -i ../patches/mesa-23.3.4-chimera/musl.patch 
@@ -68,13 +68,15 @@ export GALLIUMOPT+="-Dgallium-nine=true "
 export GALLIUMOPT+="-Dgallium-vdpau=enabled "
 
 # if libclc is installed:
-export  XTRA_OPTS="-Dgallium-opencl=icd " 
+#export  XTRA_OPTS="-Dgallium-opencl=icd " 
+# Option breaks build.
+
 # if libglvnd is installed
-export XTRA_OPTS+="-Dglvnd=true "
+export XTRA_OPTS="-Dglvnd=true "
 # if spirv-llvm-translator is installed:
 export XTRA_OPTS+="-Dopencl-spirv=true -Dspirv-to-dxil=true "
 # if video codec are desired:
-export XTRA_OPTS+='-Dvideo-codecs="vc1dec,h264dec,h264enc,h265dec,h265enc"'
+export XTRA_OPTS+="-Dvideo-codecs=all "
 
 # Classic OpenGL drivers, such as the i965/i915, were retired to amber branch
 # Crocus driver will handle i965 chipsets
@@ -126,5 +128,5 @@ mesa:
 mesa:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mesa-23.3.4-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/mesa-24.0.8-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
