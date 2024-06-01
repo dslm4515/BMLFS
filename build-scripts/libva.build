@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libva
-# Source: https://github.com/intel/libva/releases/download/2.20.0/libva-2.20.0.tar.bz2
+# Source: https://github.com/intel/libva/archive/2.21.0/libva-2.21.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -18,11 +18,13 @@ export CFLAGS+="-ffat-lto-objects -flto=4 -fno-semantic-interposition "
 export CFLAGS+="-mprefer-vector-width=256 "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-./configure --prefix=/usr --sysconfdir=/etc \
-	    --localstatedir=/var --disable-static $BUILDTRUPLE &&
-read -p "Compile?" && make -j2 &&
+# If compiling with clang-17, add flag:
+ LDFLAGS="-Wl,--undefined-version" \
+meson setup --prefix=$XORG_PREFIX --buildtype=release OUT
 
-sudo -SE make DESTDIR=$BUILD install &&
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -SE DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"

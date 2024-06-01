@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # VAA-API Utilities 
-# Source: https://github.com/intel/libva-utils/releases/download/2.20.1/libva-utils-2.20.1.tar.bz2
+# Source: https://github.com/intel/libva-utils/releases/download/2.21.0/libva-utils-2.21.0.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -36,5 +36,5 @@ libva-utils: is necessary to properly operate.
 libva-utils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libva-utils-2.20.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libva-utils-2.21.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
