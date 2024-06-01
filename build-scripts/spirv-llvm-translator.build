@@ -1,17 +1,19 @@
 #! /bin/bash
 
 # SPIRV-LLVM Translator 
-# Source: https://github.com/KhronosGroup/SPIRV-LLVM-Translator/archive/refs/tags/v15.0.0.tar.gz
+# Source: https://github.com/KhronosGroup/SPIRV-LLVM-Translator/archive/refs/tags/v17.0.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     LLVM-15, CMake, spirv-headers, spirv-tools 
+# Required:     LLVM-17, CMake, spirv-headers, spirv-tools 
 # Recommended:  NONE
 # Optional:     NONE
 
 # NOTE: For CMLFS, llvm-extra-tools, clang-analyzer is required.
+
+patch -Np1 -i ../patches/spirv-llvm-translator-chimera/renames.patch
 
 mkdir -v build && \
 cd       build && \
@@ -50,5 +52,5 @@ spirv-llvm-translator: https://github.com/KhronosGroup/SPIRV-LLVM-Translator
 spirv-llvm-translator: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/spirv-llvm-translator-15.0.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/spirv-llvm-translator-17.0.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
