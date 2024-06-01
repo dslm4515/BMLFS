@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # libclc 
-# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-15.0.6/libclc-15.0.6.src.tar.xz 
+# Source: https://github.com/llvm/llvm-project/releases/download/llvmorg-17.0.6/libclc-17.0.6.src.tar.xz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     LLVM-15, CMake, spirv-llvm-translator
+# Required:     LLVM-17.0.6, CMake, spirv-llvm-translator
 # Recommended:  NONE
 # Optional:     NONE
 
@@ -42,5 +42,5 @@ libclc: https://libclc.llvm.org/
 libclc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libclc-15.0.6-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libclc-17.0.6-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
