@@ -7,7 +7,7 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     scdoc    
+# Required:     scdoc (for manpages)    
 # Recommended:  NONE
 # Optional:     elogind
 
