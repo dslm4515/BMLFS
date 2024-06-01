@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # spirv-tools
-# Source: https://github.com/KhronosGroup/SPIRV-Tools/archive/refs/tags/vulkan-sdk-1.3.268.0.tar.gz
+# Source: https://github.com/KhronosGroup/SPIRV-Tools/archive/vulkan-sdk-1.3.283.0/SPIRV-Tools-1.3.283.0.tar.gz
 # Source: https://github.com/KhronosGroup/spirv-tools 
 #
 # $BUILD = Directory to temporarily install
@@ -44,5 +44,5 @@ spirv-tools: https://github.com/KhronosGroup/spirv-tools
 spirv-tools: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/spirv-tools-2023.5.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/spirv-tools-1.3.283.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
