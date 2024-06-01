@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libxcb
-# Source: https://xorg.freedesktop.org/archive/individual/lib/libxcb-1.16.tar.xz
+# Source: https://xorg.freedesktop.org/archive/individual/lib/libxcb-1.17.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -21,7 +21,7 @@ PYTHON=python3  \
 ./configure $XORG_CONFIG $BUILDTRUPLE              \
             --without-doxygen                      \
 	    --enable-xinput --enable-xkb \
-            --docdir='${datadir}'/doc/libxcb-1.16 && 
+            --docdir='${datadir}'/doc/libxcb-1.17 && 
 read -p "Compile?" && make -j2 &&
 sudo -S make DESTDIR=$BUILD install &&
 # if primarily using X11:
@@ -55,7 +55,7 @@ libxcb:
 libxcb:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libxcb-1.16-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/libxcb-1.17-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libxcb-doc: Manuals for libxcb (XCB Libraries)
@@ -69,5 +69,5 @@ libxcb-doc: https://xcb.freedesktop.org
 libxcb-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/libxcb-doc-1.16-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/libxcb-doc-1.17-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
