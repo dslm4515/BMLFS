@@ -11,6 +11,8 @@
 # Recommended:  libdrm
 # Optional:     NONE
 
+# If building with clang-17.x, add these CFLAGS's:
+CFLAGS="-Wno-error -Wno-constant-conversion " \
 meson setup --prefix=/usr --buildtyp=release OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
