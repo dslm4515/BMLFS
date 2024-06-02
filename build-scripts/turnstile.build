@@ -10,13 +10,14 @@
 # DEPS
 # Required:     linux-pam 
 # Recommended:  seatd
-# Optional:     NONE
+# Optional:     scdoc (for manpages)
 
 git clone https://github.com/chimera-linux/turnstile
 cd turnstile
 git checkout 00fd0b1ad7b5fd262bb83c75cb463ad32b1940c9
 
-meson setup --prefix=/usr -Ddinit=disabled -Dmanage_rundir=true OUT
+meson setup --prefix=/usr -Ddinit=disabled \
+	    -Dmanage_rundir=true -Dman=false OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
