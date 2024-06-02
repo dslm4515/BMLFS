@@ -1,19 +1,20 @@
 #! /bin/bash
 
 # foot
-# Source: https://codeberg.org/dnkl/foot/archive/1.16.2.tar.gz
+# source: https://codeberg.org/dnkl/foot/archive/1.17.2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Fontconfig, pixman, scdoc, libxkbcommon
+# Required:     Fontconfig pixman libxkbcommon tllist fcft
 # Recommended:  dejavu-fonts-ttf
-# Optional:     fcft utf8proc
+# Optional:     utf8proc scdoc
 
 # If building with ncurses:
 meson setup --prefix=/usr \
       -Dbuildtype=release \
+      -Ddocs=auto \
       -Ddefault-terminfo="screen" OUT
 
 # If building with net-BSD's curses:
@@ -22,6 +23,7 @@ meson setup --prefix=/usr \
 meson setup --prefix=/usr \
       -Dbuildtype=release \
       -Dterminfo=disabled \
+      -Ddocs=auto \
       -Ddefault-terminfo="screen" OUT
 
 ninja -j2 -C OUT && \
@@ -52,7 +54,7 @@ foot:
 foot:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/foot-1.16.2-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/foot-1.17.2-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 foot-doc: Manuals for foot - Wayland Terminal Emulator
@@ -64,6 +66,6 @@ foot-doc: source: https://codeberg.org/dnkl/foot.git
 foot-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/foot-doc-1.16.2-$NOPSUFFIX
+sudo -S makepkg -l y -c n $PKGS/foot-doc-1.17.2-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
