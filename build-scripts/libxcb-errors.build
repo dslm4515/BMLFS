@@ -2,7 +2,7 @@
 
 # XCB Errors
 # Source: https://gitlab.freedesktop.org/xorg/lib/libxcb-errors
-#
+# Commit: de938c69f3b8d212515e38d33c543ba0251a4de8
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
