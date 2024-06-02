@@ -7,7 +7,7 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     xcb-util
+# Required:     xcb-util xcursorgen
 # Recommended:  NONE
 # Optional:     Doxygen
 
@@ -38,5 +38,5 @@ xcursor-themes:
 xcursor-themes:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/xcursor-themes-1.0.7-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/xcursor-themes-1.0.7-$NOPSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
