@@ -18,6 +18,13 @@ export CFLAGS+="-fstack-protector-strong -ftree-loop-vectorize "
 export CFLAGS+="-fzero-call-used-regs=used "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
+# Clang does not support -mno-ieee-fp for i686. Remove flag from 
+# configure script:
+case $(uname -m) in
+	i?86) patch -Np1 -i ../patches/libvorbis-cmlfs/invalid_flag_for_clang_for_i686.patch
+		;;
+esac
+
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
