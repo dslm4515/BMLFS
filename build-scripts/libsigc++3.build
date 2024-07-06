@@ -1,14 +1,14 @@
 #! /bin/bash
 
 # libsigc++
-# Source: https://github.com/libsigcplusplus/libsigcplusplus/releases/download/3.2.0/libsigc++-3.2.0.tar.xz
+# Source: https://download.gnome.org/sources/libsigc++/3.6/libsigc++-3.6.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     libxslt
-# Recommended:  NONE
+# Recommended:  boost
 # Optional:     Doxygen
 
 # If optimizing with GCC
@@ -48,5 +48,5 @@ libsigc++3: Public License, LGPL.
 libsigc++3: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libsigc++3-3.2.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libsigc++3-3.62.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
