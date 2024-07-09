@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # Pygments
-# Source: https://files.pythonhosted.org/packages/source/P/Pygments/Pygments-2.16.1.tar.gz
+# Source: https://files.pythonhosted.org/packages/source/P/Pygments/pygments-2.18.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Python 3
+# Required:     python3 hatchling
 # Recommended:  NONE
 # Optional:     NONE
 
@@ -40,5 +40,5 @@ Pygments:
 Pygments:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/Pygments-2.16.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/Pygments-2.18.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
