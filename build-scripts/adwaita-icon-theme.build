@@ -1,20 +1,20 @@
 #! /bin/bash
 
 # Adwaita Icon Theme
-# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/adwaita-icon-theme/44/adwaita-icon-theme-44.0.tar.xz
+# Source: https://download.gnome.org/sources/adwaita-icon-theme/46/adwaita-icon-theme-46.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     NONE
+# Required:     GTK+3 librsvg
 # Recommended:  NONE
-# Optional:     git, GTK+-2, GTK+-3, librsvg, Inkscape, Icon Tools
+# Optional:     git Inkscape, Icon Tools
 
-./configure --prefix=/usr $BUILDTRUPLE &&
-read -p "Compile?" && make -j2 &&
+meson setup --prefix=/usr OUT
+read -p "Compile?" && ninja -C OUT -j2 &&
 
-sudo -S make DESTDIR=$BUILD install &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -39,5 +39,5 @@ adwaita-icon-theme:
 adwaita-icon-theme:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/adwaita-icon-theme-44.0-$NOPSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/adwaita-icon-theme-46.2-$NOPSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
