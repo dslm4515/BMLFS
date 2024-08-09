@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GParted
-# Source: https://downloads.sourceforge.net/gparted/gparted-1.5.0.tar.gz
+# Source: https://downloads.sourceforge.net/gparted/gparted-1.6.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -57,7 +57,7 @@ if [ -f /bin/gtk4-update-icon-cache ] ; then
 fi
 EOF
 sudo -S mv /tmp/doinst.sh install/ 
-sudo -S makepkg -l y -c n $PKGS/gparted-1.5.0-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/gparted-1.6.0-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 gparted-doc: Manuals for gparted
@@ -69,5 +69,5 @@ gparted-doc: http://gparted.sourceforge.net/
 gparted-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/gparted-doc-1.5.0-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/gparted-doc-1.6.0-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN*
