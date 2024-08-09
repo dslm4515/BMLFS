@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # exfat-utils
-# Source: https://github.com/relan/exfat/releases/download/v1.3.0/exfat-utils-1.3.0.tar.gz
+# Source: https://github.com/relan/exfat/releases/download/v1.4.0/exfat-utils-1.4.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -51,7 +51,7 @@ exfat-utils: Current status of the project: beta.
 exfat-utils:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/exfat-utils-1.3.0-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/exfat-utils-1.4.0-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 exfat-utils-doc: Manuals for exfat-utils
@@ -63,5 +63,5 @@ exfat-utils-doc: https://github.com/relan/exfat
 exfat-utils-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/exfat-utils-doc-1.3.0-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/exfat-utils-doc-1.4.0-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/*
