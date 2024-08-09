@@ -1,32 +1,19 @@
 #! /bin/bash
 
 # D-Bus Python
-# Source: https://dbus.freedesktop.org/releases/dbus-python/dbus-python-1.2.18.tar.gz
+# Source: https://dbus.freedesktop.org/releases/dbus-python/dbus-python-1.3.2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     DBus, GLib
-# Recommended:  PyGobject 3
-# Optional:     Python 2
+# Required:     dbus glib meson_python patchelf
+# Recommended:  pygobject3
+# Optional:     NONE 
 
-# BLFS has been build enough times withut python2.
-#mkdir python2 &&
-#pushd python2 &&
-#PYTHON=/usr/bin/python2     \
-#../configure --prefix=/usr --disable-documentation &&
-#make -j2 &&
-#popd &&
-mkdir python3 &&
-pushd python3 &&
-PYTHON=/usr/bin/python3    \
-../configure --prefix=/usr --docdir=/usr/share/doc/dbus-python-1.2.18 &&
-make -j2 &&
-popd &&
+pip3 wheel -w dist --no-build-isolation --no-deps --no-cache-dir $PWD
 
-#sudo -S make DESTDIR=$BUILD -C python2 install &&
-sudo -S make DESTDIR=$BUILD -C python3 install &&
+sudo -ES pip3 install --no-index --find-links=dist --no-cache-dir --no-user dbus-python --root=$BUILD
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -45,5 +32,5 @@ dbus-python:
 dbus-python:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/dbus-python-1.2.18-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/dbus-python-1.3.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
