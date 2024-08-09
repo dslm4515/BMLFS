@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # AOM
-# Source: https://storage.googleapis.com/aom-releases/libaom-3.8.1.tar.gz
+# Source: https://storage.googleapis.com/aom-releases/libaom-3.9.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -56,5 +56,5 @@ aom:
 aom:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/aom-3.8.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/aom-3.9.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
