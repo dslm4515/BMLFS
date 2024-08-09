@@ -1,29 +1,22 @@
 #! /bin/bash
 
 # Atkmm
-# Source: https://download-fallback.gnome.org/sources/atkmm/2.36/atkmm-2.36.1.tar.xz
+# Source: https://download.gnome.org/sources/atkmm/2.36/atkmm-2.36.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     ATK, GLibmm
+# Required:     at-spi2-core glibmm
 # Recommended:  NONE
 # Optional:     NONE
-
-#sed -e '/^libdocdir =/ s/$(book_name)/atkmm-2.36.1/' \
-#    -i doc/Makefile.in &&
-#./configure --prefix=/usr $BUILDTRUPLE &&
-#read -p "Compile?" && make -j2 &&
-#sudo -S make DESTDIR=$BUILD install &&
 
 # If optimizing with GCC
 export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-# Autotools broken in package. Use meson
-meson --prefix=/usr  BUILD
+meson setup --prefix=/usr --buildtype=release  BUILD
 
 ninja -C BUILD -j2
 sudo -E DESTDIR=${BUILD} ninja -C BUILD install
@@ -51,5 +44,5 @@ atkmm: atkmm home: http://www.gtkmm.org/
 atkmm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/atkmm-2.36.1-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/atkmm-2.36.3-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
