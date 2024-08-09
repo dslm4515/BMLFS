@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GStreamer Bad Plug-ins
-# Source: https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-1.22.9.tar.xz
+# Source: https://gstreamer.freedesktop.org/src/gst-plugins-bad/gst-plugins-bad-1.24.4.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -32,11 +32,12 @@ export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 # GPL-licensed plugins disabled via options."
 export XARGS="-Dgpl=enabled  "
 
-
+# If compiling with clang-17.x, add this flag:
+CFLAGS="-Wno-implicit-function-declaration -Wno-int-conversion " \
 meson setup --prefix=/usr       \
        -Dbuildtype=release \
        -Dpackage-origin=https://github.com/dslm4515/BMLFS \
-       -Dpackage-name="GStreamer 1.22.9 BMLFS" \
+       -Dpackage-name="GStreamer 1.24.4 BMLFS" \
        -Dlibde265=enabled \
        -Dopenh264=enabled \
        -Dx265=enabled \
@@ -72,5 +73,5 @@ gst-plugins-bad:
 gst-plugins-bad:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gst-plugins-bad-1.22.9-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/gst-plugins-bad-1.24.4-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
