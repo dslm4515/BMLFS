@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Qt6 Qt5Compat
-# Source: https://download.qt.io/official_releases/qt/6.5/6.5.2/submodules/qt5compat-everywhere-src-6.5.2.tar.xz
+# Source: https://download.qt.io/official_releases/qt/6.7/6.7.2/submodules/qt5compat-everywhere-src-6.7.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -14,7 +14,7 @@
 # Configure source
 cmake -B OUT -DCMAKE_INSTALL_PREFIX=/opt/qt6  \
 	     -DCMAKE_BUILD_TYPE="Release" \
-	     -DCMAKE_FIND_ROOT_PATH=/opt/Xorg:/opt/qt6 \
+	     -DCMAKE_FIND_ROOT_PATH="/opt/Xorg:/opt/qt6" \
 	     -G Ninja -Wno-dev 
 
 # Compile
@@ -49,5 +49,5 @@ qt6-qt5compat: https://download.qt.io
 qt6-qt5compat:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/qt6-qt5compat-6.5.2-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/qt6-qt5compat-6.7.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*

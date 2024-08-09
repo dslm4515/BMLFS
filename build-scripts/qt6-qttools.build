@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Qt6 QtTools
-# Source: https://download.qt.io/official_releases/qt/6.6/6.6.1/submodules/qttools-everywhere-src-6.6.1.tar.xz
+# Source: https://download.qt.io/official_releases/qt/6.7/6.7.2/submodules/qttools-everywhere-src-6.7.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -20,6 +20,9 @@ export CMO+="-DQT_FEATURE_pixeltool=ON "
 export CMO+="-DQT_FEATURE_distancefieldgenerator=ON "
 
 # Configure source
+# Add CFLAGS if Xorg & OpenSSL are not in /usr
+CFLAGS="-Wl,-rpath=/opt/qt6/lib:/opt/Xorg/lib:/opt/openssl/lib"  \
+CXXFLAGS=$CFLAGS \
 cmake -B OUT -DCMAKE_INSTALL_PREFIX=/opt/qt6  \
 	     -DCMAKE_BUILD_TYPE="Release" \
 	     -DCMAKE_FIND_ROOT_PATH=/opt/Xorg:/opt/qt6 \
@@ -30,7 +33,7 @@ unset CMO
 
 # Compile
 # LibreSSL is not supported
-LD_LIBRARY_PATH=/opt/Xorg/lib:/opt/openssl/lib \
+#LD_LIBRARY_PATH=/opt/Xorg/lib:/opt/openssl/lib \
 cmake --build OUT --parallel &&
 
 # Install
@@ -60,5 +63,5 @@ qt6-qttools: https://download.qt.io
 qt6-qttools:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/qt6-qttools-6.6.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/qt6-qttools-6.7.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*

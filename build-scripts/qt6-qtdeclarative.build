@@ -1,7 +1,8 @@
 #! /bin/bash
 
 # Qt6 QtDeclarative
-# Source: https://download.qt.io/official_releases/qt/6.6/6.6.1/submodules/qtdeclarative-everywhere-src-6.6.1.tar.xz 
+# Source: https://download.qt.io/official_releases/qt/6.7/6.7.2/submodules/qtdeclarative-everywhe
+# re-src-6.7.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -12,6 +13,8 @@
 # Optional:     qt6-qtlanguageserver
 
 # Configure source
+CFLAGS="-Wl,-rpath=/opt/qt6/lib:/opt/Xorg/lib:/opt/openssl/lib" \
+CXXFLAGS=$CFLAGS \
 cmake -B OUT -DCMAKE_INSTALL_PREFIX=/opt/qt6  \
 	     -DCMAKE_BUILD_TYPE="Release" \
 	     -DCMAKE_FIND_ROOT_PATH=/opt/Xorg:/opt/qt6 \
@@ -49,5 +52,5 @@ qt6-qtdeclarative: https://download.qt.io
 qt6-qtdeclarative:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/qt6-qtdeclarative-6.6.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/qt6-qtdeclarative-6.7.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*

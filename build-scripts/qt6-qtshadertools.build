@@ -1,7 +1,8 @@
 #! /bin/bash
 
 # Qt6 QtShaderTools
-# Source: https://download.qt.io/official_releases/qt/6.6/6.6.1/submodules/qtshadertools-everywhere-src-6.6.1.tar.xz
+# Source: https://download.qt.io/official_releases/qt/6.7/6.7.2/submodules/qtshadertools-everywhe
+# re-src-6.7.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -48,5 +49,5 @@ qt6-qtshadertools: https://download.qt.io
 qt6-qtshadertools:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/qt6-qtshadertools-6.6.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/qt6-qtshadertools-6.7.2-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
