@@ -1,7 +1,8 @@
 #! /bin/bash
 
 # at-spi2-core
-# Source: https://download.gnome.org/sources/at-spi2-core/2.50/at-spi2-core-2.50.0.tar.xz
+
+# Source: https://download.gnome.org/sources/at-spi2-core/2.52/at-spi2-core-2.52.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -50,6 +51,6 @@ at-spi2-core:
 at-spi2-core:
 at-spi2-core:
 EOF
-sudo -S mv -v /tmp/slack-desc install/ && rm -rf tmp &&
-sudo -S makepkg -l y -c n $PKGS/at-spi2-core-2.50.0-$PSUFFIX &&
+sudo -S mv -v /tmp/slack-desc install/ && sudo rm -rf tmp &&
+sudo -S makepkg -l y -c n $PKGS/at-spi2-core-2.52.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
