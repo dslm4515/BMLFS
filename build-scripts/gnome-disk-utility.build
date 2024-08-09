@@ -51,7 +51,7 @@ if [ -f /bin/gtk4-update-icon-cache ] ; then
 fi
 EOF
 sudo -S mv /tmp/doinst.sh install/ &&
-sudo -S makepkg -l y -c n $PKGS/gnome-disk-utility-45.1-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/gnome-disk-utility-46.0-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 gnome-disk-utility-doc: Manuals for gnome-disk-utility
@@ -60,5 +60,5 @@ gnome-disk-utility-doc: Libraries and apps for storage device handling
 gnome-disk-utility-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/gnome-disk-utility-doc-45.1-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/gnome-disk-utility-doc-46.0-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
