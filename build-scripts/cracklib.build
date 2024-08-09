@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # CrackLib
-# Source: https://github.com/cracklib/cracklib/releases/download/v2.9.11/cracklib-2.9.11.tar.xz
-# Source: https://github.com/cracklib/cracklib/releases/download/v2.9.11/cracklib-words-2.9.11.xz
+# Source: https://github.com/cracklib/cracklib/releases/download/v2.10.0/cracklib-2.10.0.tar.xz
+# Source: https://github.com/cracklib/cracklib/releases/download/v2.10.0/cracklib-words-2.10.0.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -21,7 +21,7 @@
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
-sudo -S install -v -m644 -D    ../pkgs/cracklib-words-2.9.11.xz \
+sudo -S install -v -m644 -D    ../pkgs/cracklib-words-2.10.0.xz \
                          $BUILD/usr/share/dict/cracklib-words.xz &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
@@ -64,5 +64,5 @@ create-cracklib-dict     /usr/share/dict/cracklib-words \
                          /usr/share/dict/cracklib-extra-words
 EOF
 sudo -S mv /tmp/doinst.sh install/ &&
-sudo -S makepkg -l y -c n $PKGS/cracklib-2.9.11-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/cracklib-2.10.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
