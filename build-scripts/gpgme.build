@@ -11,7 +11,6 @@
 # Recommended:  NONE
 # Optional:     Doxygen, Graphviz, GnuPG, Clisp, Python2, Qt5, SWIG 
 
-# Python binding build still is broken.
 # Add qt if Qt5 is installed 
 #export BLANG="cl,cpp"
 
@@ -25,7 +24,7 @@ mkdir build && cd build &&
 ../configure --prefix=/usr --disable-gpg-test 
 #	    --enable-languages=$BLANG $BUILDTRUPLE &&
 
-read -p "Compile?" && make PYTHONS= -j2 &&
+read -p "Compile?" && make  -j2 &&
 
 # If swig is installed:
 if swig -version > /dev/null; then
@@ -34,7 +33,7 @@ if swig -version > /dev/null; then
 	pip3 wheel -w dist --no-build-isolation --no-deps --no-cache-dir $PWD/lang/python
 fi
 
-sudo -S make DESTDIR=$BUILD PYTHONS= install &&
+sudo -S make DESTDIR=$BUILD  install &&
 # If swig is installed:
 if swig -version > /dev/null; then
 	sudo -S pip3 install --no-index --find-links=dist --no-cache-dir \
