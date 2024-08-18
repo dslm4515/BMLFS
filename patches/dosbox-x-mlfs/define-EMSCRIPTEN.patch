@@ -1,0 +1,11 @@
+--- dosbox-x-dosbox-x-v2024.03.01.orig/src/dos/drive_local.cpp	2024-03-01 16:57:03.000000000 -0600
++++ dosbox-x-dosbox-x-v2024.03.01/src/dos/drive_local.cpp	2024-06-20 16:48:48.547625806 -0500
+@@ -52,7 +52,7 @@
+ #include "render.h"
+ #include "jfont.h"
+ 
+-#if defined(EMSCRIPTEN) || defined(HAIKU)
++#if defined(EMSCRIPTEN) || defined(HAIKU) || !defined(__GLIBC__)
+ #include <fcntl.h>
+ #endif
+ 

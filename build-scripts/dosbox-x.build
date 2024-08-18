@@ -1,0 +1,90 @@
+#! /bin/bash
+
+# DOSbox-X 
+# Source: https://github.com/joncampbell123/dosbox-x/archive/refs/tags/dosbox-x-v2024.03.01.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     SDL2
+# Recommended:  NONE
+# Optional:     NONE
+
+# Apply patch to build against musl libc
+patch -Np1 -i ../patches/dosbox-x-mlfs/define-EMSCRIPTEN.patch 
+
+# To build with clang instead of GCC
+cat > build-clang << "EOF"
+#! /bin/bash
+# Use this script to build DOSBox-X!
+CC=$(which clang)
+CXX=$(which clang++)
+CPP=$(which clang-cpp)
+export CC CXX CPP
+
+# allow 32-bit on 64-bit (x86) builds
+if [ "${1}" == "32" ]; then
+    CC="$(which clang) -m32"
+    CXX="$(which clang++) -m32"
+    export CC CXX
+    shift
+    opt="--host=i686-pc-linux-musl --target=i686-pc-linux-musl"
+fi
+
+# Generate configure script
+./autogen.sh || exit 1
+
+# Apply Fix
+chmod +x vs/sdl/build-scripts/strip_fPIC.sh
+
+# prefer to compile against our own copy of SDL 2.x IF the system does not provide one
+if [[ "$no_host_sdl2" ]]; then
+    x="" # doesn't work well cross-compiling
+else
+    x="$(which sdl2-config)"
+fi
+if test -z "${x}" ; then
+    echo "Compiling our internal SDL 2.x"
+    (cd vs/sdl2 && ./build-dosbox.sh) || exit 1
+fi
+
+# prefer to compile against our own copy of SDLnet 1.x
+echo "Compiling our internal SDLnet 1.x"
+(cd vs/sdlnet && ./build-dosbox.sh) || exit 1
+
+# Confgiure source
+chmod +x configure
+
+# Dynamic X86 CPU core fails to compile, disable it
+./configure --enable-debug --prefix=/usr --enable-sdl2 --disable-dynamic-x86 "${@}" "${opt}" || exit 1
+
+echo "Compiling DOSBox-X"
+make -j3 || exit 1
+EOF
+
+chmod -v +x build-clang && ./build-clang
+
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+dosbox-x: dosbox-x
+dosbox-x:
+dosbox-x: An accurate DOS Emulation for Windows, Linux, macOS, and dos
+dosbox-x:
+dosbox-x: dosbox-x.com
+dosbox-x:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/dosbox-x-2024.03.01-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
