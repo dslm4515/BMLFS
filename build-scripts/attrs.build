@@ -7,15 +7,14 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     python3 hatch-vcs
+# Required:     python3 hatch-vcs 
 # Recommended:  NONE
-# Optional:     NONE
+# Optional:     hatch-fancy-pypi-readme
 
 patch -Np1 -i ../patches/attrs-chimera/remove-hatch-fancy-pypi-readme-dep.patch
 
 read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
 
-#sudo -S python3 setup.py install --prefix=/usr --root=${BUILD} &&
 sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user attrs --root=${BUILD} 
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&

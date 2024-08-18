@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# Trove-Classifiers 
+# Source: https://files.pythonhosted.org/packages/source/t/trove_classifiers/trove-classifiers-2024.4.10.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+# Per BLFS, hard code the package version into setup.py to work 
+# around an issue causing the generated wheel contain incorrect 
+# version string when the calver module is not installed:
+sed -i '/calver/s/^/#/;$iversion="2024.4.10"' setup.py
+
+read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+
+sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user trove-classifiers --root=${BUILD}
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+                 |-----handy-ruler------------------------------------------------------|
+trove-classifiers: trove-classifiers (python module)
+trove-classifiers:
+trove-classifiers: A Python library to encompass all valid PyPI classifiers used to 
+trove-classifiers: categorize projects and releases per PEP 301
+trove-classifiers:
+trove-classifiers: https://files.pythonhosted.org/packages/source/t/trove_classifiers
+trove-classifiers:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/trove-classifiers-2024.4.10-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*

@@ -1,21 +1,20 @@
 #! /bin/bash
 
-# hatch-vcs
-# Source: https://files.pythonhosted.org/packages/f5/c9/54bb4fa27b4e4a014ef3bb17710cdf692b3aa2cbc7953da885f1bf7e06ea/hatch_vcs-0.4.0.tar.gz
+# Typing_extensions 
+# Source: https://files.pythonhosted.org/packages/source/t/typing_extensions/typing_extensions-4.11.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     python3 hatchling Setuptools_scm
+# Required:     NONE
 # Recommended:  NONE
-# Optional:     NONE
+# Optional:     pytest
 
 read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
 
-sudo -E -S pip3 install --no-index --find-links dist \
-	                --no-cache-dir --no-user hatch-vcs \
-			--root=${BUILD} 
+sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir \
+	                --no-user typing_extensions --root=${BUILD}
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -26,14 +25,15 @@ cat > /tmp/slack-desc << "EOF"
 # make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-         |-----handy-ruler------------------------------------------------------|
-hatch-vcs: hatch-vcs (a python module)
-hatch-vcs:
-hatch-vcs: Hatch plugin for versioning with VCS
-hatch-vcs:
-hatch-vcs: pypi.org/project/hatch-vcs
-hatch-vcs: 
+                 |-----handy-ruler------------------------------------------------------|
+typing_extensions: typing_extensions (python miodule)
+typing_extensions:
+typing_extensions: A module allows using new type system features not yet defined on the
+typing_extensions:  Python version in use on the system. 
+typing_extensions:
+typing_extensions:
+typing_extensions:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/hatch-vcs-0.4.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/typing_extensions-4.11.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*

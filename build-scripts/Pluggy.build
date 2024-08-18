@@ -1,0 +1,44 @@
+#! /bin/bash
+
+# Pluggy 
+# Source: https://files.pythonhosted.org/packages/source/p/pluggy/pluggy-1.5.0.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+
+sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user pluggy --root=${BUILD}
+
+# Fix the versioning
+sudo mv $BUILD/usr/lib/python3.12/site-packages/pluggy-0.0.0.dist-info \
+        $BUILD/usr/lib/python3.12/site-packages/pluggy-1.5.0.dist-info	
+sudo vi $BUILD/usr/lib/python3.12/site-packages/pluggy-1.5.0.dist-info/RECORD
+sudo vi $BUILD/usr/lib/python3.12/site-packages/pluggy-1.5.0.dist-info/METADATA
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+pluggy: pluggy (python module)
+pluggy:
+pluggy: This module gives users the ability to extend or modify the behaviour
+pluggy: of a host program by installing a plugin for that program.
+pluggy:
+pluggy: https://files.pythonhosted.org/packages/source/p/pluggy
+pluggy:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/pluggy-1.5.0-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
