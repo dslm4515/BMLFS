@@ -27,6 +27,8 @@ patch -Np1 -i ../patches/lvm2-chimera/portable-install-1.patch
 patch -Np1 -i ../patches/lvm2-chimera/scripts-gnu.patch 
 patch -Np1 -i ../patches/lvm2-chimera/udev-no-systemd.patch 
 
+#If building with clang-17.x, add these flags:
+CFLAGS="$CFLAGS -Wno-implicit-function-declaration -Wno-int-conversion " \ 
 PATH+=:/usr/sbin \
 ./configure --prefix=/usr       \
             --exec-prefix=      \
