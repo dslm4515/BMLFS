@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libliftoff 
-# Source: https://gitlab.freedesktop.org/emersion/libliftoff/-/releases/v0.4.1/downloads/libliftoff-0.4.1.tar.gz
+# Source: https://gitlab.freedesktop.org/emersion/libliftoff/-/archive/v0.5.0/libliftoff-v0.5.0.tar.bz2 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,6 +11,8 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+# If compiling with clang-17.+, add these CFLAGs:
+CFLAGS="-Wno-error -Wno-sign-conversion " \
 meson setup --prefix=/usr --buildtype=release OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
@@ -38,5 +40,5 @@ libliftoff: https://gitlab.freedesktop.org/emersion/libliftoff
 libliftoff:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libliftoff-0.4.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libliftoff-0.5.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
