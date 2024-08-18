@@ -36,6 +36,8 @@ read -p "Compile?" && make -j2 &&
 
 cd -
 mkdir build-gles && cd build-gles &&
+# If building with clang-17.x, add this CFLAG:
+CFLAGS="-Wno-implicit-function-declaration" \
 cmake -DCMAKE_INSTALL_PREFIX=/usr       \
       -DCMAKE_BUILD_TYPE=Release        \
       -DFREEGLUT_BUILD_DEMOS=OFF        \
@@ -44,11 +46,14 @@ cmake -DCMAKE_INSTALL_PREFIX=/usr       \
       -DFREEGLUT_WAYLAND=ON             \
       -Wno-dev .. && \
 make -j2 && 
+cd -
 
 cd build && 
 sudo -S make DESTDIR=$BUILD install && \
 sudo -S mkdir -pv ${BUILD}/usr/lib/pkgconfig/ && \
 sudo cp -a freeglut.pc ${BUILD}/usr/lib/pkgconfig/ && \
+cd -
+
 cd build-gles && 
 sudo -S make DESTDIR=$BUILD install && \
 
