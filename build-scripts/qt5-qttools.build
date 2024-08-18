@@ -111,9 +111,9 @@ for b in assistant designer lconvert linguist lprodump lrelease lrelease-pro \
 	 qdistancefieldgenerator qdoc qhelpgenerator qtattributionsscanner \
 	 qtdiag qtpaths qtplugininfo
    do
-         sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/bin/$b
+         sudo -E patchelf --remove-rpath $BUILD/opt/qt5/bin/$b
          sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
-                                         $BUILD/opt/qt5-5.15.10/bin/$b
+                                         $BUILD/opt/qt5/bin/$b
 done
 
 sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/lib/libQt5*.so.*
