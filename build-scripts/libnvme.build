@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libnvme 
-# Source: https://github.com/linux-nvme/libnvme/archive/refs/tags/v1.7/libnvme-1.7.tar.gz 
+# Source: https://github.com/linux-nvme/libnvme/archive/v1.9/libnvme-1.9.tar.gz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -42,5 +42,5 @@ libnvme: https://github.com/linux-nvme/libnvme
 libnvme:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libnvme-1.7-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libnvme-1.9-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
