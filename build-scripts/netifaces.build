@@ -1,0 +1,40 @@
+#! /bin/bash
+
+# netifaces 
+# Source: https://files.pythonhosted.org/packages/a6/91/86a6eac449ddfae239e93ffc1918cf33fd9bab35c04d1e963b311e347a73/netifaces-0.11.0.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+#read -p "Compile?" && python3 setup.py build &&
+read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+
+#sudo -S python3 setup.py install --prefix=/usr --root=${BUILD} &&
+sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user netifaces --root=${BUILD}
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+netifaces: netifaces
+netifaces:
+netifaces: A python module to get the address(es) of the machine’s network 
+netifaces: interfaces from Python.
+netifaces:
+netifaces: https://pypi.org/project/netifaces
+netifaces:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/netifaces-0.11.0-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
