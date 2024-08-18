@@ -2,7 +2,7 @@
 
 # lz4 
 # Source: https://github.com/lz4/lz4/archive/refs/tags/v1.9.4.tar.gz 
-#
+# Commit: 5b0ccb8b62eba9f0ed4b46ff3680c442c3e58188
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
@@ -10,6 +10,11 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     NONE
+
+# Version 1.9.5 not released yet. Use git
+git clone https://github.com/lz4/lz4
+cd lz4
+git checkout 5b0ccb8b62eba9f0ed4b46ff3680c442c3e58188
 
 make PREFIX=/usr -j2 && \
 
@@ -36,7 +41,7 @@ lz4: https://github.com/lz4/lz4
 lz4
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/lz4-1.9.4-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/lz4-1.9.5-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 lz4-doc: Manpages for lz4
@@ -48,5 +53,5 @@ lz4-doc: https://github.com/lz4/lz4
 lz4-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/lz4-doc-1.9.3-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/lz4-doc-1.9.5-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
