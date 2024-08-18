@@ -1,0 +1,39 @@
+#! /bin/bash
+
+# nlohmann_json 
+# Source: https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  NONE
+# Optional:     NONE
+
+meson setup --prefix=/usr --buildtype=release OUT
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+             |-----handy-ruler------------------------------------------------------|
+nlohmann_json: nlohmann_json
+nlohmann_json:
+nlohmann_json: nlohmann's JSON for Modern C++
+nlohmann_json:
+nlohmann_json: https://github.com/nlohmann/json
+nlohmann_json:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/nlohmann_json-3.11.3-$NOPSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
