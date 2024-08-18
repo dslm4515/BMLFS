@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # poppler 
-# Source: https://poppler.freedesktop.org/poppler-22.05.0.tar.xz 
+# Source: https://poppler.freedesktop.org/poppler-24.08.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -9,15 +9,25 @@
 # DEPS
 # Required:     cmake fontconfig gobject-introspection lcms
 # Required:     libjpeg-turbo libpng libxml libtiff 
-# Recommended:  NONE
-# Optional:     openjpeg Qt5 boost
+# Recommended:  cairo gpgme boost qt6 openjpeg 
+# Optional:     curl gdk-pikbuf git gtkdoc
 
-patch -Np1 -i ../patches/poppler-alpine/dont-enforce-build-type.patch  && \
+#patch -Np1 -i ../patches/poppler-alpine/dont-enforce-build-type.patch  && \
+patch -Np1 -i ../patches/poppler-chimera/cmake-none-cflags.patch 
 
-cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=MinSizeRel \
+# For clang, build may fails for "illegal type casting". 
+# Just comment the offending line 34. Will look into this later.
+vi poppler/FlateEncoder.cc
+
+# If Qt5 & Qt6 installed, first configure with Qt5 enabled: 
+# -DCMAKE_PREFIX_PATH=/opt/qt5 but -DENABLE_QT6=OFF -DENABLE_QT5=ON
+# Then run the same cmake command but with Qt5 &Qt6 enabled:
+# -DCMAKE_PREFIX_PATH=/opt/qt6 but -DENABLE_QT6=ON -DENABLE_QT5=ON
+
+cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
 	-DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=/usr/lib \
 	-DENABLE_UNSTABLE_API_ABI_HEADERS=ON -DBUILD_QT5_TESTS=OFF \
-	-DENABLE_QT5=OFF -DENABLE_BOOST=OFF 
+	-DENABLE_QT5=ON -DENABLE_BOOST=OFF -DTESTDATADIR=$PWD/testfiles  
 
 read -p "Compile?" && ninja -j2 -C build &&
 
@@ -41,5 +51,5 @@ poppler: https://poppler.freedesktop.org
 poppler:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/poppler-22.05.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/poppler-24.0.8.8-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
