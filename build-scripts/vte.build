@@ -2,15 +2,17 @@
 
 # Vte3 (Virtual Terminal Emulator library)
 # Source: https://gitlab.gnome.org/GNOME/vte.git
-# Commit: e53cd45100848bfe782dbc5c4bf47ca94c46ec16  
+# Commit: a7aa95cba528af126cba2c4bfd6ab56fda6fbd57 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     GNUtls, gobject-introspection, gtk+3, ICU, pango, vala, pcre2
+# Required:     gnutls gobject-introspection gtk+3 icu pango vala pcre2
 # Recommended:  NONE
-# Optional:     GTK-Doc
+# Optional:     gtk-doc gtk4
+
+# Does not support clang-11+
 
 # If coptimizing with GCC:
 export  CFLAGS="-march=native -mtune=native -pipe "
@@ -52,5 +54,5 @@ vte:
 vte:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/vte-0.69.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/vte-0.77.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
