@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# feedbackd 
+# Source: https://source.puri.sm/Librem5/feedbackd/-/archive/v0.2.1/feedbackd-v0.2.1.tar.bz2
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     glib gobject-introspection gsound
+# Recommended:  NONE
+# Optional:     NONE
+
+git submodule init
+git submodule update
+meson subprojects download
+
+meson setup --prefix=/usr --buildtype=release OUT
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+feedbackd: feedbackd
+feedbackd:
+feedbackd: This provides a DBus daemon (feedbackd) to act on events to provide 
+feedbackd: haptic, visual and audio feedback. It offers a library (libfeedback)
+feedbackd: and GObject introspection bindings to ease using it from applications.
+feedbackd:
+feedbackd: https://source.puri.sm/Librem5/feedbackd
+feedbackd:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/feedbackd-0.2.1-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
