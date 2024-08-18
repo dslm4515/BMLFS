@@ -1,0 +1,64 @@
+#! /bin/bash
+
+# scribus 
+# Source: https://sourceforge.net/projects/scribus/files/scribus/1.6.2/scribus-1.6.2.tar.xz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     cmake qt5 poppler cups libpodofo
+# Required:     libexecinfo icu  
+# Recommended:  libjpeg-turbo libpng libtiff cairo
+# Optional:     ghostscript python-imaging hunspell
+# Optional:     GraphicksMagick++ librevenge tkinter
+# Optional:     librevenge libfreehand libcdr libpagemaker
+# Optional:     libmspub libqxp libvisio libzmf
+
+# CMake wont use CMAKE_PREFIX_PATH to find Qt5 in /opt/qt5.
+# Set it manually:
+export  QT5C="-DQt5Core_DIR=/opt/qt5/lib/cmake/Qt5Core "
+export QT5C+="-DQt5Widgets_DIR=/opt/qt5/lib/cmake/Qt5Widgets "
+export QT5C+="-DQt5Xml_DIR=/opt/qt5/lib/cmake/Qt5Xml "
+export QT5C+="-DQt5Network_DIR=/opt/qt5/lib/cmake/Qt5Network "
+export QT5C+="-DQt5OpenGL_DIR=/opt/qt5/lib/cmake/Qt5OpenGL "
+export QT5C+="-DQt5LinguistTools_DIR=/opt/qt5/lib/cmake/Qt5LinguistTools "
+export QT5C+="-DQt5PrintSupport_DIR=/opt/qt5/lib/cmake/Qt5PrintSupport "
+
+# Add the following if not installed:
+# WANT_HUNSPELL=OFF
+# WITH_BOOST=OFF
+# WITH_PODOFO=OFF
+
+CFLAGS="-lexecinfo  -Wl,-lexecinfo " \
+CXXFLAGS=$CFLAGS LDFLAGS="-Wl,-lexecinfo " \
+cmake -B OUT -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=release $QT5C
+unset QT5C
+
+read -p "Compile?" && make -C OUT -j2 &&
+
+sudo -S make DESTDIR=$BUILD -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+scribus: scribus
+scribus:
+scribus: A free and open-source desktop publishing software available for most
+scribus: desktop operating systems. It is designed for layout, typesetting, 
+scribus: and preparation of files for professional-quality image-setting 
+scribus: equipment.
+scribus:
+scribus: https://wiki.scribus.net/canvas/Scribus
+scribus:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/scribus-1.6.2-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
