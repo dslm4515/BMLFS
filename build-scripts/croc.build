@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # croc
-# Source: https://github.com/schollz/croc/releases/download/v9.6.5/croc_9.6.5_src.tar.gz
+# Source: https://github.com/schollz/croc/archive/refs/tags/v10.0.5.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -35,5 +35,5 @@ croc: https://github.com/schollz/croc
 croc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/croc-9.6.6-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/croc-10.0.5-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
