@@ -68,9 +68,12 @@ export CFLAGS+="-I/opt/openssl/include -L/opt/openssl/lib "
 # like glibc. Despite these flags, these libraries still don't link to libexecinfo.
 # For now, use patchelf to "patch" these libraries like this:
 # patchelf --add-needed libexecinfo.so /src/qtbase-5.15.10_git20230714/lib/libQt5Core.so.5
-export CFLAGS+="-Wl,-lexecinfo "
+export CFLAGS+="-lexecinfo  -Wl,-lexecinfo "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-Wl,-lexecinfo "
+
+# If building with clang-17+, add flag:
+export LDFLAGS+="-Wl,--undefined-version "
 
 OPENSSL_LIBS="-L/opt/openssl/lib -lssl -lcrypto" \
 CFLAGS=$CFLAGS CXXFLAGS=$CXXFLAGS LDFLAGS=$LDFLAGS \
