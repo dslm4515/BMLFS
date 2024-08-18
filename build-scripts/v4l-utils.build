@@ -8,11 +8,13 @@
 #
 # DEPS
 # Required:     LLVM argp-standalone libexecinfo
-# Recommended:  alsa-lib, GLU, libjpeg-turbo, and Qt
-# Optional:     Doxygen, SDL2
+# Recommended:  alsa-lib glu libjpeg-turbo qt5 json-c
+# Optional:     Doxygen SDL2 SDL2-image
 
-# NOTE: version 1.24.1 will not compile, due to redefinitions
-# in source
+patch -Np1 -i ../patches/v4l-utils-chimera/dont-install-to-sbin.patch 
+patch -Np1 -i ../patches/v4l-utils-chimera/int-overflow.patch 
+patch -Np1 -i ../patches/v4l-utils-chimera/libcpp.patch 
+patch -Np1 -i ../patches/v4l-utils-chimera/musl.patch 
 
 # If optimizing with GCC:
 export  CFLAGS="-march=native -pipe "
