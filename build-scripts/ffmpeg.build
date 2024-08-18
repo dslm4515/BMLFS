@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # FFmpeg
-# Source: https://ffmpeg.org/releases/ffmpeg-6.1.1.tar.xz
+# Source: https://ffmpeg.org/releases/ffmpeg-7.0.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -23,12 +23,12 @@ patch -Np1 -i ../patches/ffmpeg-chimera/0001-ffbuild-libversion.sh-add-shebang.p
 patch -Np1 -i ../patches/ffmpeg-chimera/add-av_stream_get_first_dts-for-chromium.patch 
 patch -Np1 -i ../patches/ffmpeg-chimera/bigendian.patch
 patch -Np1 -i ../patches/ffmpeg-chimera/clang-ppc4xx.patch 
-patch -Np1 -i ../patches/ffmpeg-chimera/riscv-asm.patch
+#patch -Np1 -i ../patches/ffmpeg-chimera/riscv-asm.patch
 patch -Np1 -i ../patches/ffmpeg-chimera/v4l-ioctl.patch 
 patch -Np1 -i ../patches/ffmpeg-chimera/vec-xl.patch 
 
 case $(uname -m) in
-     i686)    export ECONF="--disable-asm --enable-libaom" ;;
+     i686)    export ECONF="--disable-asm --enable-libaom --enable-pic" ;;
      x86_64|aarch64)  export ECONF="--enable-libaom" ;;
 esac &&
 
@@ -52,7 +52,7 @@ export XARGS="--cc=clang --cxx=clang++ "
             --enable-libvpx      \
             --enable-libx264     \
             --enable-libx265     \
-            --docdir=/usr/share/doc/ffmpeg-6.1.1 $ECONF $XARGS  &&
+            --docdir=/usr/share/doc/ffmpeg-7.0.1 $ECONF $XARGS  &&
 read -p "Compile?" && make -j2 &&
 unset ECONF XARGS
 
@@ -89,7 +89,7 @@ ffmpeg: ffmpeg home: http://ffmpeg.org/
 ffmpeg:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/ffmpeg-6.1.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/ffmpeg-7.0.1-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 ffmpeg-doc: Manuals for ffmpeg
@@ -101,6 +101,6 @@ ffmpeg-doc: http://ffmpeg.org/
 ffmpeg-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/ffmpeg-doc-6.1.1-$NOPSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/ffmpeg-doc-7.0.1-$NOPSUFFIX &&
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
