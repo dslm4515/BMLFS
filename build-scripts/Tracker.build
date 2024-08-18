@@ -1,0 +1,45 @@
+#! /bin/bash
+
+# Tracker 
+# Source: https://download.gnome.org/sources/tracker/3.6/tracker-3.6.0.tar.xz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     json-glib libseccomp vala
+# Recommended:  gobject-introspection icu libsoup3 pygobject sqlite tracker-miners
+# Optional:     libsoup libstemmer
+
+# Fix the location to install the documentation into: 
+mv docs/reference/libtracker-sparql/doc/{Tracker-3.0,tracker-3.6.0} &&
+sed '/docs_name/s/Tracker-3.0/tracker-3.6.0/' \
+	    -i docs/reference/libtracker-sparql/meson.build
+
+meson setup --prefix=/usr --buildtype=release \
+	-Dman=false -Dsystemd_user_services=false OUT
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+       |-----handy-ruler------------------------------------------------------|
+tracker: tracker
+tracker:
+tracker: A file indexing and search provider used in the GNOME desktop 
+tracker: environment. 
+tracker:
+tracker:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/tracker-3.6.0-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*

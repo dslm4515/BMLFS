@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# Gnome Desktop 
+# Source: https://download.gnome.org/sources/gnome-desktop/44/gnome-desktop-44.0.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     itstool gsettings-desktop-schemas gtk3 iso_codes 
+# Required:     libseccomp libxml2 xkeyboard-config
+# Recommended:  bubblewrap gobject-introspection gtk4
+# Optional:     gtkdoc 
+
+meson setup --prefix=/usr --buildtype=release \
+	-Dsystemd=disabled -Dgtk_doc=false \
+	-Dinstalled_tests=false -Ddesktop_docs=false  OUT
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+             |-----handy-ruler------------------------------------------------------|
+gnome-desktop: gnome-desktop
+gnome-desktop:
+gnome-desktop: This is the libgnome-desktop library as well as a data file that 
+gnome-desktop: exports the "GNOME" version to the Settings Details panel. It 
+gnome-desktop: provides API shared by several applications on the desktop, but that 
+gnome-desktop: cannot live in the platform for various reasons.
+gnome-desktop:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/gnome-desktop-44.0-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*

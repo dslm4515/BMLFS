@@ -1,0 +1,50 @@
+#! /bin/bash
+
+# nautilus
+# Source: https://download.gnome.org/sources/nautilus/45/nautilus-45.2.1.tar.xz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     gexiv2 gnome-autoar libadwaita libportal libseccomp
+# Required:     tracker 
+# Recommended:  desktop-file-utils exempi gobject-introspection gst-plugins-base 
+# Recommended:  libcloudproviders libexif
+# Optional:     gi-docgen
+
+meson setup --prefix=/usr --buildtype=release \
+	-Dselinux=false -Dpackagekit=false \
+	-Dcloudproviders=false OUT
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+        |-----handy-ruler------------------------------------------------------|
+nautilus: nautilus
+nautilus:
+nautilus: The Nautilus package contains the GNOME file manager
+nautilus:
+nautilus:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+cat > /tmp/doinst.sh << "EOF"
+glib-compile-schemas            /usr/share/glib-2.0/schemas
+update-desktop-database -q      /usr/share/applications
+if [ -f /bin/gtk4-update-icon-cache ] ; then
+	   gtk4-update-icon-cache -q -t -f /usr/share/icons/hicolor
+fi
+EOF
+sudo -S mv /tmp/doinst.sh install/
+sudo -S makepkg -l y -c n $PKGS/nautilus-45.2.1-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
