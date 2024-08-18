@@ -1,0 +1,41 @@
+#! /bin/bash
+
+# libportal
+# Source: https://github.com/flatpak/libportal/releases/download/0.7.1/libportal-0.7.1.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     gobject-introspection
+# Recommended:  gtk3 gtk4 xdg-desktop-portal xdg-desktop-portal-gtk 
+# Recommended:  xdg-desktop-portal-gnome xdg-desktop-portal-lxqt
+# Optional:     gi-docgen dbusmock pytest qt5 vala
+
+meson setup --prefix=/usr --buildtype=release -Ddocs=false OUT
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+libportal: libportal
+libportal:
+libportal: This package provides a library that contains GIO-style async APIs 
+libportal: for most Flatpak portals. 
+libportal:
+libportal: https://github.com/flatpak/libportal
+libportal:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/libportal-0.7.1-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
