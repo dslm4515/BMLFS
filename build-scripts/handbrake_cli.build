@@ -1,0 +1,53 @@
+#! /bin/bash
+
+# HandBrake
+# Source: https://github.com/HandBrake/HandBrake/releases/download/1.6.1/HandBrake-1.6.1-source.tar.bz2
+# commit: 8e917a86558eb63d750bf79055210f245ac3a6d4
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     gcc numactl cmake nasm ffmpeg
+# Required:     libbluray libdvdnav svt-av1
+# Recommended:  x265 fdk gtk rustc
+# Optional:     NONE
+
+# Clang not supported. Define GCC path if GCC is not
+# in /usr
+NGTC="PATH=$PATH:/opt/gnu/bin LDFLAGS='-Wl,-rpath=/opt/gnu/lib' " 
+
+#git checkout 8e917a86558eb63d750bf79055210f245ac3a6d4
+
+# build against external libs
+sed -i 's:.*contrib/.*::g'  make/include/main.defs
+
+./configure --prefix=/usr --force --verbose \
+	    --disable-nvenc --enable-x265 --enable-fdk-aac \
+	    --disable-df-fetch --disable-gtk-update-checks $NGTC 
+
+read -p "Compile?" && make -C build -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+handbrake: handbrake
+handbrake:
+handbrake: An open-source video transcoder available for Linux, Mac, and Windows,
+handbrake: licensed under the GNU General Public License (GPL) Version 2.
+handbrake:
+handbrake: https://github.com/HandBrake/HandBrake
+handbrake:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/handbrake-1.8.1-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*

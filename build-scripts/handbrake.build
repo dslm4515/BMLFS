@@ -1,0 +1,61 @@
+#! /bin/bash
+
+# HandBrake
+# Source: https://github.com/HandBrake/HandBrake
+# commit: 86156a66c0d5ccc306487c1ff961a7b2328961b3
+# tag: 1.7.3
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     gcc numactl cmake nasm ffmpeg
+# Required:     libbluray libdvdnav svt-av1
+# Recommended:  x265 fdk gtk3 rustc gstreamer
+# Optional:     libdovi gtk4
+
+# NOTE: Build will download dependancies instead of using system built ones.
+# Currently, building against sysem-installed libraries cause build to fail.
+
+# Clang not supported. Define GCC path if GCC is not
+# in /usr
+NGTC="PATH=$PATH:/opt/gnu/bin LDFLAGS='-Wl,-rpath=/opt/gnu/lib' --enable-cross-compile" 
+
+# Clone repo
+git clone https://github.com/HandBrake/HandBrake.git && cd HandBrake
+
+# Per HandBrake documentation:
+# List available tags in the HandBrake 1.7.x release series, and check out the most recent.
+git tag --list | grep ^1\.7\.
+git checkout refs/tags/$(git tag -l | grep -E '^1\.7\.[0-9]+$' | tail -n 1)
+
+# Configure source
+./configure --prefix=/usr --force --verbose \
+	    --disable-nvenc --enable-x265 --enable-fdk-aac \
+	    --disable-df-fetch $NGTC 
+
+read -p "Compile?" && make -C build  &&
+
+sudo -S make DESTDIR=$BUILD -C build install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+handbrake: handbrake
+handbrake:
+handbrake: An open-source video transcoder available for Linux, Mac, and Windows,
+handbrake: licensed under the GNU General Public License (GPL) Version 2.
+handbrake:
+handbrake: https://github.com/HandBrake/HandBrake
+handbrake:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/handbrake-1.7.3-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
