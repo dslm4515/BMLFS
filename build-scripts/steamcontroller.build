@@ -1,0 +1,51 @@
+#! /bin/bash
+
+# steamcontroller
+# Source: https://github.com/ynsta/steamcontroller/archive/master.tar.gz 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     python-3.11 libusb1 pypsutil 
+# Recommended:  NONE
+# Optional:     NONE
+
+# Requires python 3.11.x as imp module dropped by python 3.12+
+
+read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+
+sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user python-steamcontroller --root=${BUILD}
+
+sudo -E -S mkdir -pv $BUILD/usr/lib/udev/rules.d
+cat > /tmp/99-steam-controller.rules <<"EOF"
+# Steam controller keyboard/mouse mode
+SUBSYSTEM=="usb", ATTRS{idVendor}=="28de", GROUP="input", MODE="0660"
+
+# Steam controller gamepad mode
+KERNEL=="uinput", MODE="0660", GROUP="input", OPTIONS+="static_node=uinput"
+EOF
+
+sudo mv -v /tmp/99-steam-controller.rules $BUILD/usr/lib/udev/rules.d/
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+               |-----handy-ruler------------------------------------------------------|
+steamcontroller: steamcontroller
+steamcontroller:
+steamcontroller: A standalone userland driver for the steam controller to be used 
+steamcontroller: where the steam client can't be installed.
+steamcontroller:
+steamcontroller: https://github.com/ynsta/steamcontroller
+steamcontroller:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/steamcontroller-1.2g-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
