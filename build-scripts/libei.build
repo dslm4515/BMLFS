@@ -1,21 +1,21 @@
 #! /bin/bash
 
 # libei 
-# Source: https://gitlab.freedesktop.org/libinput/libei/-/archive/1.2.0/libei-1.2.0.tar.bz2 
+# Source: https://gitlab.freedesktop.org/libinput/libei/-/archive/1.2.1/libei-1.2.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     libevdev libxkbcommon basu attrs munit
+# Required:     libevdev libxkbcommon basu attrs      
 # Recommended:  NONE
-# Optional:     NONE
+# Optional:     munit
 
 # if offline, clone munit repo from another machine
 # and copy it over to subprojects:
 # https://github.com/nemequ/munit
 
-meson setup --prefix=/usr --buildtype=release OUT
+meson setup --prefix=/usr --buildtype=release -Dtests=disabled OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
@@ -43,5 +43,5 @@ libei:
 libei: https://gitlab.freedesktop.org/libinput/libei
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libei-1.2.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libei-1.2.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
