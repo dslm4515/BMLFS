@@ -55,14 +55,14 @@ for b in qml qmlcachegen qmleasing qmlformat qmlimportscanner qmllint \
 	 qmlmin qmlplugindump qmlpreview qmlprofiler qmlscene \
 	 qmltestrunner qmltime qmltyperegistrar
  do
-	 sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/bin/$b
+	 sudo -E patchelf --remove-rpath $BUILD/opt/qt5/bin/$b
 	 sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
-	                  $BUILD/opt/qt5-5.15.10/bin/$b
+	                  $BUILD/opt/qt5/bin/$b
 done
 
-sudo -E patchelf --remove-rpath $BUILD/opt/qt5-5.15.10/lib/libQt5*.so.*
+sudo -E patchelf --remove-rpath $BUILD/opt/qt5/lib/libQt5*.so.*
 sudo -E patchelf --set-rpath /opt/qt5/lib:/opt/openssl/lib:/opt/Xorg/lib \
-	           $BUILD/opt/qt5-5.15.10/lib/libQt5*.so.*
+	           $BUILD/opt/qt5/lib/libQt5*.so.*
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
