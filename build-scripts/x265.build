@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # x265
-# Source: https://anduin.linuxfromscratch.org/BLFS/x265/x265-20230215.tar.xz
+# Source: https://anduin.linuxfromscratch.org/BLFS/x265/x265-20240216.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -46,5 +46,5 @@ x265:
 x265:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/x265-2023.2.15-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/x265-2024.2.16-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
