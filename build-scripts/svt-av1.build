@@ -1,0 +1,43 @@
+#! /bin/bash
+
+# SVT-AV1
+# Source: https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v2.1.2/SVT-AV1-v2.1.2.tar.bz2 
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     NONE
+# Recommended:  nasm
+# Optional:     NONE
+
+cmake -B OUT -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=release 
+
+read -p "Compile?" && make -C OUT -j2 &&
+
+sudo -S make DESTDIR=$BUILD -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+      |-----handy-ruler------------------------------------------------------|
+svt-av1: svt-av1
+svt-av1:
+svt-av1: The Scalable Video Technology for AV1 (SVT-AV1 Encoder) is an 
+svt-av1: AV1-compliant software encoder library. The work on the SVT-AV1 
+svt-av1: encoder targets the development of a production-quality AV1-encoder 
+svt-av1: with performance levels applicable to a wide range of applications, 
+svt-av1: from premium VOD to real-time and live encoding/transcoding.
+svt-av1:
+svt-av1: https://gitlab.com/AOMediaCodec/SVT-AV1
+svt-av1:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/svt-av1-2.1.2-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
