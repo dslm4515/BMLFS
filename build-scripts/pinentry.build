@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # PIN-Entry 
-# Source: https://www.gnupg.org/ftp/gcrypt/pinentry/pinentry-1.2.1.tar.bz2
+# Source: https://www.gnupg.org/ftp/gcrypt/pinentry/pinentry-1.3.1.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -9,7 +9,8 @@
 # DEPS
 # Required:     Libassuan, libgpg-error
 # Recommended:  NONE
-# Optional:     Rmacs, FLTK, Gcr, GTK+2, libsecret, Qt5
+# Optional:     emacs, FLTK, Gcr, GTK+2, libsecret, Qt6
+# Optional:     Qt5, Qt4, EFL, KDE Frameworks, kwayland 
 
 ./configure --prefix=/usr --enable-pinentry-tty \
             --enable-pinentry-qt=no \
@@ -47,5 +48,5 @@ pinentry:
 pinentry:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pinentry-1.2.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/pinentry-1.3.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
