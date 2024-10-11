@@ -12,11 +12,6 @@
 # Recommended:  GnuPG, gobject-introspection, GTK+3, libxslt, Vala
 # Optional:     GTK-Doc, Valgrind
 
-#patch -Np1 -i ../patches/gcr-alpine/dont-run-gpg-tests.patch 
-#patch -Np1 -i ../patches/gcr-alpine/fix-64-bit-time_t-32-bit.patch 
-#patch -Np1 -i ../patches/gcr-alpine/fix-build-without-systemd.patch 
-#patch -Np1 -i ../patches/gcr-alpine/fix-meson-invalid-kw-argument.patch 
-
 # If coptimizing:
 export  CFLAGS="-march=native -mtune=native -pipe "
 export CFLAGS+="-O3 -Os -fdata-sections -ffat-lto-objects "
