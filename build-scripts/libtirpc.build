@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libtirpc
-# Source: https://downloads.sourceforge.net/libtirpc/libtirpc-1.3.4.tar.bz2
+# Source: https://downloads.sourceforge.net/libtirpc/libtirpc-1.3.6.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -52,7 +52,7 @@ libtirpc:
 libtirpc: http://sourceforge.net/projects/libtirpc/
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libtirpc-1.3.4-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/libtirpc-1.3.6-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libtirpc-doc: Manuals for libtirpc (Transport-Independent RPC library)
@@ -61,5 +61,5 @@ libtirpc-doc: A port of Sun's Transport-Independent RPC library to Linux.
 libtirpc-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/libtirpc-doc-1.3.4-$NOPSUFFIX
+sudo -S makepkg -l y -c n $PKGS/libtirpc-doc-1.3.6-$NOPSUFFIX
 sudo -S rm -rf ${BUILD}/* /BMAN/*
