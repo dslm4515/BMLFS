@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Shadow Rebuild with PAM support
-# Source: https://github.com/shadow-maint/shadow/releases/download/4.14.1/shadow-4.14.1.tar.xz
+# Source: https://github.com/shadow-maint/shadow/releases/download/4.17.2/shadow-4.17.2.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -15,27 +15,34 @@ export  CFLAGS="-march=native -mtune=native -O3 -g -pipe -fno-semantic-interposi
 export CFLAGS+="-ffat-lto-objects -fstack-protector-strong -fzero-call-used-regs=used  "
 export LDFLAGS="-Wl,-O2 -Wl,--as-needed "
 
-# Apply patch from Chimera Linux for remove __BEGIN_DECLS code
-patch -Np1 -i ../patches/shadow-chimera/begin-decls.patch 
+# Disable the installation of the groups program and its man pages, 
+# as Coreutils provides a better version
+sed -i 's/groups$(EXEEXT) //' src/Makefile.in
+find man -name Makefile.in -exec sed -i 's/groups\.1 / /'   {} \;
+find man -name Makefile.in -exec sed -i 's/getspnam\.3 / /' {} \;
+find man -name Makefile.in -exec sed -i 's/passwd\.5 / /'   {} \;
 
-# Apply patch from Chimera linux for xstrdup
-patch -Np1 -i ../patches/shadow-chimera/xstrdup.patch 
+# Per LFS, Instead of using the default crypt method, use the more
+# secure YESCRYPT method of password encryption, which also allows
+# passwords longer than 8 characters. If libxcrypt was not installed,
+# then set the default crypt method to SHA512.
+# Also change the obsolete /var/spool/mail location for user
+# mailboxes that Shadow uses by default to the /var/mail location
+# used currently
+sed -e 's:#ENCRYPT_METHOD DES:ENCRYPT_METHOD YESCRYPT:' \
+    -e 's:/var/spool/mail:/var/mail:'                   \
+    -e '/PATH=/{s@/sbin:@@;s@/bin:@@}'                  \
+    -i etc/login.defs
 
-sed -i 's/groups$(EXEEXT) //' src/Makefile.in &&
-
-find man -name Makefile.in -exec sed -i 's/groups\.1 / /'   {} \; &&
-find man -name Makefile.in -exec sed -i 's/getspnam\.3 / /' {} \; &&
-find man -name Makefile.in -exec sed -i 's/passwd\.5 / /'   {} \; &&
-
-sed -i -e 's@#ENCRYPT_METHOD DES@ENCRYPT_METHOD SHA512@' \
-       -e 's@/var/spool/mail@/var/mail@' etc/login.defs &&
-
-# Per https://github.com/dslm4515/Musl-LFS/issues/79,
-# Apply musl's limit to shadow for SHA_ROUNDS_MAX
+# Musl & shadow define ROUNDS_MAX differently. Musl defines it as
+# 7 digits long but shadow defines it as 9 digits long. This means
+# shadow can potentionally request a larger number of rounds than
+# supported by musl. Change shadow's ROUND_MAX to match musl.
+# https://github.com/dslm4515/Musl-LFS/issues/79
 sed -i -e 's/^\(#define SHA_ROUNDS_MAX 9999999\)99/\1/' lib/salt.c
 
-# Update build system
-autoreconf -fvi
+# Apply patch from Chimera linux for xstrdup
+#patch -Np1 -i ../patches/shadow-chimera/xstrdup.patch 
 
 # Configure
 LIBS="-lutmps -lskarnet" \
@@ -44,7 +51,6 @@ LIBS="-lutmps -lskarnet" \
 	    --sbindir=/usr/sbin \
 	    --libdir=/usr/lib \
             --with-group-name-max-length=32 \
-	    --enable-utmpx \
 	    --without-libbsd \
 	    --enable-lastlog \
             --with-acl -with-attr \
@@ -59,10 +65,10 @@ read -p "Compile?" && make -j2 &&
 
 read -p "Press Enter to install" &&                                                                                                                                                                                               
 # if not using a package manager:
-# make install
+# make exec_prefix=/usr pamddir= install
 
 # if using pkgtools from Slackware, then:
-su -c "make DESTDIR=$BUILD exec_prefix=/usr install"
+su -c "make DESTDIR=$BUILD exec_prefix=/usr pamddir=  install"
 su -c "mkdir -pv ${BUILD}/etc/default"
 cat > /tmp/useradd << "EOF"
 GROUP=999
@@ -142,7 +148,7 @@ EOF
 su -c "mv /tmp/slack-desc install/" &&
 
 read -p "Enter to build package" &&
-su -c "makepkg -l y -c n $PKGS/shadow-4.14.1-$PSUFFIX" &&
+su -c "makepkg -l y -c n $PKGS/shadow-4.17.2-$PSUFFIX" &&
 
 cp -v install/doinst.sh /tmp/
 cat >> /tmp/doinst.sh << "EOF"
@@ -152,6 +158,6 @@ EOF
 
 su -c "cp -v /tmp/doinst.sh install/"
 
-su -c "makepkg -l y -c n $PKGS/shadow-4.14.1-$PSUFFIX" &&
+su -c "makepkg -l y -c n $PKGS/shadow-4.17.2-$PSUFFIX" &&
 su -c "rm -rf $BUILD/*"
 
