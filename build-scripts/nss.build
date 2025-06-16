@@ -1,7 +1,8 @@
 #! /bin/bash
 
 # NSS 
-# Source: https://archive.mozilla.org/pub/security/nss/releases/NSS_3_101_RTM/src/nss-3.101.tar.gz
+# Source: https://archive.mozilla.org/pub/security/nss/releases/NSS_3_112_RTM/src/nss-3.112.tar.gz
+#
 # Build Method: BLFS
 #
 # $BUILD = Directory to temporarily install
@@ -18,38 +19,34 @@ patch -Np1 -i ../patches/nss-chimera/native-nsinstall-cflags.patch
 patch -Np1 -i ../patches/nss-chimera/respect-ldflags.patch 
 
 # Apply patches to fix pkgconfig files
-patch -Np1 -i ../patches/nss-lfs/nss-3.101-standalone-1.patch  &&
+patch -Np1 -i ../patches/nss-lfs/nss-standalone-1.patch  &&
+
+export PVER="3.112"
+
+# Set buid options
+export  MOPTS="BUILD_OPT=1 "
+export MOPTS+="NSPR_INCLUDE_DIR=/usr/include/nspr "
+export MOPTS+="USE_SYSTEM_ZLIB=1 "
+export MOPTS+="ZLIB_LIBS=-lz "
+export MOPTS+="NSS_ENABLE_WERROR=0 "
+export MOPTS+="OPT_CODE_SIZE=1 "
+export MOPTS+="FREEBL_NO_DEPEND=0 "
+export MOPTS+="NSS_DISABLE_GTESTS=1 "
+export MOPTS+="NSS_DISABLE_DEPRECATED_SEED=1 "
+export MOPTS+="NSS_DISABLE_DEPRECATED_RC2=1 "
 
 # Build	
 cd nss &&
 
-make BUILD_OPT=1                  \
-  NSPR_INCLUDE_DIR=/usr/include/nspr  \
-  USE_SYSTEM_ZLIB=1                   \
-  ZLIB_LIBS=-lz                       \
-  NSS_ENABLE_WERROR=0                 \
-  OPT_CODE_SIZE=1 FREEBL_NO_DEPEND=0 NSS_DISABLE_GTESTS=1 \
-  NSS_DISABLE_DEPRECATED_SEED=1 NSS_DISABLE_DEPRECATED_RC2=1 \
+make $MOPTS                  \
   $([ $(uname -m) = x86_64 ] && echo USE_64=1) \
   $([ -f /usr/include/sqlite3.h ] && echo NSS_USE_SYSTEM_SQLITE=1) -C coreconf
 
-make BUILD_OPT=1                  \
-  NSPR_INCLUDE_DIR=/usr/include/nspr  \
-  USE_SYSTEM_ZLIB=1                   \
-  ZLIB_LIBS=-lz                       \
-  NSS_ENABLE_WERROR=0                 \
-  OPT_CODE_SIZE=1 FREEBL_NO_DEPEND=0 NSS_DISABLE_GTESTS=1 \
-  NSS_DISABLE_DEPRECATED_SEED=1 NSS_DISABLE_DEPRECATED_RC2=1 \
+make $MOPTS                  \
   $([ $(uname -m) = x86_64 ] && echo USE_64=1) \
   $([ -f /usr/include/sqlite3.h ] && echo NSS_USE_SYSTEM_SQLITE=1) -C lib/util
 
-make BUILD_OPT=1                  \
-  NSPR_INCLUDE_DIR=/usr/include/nspr  \
-  USE_SYSTEM_ZLIB=1                   \
-  ZLIB_LIBS=-lz                       \
-  NSS_ENABLE_WERROR=0                 \
-  OPT_CODE_SIZE=1 FREEBL_NO_DEPEND=0 NSS_DISABLE_GTESTS=1 \
-  NSS_DISABLE_DEPRECATED_SEED=1 NSS_DISABLE_DEPRECATED_RC2=1 \
+make $MOPTS                 \
   $([ $(uname -m) = x86_64 ] && echo USE_64=1) \
   $([ -f /usr/include/sqlite3.h ] && echo NSS_USE_SYSTEM_SQLITE=1)
 
@@ -93,7 +90,7 @@ nss: standards into an application.
 nss:
 EOF
 mv -v /tmp/slack-desc install/ &&
-makepkg -l y -c n $PKGS/nss-3.101-$PSUFFIX &&
+makepkg -l y -c n $PKGS/nss-$PVER-$PSUFFIX &&
 rm -rf ${BUILD}/*
 
 # Exit super user
