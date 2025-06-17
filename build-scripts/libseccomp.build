@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libseccomp
-# Source: https://github.com/seccomp/libseccomp/releases/download/v2.5.5/libseccomp-2.5.5.tar.gz
+# Source: https://github.com/seccomp/libseccomp/releases/download/v2.6.0/libseccomp-2.6.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -17,6 +17,8 @@
 export  CFLAGS="-march=native -mtune=native -pipe -O2 -fno-lto "
 export CXXFLAGS=$CFLAGS
 unset LDFLAGS
+
+export PVER="2.6.0"
 
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE && 
 
@@ -60,7 +62,7 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/libseccomp-2.5.5-$PSUFFIX &&
+sudo makepkg -l y -c n $PKGS/libseccomp-$PVER-$PSUFFIX &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -78,6 +80,6 @@ libseccomp-doc: Project URL: https://github.com/seccomp/libseccomp
 libseccomp-doc: 
 EOF
 sudo mv /tmp/slack-desc install/
-sudo makepkg -l y -c n $PKGS/libseccomp-doc-2.5.5-$NOPSUFFIX
+sudo makepkg -l y -c n $PKGS/libseccomp-doc-$PVER-$NOPSUFFIX
 sudo rm -rf /BMAN/*
 sudo rm -rf $BUILD/*
