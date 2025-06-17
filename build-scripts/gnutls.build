@@ -1,21 +1,21 @@
 #! /bin/bash
 
 # GNU TLS
-# Source: https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.2.tar.xz
+# Source: https://www.gnupg.org/ftp/gcrypt/gnutls/v3.8/gnutls-3.8.9.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     Nettle
-# Recommended:  ca-certificates,  libunistring, libtasn1, p11-kit
-# Optional:     Doxygen-1.8.20, GTK-Doc-1.3211Guile-3.0.4, libidn-1.36 or libidn2-2.3.0, 
-# Optional:     libseccomp-2.5.0, Net-tools-CVS_20101030 (used during the test suite), 
-# Optional:     texlive-20200406 or install-tl-unx, Unbound-1.11.0 (to build the DANE library), 
-# Optional:     Valgrind-3.16.1 (used during the test suite), autogen, cmocka and 
+# Recommended:  ca-certificates,libunistring, libtasn1, p11-kit
+# Optional:     Doxygen, GTK-Doc, libidn or libidn2, 
+# Optional:     libseccomp, Net-tools (used during the test suite), 
+# Optional:     texlive-20200406 or install-tl-unx, Unbound (to build the DANE library), 
+# Optional:     Valgrind (used during the test suite), autogen, cmocka and 
 # Optional:     datefudge (used during the test suite if the DANE library is built), 
 # Optional:     and Trousers (Trusted Platform Module support) 
-# LTO:          Tested with LLVM
+# LTO:          pending; Previous version has
 
 # If optimizing, use these flags
 # Recommened to not use LTO
@@ -24,6 +24,8 @@ export CFLAGS+="-O3 -falign-functions=32 -fno-lto "
 export CFLAGS+="-fno-math-errno -fno-semantic-interposition -fno-trapping-math "
 export CXXFLAGS=$CFLAGS
 unset LDFLAGS
+
+export PVER="3.8.9"
 
 ./configure --prefix=/usr \
             --with-default-trust-store-pkcs11="pkcs11:" \
@@ -69,7 +71,7 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS//gnutls-3.8.2-$PSUFFIX &&
+sudo makepkg -l y -c n $PKGS/gnutls-$PVER-$PSUFFIX &&
 
 cd /BMAN/
 cat > /tmp/slack-desc << "EOF" 
@@ -86,6 +88,6 @@ gnutls-doc:
 gnutls-doc: 
 EOF
 sudo mv /tmp/slack-desc install/
-sudo makepkg -l y -c n $PKGS//gnutls-doc-3.8.2-$NOPSUFFIX
+sudo makepkg -l y -c n $PKGS//gnutls-doc-$PVER-$NOPSUFFIX
 sudo rm -rf $BUILD/*
 sudo rm -rf /BMAN/*
