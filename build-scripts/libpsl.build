@@ -18,6 +18,8 @@ export  CFLAGS="-march=native -mtune=native -pipe "
 export CFLAGS+="-O3 -fno-lto "
 #export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
+export PVER="0.21.5"
+
 meson setup --prefix=/usr --buildtype=release BUILD
 
 read -p "Compile? " && ninja -C BUILD -j2 &&
@@ -59,7 +61,7 @@ EOF
 sudo -S mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
-sudo -S makepkg -l y -c n $PKGS/libpsl-0.21.5-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libpsl-$PVER-$PSUFFIX &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -78,6 +80,6 @@ libpsl-doc:
 EOF
 
 sudo -S mv /tmp/slack-desc install/ 
-sudo -S makepkg -l y -c n $PKGS/libpsli-doc-0.21.5-$NOPSUFFIX
+sudo -S makepkg -l y -c n $PKGS/libpsli-doc-$PVER-$NOPSUFFIX
 sudo -S rm -rf $BUILD/*
-
+unset PVER
