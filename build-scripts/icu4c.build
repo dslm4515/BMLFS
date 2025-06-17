@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # ICU 
-# Source: https://github.com/unicode-org/icu/releases/download/release-75-1/icu4c-75_1-src.tgz
+# Source: https://github.com/unicode-org/icu/releases/download/release-77-1/icu4c-77_1-src.tgz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -19,6 +19,8 @@ export CFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 export CC=gcc CXX=g++
+
+export PVER="77.1"
 
 cd source &&
 ./configure --prefix=/usr $BUILDTRUPLE  &&
@@ -55,36 +57,34 @@ sudo -S mv -v /tmp/slack-desc install/ &&
 sudo mkdir -pv /BMAN/install
 sudo mkdir -pv /BMAN/usr/share
 cat > /tmp/slack-desc << "EOF"
-# HOW TO EDIT THIS FILE:                                                                                                                              
-# The "handy ruler" below makes it easier to edit a package description.  Line                                                                        
-# up the first '|' above the ':' following the base package name, and the '|'                                                                         
-# on the right side marks the last column you can put a character in.  You must                                                                       
-# make exactly 11 lines for the formatting to be correct.  It's also                                                                                  
-# customary to leave one space after the ':'.                                                                                                         
-                                                                                                                                                      
-       |-----handy-ruler------------------------------------------------------|                                                                           
-icu-doc: Manuals for icu (International Components for Unicode)                                                                                     
-icu-doc:                                                                                                                                             
-icu-doc: The International Components for Unicode (ICU) libraries provide                                                                            
-icu-doc: robust and full-featured Unicode services on a wide variety of                                                                               
-icu-doc: platforms.                                                                                                                                   
-icu-doc:                                                                                                                                              
-icu-doc: Homepage: http://www.icu-project.org/                                                                                                        
-icu-doc:                                                                                                                                              
-icu-doc:                                                                                                                                              
-icu-doc:                                                                                                                                              
-icu-doc:                                                                                                                                              
-EOF 
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':'.
+       |-----handy-ruler------------------------------------------------------|
+icu-doc: Manuals for icu (International Components for Unicode) 
+icu-doc:
+icu-doc: The International Components for Unicode (ICU) libraries provide  
+icu-doc: robust and full-featured Unicode services on a wide variety of 
+icu-doc: platforms. 
+icu-doc:
+icu-doc: Homepage: http://www.icu-project.org/ 
+icu-doc:
+EOF
+
 sudo -S mv -v /tmp/slack-desc /BMAN/install/ 
 
 sudo mv usr/share/man /BMAN/usr/share/
 
-sudo -S makepkg -l y -c n $PKGS/icu-75.1-${PSUFFIX} &&
+sudo -S makepkg -l y -c n $PKGS/icu-$PVER-${PSUFFIX} &&
 cd /BMAN
-sudo -S makepkg -l y -c n $PKGS/icu-doc-75.1-${NOPSUFFIX}
+sudo -S makepkg -l y -c n $PKGS/icu-doc-$PVER-${NOPSUFFIX}
 
 sudo -S rm -rf $BUILD/*
 sudo -S rm -rf /BMAN
+unset PVER
 
 # If not using nay package manager:
 #sudo -S make install
