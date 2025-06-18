@@ -18,10 +18,12 @@ export CFLAGS+="-O3 -falign-functions=32 -ffat-lto-objects -flto=4 "
 export CFLAGS+="-fno-math-errno -fno-semantic-interposition -fno-trapping-math "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
+export PVER="2.10"
+
 ./configure --prefix=/usr                    \
             --enable-shared                  \
             --disable-static                 \
-            --docdir=/usr/share/doc/lzo-2.10 $BUILDTRUPLE
+            --docdir=/usr/share/doc/lzo-$PVER $BUILDTRUPLE
 read -p "Compile?" && make -j2 &&
 
 read -p "Press Enter to install" &&
@@ -51,7 +53,7 @@ sudo mkdir -pv /BMAN/install
 sudo mkdir -pv /BMAN/usr
 sudo mv -v     usr/share /BMAN/usr/
 
-cat > /tmp/slack-desc << "EOF"                                            
+cat > /tmp/slack-desc << "EOF"                                          
 lzo-doc: Manuals LZO Compression Library                                              
 lzo-doc:                                                                      
 lzo-doc: LZO is a portable lossless data compression library written in ANSI C.
@@ -62,13 +64,15 @@ lzo-doc:
 lzo-doc:                                                                      
 lzo-doc:                                                                      
 lzo-doc:                                                                      
-EOF   
+EOF
+
 sudo mv /tmp/slack-desc /BMAN/install/
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/lzo-2.10-$(uname -m)-mlfs.txz &&
+sudo makepkg -l y -c n $PKGS/lzo-$PVER-$PSUFFIX &&
 cd /BMAN
-sudo makepkg -l y -c n $PKGS/lzo-doc-2.10-noarch-mlfs.txz
+sudo makepkg -l y -c n $PKGS/lzo-doc-$PVER-$NOPSUFFIX
 
+unset PVER
 sudo rm -rf $BUILD/*
 sudo rm =rf /BMAN/*
