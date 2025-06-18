@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # LibArchive 
-# Source: https://github.com/libarchive/libarchive/releases/download/v3.7.2/libarchive-3.7.2.tar.xz
+# Source: https://github.com/libarchive/libarchive/releases/download/v3.8.1/libarchive-3.8.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -21,6 +21,8 @@ export CFLAGS+="-fno-semantic-interposition -fno-trapping-math "
 export CFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
 export CXXFLAGS=$CFLAGS
 unset LDFLAGS
+
+export PVER="3.8.1"
 
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
 
@@ -62,33 +64,32 @@ sudo -S mkdir -pv /BMAN/install
 sudo -S mkdir -pv /BMAN/usr
 
 cat > /tmp/slack-desc << "EOF"
-# HOW TO EDIT THIS FILE:                                                                                                                              
-# The "handy ruler" below makes it easier to edit a package description.  Line                                                                        
-# up the first '|' above the ':' following the base package name, and the '|'                                                                         
-# on the right side marks the last column you can put a character in.  You must                                                                       
-# make exactly 11 lines for the formatting to be correct.  It's also                                                                                  
-# customary to leave one space after the ':'.                                                                                                         
-                                                                                                                                                      
-              |-----handy-ruler--------------------------------------------------|                                                                        
-libarchive-doc: Manuals for libarchive (archive reading library)                                                                                      
-libarchive-doc:                                                                                                                                       
-libarchive-doc: Libarchive is a programming library that can create and read                                                                         
-libarchive-doc: several different streaming archive formats, including most                                                                          
-libarchive-doc: popular TAR variants and several CPIO formats.  It can also                                                                           
-libarchive-doc: write SHAR archives.                                                                                                                  
-libarchive-doc:                                                                                                                                       
-libarchive-doc: Homepage:  http://libarchive.org                                                                                                      
-libarchive-doc:                                                                                                                                       
-libarchive-doc:                                                                                                                                    
-libarchive-doc:                                                                                                                                       
-EOF         
+# HOW TO EDIT THIS FILE:
+# # The "handy ruler" below makes it easier to edit a package description.  Line
+# # up the first '|' above the ':' following the base package name, and the '|'
+# # on the right side marks the last column you can put a character in.  You must
+# # make exactly 11 lines for the formatting to be correct.  It's also
+# # customary to leave one space after the ':'.
+
+              |-----handy-ruler--------------------------------------------------|
+libarchive-doc: Manuals for libarchive (archive reading library)
+libarchive-doc:
+libarchive-doc: Libarchive is a programming library that can create and read
+libarchive-doc: several different streaming archive formats, including most
+libarchive-doc: popular TAR variants and several CPIO formats.  It can also
+libarchive-doc: write SHAR archives.
+libarchive-doc:
+libarchive-doc: Homepage:  http://libarchive.org
+libarchive-doc:
+libarchive-dco:
+EOF
 
 sudo mv /tmp/slack-desc /BMAN/install/
 sudo mv usr/share       /BMAN/usr/
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/libarchive-3.7.2-$PSUFFIX &&                                                                                                                                                                     
+sudo makepkg -l y -c n $PKGS/libarchive-$PVER-$PSUFFIX &&                                                                                                                                                                     
 cd /BMAN
-sudo makepkg -l y -c n $PKGS/libarchive-doc-3.7.2-$NOPSUFFIX
+sudo makepkg -l y -c n $PKGS/libarchive-doc-$PVER-$NOPSUFFIX
 sudo rm -rf $BUILD/*
-
+unset PVER
