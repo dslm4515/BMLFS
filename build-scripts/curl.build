@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # cURL 
-# Source: https://curl.se/download/curl-8.8.0.tar.xz
+# Source: https://curl.se/download/curl-8.14.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -29,16 +29,21 @@ unset LDFLAGS
 #export CFLAGS+="-D_FORTIFY_SOURCE=2 -I/usr/include/"
 #export CPPFLAGS="-D_FORTIFY_SOURCE=2"
 
+# Set build options:
+export  CARGS="--disable-static "
+export CARGS+="--enable-threaded-resolver "
+export CARGS+="--with-ca-path=/etc/ssl/certs "
+export CARGS+="--enable-ipv6 "
+export CARGS+="--enable-unix-sockets "
+export CARGS+="--with-pic "
+export CARGS+="--with-openssl "
+export CARGS+="--without-libssh2 " # https://bugs.alpinelinux.org/issues/10222 
+
+export PVER="8.14.1"
+
 #ac_cv_sizeof_off_t=8                                \
-./configure --prefix=/usr                           \
-            --disable-static                        \
-            --enable-threaded-resolver              \
-            --with-ca-path=/etc/ssl/certs           \
-            --enable-ipv6                           \
-            --enable-unix-sockets                   \
-	    --with-pic $BUILDTRUPLE                 \
-	    --with-openssl                          \
-	    --without-libssh2                         # https://bugs.alpinelinux.org/issues/10222 &&
+./configure --prefix=/usr $CARGS
+
 read -p "Compile? " && make -j2  && 
 
 unset  CFLAGS CPPFLAGS
@@ -79,7 +84,7 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build package" &&
-sudo makepkg -l y -c n $PKGS/curl-8.8.0-$PSUFFIX &&
+sudo makepkg -l y -c n $PKGS/curl-$PVER-$PSUFFIX &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -96,7 +101,8 @@ curl-doc: available to be used by your software, too.
 EOF
 sudo mv /tmp/slack-desc install/
 
-sudo makepkg -l y -c n $PKGS/curl-doc-8.8.0-$NOPSUFFIX
+sudo makepkg -l y -c n $PKGS/curl-doc-$PVER-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo rm -rf $BUILD/*
+unset PVER CARGS
 
