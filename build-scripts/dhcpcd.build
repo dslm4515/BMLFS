@@ -30,9 +30,7 @@ useradd  -c 'dhcpcd PrivSep' \
 chown    -v dhcpcd:dhcpcd /var/lib/dhcpcd 
 
 # Configure
-# if building with clang 17, add to to flags
 export WNO="-Wno-implicit-function-declaration "
-
 CFLAGS="-L/opt/openssl/lib -lssl -Wl,-rpath=/opt/openssl/lib " \
 CFLAGS="$CFLAGS $WNO " \
 CXXFLAGS=$CFLAGS \
