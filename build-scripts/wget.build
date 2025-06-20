@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Wget 
-# Source: https://ftp.gnu.org/gnu/wget/wget-1.24.5.tar.gz
+# Source: https://ftp.gnu.org/gnu/wget/wget-1.25.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built package
@@ -19,6 +19,8 @@ export  CFLAGS="-march=native -mtune=native -pipe "
 export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
 export CXXFLAGS=$CFLAGS
 unset LDFLAGS
+
+export PVER="1.25.0"
 
 ac_cv_header_sys_cdefs_h=false \
 ./configure --prefix=/usr      \
@@ -60,7 +62,7 @@ wget:
 wget:
 EOF
 sudo mv /tmp/slack-desc install/ &&
-sudo makepkg -l y -c n $PKGS/wget-1.24.5-$PSUFFIX &&
+sudo makepkg -l y -c n $PKGS/wget-$PVER-$PSUFFIX &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -75,7 +77,8 @@ wget-doc: The author of Wget is Hrvoje Niksic <hniksic@srce.hr>.
 wget-doc: 
 EOF
 sudo mv /tmp/slack-desc install/ &&
-sudo makepkg -l y -c n $PKGS/wget-doc-1.24.5-$NOPSUFFIX
+sudo makepkg -l y -c n $PKGS/wget-doc-$PVER-$NOPSUFFIX
 sudo rm -rf /BMAN/*
 sudo rm -rf $BUILD/*
+unset PVER
 
