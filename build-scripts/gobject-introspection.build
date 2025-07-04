@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GObject Introspection
-# Source: https://download.gnome.org/sources/gobject-introspection/1.80/gobject-introspection-1.80.1.tar.xz
+# Source: https://download.gnome.org/sources/gobject-introspection/1.84/gobject-introspection-1.84.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -18,6 +18,8 @@ export CFLAGS+="-ffat-lto-objects -flto=auto -fno-semantic-interposition "
 export CFLAGS+="-mprefer-vector-width=256 "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+
+export PVER="1.84.0"
 
 meson setup --prefix=/usr OUT 
 
@@ -58,7 +60,7 @@ gobject-introspection:
 gobject-introspection:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gobject-introspection-1.80.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/gobject-introspection-$PVER-$PSUFFIX &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -74,6 +76,6 @@ gobject-introspection-doc: http://live.gnome.org/GObjectIntrospection
 gobject-introspection-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&                                                                                                             
-sudo -S makepkg -l y -c n $PKGS/gobject-introspection-doc-1.80.1-$NOPSUFFUX
+sudo -S makepkg -l y -c n $PKGS/gobject-introspection-doc-$PVER-$NOPSUFFUX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
