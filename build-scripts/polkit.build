@@ -1,16 +1,15 @@
 #! /bin/bash
 
 # Polkit 
-# Source: https://gitlab.freedesktop.org/polkit/polkit/-/archive/123/polkit-123.tar.gz
+# Source: https://github.com/polkit-org/polkit/archive/126/polkit-126.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Glib, mozjs(JS) or duktape, 
-# Recommended:  Linux-PAM, elogind turnstile
-# Optional:     gobject-introspection, D-Bus Python, dbusmock, docbook-xml, 
-# Optional:     docbook-xsl, GTK-Doc, and libxslt
+# Required:     Glib, duktape 
+# Recommended:  libxslt, Linux-PAM, elogind or turnstile, gobject-introspection
+# Optional:     GTK-Doc, dbusmock
 
 # If coptimizing with GCC:
 export  CFLAGS="-march=native -pipe "
@@ -26,16 +25,13 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 # Ensure turnstile-session processes fall back to display check
 patch -Np1 -i ../patches/polkit-chimera/turnstile.patch 
 
+export PVER="126"
+
 # Per LFS, There should be a dedicated user and group to take control of the polkitd 
 # daemon after it is started.
 sudo -E groupadd -fg 27 polkitd &&
 sudo -E useradd -c "PolicyKit Daemon Owner" -d /etc/polkit-1 -u 27 \
                 -g polkitd -s /bin/false polkitd
-
-# If using mozjs instead of duktape:
-sed -e '/mozjs/s/102/115/' -i meson.build      &&
-sed -e 's/JS_Init/JS::DisableJitBackend(); &/' \
-    -i src/polkitbackend/polkitbackendjsauthority.cpp
 
 # If elogind is installed:
 export stkr=libelogind
@@ -53,7 +49,7 @@ read -p "Compile?" && ninja -C OUT  -j2 &&
 sudo -S DESTDIR=$BUILD ninja -C OUT install && \
 sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
-#sudo -S install -m644 ../files/polkit-lfs/polkit-1  ${BUILD}/etc/pam.d/ &&
+sudo mv $BUILD/usr/lib/pam.d $BUILD/etc/
 
 # Fix the pam configuration, per Chimera Linux:
 cat > /tmp/polkit-1 << "EOF"
@@ -97,11 +93,8 @@ useradd -c "PolicyKit Daemon Owner" -d /etc/polkit-1 -u 27 \
 EOF
 sudo mv /tmp/doinst.sh install/ &&
 
-sudo -S makepkg -l y -c n $PKGS/polkit-123-$PSUFFIX &&
-#cp -v install/doinst.sh /tmp/ && \
-#cd - && cat ../files/polkit-lfs/doinst.sh >> /tmp/doinst.sh &&
-#cd - && sudo -S mv -v /tmp/doinst.sh install/doinst.sh      &&
-#sudo -S makepkg -l y -c n $PKGS/polkit-0.120-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/polkit-$PVER-$PSUFFIX &&
+
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 polkit-doc: Manuals for polkit (authentication framework)
@@ -114,5 +107,5 @@ polkit-doc: http://www.freedesktop.org/wiki/Software/PolicyKit
 polkit-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/polkit-doc-123-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/polkit-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
