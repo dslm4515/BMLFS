@@ -1,15 +1,14 @@
 #! /bin/bash
 
-# Glib 2.74.5
-# Source: ftp://ftp.acc.umu.se/pub/gnome/sources/glib/2.72/glib-2.72.0.tar.xz
-# Source: https://download.gnome.org/sources/glib/2.74/glib-2.74.5.tar.xz
+# Glib 
+# Source: https://download.gnome.org/sources/glib/2.84/glib-2.84.3.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     NONE
-# Recommended:  libxslt and PCRE
+# Recommended:  docutils, libxslt and PCRE
 # Optional:     dbus, bindfs, GDB, docbook-xml, docbook-xsl,
 # Optional:     GTK-Doc, glib-networking, gobject-introspection
 # LTO:          Tested with LLVM
@@ -20,27 +19,40 @@ export CFLAGS+="-O3 -Ofast -falign-functions=32 -ffat-lto-objects -flto=auto "
 export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
 export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
-patch -Np1 -i ../patches/glib-lfs/glib-2.74.5-skip_warnings-1.patch 
+# If desired, apply the optional patch, per LFS.
+# In many cases, applications that use this library, either directly 
+# or indirectly via other libraries such as GTK, output numerous 
+# warnings when run from the command line. This patch enables the 
+# use of an environment variable, GLIB_LOG_LEVEL, that suppresses 
+# unwanted messages. The value of the variable is a digit that 
+# corresponds to:
+# 1 Alert
+# 2 Critical
+# 3 Error
+# 4 Warning
+# 5 Notice
+# For instance export GLIB_LOG_LEVEL=4 will skip output of Warning 
+# and Notice messages (and Info/Debug messages if they are turned 
+# on). If GLIB_LOG_LEVEL is not defined, normal message output will 
+# not be affected. 
+patch -Np1 -i ../patches/glib-lfs/glib-skip_warnings-1.patch
 
-mkdir build &&
-cd    build &&
+export PVER="2.84.3"
 
-meson --prefix=/usr      \
-      -Dman=true         \
-      -Dselinux=disabled \
-      ..                 &&
+meson --prefix=/usr -Dman=false \
+	-Dselinux=disabled OUT  &&
 
-read -p "Compile?" && ninja -j2 &&
+read -p "Compile?" && ninja -C OUT -j2 &&
 
 read -p "Press Enter to install" &&
 # if not using a package manager:
 # ninja install
 
 # Install may fail due to missint 'otool'. Use a link for now.
-sudo -S ln -sv ../../bin/true /usr/bin/otool
+#sudo -S ln -sv ../../bin/true /usr/bin/otool
 
 # if using pkgtools from Slackware, then:
-sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 sudo -S mkdir -pv /BMAN/install
 sudo -S mkdir -pv /BMAN/usr/share
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
@@ -71,7 +83,7 @@ EOF
 sudo mv /tmp/slack-desc install/ &&
 
 read -p "Enter to build and install package" &&
-sudo makepkg -l y -c n $PKGS/glib-2.74.5-${NOPSUFFIX} &&
+sudo makepkg -l y -c n $PKGS/glib-$PVER-${PSUFFIX} &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -84,6 +96,6 @@ glib-doc:  GLib is required by nearly everything that uses GTK+ 1/2/3/4.x
 glib-doc: 
 EOF
 sudo mv /tmp/slack-desc install/
-sudo makepkg -l y -c n $PKGS/glib-doc-2.74.5-${NOPSUFFIX}
+sudo makepkg -l y -c n $PKGS/glib-doc-$PVER-${NOPSUFFIX}
 sudo rm -rf /BMAN/*
 sudo rm -rf $BUILD/*                                               
