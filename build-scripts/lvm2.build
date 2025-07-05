@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # LVM2
-# Source: https://sourceware.org/ftp/lvm2/LVM2.2.03.22.tgz
+# Source: https://sourceware.org/ftp/lvm2/LVM2.2.03.33.tgz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -9,7 +9,8 @@
 # DEPS
 # Required:     libaio
 # Recommended:  NONE
-# Optional:     mdadm,  reiserfsprogs, valgrind, xfsprogs, thin-provisioning-tools
+# Optional:     libnvme, mdadm,  reiserfsprogs, valgrind, 
+# Optional:     xfsprogs, thin-provisioning-tools
 
 # If optimizing with GCC:
 export  CFLAGS="-march=native -pipe "
@@ -26,6 +27,8 @@ patch -Np1 -i ../patches/lvm2-chimera/mlockall-default-config.patch
 patch -Np1 -i ../patches/lvm2-chimera/portable-install-1.patch
 patch -Np1 -i ../patches/lvm2-chimera/scripts-gnu.patch 
 patch -Np1 -i ../patches/lvm2-chimera/udev-no-systemd.patch 
+
+export PVER="2.03.33"
 
 #If building with clang-17.x, add these flags:
 CFLAGS="$CFLAGS -Wno-implicit-function-declaration -Wno-int-conversion " \ 
@@ -66,7 +69,7 @@ lvm2:
 lvm2:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/lvm2-2.03.22-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/lvm2-$PVER-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 lvm2-doc: Manuals for lvm2
@@ -76,6 +79,6 @@ lvm2-doc: low-level I/O interface to get a logical view of disks.
 lvm2-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/lvm2-doc-2.03.22-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/lvm2-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/* 
 
