@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # gptfdisk
-# Source: https://downloads.sourceforge.net/gptfdisk/gptfdisk-1.0.9.tar.gz
+# Source: https://downloads.sourceforge.net/gptfdisk/gptfdisk-1.0.10.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,7 +11,9 @@
 # Recommended:  NONE
 # Optional:     ICU
 
-patch -Np1 -i ../patches/gptfdisk-lfs/gptfdisk-1.0.9-convenience-1.patch &&
+export PVER="1.0.10"
+
+patch -Np1 -i ../patches/gptfdisk-lfs/gptfdisk-1.0.10-convenience-1.patch &&
 sed -i 's|ncursesw/||' gptcurses.cc &&
 sed -i 's|sbin|usr/sbin|' Makefile
 
@@ -51,7 +53,7 @@ gptfdisk: gptfdisk home: http://sourceforge.net/projects/gptfdisk/
 gptfdisk:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gptfdisk-1.0.9-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/gptfdisk-$PVER-$PSUFFIX &&
 
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
@@ -67,6 +69,6 @@ gptfdisk-doc:
 gptfdisk-doc: gptfdisk home: http://sourceforge.net/projects/gptfdisk/
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \                                                                                                           
-sudo -S makepkg -l y -c n $PKGS/gptfdisk-doc-1.0.9-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/gptfdisk-doc-$PVER-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
