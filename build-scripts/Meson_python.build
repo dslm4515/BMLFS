@@ -1,20 +1,21 @@
 #! /bin/bash
 
-# Meson_python
-# Source:  https://files.pythonhosted.org/packages/source/m/meson_python/meson_python-0.16.0.tar.gz
+# Meson_python 
+# Source:  https://files.pythonhosted.org/packages/source/m/meson_python/meson_python-0.17.1.tar.gz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     NONE
-# Recommended:  NONE
-# Optional:     NONE
+# Required:     pyproject-metadata
+# Recommended:  patchelf (runtime)
+# Optional:     build cython git pytest python3 (built with sqlite)
+# Optional:     pytest-mock
 
-#read -p "Compile?" && python3 setup.py build &&
+export PVER="0.17.1"
+
 read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
 
-#sudo -S python3 setup.py install --prefix=/usr --root=${BUILD} &&
 sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user meson_python --root=${BUILD}
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
@@ -27,13 +28,12 @@ cat > /tmp/slack-desc << "EOF"
 # customary to leave one space after the ':' except on otherwise blank lines.
 
             |-----handy-ruler------------------------------------------------------|
-Meson_python: Meson_python
-Meson_python: 
-Meson_python: This module contains a Python build backend (PEP 517) for Meson 
-Meson_python: projects.
-Meson_python:
-Meson_python: 
+meson_python: meson_python
+meson_python:
+meson_python: A python module contains a Python build backend (PEP 517) for Meson 
+meson_python: projects
+meson_python: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/Meson_python-0.16.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/meson_python-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*

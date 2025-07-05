@@ -1,20 +1,21 @@
 #! /bin/bash
 
-# Pyproject-Metadata  
-# Source: https://files.pythonhosted.org/packages/source/p/pyproject-metadata/pyproject_metadata-0.8.0.tar.gz
+# Pyproject-Metadata 
+# Source: https://files.pythonhosted.org/packages/source/p/pyproject-metadata/pyproject_metadata-0.9.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     packaging
+# Required:     NONE
 # Recommended:  NONE
-# Optional:     NONE
+# Optional:     pytest (for testing)
 
-#read -p "Compile?" && python3 setup.py build &&
+export PVER="0.9.0"
+
 read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
 
-#sudo -S python3 setup.py install --prefix=/usr --root=${BUILD} &&
+# Install to staging directory
 sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user pyproject-metadata --root=${BUILD}
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
@@ -29,11 +30,11 @@ cat > /tmp/slack-desc << "EOF"
                   |-----handy-ruler------------------------------------------------------|
 pyproject-metadata: pyproject-metadata
 pyproject-metadata:
-pyproject-metadata: This module contains a data class for PEP 621 metadata with support 
-pyproject-metadata: for “core metadata” (PEP 643) generation. 
+pyproject-metadata: This python module contains a data class for PEP 621 metadata with 
+pyproject-metadata: support for “core metadata” (PEP 643) generation. 
 pyproject-metadata:
 pyproject-metadata:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pyproject-metadata-0.8.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/pyproject-metadata-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
