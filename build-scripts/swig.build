@@ -1,15 +1,17 @@
 #! /bin/bash
 
 # SWIG
-# Source: https://downloads.sourceforge.net/swig/swig-4.2.1.tar.gz
+# Source: https://downloads.sourceforge.net/swig/swig-4.3.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     PCRE
+# Required:     pcre2
 # Recommended:  NONE
 # Optional:     Boost
+
+export PVER="4.3.1"
 
 ./configure --prefix=/usr \
             --without-maximum-compile-warnings --with-python3 \
@@ -41,5 +43,5 @@ swig:
 swig: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/swig-4.2.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/swig-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
