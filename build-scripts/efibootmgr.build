@@ -11,7 +11,7 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-# Apply patches from Chimera Linux
+# Apply patches from Chimera Linux for CMLFS-based systems
 patch -Np1 -i ../patches/efibootmgr-chimera/build.patch 
 patch -Np1 -i ../patches/efibootmgr-chimera/ub.patch 
 
