@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # double-conversion 
-# Source: https://github.com/google/double-conversion/archive/v3.3.0/double-conversion-3.3.0.tar.gz
+# Source: https://github.com/google/double-conversion/archive/v3.3.1/double-conversion-3.3.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,9 +11,12 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+export PVER="3.3.1"
+
 cmake -B OUT -DCMAKE_INSTALL_PREFIX=/usr \
 	     -DBUILD_SHARED_LIBS=ON \
-	     -DBUILD_TESTING=ON
+	     -DBUILD_TESTING=ON \
+	     -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
 read -p "Compile?" && make -C OUT -j2 &&
 
@@ -38,5 +41,5 @@ double-conversion: https://github.com/google/double-conversion
 double-conversion:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/double-conversion-3.3.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/double-conversion-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
