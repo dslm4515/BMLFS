@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Smartmontools 
-# Source: https://downloads.sourceforge.net/smartmontools/smartmontools-7.4.tar.gz
+# Source: https://downloads.sourceforge.net/smartmontools/smartmontools-7.5.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -17,11 +17,13 @@ export CFLAGS+="-O3  -ffat-lto-objects -flto=4 "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
+export PVER="7.5"
+
 ./configure --prefix=/usr           \
             --sysconfdir=/etc       \
             --with-initscriptdir=no \
 	    --with-libsystemd=no \
-            --docdir=/usr/share/doc/smartmontools-7.4 \
+            --docdir=/usr/share/doc/smartmontools-$PVER \
             $BUILDTRUPLE  &&
 
 read -p "Compile? " && make -j2 &&
@@ -55,7 +57,7 @@ smartmontools:
 smartmontools:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/smartmontools-7.4-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/smartmontools-$PVER-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 smartmontools-docs: Manuals for smartmontools (hard drive monitoring utilities)
@@ -68,5 +70,5 @@ smartmontools-docs: failures.
 smartmontools-docs:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/smartmontools-doc-7.4-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/smartmontools-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
