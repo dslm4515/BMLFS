@@ -16,10 +16,10 @@ read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
 sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user pluggy --root=${BUILD}
 
 # Fix the versioning
-sudo mv $BUILD/usr/lib/python3.12/site-packages/pluggy-0.0.0.dist-info \
-        $BUILD/usr/lib/python3.12/site-packages/pluggy-1.5.0.dist-info	
-sudo vi $BUILD/usr/lib/python3.12/site-packages/pluggy-1.5.0.dist-info/RECORD
-sudo vi $BUILD/usr/lib/python3.12/site-packages/pluggy-1.5.0.dist-info/METADATA
+sudo mv $BUILD/usr/lib/python3.13/site-packages/pluggy-0.0.0.dist-info \
+        $BUILD/usr/lib/python3.13/site-packages/pluggy-1.5.0.dist-info	
+sudo vi $BUILD/usr/lib/python3.13/site-packages/pluggy-1.5.0.dist-info/RECORD
+sudo vi $BUILD/usr/lib/python3.13/site-packages/pluggy-1.5.0.dist-info/METADATA
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
