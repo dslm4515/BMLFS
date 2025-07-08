@@ -1,0 +1,59 @@
+#! /bin/bash
+
+# btrfs-progs 
+# Source: https://www.kernel.org/pub/linux/kernel/people/kdave/btrfs-progs/btrfs-progs-v6.15.tar.xz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     lzo
+# Recommended:  NONE
+# Optional:     LVM2 sphinx sphinx_rtd_theme reiserfsprogs
+
+# Per LFS, make sure the following options are set in the running kernel 
+# configuration and recompile the kernel if needed:
+# File systems --->
+#   <*/M> Btrfs filesystem support                                      [BTRFS_FS]
+#   [*]     Btrfs POSIX Access Control Lists                  [BTRFS_FS_POSIX_ACL]
+#   [ ]     Btrfs will run sanity tests upon loading   [BTRFS_FS_RUN_SANITY_TESTS]
+#   [ ]     Btrfs debugging support                                  [BTRFS_DEBUG]
+#   [ ]     Btrfs assert support                                    [BTRFS_ASSERT]
+#   [ ]     Btrfs with the ref verify tool compiled in       [BTRFS_FS_REF_VERIFY]
+#
+# * The options marked as empty should not be selected because they are for 
+#   developers and make some tests fail. 
+
+export PVER="6.15"
+
+./configure --prefix=/usr --disable-backtrace --disable-documentation
+
+read -p "Compile?" && make -j2 &&
+
+sudo -S make DESTDIR=$BUILD install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+           |-----handy-ruler------------------------------------------------------|
+btrfs-progs: btrfs-progs (Btrfs filesystem utilities)
+btrfs-progs:
+btrfs-progs: Btrfs is a new copy on write filesystem for Linux aimed at implementing
+btrfs-progs: advanced features while focusing on fault tolerance, repair and easy
+btrfs-progs: administration. Initially developed by Oracle, Btrfs is licensed under
+btrfs-progs: the GPL and open for contribution from anyone.
+btrfs-progs:
+btrfs-progs: Homepage: http://btrfs.wiki.kernel.org
+btrfs-progs:
+btrfs-progs:
+btrfs-progs:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/btrfs-progs-$PVER-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
