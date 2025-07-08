@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libassuan
-# Source: https://www.gnupg.org/ftp/gcrypt/libassuan/libassuan-2.5.7.tar.bz2
+# Source: https://www.gnupg.org/ftp/gcrypt/libassuan/libassuan-3.0.2.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,6 +10,8 @@
 # Required:     libgpg-error
 # Recommended:  NONE
 # Optional:     NONE
+
+export PVER="3.0.2"
 
 ./configure --prefix=/usr $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
@@ -42,7 +44,7 @@ libassuan:
 libassuan:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libassuan-2.5.7-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libassuan-$PVER-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libassuan-doc: Manuals for libassuan (Interprocess Communication Library for GPG)
@@ -51,5 +53,5 @@ libassuan-doc: The IPC library used by GnuPG 2.x, GPGME and a few others.
 libassuan-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libassuan-doc-2.5.7-$NOPSUFFIX
+sudo -S makepkg -l y -c n $PKGS/libassuan-doc-$PVER-$NOPSUFFIX
 sudo -S rm -rf ${BUILD}/* /BMAN/*
