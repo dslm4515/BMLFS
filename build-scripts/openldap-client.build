@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # OpenLDAP (client install)
-# Source: https://www.openldap.org/software/download/OpenLDAP/openldap-release/openldap-2.6.6.tgz
+# Source: https://www.openldap.org/software/download/OpenLDAP/openldap-release/openldap-2.6.10.tgz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,27 +11,22 @@
 # Recommended:  Cyrus-SASL
 # Optional:     GnuTLS, Pth, unixODBC, MariaDB or PostgreSQL or MySQL, OpenSLP, and Berkeley DB
 
-patch -Np1 -i ../patches/openldap-alpine/0001-Fix-build-issue-in-clients-tools-common.c.patch
-patch -Np1 -i ../patches/openldap-alpine/0002-Add-UNIX_LINK_LIBS-to-slapi-Makefile.patch 
-patch -Np1 -i ../patches/openldap-alpine/0003-Add-mqtt-overlay.patch 
-patch -Np1 -i ../patches/openldap-alpine/0004-Fix-manpages.patch
-patch -Np1 -i ../patches/openldap-alpine/0005-Correct-command-line-syntax-in-lloadd-tests.patch
-patch -Np1 -i ../patches/openldap-alpine/0007-Use-correct-extension-for-slapd-modules.patch
-patch -Np1 -i ../patches/openldap-alpine/0008-Remove-pidfile-and-argsfile.patch
-patch -Np1 -i ../patches/openldap-alpine/0009-Include-more-schemas-in-default-config.patch
+export PVER="2.6.10"
 
-autoconf -v &&
+# Set configure options
+export  CARGS="--sysconfdir=/etc "
+export CARGS+="--disable-static "
+export CARGS+="--enable-dynamic "
+export CARGS+="--disable-debug "
+export CARGS+="--disable-slapd "
+export CARGS+="--with-cyrus-sasl "
+export CARGS+="--disable-versioning "
+export CARGS+="--with-systemd=no "
+export CARGS+="--enable-crypt "
 
-./configure --prefix=/usr     \
-            --sysconfdir=/etc \
-            --disable-static  \
-            --enable-dynamic  \
-            --disable-debug   \
-            --disable-slapd   \
-            --with-cyrus-sasl \
-            --disable-versioning \
-	    --with-systemd=no \
-	    --enable-crypt $BUILDTRUPLE &&
+# Configure source
+./configure --prefix=/usr $CARGS
+
 make -j2 depend &&
 read -p "Compile?" && make -j2 &&
 
@@ -60,5 +55,5 @@ openldap-client: The OpenLDAP homepage is http://www.openldap.org/
 openldap-client:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/openldap-client-2.6.6-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/openldap-client-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
