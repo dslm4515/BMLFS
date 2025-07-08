@@ -12,30 +12,38 @@
 # Optional:     lmdb Linux-PAM  krb5(MIT Kerberos V5) MariaDB/MySQL OpenJDK OpenLDAP PostgreSQL 
 # Optional:     SQLite krb4 Dmalloc Pod::POM::View::Restructured  Sphinx 
 
-#patch -Np1 -i ../patches/cyrus-sasl-alpine/CVE-2019-19906.patch
-#patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-as_needed.patch
-#patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-autotools_fixes.patch
-#patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-avoid_pic_overwrite.patch
-#patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-doc_build_fix.patch
-#patch -Np1 -i ../patches/cyrus-sasl-alpine/cyrus-sasl-2.1.27-gss_c_nt_hostbased_service.patch
+export PVER="2.1.28"
+
+# Apply patch from Chimera Linux
 patch -Np1 -i ../patches/cyrus-sasl-chimera/cyrus-sasl-2.1.28-fix-configure-time-check.patch
 autoreconf -fvi &&
 
-./configure --prefix=/usr \
-            --sysconfdir=/etc \
-	    --enable-auth-sasldb \
-	    --with-dblib=lmdb \
-	    --disable-krb4 \
-	    --with-dbpath=/var/lib/sasl/sasldb2 \
-	    --with-saslauthd=/var/run/saslauthd \
-	    --with-sphinx-build=no \
-	    --enable-cram --enable-digest --enable-plain \
-	    --enable-anon --enable-login --enable-gssapi \
-	    --disable-otp --disable-srp --disable-srp-setpass \
-	    --with-devrandom=/dev/random \
-	    --with-configdir=/etc/sasl2:/etc/sasl:/usr/lib/sasl2 \
-	    $BUILDTRUPLE &&
+# set the configure options
+export  CARGS="--sysconfdir=/etc "
+export CARGS+="--enable-auth-sasldb "
+export CARGS+="--with-dblib=lmdb "
+export CARGS+="--disable-krb4 "
+export CARGS+="--with-dbpath=/var/lib/sasl/sasldb2 "
+export CARGS+="--with-saslauthd=/var/run/saslauthd "
+export CARGS+="--with-sphinx-build=no "
+export CARGS+="--enable-cram "
+export CARGS+="--enable-digest "
+export CARGS+="--enable-plain "
+export CARGS+="--enable-anon "
+export CARGS+="--enable-login "
+export CARGS+="--enable-gssapi "
+export CARGS+="--disable-otp "
+export CARGS+="--disable-srp "
+export CARGS+="--disable-srp-setpass "
+export CARGS+="--with-devrandom=/dev/random "
+export CARGS+="--with-configdir=/etc/sasl2:/etc/sasl:/usr/lib/sasl2 "
+
+# Configure source
+./configure --prefix=/usr $CARGS
+
 read -p "Compile?" && make -j1 &&
+
+unset CARGS
 
 sudo -S make DESTDIR=$BUILD install &&
 
@@ -62,5 +70,5 @@ cyrus-sasl:
 cyrus-sasl:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/cyrus-sasl-2.1.28-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/cyrus-sasl-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
