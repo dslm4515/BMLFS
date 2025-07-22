@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GPGME
-# Source: https://www.gnupg.org/ftp/gcrypt/gpgme/gpgme-1.23.2.tar.bz2
+# Source: https://www.gnupg.org/ftp/gcrypt/gpgme/gpgme-1.24.3.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -19,6 +19,11 @@
 #    -e 's/:3/:4/'                        \
 #    -e '23653 s/distutils"/setuptools"/' \
 #    -i configure && \
+
+# Apply patch from Chimera Linux
+patch -Np1 -i  ../patches/gpgme-chimera/lfs64.patch 
+
+export PVER="1.24.3"
 
 mkdir build && cd build &&
 ../configure --prefix=/usr --disable-gpg-test 
@@ -65,7 +70,7 @@ gpgme:
 gpgme:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gpgme-1.23.2-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/gpgme-$PVER-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 gpgme-doc: Manuals for  gpgme - GnuPG Made Easy
@@ -75,5 +80,5 @@ gpgme-doc: to a program.
 gpgme-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/gpgme-doc-1.23.2-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/gpgme-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
