@@ -1,14 +1,14 @@
 #! /bin/bash
 
 # PCI Utils
-# Source: https://mj.ucw.cz/download/linux/pci/pciutils-3.12.0.tar.gz
+# Source: https://mj.ucw.cz/download/linux/pci/pciutils-3.14.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     NONE
-# Recommended:  cURL, Wget or Lynx
+# Recommended:  hwdata, cURL, Wget or Lynx
 # Optional:     NONE
 
 # If optimizing with GCC
@@ -19,6 +19,13 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 # If compiling with clang-17, set these compiler flag
 export CFLAGS+="-Wno-implicit-function-declaration "
 export CFLAGS+="-Wno-int-conversion "
+
+export PVER="3.14.0"
+
+# Per BLFS, prevent the installation of the pci.ids 
+# file to avoid a conflict with the hwdata-0.397 package: 
+sed -r '/INSTALL/{/PCI_IDS|update-pciids /d; s/update-pciids.8//}' \
+	    -i Makefile
 
 read -p "Compile?" && 
 make OPT="$CFLAGS" ZLIB=no \
@@ -39,7 +46,7 @@ sudo -S mkdir -pv /BMAN/usr/share
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 unset CFLAGS
 
-# If hwdata was already installed, remove possibly outdated pci ID's
+# If hwdata was already installed, remove empty directory
 sudo rm -rf $BUILD/usr/share/hwdata
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
@@ -65,7 +72,7 @@ pciutils:
 pciutils: See the manual pages for more details.
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pciutils-3.12.0-${PSUFFIX} &&
+sudo -S makepkg -l y -c n $PKGS/pciutils-$PVER-${PSUFFIX} &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 pciutils-doc: Manuals for pciutils (PCI utilities)
@@ -80,6 +87,6 @@ pciutils-doc: pcimodules lists the kernel modules for all plugged in PCI devices
 pciutils-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pciutils-doc-3.12.0-${NOPSUFFIX}
+sudo -S makepkg -l y -c n $PKGS/pciutils-doc-$PVER-${NOPSUFFIX}
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
