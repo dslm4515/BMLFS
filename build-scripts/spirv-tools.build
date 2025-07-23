@@ -1,8 +1,8 @@
 #! /bin/bash
 
 # spirv-tools
-# Source: https://github.com/KhronosGroup/SPIRV-Tools/archive/vulkan-sdk-1.3.283.0/SPIRV-Tools-1.3.283.0.tar.gz
 # Source: https://github.com/KhronosGroup/spirv-tools 
+# Source: https://github.com/KhronosGroup/SPIRV-Tools/archive/vulkan-sdk-1.4.321.0/SPIRV-Tools-vulkan-sdk-1.4.321.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -12,18 +12,20 @@
 # Recommended:  NONE
 # Optional:     NONE
 
-mkdir build && cd build && \
-cmake -GNinja -DCMAKE_INSTALL_PREFIX=/usr \
+export PVER="1.4.321.0"
+
+cmake -B OUT -GNinja \
+      -DCMAKE_INSTALL_PREFIX=/usr \
       -DCMAKE_INSTALL_LIBDIR=lib \
       -DBUILD_SHARED_LIBS=True \
       -DCMAKE_BUILD_TYPE=MinSizeRel \
       -DSPIRV_WERROR=OFF \
       -DSPIRV_SKIP_TESTS=ON \
-      -DSPIRV-Headers_SOURCE_DIR=/usr ..
+      -DSPIRV-Headers_SOURCE_DIR=/usr
 
-read -p "Compile?" && ninja -j2 &&
+read -p "Compile?" && ninja -C OUT -j2 &&
 
-sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -44,5 +46,5 @@ spirv-tools: https://github.com/KhronosGroup/spirv-tools
 spirv-tools: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/spirv-tools-1.3.283.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/spirv-tools-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
