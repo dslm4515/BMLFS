@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Wayland-Protocols
-# Source: https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.36/downloads/wayland-protocols-1.36.tar.xz
+# Source: https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.45/downloads/wayland-protocols-1.45.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -17,11 +17,13 @@ export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-mkdir BUILD && cd BUILD && \
-meson --prefix=/usr .. && \
-read -p "Compile?" && ninja -j2 &&
+export PVER="1.45"
 
-sudo -S DESTDIR=$BUILD ninja install &&
+meson setup --prefix=/usr OUT && \
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -46,6 +48,6 @@ wayland-protocols:
 wayland-protocols:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wayland-protocols-1.36-$NOPSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/wayland-protocols-$PVER-$NOPSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
 
