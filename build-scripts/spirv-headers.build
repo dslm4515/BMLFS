@@ -2,7 +2,7 @@
 
 # SPIRV Headers 
 # Source: https://github.com/KhronosGroup/SPIRV-Headers
-# Source: https://github.com/KhronosGroup/SPIRV-Headers/archive/vulkan-sdk-1.3.283.0/SPIRV-Headers-1.3.283.0.tar.gz
+# Source: https://github.com/KhronosGroup/SPIRV-Headers/archive/vulkan-sdk-1.4.321.0/SPIRV-Headers-vulkan-sdk-1.4.321.0.tar.gz
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
@@ -10,6 +10,8 @@
 # Required:     CMake
 # Recommended:  NONE
 # Optional:     NONE
+
+export PVER="1.4.321.0"
 
 cmake -B OUT -DCMAKE_INSTALL_PREFIX=/usr \
       -DBUILD_SHARED_LIBS=True \
@@ -40,5 +42,5 @@ spirv-headers:
 spirv-headers: https://github.com/KhronosGroup/SPIRV-Headers
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/spirv-headers-1.3.283.0-$NOPSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/spirv-headers-$PVER-$NOPSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
