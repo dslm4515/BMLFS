@@ -1,35 +1,37 @@
 #! /bin/bash
 
 # SPIRV-LLVM Translator 
-# Source: https://github.com/KhronosGroup/SPIRV-LLVM-Translator/archive/refs/tags/v17.0.0.tar.gz
+# Source: https://github.com/KhronosGroup/SPIRV-LLVM-Translator/archive/v20.1.4/SPIRV-LLVM-Translator-20.1.4.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     LLVM-17, CMake, spirv-headers, spirv-tools 
+# Required:     LLVM-20.1.6, CMake, spirv-headers, spirv-tools 
 # Recommended:  NONE
 # Optional:     NONE
 
 # NOTE: For CMLFS, llvm-extra-tools, clang-analyzer is required.
 
-patch -Np1 -i ../patches/spirv-llvm-translator-chimera/renames.patch
+#patch -Np1 -i ../patches/spirv-llvm-translator-chimera/renames.patch
 
-mkdir -v build && \
-cd       build && \
+#mkdir -v build && \
+#cd       build && \
 
-cmake -DCMAKE_INSTALL_PREFIX=/usr \
+export PVER="20.1.4"
+
+cmake -B OUT -DCMAKE_INSTALL_PREFIX=/usr \
       -DCMAKE_SHARED_LIBS=ON \
       -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
       -DCMAKE_SKIP_RPATH=ON \
       -DLLVM_EXTERNAL_SPIRV_HEADERS_SOURCE_DIR=/usr/include/spirv \
       -DCMAKE_BUILD_TYPE=Release \
       -DLLVM_ENABLE_RTTI=ON \
-      -Wno-dev .. && \
+      -Wno-dev && \
 
-read -p "Compile?" && make -j2  && \
+read -p "Compile?" && make -C OUT -j2  && \
 
-sudo -S make DESTDIR=$BUILD  install &&
+sudo -S make DESTDIR=$BUILD -C OUT install &&
 #sudo -S mkdir -pv $BUILD/usr/bin && \
 #sudo -S cp -v tools/llvm-spirv/llvm-spirv $BUILD/usr/bin/ && \
 
@@ -52,5 +54,5 @@ spirv-llvm-translator: https://github.com/KhronosGroup/SPIRV-LLVM-Translator
 spirv-llvm-translator: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/spirv-llvm-translator-17.0.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/spirv-llvm-translator-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
