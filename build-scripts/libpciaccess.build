@@ -11,7 +11,15 @@
 # Recommended:  util-macros (required if building X11)
 # Optional:     NONE
 
-meson setup --prefix=$XORG_PREFIX --buildtype=release BUILD
+# If building X11 later
+export MOP=$XORG_PREFIX
+
+# If NOT building X11:
+export MOP="/usr"
+
+export PVER="0.18.1"
+
+meson setup --prefix=$MOP --buildtype=release BUILD
 
 ninja -C BUILD -j2
 
@@ -39,5 +47,5 @@ libpciaccess:
 libpciaccess:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libpciaccess-0.18.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libpciaccess-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
