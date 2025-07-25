@@ -7,17 +7,30 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     libXll, libXext, xorgproto
-# Recommended:  NONE
+# Required:     NONE
+# Recommended:  libXll, libXext, xorgproto
 # Optional:     NONE
 
-meson --prefix=/usr  -Dtls=false  -Dx11=enabled -Dglx=enabled -Degl=true OUT && \
+# If building with X11:
+export  MARGS="-Dx11=enabled "
+export MARGS+="-Dglx=enabled "
+
+# If building without X11
+export  MARGS="-Dx11=disabled "
+export MARGS+="-Dglx=disabled "
+
+# Enable GL's
+export MARGS+="-Degl=true -Dgles1=true -Dgles2=true "
+
+meson setup --prefix=/usr $MARGS -dheaders=true -Dtls=false OUT
+
 ninja -j2 -C OUT && \
+
 sudo DESTDIR=${BUILD} ninja -C OUT install && \
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 
-# To avoid conficts with Mesa:
+# To avoid conficts with Mesa ... no, just build libglvnd before mesa
 #sudo -S rm -v $BUILD/usr/lib/libEGL.{so,so.1,so.1.0.0} && \
 #sudo -S rm -v $BUILD/usr/lib/libGL.{so,so.1}           && \
 #sudo -S rm -v $BUILD/usr/lib/libGLESv1_CM.{so,so.1}    && \
