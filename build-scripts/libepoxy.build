@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # libepoxy
-# Source: https://ftp.acc.umu.se/pub/gnome/sources/libepoxy/1.5/libepoxy-1.5.10.tar.xz
+# Source: https://download.gnome.org/sources/libepoxy/1.5/libepoxy-1.5.10.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Mesa
+# Required:     Mesa or libglvnd
 # Recommended:  NONE
 # Optional:     Doxygen
 
@@ -18,8 +18,7 @@ export CFLAGS+="-ffat-lto-objects -flto=auto -fno-semantic-interposition "
 export CFLAGS+="-mprefer-vector-width=256 "
 export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
-mkdir build &&
-cd    build &&
+export PVER="1.5.10"
 
 # If GL is not missing from mesa set -Dglx=yes
 
@@ -29,15 +28,17 @@ export CXXFLAGS="-DEGL_NO_X11 -DMESA_EGL_NO_X11_HEADERS"
 # ... and apply patch:
 patch -Np1 -i ../patches/libepoxy-mlfs/fallback-to-libOpenGL-when-GLX-is-disabled.patch
 
-meson --prefix=/usr \
+meson setup --prefix=/usr \
       -Ddocs=false  \
       -Degl=yes     \
       -Dx11=false    \
       -Dtests=true  \
-      -Dglx=no .. &&
-read -p "Compile?" && ninja -j2 &&
+      -Dglx=no OUT &&
+read -p "Compile?" && ninja -C OUT -j2 &&
 
-sudo -S DESTDIR=$BUILD ninja install &&
+unset CFLAGS CXXFLAGS
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -62,5 +63,5 @@ libepoxy:
 libepoxy:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libepoxy-1.5.10-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/libepoxy-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
