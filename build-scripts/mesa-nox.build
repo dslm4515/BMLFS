@@ -1,89 +1,162 @@
 #! /bin/bash
 
 # Mesa without Xorg
-# Source: ftp://ftp.freedesktop.org/pub/mesa/mesa-21.3.3.tar.xz
+# Source: https://mesa.freedesktop.org/archive/mesa-25.1.6.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     LLVM, libdrm, Mako
-# Recommended:  Libva, libvdpau(for Xorg), wayland-protocols
-# Optional:     libgcrypt, lm-sensors, nettle, valgrind, libunwind, glslang (for vulkan layers)
+# Required:     LLVM, libdrm, Mako, PyYAML
+# Recommended:  Libva, libvdpau, wayland-protocols, glslang, libclc, 
+# Recommended:  libglvnd, vulkan-loader, ply, libepoxy 
+# Optional:     cbindgen, make-ca, rust-bindgen, libgcrypt, libunwind
+# Optional:     DirectX-Headers, lm-sensors, nettle, valgrind, libtizonia
 
-# Apply patches from Alpine Linux
-patch -Np1 -i ../patches/mesa-alpine-21.2.1/0001-radeonsi-On-Aarch64-force-persistent-buffers-to-GTT.patch
-patch -Np1 -i ../patches/mesa-alpine-21.2.1/add-use-elf-tls.patch
-patch -Np1 -i ../patches/mesa-alpine/disable-rgb10-by-default.patch # patch needs update
-patch -Np1 -i ../patches/mesa-alpine-21.2.1/musl-fix-includes.patch
+# As of version 22.x.x, Mesa's classic OpenGL drivers (non-Gallium3D) have been removed. These are the
+# old Radeon R100 and R200 drivers, the original Nouveau code, and the Intel i915 and i965 drivers.
+# More info at https://www.phoronix.com/scan.php?page=news_item&px=Mesa-Classic-Retired
+
+# NOTE - Feature Support
+# LLVM ................ llvmpipe, r300, r600, radeonsi drivers
+# libclc .............. Intel iris driver
+# glslang ............. Vulkan support
+# vulkan-loader ....... Vulkan support
+# ply ................. Intel Vulkan driver
+# cbindgen ............ Nouveau Vulkan driver
+# make-ca ............. Nouveau Vulkan driver
+# rust-bindgen ........ Nouveau Vulkan driver
+# libva ............... VA-API support for some gallium drivers.
+# wayland-protocols ... Required for Plasma & GNOME; recommended for GTK3
+# libvdpau ............ VDPAU drivers (X11 only)
+# libglvnd ............ Required for building mesa without Xorg libraries
+# libepoxy ............ Required for building mesa without Xorg libraries
+
+# NOTE: Mesa Driver Options (source: BLFS)
+# gallium-drivers
+# o r300 ........ ATI Radeon 9000 or Radeon X series
+# o r600 ........ AMD/ATI Radeon HD 2000-6000 series
+# o radeonsi .... AMD Radeon HD 7000 or newer AMD GPU models
+# o nouveau ..... Support NVIDA GPU's
+# o virgl ....... QEMU virtual GPU with virglrender support 
+# o svga ........ VMWare virtual GPU
+# o llvmpip ..... Use CPU for 3D rasterization
+# o softpipe .... Use CPU for 3D rasterization; Slower than llvmpipe; Use if LLVM not installed
+# o crocus ...... Intel GMA 3000, X3000 series, 4000 series, or X4000 series GPUs shipped with chipsets, 
+#                 or Intel HD GPUs shipped with pre-Broadwell CPUs
+# o iris ........ Intel GPUs shipped with Broadwell or newer CPUs, or as a dedicated PCIe card)
+# o i915 ........ Intel GMA 900, 950, 3100, or 3150 GPUs shipped with chipsets or Atom D/N 4xx/5xx CPUs
+# o zink ........ uses Vulkan to implement OpenGL, and while unstable at times, it can be a decent 
+#                 replacement for non-performant gallium drivers like nouveau
+# o asahi ....... Apple Silcon like M1 or M2
+# o d3d12 ....... D3D12 support; Used to get full OpenGL 3.3 support on GPU's that only support D3D12
+# o etnaviv .....
+# o freedreno ...
+# o lima ........ Mali Utgard (Mali-4xx) GPUs for ARM
+# o panfrost .... Mali Midgard/Bifrost GPUs for ARM
+# o tegra ....... Nvidia GPU's on ARM like TK1  
+# o vc4 ......... VideoCore IV found in Raspberry Pi's
+# o v3d .........
+# o auto ........ selects all Gallium3D drivers available for running hardware.
+#
+# vulkan-drivers
+# o amd ......... AMD Radeon HD 7730 or newer AMD GPUs 
+# o intel ....... Intel GPUs shipped with Skylake or newer CPUs, or as a dedicated PCIe card
+# o intel_hasvk.. Intel GPUs shipped with Ivy Bridge, Haswell, or Broadwell CPUs
+# o nouveau ..... GTX 16XX, RTX 20XX, or newer NVIDIA GPUs
+# o panfrost .... Mali Midgard/Bifrost GPUs for ARM
+# o swrast ...... use CPU for 3D rasterization
+# o nouveau ..... Nvidia GPU's
+# o asahi ....... Apple Silicon like M1 or M2 graphics
+# o broadcom freedreno virtio gfxstream imagination-experimental microsoft-experimental
+#
+# vulkan-layers
+# o device-select 
+# o intel-nullhw 
+# o overlay 
+# o screenshot 
+# o vram-report-limit
+
+
+# Per Alpine Linux, add missing symbols on x86 (32-bit) machines:
+patch -Np1 -i ../patches/mesa-25.1.6-alpine/symbols-check-register-frame-info-bases.patch
+
+# Per Alpine Linux, add the Rockchip EBC driver is used in the Pine64 PineNote.
+patch -Np1 -i ../patches/mesa-25.1.6-alpine/23575.patch
+
+# Per Alpine Linux, apply patch to fix assembler error when building on riscv
+patch -Np1 -i ../patches/mesa-25.1.6-alpine/riscv64-tls.patch 
 
 # If optimizing, use these flags
-# LTO is not recommended
+# LTO breaks build on only x86, per Alpine Linux
+# https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/21371
+# https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/21180
+# For other CPU arches, binaries are only ~5% smaller, per Alpine Linux
+# https://gitlab.freedesktop.org/mesa/mesa/-/issues/11846
 export  CFLAGS="-march=native -mtune=native "
 export CFLAGS+="-Ofast -falign-functions=32 -fno-lto "
 export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
 export CXXFLAGS=$CFLAGS
 unset LDFLAGS
 
+export PVER="25.1.6"
+
 export CFLAGS="$CFLAGS -D_XOPEN_SOURCE=700" &&
 case $(uname -m) in
 	i686|x86_64) export GLL_DRV="i915,nouveau,radeonsi,svga,swrast,r600,iris,crocus" 
-                     export DRI_DRIVERS="i965,nouveau" 
 		     export V_DRIVERS="amd,swrast,intel" ;;
 	     arm*)   export GLL_DRV="vc4,panfrost,nouveau,tegra,swrast"
-		     export DRI_DRIVEiRS="nouveau" 
-		     export V_DRIVERS="" ;;
+		     export V_DRIVERS="panfrost" ;;
 esac
 
 # Set configure flags
 export  BUILDOPT="-Dbuildtype=release "
 export BUILDOPT+="-Dllvm=enabled "
 export BUILDOPT+="-Dshared-llvm=enabled "
-export BUILDOPT+="-Dosmesa=true "
+#export BUILDOPT+="-Dosmesa=true " # Option deprecated 
 export BUILDOPT+="-Dtools= "
-export BUILDOPT+="-Dvalgrind=false "
+export BUILDOPT+="-Dvalgrind=disabled "
+export BUILDOPT+="-Dspirv-to-dxil=true  "
 
 export  GFXOPT="-Dglx=disabled "
 export GFXOPT+="-Dglx-read-only-text=true "
 export GFXOPT+="-Dxlib-lease=disabled "
-export GFXOPT+="-Ddri3=enabled "
 export GFXOPT+="-Dopengl=true "
 export GFXOPT+="-Degl=enabled "
 export GFXOPT+="-Dgles2=enabled "
 export GFXOPT+="-Dgles1=enabled "
-export GFXOPT+="-Dshared-glapi=enabled "
+#export GFXOPT+="-Dshared-glapi=enabled " # Option deprecated 
+
+# If libglvnd is installed
+export GFXOPT+="-Dglvnd=enabled "
 
 export  DRVROPT="-Dplatforms=wayland "
 export DRVROPT+="-Degl-native-platform=wayland "
 
-export  GALLIUMOPT="-Dgallium-va=disabled "
-export GALLIUMOPT+="-Dgallium-xa=false "
-export GALLIUMOPT+="-Dgallium-xvmc=false "
-export GALLIUMOPT+="-Dgallium-nine=false "
+export  GALLIUMOPT="-Dgallium-va=enabled "
+#export GALLIUMOPT+="-Dgallium-xa=enabled " # Option deprecated 
+#export GALLIUMOPT+="-Dgallium-nine=true " # Option deprecated
 export GALLIUMOPT+="-Dgallium-vdpau=disabled "
+#export GALLIUMOPT+="-Dgallium-opencl=standalone " # Option deprecated
+export GALLIUMOPT+="-Dgallium-d3d12-video=enabled  "
 
 # For intel graphics only (i.e. intergrated graphics on some laptops)
 # then only enable these drivers:
-export DRI_DRIVERS="i965"
-export GLL_DRV="i915,svga,swrast,iris,crocus"
-export V_DRIVERS="swrast,intel"
+export GLL_DRV="i915,llvmpipe,zink,iris,crocus"
+export V_DRIVERS="swrast,intel,intel_hasvk"
 
 # If glslang is installed, vulkan layers an be built
 export V_LAYERS="-Dvulkan-layers=device-select,overlay,intel-nullhw "
 
-export MESA_GIT_SHA1_OVERRIDE=53b2b224dc2de982c37915a0ad218e33365ff75e &&
-python3 bin/git_sha1_gen.py --output include/git_sha1.h &&
-
-meson --prefix=/usr \
+meson setup --prefix=/usr \
       -Dvulkan-drivers="${V_DRIVERS}" \
-      -Ddri-drivers="${DRI_DRIVERS}" \
       -Dgallium-drivers="${GLL_DRV}" \
       $BUILDOPT $GFXOPT $DRVROPT $GALLIUMOPT $V_LAYERS OUT  
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
 sudo -S DESTDIR=$BUILD ninja -C OUT install &&
-unset CFLAGS GLL_DRV DRI_DRIVERS MESA_GIT_SHA1_OVERRIDE V_DRIVERS &&
+unset CFLAGS GLL_DRV DRI_DRIVERS V_DRIVERS &&
 unset BUILDOPT GFXOPT DRVROPT GALLIUMOPT V_LAYERS
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
@@ -109,5 +182,5 @@ mesa:
 mesa: Tailored without Xorg Libraries
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/mesa-21.3.3_nox-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/mesa-${PVER}_nox-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
