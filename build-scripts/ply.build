@@ -1,19 +1,21 @@
 #! /bin/bash
 
 # Ply
-# Source: https://github.com/dabeaz/ply/archive/3.11.tar.gz
+# Source: https://files.pythonhosted.org/packages/source/p/ply/ply-3.11.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     parsing six 
+# Required:     NONE 
 # Recommended:  NONE
 # Optional:     NONE
 
-read -p "Compile?" && python3 setup.py build && \
+export PVER="3.11"
 
-sudo -S python3 setup.py install --skip-build --root=$BUILD --optimize=1  &&
+read -p "Build?" && pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+
+sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user ply --root=${BUILD}
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -33,5 +35,5 @@ ply: https://www.dabeaz.com/ply/
 ply:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/ply-3.11-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/ply-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
