@@ -1,15 +1,15 @@
 #! /bin/bash
 
-# wlroots 0.17.3
-# Source: https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/0.17.3/wlroots-0.17.3.tar.bz2
+# wlroots 0.19
+# Source: https://gitlab.freedesktop.org/wlroots/wlroots/-/archive/0.19.0/wlroots-0.19.0.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     wayland-protocols wayland mesa libinput libxcb libseat
-# Required:     libxkbcommon pixman xkeyboard-config  hwdata
-# Recommended:  xcb-util-renderutil  xcb-util-wm  xcb-util-image
+# Required:     libxkbcommon pixman  hwdata
+# Recommended:  xcb-util-renderutil  xcb-util-wm  xcb-util-image xkeyboard-config
 # Recommended:  libdisplay-info (drm-support) libliftoff (drm-support)
 # Optional:     xcb-errors xwayland 
 
@@ -21,10 +21,15 @@ export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-# For no-X11 support add to meson:
-# -Dx11-backend="disabled" -Dxwayland="disabled"
+export PVER="0.19.0"
 
-meson setup --prefix=/usr -Dexamples=false OUT
+# For no-X11 support add to meson:
+# -Dbackends=drm,libinput  -Dxwayland=disabled
+
+# Otherwise:
+# -Dbackends=drm,libinput,x11  -Dxwayland=enabled
+
+meson setup --prefix=/usr -Dexamples=false -Drenderers=gles2,vulkan -Dlibliftoff=enabled OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
@@ -52,5 +57,5 @@ wlroots:
 wlroots: Homepage: https://github.com/swaywm/wlroots
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wlroots-0.17.3-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/wlroots-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
