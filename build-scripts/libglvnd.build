@@ -37,6 +37,12 @@ cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 #sudo -S rm -v $BUILD/usr/lib/libGLESv2_CM.{so,so.2}    && \
 #sudo -S rm -v $BUILD/usr/lib/
 
+# If Xorg (specifically the Xorg Libraries) will not be installed,
+# create compatibility links for absent libGL libraries required
+# by FreeGLUT:
+sudo ln -sv libOpenGL.so.0.0.0 $BUILD/usr/lib/libGL.so
+sudo ln -sv libOpenGL.so.0.0.0 $BUILD/usr/lib/libGL.so.0
+
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
 # The "handy ruler" below makes it easier to edit a package description.  Line
