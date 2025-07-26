@@ -1,14 +1,14 @@
 #! /bin/bash
 
 # Git 
-# Source: https://www.kernel.org/pub/software/scm/git/git-2.45.1.tar.xz
+# Source: https://www.kernel.org/pub/software/scm/git/git-2.50.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     NONE
-# Recommended:  Git
+# Recommended:  curl
 # Optional:     pcre2 or pcre, subversion, tk, valgrind
 
 # If optimizing, use these flags with GCC
@@ -17,22 +17,23 @@ export CFLAGS+="-O3 -Ofast -falign-functions=32 -ffat-lto-objects -flto=auto "
 export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
 export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
-# NOTE: Git no longer compiles against libreSSL
+# NOTE: Git CAN compile against libreSSL
+
+export PVER="2.50.1"
 
 # Ascertain installed perl version
-export PVER=$(perl --version | grep version | cut -d 'v' -f 4 | cut -c 1-4)
+export PV=$(perl --version | grep version | cut -d 'v' -f 4 | cut -c 1-4)
 
 ./configure --prefix=/usr \
             --with-gitconfig=/etc/gitconfig \
             --with-libpcre2 \
-	    --with-python=python3 \
-	    --with-openssl=/opt/openssl $BUILDTRUPLE &&
+	    --with-python=python3 
 
 read -p "Compile? " && make -j2 && 
 
 read -p "Press Enter to install" &&
-sudo -S make DESTDIR=$BUILD perllibdir=/usr/lib/perl5/$PVER/site_perl install &&
-unset PVER
+sudo -S make DESTDIR=$BUILD perllibdir=/usr/lib/perl5/$PV/site_perl install &&
+unset PV
 
 cd $BUILD && sudo mkdir -v install &&
 cat > /tmp/slack-desc << "EOF"
@@ -57,6 +58,6 @@ git: maintained by Junio C. Hamano.
 git:
 EOF
 sudo mv /tmp/slack-desc install/ &&
-sudo makepkg -l y -c n $PKGS/git-2.45.1-$PSUFFIX &&
+sudo makepkg -l y -c n $PKGS/git-$PVER-$PSUFFIX &&
 sudo rm -rf $BUILD/*
 
