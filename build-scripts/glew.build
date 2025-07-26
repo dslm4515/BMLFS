@@ -22,15 +22,18 @@ sed -i -e '/glew.lib.static:/d' \
        -e '/0644 .*STATIC/d'    \
        -e 's/glew.lib.static//' Makefile     &&
 
+export PVER="2.2.0"
+
 # If building with Xorg Libraires:
 make SYSTEM=linux-egl -j2 &&
 sudo -S make DESTDIR=$BUILD install.all
 
 # If building without Xlib/Xorg:
 patch -Np1 -i ../patches/glew-mlfs/extend_glew_api_without_GLX.patch 
-sed -i 's/-lGL/-lOpenGl/' config/Makefile.linux-egl 
-make POPT="-DEGL_NO_X11 -DMESA_EGL_NO_X11_HEADERS -D__native_client__ -lOSMesa" SYSTEM=linux-osmesa -j2
-sudo -S make POPT="-DEGL_NO_X11 -DMESA_EGL_NO_X11_HEADERS -D__native_client__ -lOSMesa " DESTDIR=$BUILD SYSTEM=linux-osmesa install.all &&
+export NOX="-DEGL_NO_X11 -DMESA_EGL_NO_X11_HEADERS -D__native_client__ "
+make POPT=$NOX  SYSTEM=linux-egl -j2
+sudo -S make POPT=$NOX DESTDIR=$BUILD SYSTEM=linux-egl install.all &&
+unset NOX
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -55,5 +58,5 @@ glew:
 glew:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/glew-2.2.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/glew-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
