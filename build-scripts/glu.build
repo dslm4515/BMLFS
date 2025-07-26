@@ -7,11 +7,11 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     Mesa
+# Required:     Mesa or libglvnd
 # Recommended:  NONE
 # Optional:     NONE
 
-# NOTE: For no GL in mesa, add --enable-osmesa to configure
+# NOTE: For no GL in mesa, set gl_provider to glvnd
 
 # If optimizing, use these flags
 export  CFLAGS="-march=native -mtune=native -pipe "
