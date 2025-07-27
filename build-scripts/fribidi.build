@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # FriBidi
-# Source: https://github.com/fribidi/fribidi/releases/download/v1.0.14/fribidi-1.0.14.tar.xz
+# Source: https://github.com/fribidi/fribidi/releases/download/v1.0.16/fribidi-1.0.16.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -18,13 +18,12 @@ export CFLAGS+="-fstack-protector-strong -fzero-call-used-regs=used "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-mkdir build &&
-cd    build &&
+export PVER="1.0.16"
 
-meson --prefix=/usr .. &&
-read -p "Compile?" && ninja -j2 &&
+meson setup --prefix=/usr OUT &&
+read -p "Compile?" && ninja -C OUT -j2 &&
 
-sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 sudo -S mkdir -pv /BMAN/install
 sudo -S mkdir -pv /BMAN/usr
 sudo -S mv $BUILD/usr/share /BMAN/usr/
@@ -52,7 +51,7 @@ fribidi:
 fribidi:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/fribidi-1.0.14-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/fribidi-$PVER-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 fribidi-doc: Manuals for fribidi (Unicode BiDirectional algorithm library)
@@ -64,6 +63,6 @@ fribidi-doc: AbiWord and KDE's SVG module.
 fribidi-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/fribidi-doc-1.0.14-$NOPSUFFIX
+sudo -S makepkg -l y -c n $PKGS/fribidi-doc-$PVER-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
