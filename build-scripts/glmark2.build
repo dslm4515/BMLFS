@@ -2,7 +2,7 @@
 
 # glMark2 
 # Source: https://github.com/glmark2/glmark2 
-# Commit: 5f23d540342ba69e12afeb6a1ac4f6fd36747975
+# Commit: cebbb63edfba502905470c904f8e6f1c6ce28ba9
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -24,9 +24,9 @@ export TESTS="wayland-gl,wayland-glesv2,x11-gl,x11-glesv2"
 meson setup build -Dflavors=drm-gl,drm-glesv2,$TESTS --prefix=/usr
 
 # Generate missing header:
-wayland-scanner client-header \
-	/usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
-	src/xdg-shell-client-protocol.h
+#wayland-scanner client-header \
+#	/usr/share/wayland-protocols/stable/xdg-shell/xdg-shell.xml \
+#	src/xdg-shell-client-protocol.h
 
 read -p "Compile?" && ninja -j2 -C build &&
 
@@ -50,5 +50,5 @@ glmark2: https://github.com/glmark2/glmark2
 glmark2:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/glmark2-2023.11-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/glmark2-2025.2.21-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
