@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # lm_sensors 
-# Source:  https://github.com/lm-sensors/lm-sensors/archive/V3-6-0/lm-sensors-3-6-0.tar.gz
+# Source: https://github.com/hramrach/lm-sensors/archive/V3-6-2/lm-sensors-3-6-2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     NONE
+# Required:     which
 # Recommended:  NONE
 # Optional:     sysfsutils
 
@@ -16,12 +16,14 @@ export  CFLAGS="-march=native -mtune=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-sed -i -e 's:^# \(PROG_EXTRA\):\1:' Makefile && \
-sed -i -e 's/\$(LIBDIR)$/\$(LIBDIR) \$(LDFLAGS)/g' Makefile && \
-sed -i -e 's/\$(LIBSHSONAME) -o/$(LIBSHSONAME) \$(LDFLAGS) -o/g' \
-          lib/Module.mk && \
-sed -i -e 's/^LIBICONV.*/LIBICONV ?=/' prog/sensors/Module.mk && \
-export CFLAGS="$CFLAGS -fno-stack-protector" && \
+export PVER="3.6.2"
+
+#sed -i -e 's:^# \(PROG_EXTRA\):\1:' Makefile && \
+#sed -i -e 's/\$(LIBDIR)$/\$(LIBDIR) \$(LDFLAGS)/g' Makefile && \
+#sed -i -e 's/\$(LIBSHSONAME) -o/$(LIBSHSONAME) \$(LDFLAGS) -o/g' \
+#          lib/Module.mk && \
+#sed -i -e 's/^LIBICONV.*/LIBICONV ?=/' prog/sensors/Module.mk && \
+#export CFLAGS="$CFLAGS -fno-stack-protector" && \
 
 make PREFIX=/usr BUILD_STATIC_LIB=0 \
      MANDIR=/usr/share/man -j2 
@@ -59,7 +61,7 @@ lm_sensors:
 lm_sensors:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/lm_sensors-3.6.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/lm_sensors-$PVER-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 lm_sensors-doc: Manuals for lm_sensors (hardware monitoring package)
@@ -74,6 +76,6 @@ lm_sensors-doc:
 lm_sensors-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/lm_sensors-doc-3.6.0-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/lm_sensors-doc-$PVER-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
