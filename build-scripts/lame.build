@@ -20,7 +20,7 @@ sed -i -e '/define sp/s/+/ + /g' libmp3lame/i386/nasm.h
 aclocal && automake --force --add-missing
 
 # If using netBSD curses instead of Ncurses, use "-lterminfo" instead of "-ltinfo"
-LDFLAGS="-Wl,--as-needed -ltinfo " \
+LDFLAGS="-Wl,--as-needed -ltinfo -Wl,--as-needed -L/opt/gnu/lib -lncursesw " \
 # If building with LLVM-17's LLD, set the LDFLAGS
 # https://github.com/termux/termux-packages/issues/18761#issuecomment-1864098542
 LDFLAGS="$LDFLAGS -Wl,--undefined-version" \
