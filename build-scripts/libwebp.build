@@ -1,14 +1,14 @@
 #! /bin/bash
 
 # libwebp
-# Source: https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.4.0.tar.gz
+# Source: https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.6.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     NONE
-# Recommended:  libjpeg-turbo, libpng, LibTIFF, and SDL
+# Recommended:  libjpeg-turbo, libpng, LibTIFF, and SDL2
 # Optional:     Freeglut and giflib
 
 # If optimizing, use these flags with GCC
@@ -19,6 +19,8 @@ export CFLAGS+="-fno-semantic-interposition -fstack-protector-strong "
 export CFLAGS+="-fzero-call-used-regs=used -mprefer-vector-width=256 "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
+
+export PVER="1.6.0"
 
 #./autogen.sh &&
 ./configure --prefix=/usr           \
@@ -58,7 +60,7 @@ libwebp:
 libwebp:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libwebp-1.4.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libwebp-$PVER-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 libwebp-doc: Manuals for libwebp (WebP photo compression library)
@@ -70,6 +72,6 @@ libwebp-doc: https://developers.google.com/speed/webp/
 libwebp-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libwebp-doc-1.4.0-$NOPSUFFIX
+sudo -S makepkg -l y -c n $PKGS/libwebp-doc-$PVER-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
