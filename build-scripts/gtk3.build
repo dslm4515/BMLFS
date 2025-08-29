@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # GTK+ 3
-# Source: https://download.gnome.org/sources/gtk+/3.24/gtk+-3.24.42.tar.xz
+# Source: https://download.gnome.org/sources/gtk/3.24/gtk-3.24.50.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -12,7 +12,6 @@
 # Recommended:  sassc, wayland, wayland-protocols, gobject-introspection
 # Optional:     Colord, CUPS, DocBook Utils, GTK-Doc, JSON-Glib, PyAtSpi, rest, PAPI
 
-#patch -Np1 -i ../patches/gtk+3-alpine/10-Revert-gdkseatdefault-Grab-touch-events-where-applic.patch
 
 # if optimizing, use GCC:
 export  CFLAGS="-march=native -pipe "
@@ -20,12 +19,16 @@ export CFLAGS+="-O3 -Ofast -falign-functions=32 -ffat-lto-objects -flto=4 "
 export CFLAGS+="-fno-semantic-interposition -mprefer-vector-width=256 "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
+export PVER="3.24.50"
+
 # Autotools no longer used.
 # Use meson:
+# * If Xorg not installed, set x11_backend to false
 meson setup --prefix=/usr   \
       -Dman=true      \
       -Dgtk_doc=false \
-      -Dbroadway_backend=true OUT
+      -Dbroadway_backend=true \
+      -Dx11_backend=true OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
@@ -44,32 +47,32 @@ cat > /tmp/slack-desc << "EOF"
 # make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-     |-----handy-ruler------------------------------------------------------|
-gtk+3: GTK+ version 3 (multi-platform GUI toolkit)
-gtk+3:
-gtk+3: This is GTK+, a multi-platform toolkit for creating graphical user
-gtk+3: interfaces.  Offering a complete set of widgets, GTK+ is suitable for
-gtk+3: projects ranging from small one-off projects to complete application
-gtk+3: suites.
-gtk+3:
-gtk+3:
-gtk+3:
-gtk+3:
-gtk+3:
+    |-----handy-ruler------------------------------------------------------|
+gtk3: GTK+ version 3 (multi-platform GUI toolkit)
+gtk3:
+gtk3: This is GTK+, a multi-platform toolkit for creating graphical user
+gtk3: interfaces.  Offering a complete set of widgets, GTK+ is suitable for
+gtk3: projects ranging from small one-off projects to complete application
+gtk3: suites.
+gtk3:
+gtk3:
+gtk3:
+gtk3:
+gtk3:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gtk+3-3.24.42-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/gtk3-$PVER-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
-gtk+3-doc: Manuals for GTK+ version 3 (multi-platform GUI toolkit)
-gtk+3-doc:
-gtk+3-doc: This is GTK+, a multi-platform toolkit for creating graphical user 
-gtk+3-doc: interfaces.  Offering a complete set of widgets, GTK+ is suitable for
-gtk+3-doc: projects ranging from small one-off projects to complete application
-gtk+3-doc: suites.
-gtk+3-doc:
+gtk3-doc: Manuals for GTK+ version 3 (multi-platform GUI toolkit)
+gtk3-doc:
+gtk3-doc: This is GTK+, a multi-platform toolkit for creating graphical user 
+gtk3-doc: interfaces.  Offering a complete set of widgets, GTK+ is suitable for
+gtk3-doc: projects ranging from small one-off projects to complete application
+gtk3-doc: suites.
+gtk3-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gtk+3-doc-3.24.42-$NOPSUFFIX
+sudo -S makepkg -l y -c n $PKGS/gtk+3-$PVER--$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
