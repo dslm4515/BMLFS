@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libavif 
-# Source: https://github.com/AOMediaCodec/libavif/archive/v1.0.3/libavif-1.0.3.tar.gz 
+# Source: https://github.com/AOMediaCodec/libavif/archive/v1.1.1/libavif-1.1.1.tar.gz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -13,8 +13,9 @@
 
 cmake -B build -G Ninja -DCMAKE_INSTALL_PREFIX=/usr \
 	 -DCMAKE_BUILD_TYPE=Release \
-	 -DAVIF_CODEC_AOM=ON \
-	 -DAVIF_BUILD_GDK_PIXBUF=ON 
+	 -DAVIF_CODEC_AOM=SYSTEM \
+	 -DAVIF_BUILD_GDK_PIXBUF=ON \
+	 -DAVIF_LIBYUV=OFF
 
 read -p "Compile?" && cmake --build build --parallel 2 &&
 
@@ -39,5 +40,5 @@ libavif: https://github.com/AOMediaCodec/libavif
 libavif:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libavif-1.0.3-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libavif-1.1.1-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
