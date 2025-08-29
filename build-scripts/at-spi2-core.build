@@ -2,14 +2,14 @@
 
 # at-spi2-core
 
-# Source: https://download.gnome.org/sources/at-spi2-core/2.52/at-spi2-core-2.52.0.tar.xz
+# Source: https://download.gnome.org/sources/at-spi2-core/2.56/at-spi2-core-2.56.4.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     DBus, GLib, Xorg-libraries
-# Recommended:  libXtst(for X11
+# Required:     DBus, GLib
+# Recommended:  libXtst(for X11) Xorg-libraries
 # Optional:     gobject-introspection, GTK-Doc
 
 # if optimizing with GCC:
@@ -18,16 +18,15 @@ export CFLAGS+="-O3 -Os -fdata-sections -ffat-lto-objects "
 export CFLAGS+="-ffunction-sections -flto=4 -fno-semantic-interposition "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-mkdir build &&
-cd    build &&
+export PVER="2.56.4"
 
-meson --prefix=/usr     \
+meson setup --prefix=/usr     \
       --sysconfdir=/etc \
-      -Dsystemd_user_dir=/tmp .. &&
+      -Dsystemd_user_dir=/tmp OUT &&
       
-read -p "Compile?" && ninja -j2 &&
+read -p "Compile?" && ninja -C OUT -j2 &&
 
-sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -52,5 +51,5 @@ at-spi2-core:
 at-spi2-core:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && sudo rm -rf tmp &&
-sudo -S makepkg -l y -c n $PKGS/at-spi2-core-2.52.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/at-spi2-core-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
