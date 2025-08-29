@@ -38,7 +38,7 @@ sudo -S mkdir -pv /BMAN/usr/share
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
 sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/
 
-cd $BUILD &&
+cd $BUILD && mkdir -pv $BUILD/install
 cat > /tmp/slack-desc << "EOF"
 # HOW TO EDIT THIS FILE:
 # The "handy ruler" below makes it easier to edit a package description.  Line
