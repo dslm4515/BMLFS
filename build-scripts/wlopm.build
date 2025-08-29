@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # wlopm
-# Source: https://git.sr.ht/~leon_plickat/wlopm/archive/v0.1.0.tar.gz 
+# Source: https://git.sr.ht/~leon_plickat/wlopm/archive/v1.0.0.tar.gz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,8 +11,11 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+export PVER="1.0.0"
+
 read -p "Compile?" && make PREFIX=/usr  -j2 &&
 
+sudo mkdir -pv $BUILD/usr/share/bash-completion/completions
 sudo -S make DESTDIR=$BUILD PREFIX=/usr  install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
@@ -27,12 +30,12 @@ cat > /tmp/slack-desc << "EOF"
      |-----handy-ruler------------------------------------------------------|
 wlopm: wlopm
 wlopm:
-wlopm: Wayland output power management. This is a imple client implementing
-wlopm: zwlr-output-power-management-v1.
+wlopm: Wayland output power management. This is a simple client implementing
+wlopm: wlr-output-power-management-v1.
 wlopm:
 wlopm: https://git.sr.ht/~leon_plickat/wlopm
 wlopm:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wlopm-0.1.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/wlopm-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
