@@ -16,9 +16,15 @@ export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
+export PVER="5.2.2"
+
 patch -Np1 -i ../patches/giflib-chimera/only-man.patch 
 patch -Np1 -i ../patches/giflib-chimera/restore-deprecated-utility-functions.patch 
 patch -Np1 -i ../patches/giflib-chimera/tests.patch 
+patch -Np1 -i ../patches/giflib-lfs/giflib-5.2.2-security_fixes-1.patch
+
+# Per LFS, copy missing  file to avoid dependancy on ImageMagick
+cp -v pic/gifgrid.gif doc/giflib-logo.gif
 
 read -p "Compile?" && make PREFIX=/usr -j2 &&
 
@@ -50,7 +56,7 @@ giflib:
 giflib:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/giflib-5.2.2-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/giflib-$PVER-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 giflib-doc: Manuals for giflib (GIF image format library)
@@ -61,6 +67,6 @@ giflib-doc: in 1987, but is still widely used today (especially on web pages.)
 giflib-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/giflib-doc-5.2.1-noarch-mlfs.txz
+sudo -S makepkg -l y -c n $PKGS/giflib-doc-$PVER-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
