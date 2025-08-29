@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # LibSSH2 
-# Source: https://www.libssh2.org/download/libssh2-1.11.0.tar.gz
+# Source: https://www.libssh2.org/download/libssh2-1.11.1.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,6 +11,8 @@
 # Recommended:  NONE
 # Optional:     GnuPG, libgcrypt, and OpenSSH (all three required for the testsuite)
 # LTO:          Tested with LLVM
+
+export PVER="1.11.1"
 
 # Use Autotools as configuring with CMake causes compile errors:
 ./configure --prefix=/usr $BUILDTRUPLE \
@@ -49,7 +51,7 @@ libssh2:
 libssh2:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libssh2-1.11.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libssh2-$PVER-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libssh2-doc: Manuals for libssh2 (SSH2 library)
@@ -61,5 +63,5 @@ libssh2-doc: http://www.libssh2.org/
 libssh2-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libssh2-doc-1.11.0-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/libssh2-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
