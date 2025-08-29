@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Little CMS2
-# Source: https://github.com/mm2/Little-CMS/releases/download/lcms2.14/lcms2-2.14.tar.gz
+# Source: https://github.com/mm2/Little-CMS/releases/download/lcms2.17/lcms2-2.17.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -18,9 +18,7 @@ export CFLAGS+="-fno-math-errno -fno-semantic-interposition "
 export CFLAGS+="-fno-trapping-math -fstack-protector-strong -fzero-call-used-regs=used "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-# per BLFS, Apply the upstream fix for an issue breaking colord:
-sed '/BufferSize < TagSize/,+1 s/goto Error/TagSize = BufferSize/' \
-        -i src/cmsio0.c	
+export PVER="2.17"
 
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
@@ -53,7 +51,7 @@ lcms2:
 lcms2:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/lcms2-2.14-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/lcms2-$PVER-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 lcms2-doc: Manuals for lcms2 (little cms engine, version 2)
@@ -64,6 +62,6 @@ lcms2-doc: http://www.littlecms.com
 lcms2-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/lcms2-doc-2.14-$NOPSUFFIX
+sudo -S makepkg -l y -c n $PKGS/lcms2-doc-$PVER-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
