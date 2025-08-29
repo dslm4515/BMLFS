@@ -1,14 +1,14 @@
 #! /bin/bash
 
 # ALSA Library
-# Source: https://www.alsa-project.org/files/pub/lib/alsa-lib-1.2.11.tar.bz2
+# Source: https://www.alsa-project.org/files/pub/lib/alsa-lib-1.2.14.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     NONE
-# Recommended:  NONE
+# Recommended:  alsa-ucm-conf
 # Optional:     Doxygen, Python2
 
 # If optimizing, use these flags with GCC
@@ -23,6 +23,8 @@ export CFLAGS+="-fno-math-errno -fno-semantic-interposition -fno-trapping-math "
 patch -Np1 -i ../patches/alsa-lib-chimera/test-oldapi.patch 
 
 autoreconf -vfi
+
+export PVER="1.2.14"
 
 # If building with LLVM-17's LLD, set the LDFLAGS
 # https://github.com/termux/termux-packages/issues/18761#issuecomment-1864098542
@@ -58,5 +60,5 @@ alsa-lib:
 alsa-lib:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/alsa-lib-1.2.11-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/alsa-lib-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
