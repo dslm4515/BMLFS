@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # librsvg
-# Source: https://download.gnome.org/sources/librsvg/2.57/librsvg-2.57.0.tar.xz
+# Source:  https://download.gnome.org/sources/librsvg/2.61/librsvg-2.61.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     gdk-pixbuf  cairo, pango cargo rustc 
+# Required:     gdk-pixbuf  cairo, pango cargo-c 
 # Recommended:  gobject-introspection and Vala 
 # Optional:     GTK-Doc
 
@@ -17,15 +17,13 @@ export CFLAGS+="-O3 -ffat-lto-objects -flto=4 -fstack-protector-strong "
 export CFLAGS+="-fzero-call-used-regs=used "
 export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
-export RUSTFLAGS="$RUSTFLAGS -C debuginfo=2" &&
-./configure --prefix=/usr    \
-            --enable-vala    \
-            --disable-static \
-            --docdir=/usr/share/doc/librsvg-2.57.0 $BUILDTRUPLE &&
-read -p "Compile?" && make -j2 &&
+export PVER="2.61.0"
 
-sudo -S make DESTDIR=$BUILD install &&
-unset RUSTFLAGS &&
+meson setup --prefix=/usr --buildtype=release OUT 
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -50,5 +48,5 @@ librsvg:
 librsvg:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/librsvg-2.57.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/librsvg-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
