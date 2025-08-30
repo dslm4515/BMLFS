@@ -7,7 +7,7 @@
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     GLib itstool libxml2
+# Required:     GLib libxml2
 # Recommended:  xmlto
 # Optional:     NONE
 
