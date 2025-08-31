@@ -22,17 +22,32 @@ patch -Np1 -i ../patches/avahi-lfs/avahi-0.8-ipv6_race_condition_fix-1.patch &&
 
 cp -v ../files/avahi-adelie/build-db service-type-database/
 
+# Python 3.11+ no longer has the imp module. Use importlib.
+patch -Np1 -i ../patches/avahi-mlfs/use-importlib.patch 
+
+# Per LFS, fix a security vulnerability:
+sed -i '426a if (events & AVAHI_WATCH_HUP) { \
+client_free(c); \ 
+return; \
+}' avahi-daemon/simple-protocol.c
+
 ./configure --prefix=/usr        \
             --sysconfdir=/etc    \
             --localstatedir=/var \
             --disable-static     \
             --disable-mono       \
             --disable-monodoc    \
+	    --disable-gtk        \
+	    --enable-gtk3        \
             --disable-qt3        \
             --disable-qt4        \
-            --enable-core-docs   \
+	    --disable-oxygen-doc \
+            --disable-core-docs   \
             --with-distro=none   \
-            --with-systemdsystemunitdir=no
+	    --with-xml=expat \
+            --with-systemdsystemunitdir=no \
+	    --disable-autoipd \
+	    --with-dbus-system-address='unix:path=/run/dbus/system_bus_socket'
 
 read -p "Compile?" && make -j2 &&
 
@@ -63,6 +78,10 @@ avahi:
 avahi:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
+
+# Remove empty directory
+sudo -E rm -rf run
+
 sudo -S makepkg -l y -c n $PKGS/avahi-0.8-$(uname -m)-mlfs.txz && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"

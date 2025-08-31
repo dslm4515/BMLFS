@@ -1,0 +1,41 @@
+--- avahi-0.8.orig/py-compile	2020-02-18 00:58:21.192417644 -0600
++++ avahi-0.8/py-compile	2025-08-30 19:16:28.205682130 -0500
+@@ -116,7 +116,7 @@
+ fi
+ 
+ $PYTHON -c "
+-import sys, os, py_compile, imp
++import sys, os, py_compile, importlib
+ 
+ files = '''$files'''
+ 
+@@ -129,15 +129,15 @@
+ 	    continue
+     sys.stdout.write(file)
+     sys.stdout.flush()
+-    if hasattr(imp, 'get_tag'):
+-        py_compile.compile(filepath, imp.cache_from_source(filepath), path)
++    if hasattr(importlib, 'get_tag'):
++        py_compile.compile(filepath, importlib.cache_from_source(filepath), path)
+     else:
+         py_compile.compile(filepath, filepath + 'c', path)
+ sys.stdout.write('\n')" || exit $?
+ 
+ # this will fail for python < 1.5, but that doesn't matter ...
+ $PYTHON -O -c "
+-import sys, os, py_compile, imp
++import sys, os, py_compile, importlib
+ 
+ # pypy does not use .pyo optimization
+ if hasattr(sys, 'pypy_translation_info'):
+@@ -153,8 +153,8 @@
+ 	    continue
+     sys.stdout.write(file)
+     sys.stdout.flush()
+-    if hasattr(imp, 'get_tag'):
+-        py_compile.compile(filepath, imp.cache_from_source(filepath, False), path)
++    if hasattr(importlib, 'get_tag'):
++        py_compile.compile(filepath, importlib.cache_from_source(filepath, False), path)
+     else:
+         py_compile.compile(filepath, filepath + 'o', path)
+ sys.stdout.write('\n')" 2>/dev/null || :
