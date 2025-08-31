@@ -18,42 +18,47 @@ export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-O3 -falign-functions=32 -fno-lto "
 export CFLAGS+="-fno-math-errno -fno-semantic-interposition -fno-trapping-math "
 
-# If GTK3 has no X11 support, it must be disabled -Dgtk=disabled 
+export PVER="17.0"
 
-mkdir BUILD && cd BUILD &&
+# Set build options
+export  MARGS="--prefix=/usr "
+export MARGS+="-Dbuildtype=release "
+export MARGS+="-Dgcov=false "
+export MARGS+="-Dman=false "
+export MARGS+="-Dtests=true "
+export MARGS+="-Dsystem_user=pulse "
+export MARGS+="-Dsystem_group=pulse "
+export MARGS+="-Dalsa=enabled "
+export MARGS+="-Dbluez5=enabled "
+export MARGS+="-Ddbus=enabled "
+export MARGS+="-Dfftw=enabled "
+export MARGS+="-Dglib=enabled "
+export MARGS+="-Dgsettings=enabled "
+export MARGS+="-Dhal-compat=false "
+export MARGS+="-Dipv6=true "
+export MARGS+="-Dopenssl=enabled "
+export MARGS+="-Dorc=enabled "
+export MARGS+="-Dsamplerate=enabled "
+export MARGS+="-Dspeex=enabled "
+export MARGS+="-Dsystemd=disabled "
+export MARGS+="-Dudev=enabled "
+export MARGS+="-Dx11=enabled "
+export MARGS+="-Ddatabase=gdbm "
+export MARGS+="-Ddoxygen=false "
+export MARGS+="-Dudevrulesdir=/usr/lib/udev/rules.d "
+
 # If building with LLVM-17's LLD, set the LDFLAGS 
 # https://github.com/termux/termux-packages/issues/18761#issuecomment-1864098542
 LDFLAGS="-Wl,--undefined-version" \
 # If building with clang-17, add CFLAG
 CFLAGS="-Wno-incompatible-function-pointer-types " \
-meson --prefix=/usr \
-        -Dbuildtype=release \
-        -Dgcov=false \
-	-Dman=true \
-	-Dtests=true \
-	-Dsystem_user=pulse \
-	-Dsystem_group=pulse \
-	-Dalsa=enabled \
-	-Dbluez5=enabled \
-	-Ddbus=enabled \
-	-Dfftw=enabled \
-	-Dglib=enabled \
-	-Dgsettings=enabled \
-	-Dhal-compat=false \
-	-Dipv6=true \
-	-Dopenssl=enabled \
-	-Dorc=enabled \
-	-Dsamplerate=disabled \
-	-Dspeex=enabled \
-	-Dsystemd=disabled \
-	-Dudev=enabled \
-	-Dx11=enabled \
-	-Ddatabase=gdbm \
-	-Ddoxygen=false \
-	-Dudevrulesdir=/usr/lib/udev/rules.d .. &&
-read -p "Compile?" && ninja -j2 &&
+meson setup $MARGS OUT
 
-sudo -S DESTDIR=$BUILD ninja install &&
+unset MARGS
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 sudo -S mkdir -pv /BMAN/install
 sudo -S mkdir -pv /BMAN/usr/share
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/
