@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # BlueZ
-# Source: https://www.kernel.org/pub/linux/bluetooth/bluez-5.76.tar.xz
+# Source: https://www.kernel.org/pub/linux/bluetooth/bluez-5.83.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -15,6 +15,9 @@
 export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
 
+export PVER="5.83"
+
+# Apply Patches from Chimera Linux
 patch -Np1 -i ../patches/bluez-chimera/0001-enable-dbus-without-systemd.patch 
 patch -Np1 -i ../patches/bluez-chimera/0002-allow-obexd-on-non-systemd-system.patch 
 patch -Np1 -i ../patches/bluez-chimera/0003-allow-mesh-on-non-systemd-system.patch
@@ -30,6 +33,7 @@ patch -Np1 -i ../patches/bluez-chimera/004-Move-the-43xx-firmware-into-lib-firmw
 patch -Np1 -i ../patches/bluez-chimera/005-hostname-Use-phone-class-for-handhelds.patch
 patch -Np1 -i ../patches/bluez-chimera/fix-endianness.patch 
 patch -Np1 -i ../patches/bluez-chimera/test-mesh-crypto.patch 
+patch -Np1 -i ../patches/bluez-chimera/max_input.patch
 
 # If building with LLVM-17's LLD, set the LDFLAGS
 # https://github.com/termux/termux-packages/issues/18761#issuecomment-1864098542
@@ -92,7 +96,7 @@ bluez:
 bluez:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/bluez-5.76-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/bluez-$PVER-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 bluez-doc: Manuals for bluez (Bluetooth libraries and utilities)
@@ -104,6 +108,6 @@ bluez-doc: http://www.bluez.org
 bluez-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/bluez-doc-5.76-$NOPSUFFIX
+sudo -S makepkg -l y -c n $PKGS/bluez-doc-$PVER-$NOPSUFFIX
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
