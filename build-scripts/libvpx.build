@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libvpx
-# Source: https://github.com/webmproject/libvpx/archive/v1.14.1/libvpx-1.14.1.tar.gz
+# Source: https://github.com/webmproject/libvpx/archive/v1.15.2/libvpx-1.15.2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -17,6 +17,8 @@ export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-O3 -falign-functions=32 -ffat-lto-objects -flto=4 "
 export CFLAGS+="-fno-math-errno -fno-semantic-interposition -fno-trapping-math "
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
+
+export PVER="1.15.2"
 
 patch -Np1 -i ../patches/libvpx-chimera/link-with-cflags.patch 
 patch -Np1 -i ../patches/libvpx-chimera/remove-dumb-checks.patch 
@@ -63,5 +65,5 @@ libvpx:
 libvpx:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libvpx-1.14.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libvpx-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
