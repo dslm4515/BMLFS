@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Node.js
-# Source: https://nodejs.org/dist/v21.5.0/node-v21.5.0.tar.xz
+# Source: https://nodejs.org/dist/v24.6.0/node-v24.6.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -14,46 +14,61 @@
 # NOTE: Node.js does not compile with LibreSSL. Use the bundled openssl OR OpenSSL
 #       in /opt/openssl
 
-# NOTE: Fails to compile with clang. Must use GCC
+export PVER="24.6.0"
 
 # Apply patches from Chimera Linux
 patch -Np1 -i ../patches/nodejs-chimera/clang-ppc64.patch 
-patch -Np1 -i ../patches/nodejs-chimera/disable-running-gyp-on-shared-deps.patch
-patch -Np1 -i ../patches/nodejs-chimera/no-libatomic.patch
-patch -Np1 -i ../patches/nodejs-chimera/shared-uv.patch
+patch -Np1 -i ../patches/nodejs-chimera/google-sucks.patch 
+patch -Np1 -i ../patches/nodejs-chimera/hwy-no-rvv.patch 
+patch -Np1 -i ../patches/nodejs-chimera/loongarch.patch 
+patch -Np1 -i ../patches/nodejs-chimera/no-libatomic.patch 
+patch -Np1 -i ../patches/nodejs-chimera/ppc64-be.patch 
+patch -Np1 -i ../patches/nodejs-chimera/shared-uv.patch 
+patch -Np1 -i ../patches/nodejs-chimera/simdjson-no-ppc64.patch 
 
 case $(uname -m) in
       i686) export LDFLAGS="-Wl,--no-keep-memory"             ;;
 esac
 
-for d in brotli cares zlib
+# Remove, as system libraries will be used instead
+mv -v deps/openssl/nodejs-openssl.cnf ./
+for d in brotli cares zlib openssl 
 do
 	rm -rf deps/$d
 done
 rm -rf deps/v8/third_party/jinja2
 rm -rf tools/inspector_protocol/jinja2
+mkdir -pv deps/openssl
+mv -v nodejs-openssl.cnf deps/openssl/
+
 
 # If using OpenSSL in /opt/openssl, add these aguments to configure:
 export  EOSSL="--shared-openssl-includes /opt/openssl/include "
-export EOSSL+="--shared-openssl-libpath /optn/openssl/lib "
+export EOSSL+="--shared-openssl-libpath /opt/openssl/lib "
+
+# Set build options
+export  CARGS="--prefix=/usr --shared-zlib  "
+export CARGS+="--with-intl=system-icu "
+export CARGS+="--shared-libuv "
+export CARGS+="--shared-nghttp2 "
+export CARGS+="--shared-cares "
+export CARGS+="--shared-brotli "
+export CARGS+="--shared-openssl "
+export CARGS+="--openssl-use-def-ca-store "
+export CARGS+="--ninja "
 
 # If GCC is not in /usr, set the path (CMLFS)
 PATH=/opt/gnu/bin:$PATH CC=gcc CXX=g++ \
-./configure --prefix=/usr --shared-zlib \
-            --with-intl=system-icu     \
-            --shared-libuv \
-	    --shared-nghttp2 \
-	    --shared-cares \
-	    --shared-brotli $EOSSL &&
+./configure $CARGS $EOSSL
 
 # If GCC is not in /usr, set the path & library path (CMLFS)
-PATH=/opt/gnu/bin:$PATH  LD_LIBRARY_PATH=/opt/gnu/lib:/usr/lib \
-make BUILDTYPE=Release -j2
-
-#sudo -S -E make DESTDIR=$BUILD install &&
+# If OpenSSL is in /opt/openssl, add to LD_LIBRARY_PATH
+PATH=/opt/gnu/bin:$PATH  LD_LIBRARY_PATH=/opt/gnu/lib:/opt/openssl/lib:/usr/lib \
+make -j2
 
 # If GCC is not in /usr, set the path & library path (CMLFS)
-sudo -S -E PATH=/opt/gnu/bin:$PATH  LD_LIBRARY_PATH=/opt/gnu/lib:/usr/lib \
+# If OpenSSL is in /opt/openssl, add to LD_LIBRARY_PATH
+sudo -S -E PATH=/opt/gnu/bin:$PATH  LD_LIBRARY_PATH=/opt/gnu/lib:/opt/openssl/lib:/usr/lib \
 make DESTDIR=$BUILD install 
 
 sudo -S mkdir -pv /BMAN/install /BMAN/usr/share  && \
@@ -83,10 +98,14 @@ nodejs:
 nodejs:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-# If GCC is not in /usr, add runpaths via pathcelf
+
+# If GCC is not in /usr, add rpath  via patchelf
 sudo patchelf --add-rpath /opt/gnu/lib usr/bin/node
+
+# If OpenSSL is in /opt/openssl, add rpath via patchelf
+sudo patchelf --add-rpath /opt/openssl/lib usr/bin/node
 	
-sudo -S makepkg -l y -c n $PKGS/nodejs-21.5.0-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/nodejs-$PVER-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 nodejs-doc: Manuals for nodejs
@@ -98,5 +117,5 @@ nodejs-doc: https://nodejs.org/
 nodejs-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/nodejs-doc-21.5.0-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/nodejs-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* 
