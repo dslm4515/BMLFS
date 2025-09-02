@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# py-installer 
-# Source: https://files.pythonhosted.org/packages/05/18/ceeb4e3ab3aa54495775775b38ae42b10a92f42ce42dfa44da684289b8c8/installer-0.7.0.tar.gz
+# py3-installer 
+# Source: https://files.pythonhosted.org/packages/source/i/installer/installer-0.7.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -25,15 +25,15 @@ cat > /tmp/slack-desc << "EOF"
 # customary to leave one space after the ':' except on otherwise blank lines.
 
             |-----handy-ruler------------------------------------------------------|
-py-installer: py-installer
-py-installer:
-py-installer: A low-level library for installing a Python package from a wheel 
-py-installer: distribution. It provides basic functionality and abstractions for 
-py-installer: handling wheels and installing packages from wheels.
-py-installer:
-py-installer: https://pypi.org/project/installer/
-py-installer:
+py3-installer: installer (python module)
+py3-installer:
+py3-installer: A low-level library for installing a Python package from a wheel 
+py3-installer: distribution. It provides basic functionality and abstractions for 
+py3-installer: handling wheels and installing packages from wheels.
+py3-installer:
+py3-installer: https://pypi.org/project/installer/
+py3-installer:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/py-installer-0.7.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/py3-installer-0.7.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
