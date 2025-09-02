@@ -1,17 +1,22 @@
 #! /bin/bash
 
 # tomli 
-# Source: https://github.com/hukkin/tomli/archive/2.0.1/tomli-2.0.1.tar.gz 
+# Source: https://github.com/hukkin/tomli/archive/2.2.1/tomli-2.2.1.tar.gz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     installer
+# Required:     NONE
 # Recommended:  NONE
 # Optional:     NONE
 
-sudo python3 -m installer -d $BUILD ../files/tomli-pythonhosted/tomli-2.0.1-py3-none-any.whl
+export PVER="2.2.1"
+
+#sudo python3 -m installer -d $BUILD ../files/tomli-pythonhosted/tomli-2.2.1-py3-none-any.whl
+pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+
+sudo -E -S pip3 install --no-index --find-links dist --no-cache-dir --no-user tomli --root=${BUILD}
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -29,5 +34,5 @@ tomli: Lil' TOML parser for python
 tomli:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/tomli-2.0.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/tomli-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
