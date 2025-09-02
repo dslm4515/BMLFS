@@ -11,13 +11,20 @@
 # Recommended:  NONE
 # Optional:     Doxygen
 
+export PVER="1.4.0"
+
 patch -Np1 -i ../patches/gavl-alpine/musl-sched_h.patch &&
 cp -v ../files/config.guess-musl config.guess &&
 cp -v ../files/config.sub-musl config.sub     &&
+
+# Per LFS, fix an issue with gcc-14 and later: 
+sed -i "/stdio/a #include <string.h>" src/fill_test.c  
+
 LIBS=-lm                      \
 ./configure --prefix=/usr     \
             --without-doxygen \
-            --docdir=/usr/share/doc/gavl-1.4.0 $BUILDTRUPLE && 
+	    --with-cpuflags=none \
+            --docdir=/usr/share/doc/gavl-$PVER $BUILDTRUPLE && 
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
@@ -45,5 +52,5 @@ gavl:
 gavl:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gavl-1.4.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/gavl-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
