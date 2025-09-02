@@ -1,15 +1,17 @@
 #! /bin/bash
 
 # glad 
-# Source: https://github.com/Dav1dde/glad/archive/refs/tags/v2.0.5.tar.gz 
+# Source: https://github.com/Dav1dde/glad/archive/refs/tags/v2.0.8.tar.gz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     python3 jinja2 setuptools wheel gpep517
+# Required:     python3 jinja2 setuptools wheel gpep517 py3-installer
 # Recommended:  NONE
 # Optional:     NONE
+
+export PVER="2.0.8"
 
 gpep517 build-wheel --wheel-dir .dist --output-fd 3 3>&1 >&2
 
@@ -35,5 +37,5 @@ glad:
 glad:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/glad-2.0.5-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/glad-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
