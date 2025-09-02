@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # gpep517 
-# Source: https://github.com/projg2/gpep517/archive/refs/tags/v15.tar.gz
+# Source: https://github.com/projg2/gpep517/archive/refs/tags/v19.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,6 +10,8 @@
 # Required:     tomli
 # Recommended:  NONE
 # Optional:     NONE
+
+export PVER="19"
 
 patch -Np1 -i ../patches/gpep517-alpine/default-bytecode-levels.patch 
 
@@ -40,5 +42,5 @@ gpep517: https://github.com/mgorny/gpep517
 gpep517: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/gpep517-15-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/gpep517-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
