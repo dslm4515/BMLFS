@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # FFmpeg
-# Source: https://ffmpeg.org/releases/ffmpeg-7.0.1.tar.xz
+# Source: https://ffmpeg.org/releases/ffmpeg-7.1.1.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -19,13 +19,15 @@
 # OPtional:     vo-aaenc, vo-amrwbenc, and ZVBI
 
 # Apply patches from Chimera Linux
-patch -Np1 -i ../patches/ffmpeg-chimera/0001-ffbuild-libversion.sh-add-shebang.patch 
+patch -Np1 -i ../patches/ffmpeg-chimera/0002-avcodec-libsvtav1-unbreak-build-with-latest-svtav1.patch 
 patch -Np1 -i ../patches/ffmpeg-chimera/add-av_stream_get_first_dts-for-chromium.patch 
-patch -Np1 -i ../patches/ffmpeg-chimera/bigendian.patch
 patch -Np1 -i ../patches/ffmpeg-chimera/clang-ppc4xx.patch 
-#patch -Np1 -i ../patches/ffmpeg-chimera/riscv-asm.patch
-patch -Np1 -i ../patches/ffmpeg-chimera/v4l-ioctl.patch 
+patch -Np1 -i ../patches/ffmpeg-chimera/fp.patch
+patch -Np1 -i ../patches/ffmpeg-chimera/h264dsp-rvv.patch 
+patch -Np1 -i ../patches/ffmpeg-chimera/vapoursynth-script.patch 
 patch -Np1 -i ../patches/ffmpeg-chimera/vec-xl.patch 
+
+export PVER="7.1.1"
 
 case $(uname -m) in
      i686)    export ECONF="--disable-asm --enable-libaom --enable-pic" ;;
@@ -35,26 +37,26 @@ esac &&
 # If using LLVm instead of GCC, add these flags:
 export XARGS="--cc=clang --cxx=clang++ "
 
-./configure --prefix=/usr        \
-            --enable-gpl         \
-            --enable-version3    \
-            --enable-nonfree     \
-            --disable-static     \
-            --enable-shared      \
-            --disable-debug      \
-            --enable-libass      \
-            --enable-libfdk-aac  \
-            --enable-libfreetype \
-            --enable-libmp3lame  \
-            --enable-libopus     \
-            --enable-libtheora   \
-            --enable-libvorbis   \
-            --enable-libvpx      \
-            --enable-libx264     \
-            --enable-libx265     \
-            --docdir=/usr/share/doc/ffmpeg-7.0.1 $ECONF $XARGS  &&
+# Set build options
+export  CARGS="--prefix=/usr --docdir=/usr/share/doc/ffmpeg-$PVER " 
+export CARGS+="--enable-gpl --enable-version3 --enable-nonfree "
+export CARGS+="--disable-static --enable-shared --disable-debug "
+export CARGS+="--enable-postproc --enable-runtime-cpudetect "
+
+# Omit packages, if not installed:
+export CARGS+="--enable-libass --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame --enable-libopus "
+export CARGS+="--enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 "
+export CARGS+="--enable-libass --enable-libcdio --enable-libdrm --enable-libdvdnav --enable-libdvdread "
+export CARGS+="--enable-libjxl --enable-libmp3lame --enable-libopenjpeg --enable-libopus --enable-libplacebo "
+export CARGS+="--enable-libpulse --enable-librsvg --enable-libv4l2 --enable-libshaderc --enable-libxvid "
+export CARGS+="--enable-libwebp --enable-vulkan --enable-vaapi --enable-libxml2 --enable-libspeex "
+export CARGS+="--enable-libfribidi --enable-alsa --enable-libharfbuzz " 
+
+CFLAGS="-D_GNU_SOURCE " \
+./configure $CARGS $ECONF $XARGS
+
 read -p "Compile?" && make -j2 &&
-unset ECONF XARGS
+unset ECONF XARGS CARGS
 
 gcc tools/qt-faststart.c -o tools/qt-faststart &&
 
@@ -89,7 +91,7 @@ ffmpeg: ffmpeg home: http://ffmpeg.org/
 ffmpeg:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/ffmpeg-7.0.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/ffmpeg-$PVER-$PSUFFIX &&
 cd /BMAN
 cat > /tmp/slack-desc << "EOF"
 ffmpeg-doc: Manuals for ffmpeg
@@ -101,6 +103,6 @@ ffmpeg-doc: http://ffmpeg.org/
 ffmpeg-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/ffmpeg-doc-7.0.1-$NOPSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/ffmpeg-doc-$PVER-$NOPSUFFIX &&
 sudo -S rm -rf /BMAN/*
 sudo -S rm -rf ${BUILD}/*
