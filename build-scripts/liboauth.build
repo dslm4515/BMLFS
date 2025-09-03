@@ -11,8 +11,9 @@
 # Recommended:  NONE
 # Optional:     NSS, Doxygen
 
+export PVER="1.0.3"
 
-patch -Np1 -i ..patches/liboath-lfs/liboauth-1.0.3-openssl-1.1.0-3.patch
+patch -Np1 -i ../patches/liboath-lfs/liboauth-1.0.3-openssl-1.1.0-3.patch
 
 autoreconf -vif &&
 
@@ -44,5 +45,5 @@ liboauth: (Mozilla's Network Security Services), which are used for generating
 liboauth: the hash/signature, and optionally libcurl for issuing HTTP requests.
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/liboauth-1.0.3-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/liboauth-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
