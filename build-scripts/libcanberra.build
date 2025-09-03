@@ -2,6 +2,7 @@
 
 # libcanberra
 # Source: http://0pointer.de/lennart/projects/libcanberra/libcanberra-0.30.tar.xz
+# Source: https://dev.alpinelinux.org/archive/libcanberra/libcanberra-0.30.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
