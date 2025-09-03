@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libnotify
-# Source: https://download.gnome.org/sources/libnotify/0.8/libnotify-0.8.3.tar.xz
+# Source: https://download.gnome.org/sources/libnotify/0.8/libnotify-0.8.6.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -9,7 +9,8 @@
 # DEPS
 # Required:     GTK+3
 # Recommended:  NONE
-# Optional:     gobject-introspection, GTK-Doc, Xmlto, notification-daemon or  xfce4-notify
+# Optional:     gobject-introspection, GTK-Doc, Xmlto,
+# Runtime:      notification-daemon xfce4-notify
 
 # If optimizing with GCC
 export  CFLAGS="-march=native -pipe "
@@ -17,12 +18,13 @@ export CFLAGS+="-O3 -Os -fdata-sections -ffat-lto-objects "
 export CFLAGS+="-ffunction-sections -flto=auto -fno-semantic-interposition "
 export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
-mkdir build &&
-cd    build &&
-meson --prefix=/usr -Dgtk_doc=false -Dman=false .. &&
-read -p "Compile?" && ninja -j2 &&
+export PVER="0.8.6"
 
-sudo -S DESTDIR=$BUILD ninja install &&
+meson setup --prefix=/usr -Dgtk_doc=false -Dman=false OUT  &&
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -47,5 +49,5 @@ libnotify:
 libnotify:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libnotify-0.8.3-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libnotify-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
