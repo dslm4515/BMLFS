@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # neon
-# Source: https://notroj.github.io/neon/neon-0.33.0.tar.gz
+# Source: https://notroj.github.io/neon/neon-0.35.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,6 +10,8 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     GnuTLS, libxml2, MIT kerberos V5, libproxy, PaKChoiS
+
+export PVER="0.35.0"
 
 ./configure --prefix=/usr    \
             --with-ssl=gnutls       \
@@ -49,7 +51,7 @@ neon:
 neon:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/neon-0.33.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/neon-$PVER-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 neon-doc: Manuals for neon (HTTP and WebDAV client library)
@@ -59,5 +61,5 @@ neon-doc:
 neon-doc: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/neon-doc-0.33.0-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/neon-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
