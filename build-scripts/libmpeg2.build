@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libmpeg2
-# Source: https://libmpeg2.sourceforge.net/files/libmpeg2-0.5.1.tar.gz
+# Source: https://download.videolan.org/contrib/libmpeg2/libmpeg2-0.5.1.tar.gz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,6 +10,8 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     Xorg, SDL
+
+export PVER="0.5.1"
 
 sed -i 's/static const/static/' libmpeg2/idct_mmx.c &&
 cp -v ../files/config.sub-musl .auto/config.sub &&
@@ -47,7 +49,7 @@ libmpeg2:
 libmpeg2:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libmpeg2-0.5.1-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libmpeg2-$PVER-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 libmpeg2-doc: Manuals for libmpeg2 (mpeg-video decoding library)
@@ -58,5 +60,5 @@ libmpeg2-doc:  http://libmpeg2.sourceforge.net
 libmpeg2-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libmpeg2-doc-0.5.1-$NOPSUFFIX
+sudo -S makepkg -l y -c n $PKGS/libmpeg2-doc-$PVER-$NOPSUFFIX
 sudo -S rm -rf ${BUILD}/* /BMAN/*
