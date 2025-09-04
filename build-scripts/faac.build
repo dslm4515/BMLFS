@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # FAAC
-# Source: https://github.com/knik0/faac/archive/1_30/faac-1_30.tar.gz
+# Source: https://github.com/lfs-book/faac/archive/v1.31.1/faac-1.31.1.tar.gz  
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,6 +10,8 @@
 # Required:     NONE
 # Recommended:  NONE
 # Optional:     NONE
+
+export PVER="1.31.1"
 
 ./bootstrap                                &&
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
@@ -42,7 +44,7 @@ faac:
 faac:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/faac-1.30-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/faac-$PVER-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 faac-doc: Manuals for faac (Freeware Advanced Audio Coder)
