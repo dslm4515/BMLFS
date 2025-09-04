@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # ModemManager
-# Source: https://www.freedesktop.org/software/ModemManager/ModemManager-1.18.6.tar.xz
+# Source: https://gitlab.freedesktop.org/mobile-broadband/ModemManager/-/archive/1.24.2/ModemManager-1.24.2.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -11,18 +11,19 @@
 # Recommended:  elogind, gobject-intropsection,  libmbim, libqmi, Polkit, and Vala
 # Optional:     GTK-Doc
 
-./configure --prefix=/usr                 \
-            --sysconfdir=/etc             \
-            --localstatedir=/var          \
-            --disable-static              \
-            --with-systemd-journal=no     \
-            --with-systemd-suspend-resume \
-            --enable-vala=yes \
-	    --with-udev-base-dir=/usr/lib/udev \
-	    --enable-plugin-qcom-soc $BUILDTRUPLE && \
-read -p "Compile?" && make -j2 &&
+export PVER="1.24.2"
 
-sudo -S make DESTDIR=$BUILD install && \
+meson setup --prefix=/usr --buildtype=release \
+	-Dbash_completion=false -Dqrtr=false \
+	-Dsystemdsystemunitdir=no \
+	-Dsystemd_suspend_resume=false \
+	-Dsystemd_journal=false \
+	-Dintrospection=true -Dman=false \
+	-Dgtk_doc=false -Dmbim=false -Dqmi=false OUT
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install && \
 sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
 
@@ -49,7 +50,7 @@ ModemManager:
 ModemManager:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/ModemManager-1.18.6-$(uname -m)-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/ModemManager-$PVER-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 ModemManager-doc: Manuals for ModemManager
@@ -61,5 +62,5 @@ ModemManager-doc: https://www.freedesktop.org/wiki/Software/ModemManager
 ModemManager-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/ModemManager-doc-1.18.6-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/ModemManager-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
