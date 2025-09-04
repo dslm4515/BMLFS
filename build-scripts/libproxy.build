@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # libproxy
-# Source: https://github.com/libproxy/libproxy/archive/refs/tags/0.5.3.tar.gz
+# Source: https://github.com/libproxy/libproxy/archive/refs/tags/0.5.10.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,6 +10,8 @@
 # Required:     glib gobject-introspection vala duktape
 # Recommended:  NONE
 # Optional:     NONE
+
+export PVER="0.5.10"
 
 patch -Np1 -i ../patches/libproxy-chimera/tests.patch 
 
@@ -20,7 +22,7 @@ meson setup --prefix=/usr --buildtype=release \
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
-sudo -S DESTDIR=$BUILD ninja -C OUT  install &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -40,5 +42,5 @@ libproxy: https://github.com/libproxy/libproxy
 libproxy:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libproxy-0.5.3-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libproxy-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
