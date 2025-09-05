@@ -24,7 +24,6 @@ sed -i 's:"/desktop:"/org:' schema/*.xml &&
 mkdir gcr-build &&
 cd    gcr-build &&
 
-# If compiling with clang 17+, add this CFLAG
 CFLAGS="-D_GNU_SOURCE" \
 meson setup --prefix=/usr -Dgpg_path=/usr/bin/gpg2 -Dgtk_doc=false .. &&
 read -p "Compile?" && ninja -j2 &&
