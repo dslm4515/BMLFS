@@ -1,15 +1,17 @@
 #! /bin/bash
 
 # libadwaita 
-# Source: https://download.gnome.org/sources/libadwaita/1.4/libadwaita-1.4.3.tar.xz
+# Source: https://download.gnome.org/sources/libadwaita/1.7/libadwaita-1.7.6.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     gtk4 appstream
+# Required:     gtk4 appstream sassc
 # Recommended:  vala
-# Optional:     gi-docgen
+# Optional:     gi-docgen xdg-desktop-portal
+
+export PVER="1.7.6"
 
 meson setup --prefix=/usr --buildtype=release OUT
 
@@ -35,5 +37,5 @@ libadwaita:
 libadwaita:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/libadwaita-1.4.3-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/libadwaita-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
