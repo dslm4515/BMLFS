@@ -1,25 +1,27 @@
 #! /bin/bash
 
 # Enchant
-# Source: https://github.com/AbiWord/enchant/releases/download/v2.2.13/enchant-2.2.13.tar.gz
+# Source: https://github.com/AbiWord/enchant/releases/download/v2.8.12/enchant-2.8.12.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     NONE
+# Required:     aspell glib vala
 # Recommended:  NONE
-# Optional:     NONE
+# Optional:     dbus-glib doxygen hspell hunspell nuspell voikko unittest-cpp
+
+export PVER="2.8.12"
 
 ./configure --prefix=/usr --disable-static $BUILDTRUPLE &&
 read -p "Compile?" && make -j2 &&
 
 sudo -S make DESTDIR=$BUILD install &&
-sudo -S rm -rvf ${BUILD}/usr/include/enchant                    &&
-sudo -S ln -sfv enchant-2       ${BUILD}/usr/include/enchant   &&
-sudo -S ln -sfv enchant-2        ${BUILD}/usr/bin/enchant       &&
-sudo -S ln -sfv libenchant-2.so ${BUILD}/usr/lib/libenchant.so &&
-sudo -S ln -sfv enchant-2.pc    ${BUILD}/usr/lib/pkgconfig/enchant.pc &&
+#sudo -S rm -rvf ${BUILD}/usr/include/enchant                    &&
+#sudo -S ln -sfv enchant-2       ${BUILD}/usr/include/enchant   &&
+#sudo -S ln -sfv enchant-2        ${BUILD}/usr/bin/enchant       &&
+#sudo -S ln -sfv libenchant-2.so ${BUILD}/usr/lib/libenchant.so &&
+#sudo -S ln -sfv enchant-2.pc    ${BUILD}/usr/lib/pkgconfig/enchant.pc &&
 sudo -S mkdir -pv /BMAN/install  && \
 sudo -S mkdir -pv /BMAN/usr/share      && \
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
@@ -47,7 +49,7 @@ enchant: Homepage: https://abiword.github.io/enchant/
 enchant:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/enchant-2.2.13-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/enchant-$PVER-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 enchant-doc: Manuals for enchant (a wrapper for spellcheck libraries)
@@ -60,5 +62,5 @@ enchant-doc: https://abiword.github.io/enchant/
 enchant-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/enchant-doc-2.2.13-noarch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/enchant-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
