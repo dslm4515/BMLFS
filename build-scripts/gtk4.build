@@ -1,7 +1,7 @@
 #! /bin/bash
 
-# GTK+ 4
-# Source: https://download.gnome.org/sources/gtk/4.12/gtk-4.12.5.tar.xz
+# GTK 4
+# Source: https://download.gnome.org/sources/gtk/4.20/gtk-4.20.0.tar.xz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -23,24 +23,24 @@ export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export CXXFLAGS=$CFLAGS
 export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
-patch -Np1 -i ../patches/gtk4-chimera/tests-no-execinfo.patch 
-patch -Np1 -i ../patches/gtk4-chimera/ubsan.patch 
+export PVER="4.20.0"
 
-meson setup  --prefix=/usr \
-	-Dman-pages=false \
-	-Dbuild-tests=false \
-	-Dbroadway-backend=true \
-	-Dx11-backend=true \
-	-Dwayland-backend=true \
-	-Dintrospection=enabled \
-	-Dcolord=enabled \
-	-Dcloudproviders=disabled \
-	-Dvulkan=enabled \
-#	-Df16c=disabled \ # Chimera patch?
-#	-Dmedia-ffmpeg=enabled \ # fails to build
-	-Dbuild-demos=false -Dgtk_doc=false BUILD &&
+# Set build options:
+export  MARGS="--prefix=/usr -Dman-pages=false "
+export MARGS+="-Dbuild-tests=false -Dbuild-testsuite=false "
+export MARGS+="-Dx11-backend=false " # Set to false if Xorg is not installed
+export MARGS+="-Dwayland-backend=true "
+export MARGS+="-Dintrospection=enabled "
+export MARGS+="-Dcolord=enabled "
+export MARGS+="-Dcloudproviders=enabled "
+export MARGS+="-Dvulkan=enabled "
+export MARGS+="-Dmedia-gstreamer=enabled "
+export MARGS+="-Dbuild-demos=false "
+
+meson setup $MARGS BUILD
 
 ninja -C BUILD  -j2 && 
+
 sudo -S DESTDIR=${BUILD} ninja -C BUILD  install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
@@ -53,22 +53,19 @@ cat > /tmp/slack-desc << "EOF"
 # customary to leave one space after the ':' except on otherwise blank lines.
 
      |-----handy-ruler------------------------------------------------------|
-gtk+4: GTK+ version 4 (multi-platform GUI toolkit)
-gtk+4:
-gtk+4: This is GTK+, a multi-platform toolkit for creating graphical user
-gtk+4: interfaces.  Offering a complete set of widgets, GTK+ is suitable for
-gtk+4: projects ranging from small one-off projects to complete application
-gtk+4: suites.
-gtk+4:
-gtk+4: GTK+ 4 is the successor to GTK+ 3 and GTK+ 2
-gtk+4:
-gtk+4:
-gtk+4:
+gtk4: GTK version 4 (multi-platform GUI toolkit)
+gtk4:
+gtk4: This is GTK, a multi-platform toolkit for creating graphical user
+gtk4: interfaces.  Offering a complete set of widgets, GTK+ is suitable for
+gtk4: projects ranging from small one-off projects to complete application
+gtk4: suites.
+gtk4:
+gtk4: GTK 4 is the successor to GTK+ 3 and GTK+ 2
+gtk4:
+gtk4:
+gtk4:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
 
-# pkgconf wont find gtk4. Fix:
-sudo ln -sv gtk4.pc usr/lib/pkgconfig/gtk+-4.0.pc && 
-	
-sudo -S makepkg -l y -c n $PKGS/gtk+4-4.12.5-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/gtk4-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
