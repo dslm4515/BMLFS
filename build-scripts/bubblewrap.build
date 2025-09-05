@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Bubblewrap
-# Source: https://github.com/containers/bubblewrap/releases/download/v0.8.0/bubblewrap-0.8.0.tar.xz
+# Source: https://github.com/containers/bubblewrap/releases/download/v0.11.0/bubblewrap-0.11.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -16,6 +16,8 @@ export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
 export CXXFLAGS=$CFLAGS
 unset LDFLAGS
+
+export PVER="0.11.0"
 
 meson setup --prefix=/usr --buildtype=release OUT
 
@@ -49,7 +51,7 @@ bubblewrap:
 bubblewrap:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/bubblewrap-0.8.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/bubblewrap-$PVER-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 bubblewrap-doc: Manuals for (unprivileged sandboxing tool)
@@ -62,5 +64,5 @@ bubblewrap-doc: reduces the surface area for privilege escalation.
 bubblewrap-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/bubblewrap-doc-0.8.0-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/bubblewrap-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
