@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # aspell-en
-# Source: https://ftp.gnu.org/gnu/aspell/dict/en/aspell6-en-2019.10.06-0.tar.bz2
+# Source: https://ftp.gnu.org/gnu/aspell/dict/en/aspell6-en-2020.12.07-0.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -10,6 +10,8 @@
 # Required:     aspell
 # Recommended:  NONE
 # Optional:     NONE
+
+export PVER="2020.12.07.0"
 
 ./configure &&
 read -p "Compile?" && make -j2 &&
@@ -38,5 +40,5 @@ aspell-en:
 aspell-en:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/aspell-en-2019.10.06-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/aspell-en-$PVER-$NOPSUFFIX  &&
 sudo -S rm -rf ${BUILD}/*
