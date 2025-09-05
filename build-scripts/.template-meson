@@ -11,6 +11,8 @@
 # Recommended:  NONE
 # Optional:     NONE
 
+export PVER=""
+
 meson setup --prefix=/usr --buildtype=release OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
@@ -29,5 +31,5 @@ cat > /tmp/slack-desc << "EOF"
       |-----handy-ruler------------------------------------------------------|
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/package-version-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/package-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
