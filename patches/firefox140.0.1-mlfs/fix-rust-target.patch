@@ -1,0 +1,28 @@
+--- /src/firefox-140.0.1.orig/build/moz.configure/rust.configure	2025-09-03 16:05:43.921551331 -0500
++++ /src/firefox-140.0.1/build/moz.configure/rust.configure	2025-09-03 16:09:53.580409567 -0500
+@@ -279,7 +279,9 @@
+         data.setdefault(key, []).append(namespace(rust_target=t, target=info))
+     return data
+ 
+-
++@imports('os')
++@imports(_from='mozbuild.util', _import='ensure_unicode')
++@imports(_from='mozbuild.util', _import='system_encoding')
+ def detect_rustc_target(
+     host_or_target, compiler_info, arm_target, rust_supported_targets
+ ):
+@@ -419,12 +421,12 @@
+ 
+         return None
+ 
+-    rustc_target = find_candidate(candidates)
++    rustc_target = os.environ['RUST_TARGET']
+ 
+     if rustc_target is None:
+         die("Don't know how to translate {} for rustc".format(host_or_target.alias))
+ 
+-    return rustc_target
++    return ensure_unicode(rustc_target, system_encoding)
+ 
+ 
+ @imports("os")
