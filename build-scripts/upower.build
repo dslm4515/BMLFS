@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # UPower 
-# Source: https://gitlab.freedesktop.org/upower/upower/-/archive/v1.90.2/upower-v1.90.2.tar.bz2
+# Source: https://gitlab.freedesktop.org/upower/upower/-/archive/v1.90.9/upower-v1.90.9.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -17,8 +17,10 @@
 #            --enable-deprecated  \
 #            --disable-static $BT
 
+export PVER="1.90.9"
+
 # Per BLFS, remove an unneeded dependency from a test
-sed '/parse_version/d' -i src/linux/integration-test.py
+#sed '/parse_version/d' -i src/linux/integration-test.py
 
 meson setup --prefix=/usr --buildtype=release \
 	    -Dgtk-doc=false -Dman=false \
@@ -50,7 +52,7 @@ upower: to device events and querying history and statistics
 upoeer:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/upower-1.90.2-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/upower-$PVER-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 upower-doc: Manuals for UPower
@@ -60,5 +62,5 @@ upower-doc: and querying history and statistics
 upower-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/upower-doc-1.90.2-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/upower-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
