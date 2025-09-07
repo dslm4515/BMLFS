@@ -1,16 +1,17 @@
 #! /bin/bash
 
 # wf-shell
-# Source: https://github.com/WayfireWM/wf-shell 
-# Source: https://github.com/WayfireWM/wf-shell/releases/download/v0.8.0/wf-shell-0.8.0.tar.xz
+# Source: https://github.com/WayfireWM/wf-shell/releases/download/v0.10.0/wf-shell-0.10.0.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     gtkmm3, wayfire
+# Required:     gtkmm3 wayfire libdbusmenu
 # Recommended:  libnotify, pulseaudio, gobject-introspection, upower 
-# Optional:     gtk-layer-shell, wf-config
+# Optional:     gtk-layer-shell, wf-config gvc 
+
+export PVER="0.10.0"
 
 meson setup --prefix=/usr OUT && \
 ninja -C OUT -j2 && \
@@ -36,5 +37,5 @@ wf-shell: Source: https://github.com/WayfireWM/wf-shell
 wf-shell:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/wf-shell-0.8.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/wf-shell-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
