@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # yambar 
-# Source: https://codeberg.org/dnkl/yambar/archive/1.10.0.tar.gz 
+# Source: https://codeberg.org/dnkl/yambar/archive/1.11.0.tar.gz 
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -36,5 +36,5 @@ yambar: https://codeberg.org/dnkl/yambarrm
 yambar: 
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/yambar-1.10.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/yambar-1.11.0-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
