@@ -1,0 +1,44 @@
+#! /bin/bash
+
+# wdisplays 
+# Source:  https://github.com/artizirk/wdisplays/archive/refs/tags/1.1.3.tar.gz
+#
+# $BUILD = Directory to temporarily install
+# $PKGS  = Directory to store built packages
+#
+# DEPS
+# Required:     wayland glib gdk-pixbuf GTK3 libepoxy
+# Recommended:  NONE
+# Optional:     scour
+
+export PVER="1.1.3"
+
+meson setup --prefix=/usr --buildtype=release OUT
+
+read -p "Compile?" && ninja -C OUT -j2 &&
+
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
+
+cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
+cat > /tmp/slack-desc << "EOF"
+# HOW TO EDIT THIS FILE:
+# The "handy ruler" below makes it easier to edit a package description.  Line
+# up the first '|' above the ':' following the base package name, and the '|'
+# on the right side marks the last column you can put a character in.  You must
+# make exactly 11 lines for the formatting to be correct.  It's also
+# customary to leave one space after the ':' except on otherwise blank lines.
+
+         |-----handy-ruler------------------------------------------------------|
+wdisplays: wdisplays
+wdisplays:
+wdisplays: A graphical application for configuring displays in Wayland 
+wdisplays: compositors. It borrows some code from kanshi. It should work in any 
+wdisplays: compositor that implements the wlr-output-management-unstable-v1 
+wdisplays: protocol. 
+wdisplays:
+wdisplays: https://github.com/artizirk/wdisplays
+wdisplays:
+EOF
+sudo -S mv -v /tmp/slack-desc install/ &&
+sudo -S makepkg -l y -c n $PKGS/wdisplays-$PVER-$PSUFFIX &&
+sudo -S rm -rf ${BUILD}/*
