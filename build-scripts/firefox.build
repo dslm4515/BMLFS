@@ -14,13 +14,13 @@
 # Optional:     startup-notification libpoxy Wireless-Tools
 #
 
-# This version of Firefox can now be built without build system 
+# NOTE: This version of Firefox can now be built without build system 
 # expecting Xorg support.
 
 # TO DO:
-# [ ] Fix --libdir option to fix messy installed directory tree
 # [ ] Update build for other architechtures
-# [ ] Update build with choice of simple build or optimized build
+# [x] Update build with choice of simple build or optimized build -- compiles
+#     but produced binary segfaults
 
 export PVER="140.0.1"
 
@@ -49,10 +49,6 @@ patch -Np1 -i ../patches/firefox140.0.1-alpine/rust-lto-thin.patch
 patch -Np1 -i ../patches/firefox140.0.1-alpine/sandbox-sched_setscheduler.patch
 patch -Np1 -i ../patches/firefox140.0.1-alpine/sqlite-ppc.patch 
 patch -Np1 -i ../patches/firefox140.0.1-alpine/widevine.patch
-
-# May not be needed:
-#patch -Np1 -i ../patches/firefox140.0.1-mlfs/fix-rust-target.patch 
-
 
 # Set compiler & linker  flags
 export    CFLAGS="-fstack-clash-protection -g0 -O2 "
@@ -124,7 +120,7 @@ export CARGS+="--with-system-jpeg --with-system-libevent --with-system-libvpx "
 export CARGS+="--with-system-nspr --with-system-nss --with-system-png "
 export CARGS+="--with-system-webp --with-system-zlib "
 
-export CARGS+="--allow-addon-sideload --prefix=/usr --libdir=/usr/lib/firefox/lib " 
+export CARGS+="--allow-addon-sideload --prefix=/usr --libdir=/usr/lib " 
 export CARGS+="--with-libclang-path=/usr/lib --with-unsigned-addon-scopes=app,system "
 export CARGS+="--with-distribution-id=org.mlfs "
 
@@ -145,16 +141,17 @@ sudo -E DESTDIR=$BUILD ./mach install
 sudo install -m755 -dv $BUILD/usr/share/applications
 sudo install -m755 -dv $BUILD/usr/share/pixmaps
 
-# Fix directory tree. Most likely will need to adjust the --libdir option
-sudo mv -v $BUILD/usr/lib/firefox/lib/firefox/* $BUILD/usr/lib/firefox/
-sudo rm -rfv $BUILD/usr/lib/firefox/lib
+# Fix link
+sudo rm -v  $BUILD/usr/bin/firefox
 sudo ln -sv ../../usr/lib/firefox/firefox  $BUILD/usr/bin/firefox
 
+# Add vendor preferences, per ALine Linux
 sudo install -m755 -dv $BUILD/usr/lib/firefox/browser/defaults/preferences
 sudo cp -va ../files/firefox140.0.1-alpine/vendor-prefs.js  \
 	$BUILD/usr/lib/firefox/browser/defaults/preferences/
 
 # https://bugzilla.mozilla.org/show_bug.cgi?id=658850
+# Remove duplicate binary
 sudo rm -v $BUILD/usr/lib/firefox/firefox-bin 
 sudo ln -sv firefox $BUILD/usr/lib/firefox/firefox-bin
 
@@ -168,7 +165,7 @@ sudo install -m644 browser/branding/official/default48.png \
 	$BUILD/usr/share/pixmaps/firefox.png
 
 # Create desktop launch file
-cat > /tmp/firefox.desktop << EOF
+cat > /tmp/org.mozilla.firefox.desktop << EOF
 [Desktop Entry]
 Encoding=UTF-8
 Name=Firefox Web Browser
@@ -182,7 +179,7 @@ Categories=GNOME;GTK;Network;WebBrowser;
 MimeType=$MIMETYPE
 StartupNotify=true
 EOF
-sudo mv /tmp/firefox.desktop $BUILD/usr/share/applications/
+sudo mv /tmp/org.mozilla.firefox.desktop $BUILD/usr/share/applications/
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
