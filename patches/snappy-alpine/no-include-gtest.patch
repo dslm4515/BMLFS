@@ -1,0 +1,12 @@
+skips installing gtest
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c3062e2..75f1265 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -331,5 +331,5 @@
+ 
+   # This project is tested using GoogleTest.
+-  add_subdirectory("third_party/googletest")
++  add_subdirectory("third_party/googletest" EXCLUDE_FROM_ALL)
+ 
+   # GoogleTest triggers a missing field initializers warning.
