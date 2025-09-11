@@ -1,24 +1,25 @@
 #! /bin/bash
 
 # Pipewire
-# Source: https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/1.0.3/pipewire-1.0.3.tar.bz2
+# Source: https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/1.4.7/pipewire-1.4.7.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     BlueZ, FFmpeg, gstreamer, gst-plugins-base, libva, PulseAudio, 
-# Required:     docutils(python module) SBC, SDL2, v4l-utils wireplumber
-# Recommended:  NONE
+# Required:     BlueZ, gstreamer, gst-plugins-base, PulseAudio, 
+# Required:     dbus, SBC, v4l-utils wireplumber
+# Recommended:  ffmpeg alsa avahi fdk-aac libdrm libsndfile opus SDL2 
+# Recommended:  libusb vulkan-loader 
 # Optional:     Valgrind Doxygen and Graphviz (for documentation) JACK vulkan xmltoman libcanberra
+# Optional:     libxcb Xorg-liobraries apparmor
 
-# Download reuired subprojects
-meson subprojects download
+export PVER="1.4.7"
 
 # Configure source with meson
 meson setup  --prefix=/usr \
         -Ddocs=disabled \
-	-Dman=enabled \
+	-Dman=disabled \
 	-Dgstreamer=enabled \
 	-Dexamples=enabled \
 	-Dffmpeg=enabled \
@@ -57,7 +58,7 @@ pipewire:
 pipewire:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pipewire-1.0.3-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/pipewire-$PVER-$PSUFFIX &&
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 pipewire-doc: Manuals for pipewire (multimedia processing graphs)
@@ -67,5 +68,5 @@ pipewire-doc: but also for video.
 pipewire-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pipewire-doc-1.0.3-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/pipewire-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
