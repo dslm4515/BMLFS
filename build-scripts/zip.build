@@ -22,7 +22,9 @@ patch -Np1 -i ../patches/zip-alpine/40-fix-zipnote.patch
 export  CFLAGS="-march=native -mtune=native -pipe "
 export CFLAGS+="-fno-lto -fstack-protector-strong -fzero-call-used-regs=used "
 
-read -p "Compile?" && make -f unix/Makefile prefix=/usr generic -j2 &&
+# Per LFS, compile with -std=gnu89 since Zip is a “legacy” package where 
+# some grammar constructs are invalid in ISO 9899:1999 and newer standards
+read -p "Compile?" && make -f unix/Makefile prefix=/usr generic CC="gcc -std=gnu89" -j2 &&
 
 sudo -S make -f unix/Makefile prefix=${BUILD}/usr MANDIR=${BUILD}/usr/share/man/man1 install &&
 sudo -S mkdir -pv /BMAN/install
@@ -52,7 +54,7 @@ zip:
 zip:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/zip-3.0-$(uname -m)-mlfs.txz &&
+sudo -S makepkg -l y -c n $PKGS/zip-3.0-$PSUFFIX &&
 cd BMAN/
 cat > /tmp/slack-desc << "EOF"
 zip-doc: Manuals for Zip (Info-ZIP's zip utilities)
