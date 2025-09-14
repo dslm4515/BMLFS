@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # iwd
-# Source: https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-2.9.tar.xz
+# Source: https://mirrors.edge.kernel.org/pub/linux/network/wireless/iwd-3.9.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -34,12 +34,12 @@
 #        CONFIG_CRYPTO_DES3_EDE_X86_64
 #        CONFIG_CRYPTO_SHA256_SSSE3
 
+export PVER="3.9"
+
 # Apply fixed from Chimera Linux
-patch -Np1 -i ../patches/iwd-chimera/fix-name-request.patch 
-patch -Np1 -i ../patches/iwd-chimera/portability.patch 
 patch -Np1 -i ../patches/iwd-chimera/resolvconf-default.patch 
-patch -Np1 -i ../patches/iwd-chimera/support-traditional-dbus-activation.patch 
-patch -Np1 -i ../patches/iwd-chimera/use-network-instead-of-wheel.patch 
+patch -Np1 -i ../patches/iwd-chimera/fix-dbus-stuff.patch 
+patch -Np1 -i ../patches/iwd-chimera/fix-groups.patch
 
 # Update configure script
 autoreconf -fiv
@@ -49,6 +49,7 @@ autoreconf -fiv
 CFLAGS="-Wno-implicit-function-declaration -Wno-int-conversion " \
 ./configure --prefix=/usr \
             --disable-systemd-service \
+	    --disable-optimization \
 	    --enable-pie \
 	    --enable-external-ell \
 	    --enable-dbus-policy \
@@ -102,7 +103,7 @@ EnableIPv6=true
 EOF
 sudo -S mv /tmp/main.conf etc/iwd/ && \
 read -p "Enter to build and install package" &&
-sudo -S makepkg -l y -c n $PKGS/iwd-2.9-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/iwd-$PVER-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 iwd-doc: Manuals for iwd (iNet Wireless Daemon)
@@ -113,5 +114,5 @@ iwd-doc: https://git.kernel.org/pub/scm/network/wireless/iwd.git
 iwd-doc:
 EOF
 sudo -S mv /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/iwd-doc-2.9-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/iwd-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf $BUILD/* /BMAN/*                                    
