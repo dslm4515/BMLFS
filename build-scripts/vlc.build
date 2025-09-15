@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # VLC 
-# Source: https://download.videolan.org/vlc/3.0.20/vlc-3.0.20.tar.xz
+# Source: https://download.videolan.org/vlc/3.0.22/vlc-3.0.22.tar.xz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -17,24 +17,41 @@
 # NOTE: Fails to build with clang-17. Use GCC.
 # NOTE: Stripping libraries of debug symbols causes vlc not to load
 
+export PVER="3.0.22"
+
+# Apply patches from Alpine Linux
+patch -Np1 -i ../patches/vlc-alpine/big-endian.patch
 patch -Np1 -i ../patches/vlc-alpine/check-headless.patch 
-patch -Np1 -i ../patches/vlc-alpine/disable-sub-autodetect-fuzzy-1-test.patch
+patch -Np1 -i ../patches/vlc-alpine/disable-sub-autodetect-fuzzy-1-test.patch 
 patch -Np1 -i ../patches/vlc-alpine/fribidi_allow_deprecated.patch 
-patch -Np1 -i ../patches/vlc-alpine/libplacebo-5.patch
-patch -Np1 -i ../patches/vlc-alpine/omxil-rpi-codecs.patch
+patch -Np1 -i ../patches/vlc-alpine/libplacebo-5.patch 
+patch -Np1 -i ../patches/vlc-alpine/musl-ioctl.patch 
+
+# Set build options
+export  CARGS="--disable-nls --enable-a52 --enable-avcodec --enable-avformat "
+export CARGS+="--enable-libcddb --enable-dbus --disable-lua --enable-dvdnav "
+export CARGS+="--enable-dvdread --enable-faad --enable-flac --enable-gnutls "
+export CARGS+="--disable-libplacebo --enable-merge-ffmpeg --enable-libva "
+export CARGS+="--enable-ncurses --enable-speex --enable-theora --enable-v4l2 "
+export CARGS+="--enable-vorbis --enable-x264 --enable-xvideo  "
+#export CARGS+="--enable-libplacebo " # Verison 7.x not supported, only 6.x
+
+# If Xorg is not installed
+export CARGS+="--disable-xcb "
 
 NOCONFIGURE=1 ./bootstrap &&
 
-CFLAGS=" -fcommon -D_GNU_SOURCE" CXXFLAGS="-fcommon" \
 BUILDCC="gcc -std=c99" \
-./configure --prefix=/usr    \
-            --enable-x264 \
-            --enable-merge-ffmpeg \
-	    --disable-v4l2 --disable-libplacebo # incompatible atm
-            $BUILDTRUPLE &&
+CFLAGS=" -fcommon " CXXFLAGS=$CFLAGS \
+./configure --prefix=/usr $CARGS $BUILDTRUPLE && \
+
+# Build requires a missing file. Create an empty file
+# for build to proceed
+touch src/revision.txt
+
 read -p "Compile?" && make -j2 &&
 
-sudo -S make DESTDIR=$BUILD  docdir=/usr/share/doc/vlc-3.0.20 install &&
+sudo -S make DESTDIR=$BUILD  docdir=/usr/share/doc/vlc-$PVER install &&
 sudo -S mkdir -pv /BMAN/install /BMAN/usr/share && \
 sudo -S mv $BUILD/usr/share/doc /BMAN/usr/share/  && \
 sudo -S mv $BUILD/usr/share/man /BMAN/usr/share/ && \
@@ -62,7 +79,7 @@ vlc: homepage: http://www.videolan.org/vlc/
 vlc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/vlc-3.0.20-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/vlc-$PVER-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 vlc-doc: Manuals for vlc (VLC media player)
@@ -74,5 +91,5 @@ vlc-doc: http://www.videolan.org/vlc/
 vlc-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && \
-sudo -S makepkg -l y -c n $PKGS/vlc-doc-3.0.20-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/vlc-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
