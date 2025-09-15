@@ -46,14 +46,7 @@ export CMO+="-DQT_FEATURE_opengles2=ON "
 export CMO+="-DQT_FEATURE_opengles3=ON "
 export CMO+="-DQT_FEATURE_opengles31=ON "
 export CMO+="-DQT_FEATURE_opengles32=ON "
-
-# Cannot use system-installed sqlite3.
-# The libqsqlite.so plugin has an undefined
-# reference to:
-# sqlite3_column_table_name16
-# Which is not found in
-# /usr/lib/libsqlite3.so
-export CMO+="-DQT_FEATURE_system_sqlite=OFF "
+export CMO+="-DQT_FEATURE_system_sqlite=ON "
 
 # If Xorg is not installed, turn off these
 export CMO+="-DQT_FEATURE_xcb=ON "
