@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# pangomm
+# pangomm (1.4 API)
 # Source: https://download.gnome.org/sources/pangomm/2.46/pangomm-2.46.4.tar.xz
 #
 # $BUILD = Directory to temporarily install
@@ -31,19 +31,19 @@ cat > /tmp/slack-desc << "EOF"
 # make exactly 11 lines for the formatting to be correct.  It's also
 # customary to leave one space after the ':' except on otherwise blank lines.
 
-       |-----handy-ruler------------------------------------------------------|
-pangomm: pangomm (C++ bindings for pango)
-pangomm:
-pangomm: pangomm provides a C++ interface to the Pango library.
-pangomm: Highlights include type safe callbacks, widgets extensible via
-pangomm: inheritance and a comprehensive set of widget classes that can be
-pangomm: freely combined to quickly create complex user interfaces.
-pangomm:
-pangomm: Provides pangomm-1.4
-pangomm:
-pangomm: pangomm home: http://www.gtkmm.org/
-pangomm:
+         |-----handy-ruler------------------------------------------------------|
+pangomm14: pangomm (C++ bindings for pango; 1.4 API)
+pangomm14:
+pangomm14: pangomm provides a C++ interface to the Pango library.
+pangomm14: Highlights include type safe callbacks, widgets extensible via
+pangomm14: inheritance and a comprehensive set of widget classes that can be
+pangomm14: freely combined to quickly create complex user interfaces.
+pangomm14:
+pangomm14: Provides pangomm-1.4
+pangomm14:
+pangomm14: pangomm home: http://www.gtkmm.org/
+pangomm14:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/pangomm-2.46.4-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/pangomm14-2.46.4-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
