@@ -34,7 +34,7 @@ cat > /tmp/slack-desc << "EOF"
 # customary to leave one space after the ':' except on otherwise blank lines.
 
        |-----handy-ruler------------------------------------------------------|
-pangomm: pangomm (C++ bindings for pango)
+pangomm: pangomm (C++ bindings for pango; 2.48 API)
 pangomm:
 pangomm: pangomm provides a C++ interface to the Pango library.
 pangomm: Highlights include type safe callbacks, widgets extensible via
