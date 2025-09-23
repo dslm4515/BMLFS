@@ -1,19 +1,21 @@
 #! /bin/bash
 
 # Audacious
-# Source: https://distfiles.audacious-media-player.org/audacious-4.4.tar.bz2
+# Source: https://distfiles.audacious-media-player.org/audacious-4.5.1.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     GTK+3 or Qt6
+# Required:     GTK+3 or Qt6 or Qt5
 # Recommended:  libarchive dbus mpg123 ffmpeg neon 
 # Optional:     valgrind 
 #
 # NOTE: Required audacious-plugins
 
 # No longer building GTK+2
+
+export PVER="4.5.1"
 
 meson setup --prefix=/usr  --buildtype=release \
 	-D gtk=true -D buildstamp=BMLFS -D libarchive=true OUT
@@ -47,7 +49,7 @@ audacious: The webpage for Audacious is: http://www.audacious-media-player.org.
 audacious:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/audacious-4.4-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/audacious-$PVER-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 audacious-doc: Manuals for audacious (A relatively powerful media player)
@@ -59,5 +61,5 @@ audacious-doc: http://www.audacious-media-player.org
 audacious-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ && 
-sudo -S makepkg -l y -c n $PKGS/audacious-doc-4.4-norch-mlfs.txz && \
+sudo -S makepkg -l y -c n $PKGS/audacious-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*

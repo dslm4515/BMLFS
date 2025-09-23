@@ -1,13 +1,13 @@
 #! /bin/bash
 
 # audacious-plugins 
-# Source: https://distfiles.audacious-media-player.org/audacious-plugins-4.4.tar.bz2
+# Source: https://distfiles.audacious-media-player.org/audacious-plugins-4.5.1.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     audacious neon
+# Required:     audacious gtk3 qt6 or qt5
 # Recommended:  mpg123 
 # Optional:     wavpack, cURL, FAAD2, FFmpeg, FLAC, LAME, libcdio, libnotify,
 # Optional:     libsamplerate, libsndfile, libvorbis, Pulseaudio, SDL,  
@@ -17,7 +17,10 @@
 
 # No longer building GTK+2
 
-meson setup --prefix=/usr --buildtype=release -D gtk=true  OUT
+export PVER="4.5.1"
+
+# OpenGL Spectrum Analyzer doesnt compile against Qt6 -- Mising OpenGLFunctions_2_0 header
+meson setup --prefix=/usr --buildtype=release -D gtk=true -D gl-spectrum=false  OUT
 
 read -p "Compile?" && ninja -C OUT -j2 &&
 
@@ -46,5 +49,5 @@ audacious-plugins:
 audacious-plugins:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/audacious-plugins-4.4-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/audacious-plugins-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
