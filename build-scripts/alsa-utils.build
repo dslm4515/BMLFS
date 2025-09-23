@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # ALSA Utilities 
-# Source: https://www.alsa-project.org/files/pub/utils/alsa-utils-1.2.6.tar.bz2
+# Source: https://www.alsa-project.org/files/pub/utils/alsa-utils-1.2.14.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
@@ -16,9 +16,15 @@ export  CFLAGS="-march=native -pipe "
 export CFLAGS+="-O3 -ffat-lto-objects -flto=4 "
 export LDFLAGS="-flto=auto -Wl,-O2 -Wl,--as-needed "
 
+export PVER="1.2.14"
+
 # If building against netbsd's curses, add missing constants:
 patch -Np1 -i ../patches/alsa-utils-mlfs/missing_defines_for_alsamixer.patch
 
+# Per LFS, remove some tools that need Qt2 or 3 or GTK+-2, and also two unneeded files
+rm -rf qlo10k1 echomixer envy24control rmedigicontrol Makefile gitcompile
+
+CFLAGS="-Wno-incompatible-pointer-types "  \
 ./configure --disable-alsaconf \
             --disable-xmlto \
             --with-curses=ncursesw $BUILDTRUPLE &&
@@ -51,7 +57,7 @@ alsa-utils:
 alsa-utils: For more information, see http://alsa-project.org
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/alsa-utils-1.2.6-$PSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/alsa-utils-$PVER-$PSUFFIX && \
 cd /BMAN && \
 cat > /tmp/slack-desc << "EOF"
 alsa-utils-doc: Manuals for Advanced Linux Sound Architecture utilities
@@ -64,5 +70,5 @@ alsa-utils-doc: http://alsa-project.org
 alsa-utils-doc:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ 
-sudo -S makepkg -l y -c n $PKGS/alsa-utils-doc-1.2.6-$NOPSUFFIX && \
+sudo -S makepkg -l y -c n $PKGS/alsa-utils-doc-$PVER-$NOPSUFFIX && \
 sudo -S rm -rf ${BUILD}/* /BMAN/*
