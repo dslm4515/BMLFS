@@ -1,18 +1,19 @@
 #! /bin/bash
 
 # Vte3 (Virtual Terminal Emulator library)
-# Source: https://gitlab.gnome.org/GNOME/vte.git
-# Commit: a7aa95cba528af126cba2c4bfd6ab56fda6fbd57 
+# Source:  https://gitlab.gnome.org/GNOME/vte/-/archive/0.80.4/vte-0.80.4.tar.bz2
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
 # Required:     gnutls gobject-introspection gtk+3 icu pango vala pcre2
-# Recommended:  NONE
+# Recommended:  fast_float
 # Optional:     gtk-doc gtk4
 
 # Does not support clang-11+
+
+export PVER="0.80.4"
 
 # If coptimizing with GCC:
 export  CFLAGS="-march=native -mtune=native -pipe "
@@ -23,13 +24,12 @@ export LDFLAGS="-flto=4 -Wl,-O2 -Wl,--as-needed "
 
 patch -Np1 -i ../patches/vte-alpine/fix-W_EXITCODE.patch
 
-mkdir BUILD && cd BUILD &&
-meson   --prefix=/usr \
+meson setup  --prefix=/usr \
         -Ddocs=false \
-        -D_systemd=false ..
-read -p "Compile?" && ninja -j2 &&
+        -D_systemd=false OUT
+read -p "Compile?" && ninja -C OUT -j2 &&
 
-sudo -S DESTDIR=$BUILD ninja install &&
+sudo -S DESTDIR=$BUILD ninja -C OUT install &&
 
 cd $BUILD && sudo -S mkdir -v ${BUILD}/install &&
 cat > /tmp/slack-desc << "EOF"
@@ -54,5 +54,5 @@ vte:
 vte:
 EOF
 sudo -S mv -v /tmp/slack-desc install/ &&
-sudo -S makepkg -l y -c n $PKGS/vte-0.77.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/vte-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
