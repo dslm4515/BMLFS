@@ -1,16 +1,18 @@
 #! /bin/bash
 
 # mpv
-# Source: https://github.com/mpv-player/mpv/archive/refs/tags/v0.37.0.tar.gz
+# Source: https://github.com/mpv-player/mpv/archive/refs/tags/v0.40.0.tar.gz
 #
 # $BUILD = Directory to temporarily install
 # $PKGS  = Directory to store built packages
 #
 # DEPS
-# Required:     mesa ffmpeg  libXv
-# Recommended:  harfbuzz libass sdl2
+# Required:     mesa ffmpeg  
+# Recommended:  harfbuzz libass sdl2 libXv
 # Optional:     wayland lcms2 libbluray appleframeworks lua-5.3
 # OPtional:     opensles shaderc openal
+
+export PVER="0.40.0"
 
 meson setup --prefix=/usr --buildtype=release \
 	-Dlibmpv=true -Dopenal=enabled \
@@ -50,5 +52,5 @@ if [ -f /bin/gtk4-update-icon-cache ] ; then
 fi
 EOF
 sudo -S mv /tmp/doinst.sh install/ 
-sudo -S makepkg -l y -c n $PKGS/mpv-0.37.0-$PSUFFIX &&
+sudo -S makepkg -l y -c n $PKGS/mpv-$PVER-$PSUFFIX &&
 sudo -S rm -rf ${BUILD}/*
